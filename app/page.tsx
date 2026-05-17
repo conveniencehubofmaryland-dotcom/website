@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import type { Service, Deal } from '@/lib/types'
 
+export const runtime = 'edge'
 export const revalidate = 60
 
 export const metadata: Metadata = {

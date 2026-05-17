@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/utils/supabase/server'
 import type { Service, PricingItem } from '@/lib/types'
 
+export const runtime = 'edge'
 export const revalidate = 60
 
 export const metadata: Metadata = {
