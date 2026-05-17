@@ -3,6 +3,13 @@ import { createClient } from '@/utils/supabase/server'
 import type { Service, PricingItem } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
+const SERVICE_IMAGES: Record<string, string> = {
+  cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=75',
+  culinary: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=75',
+  laundry:  'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1200&q=75',
+  care:     'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1200&q=75',
+}
+
 export const runtime = 'edge'
 export const revalidate = 60
 
@@ -36,6 +43,17 @@ export default async function ServicesPage() {
         {(services as Service[] ?? []).map((service, idx) => (
           <AnimatedSection key={service.id} delay={idx * 80}>
             <section id={service.slug}>
+              {/* Service image */}
+              {SERVICE_IMAGES[service.slug] && (
+                <div className="relative overflow-hidden h-64 md:h-80 mb-8">
+                  <img
+                    src={SERVICE_IMAGES[service.slug]}
+                    alt={service.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
+                </div>
+              )}
               <div className="flex items-center gap-4 mb-5">
                 <div className="w-8 h-px bg-chm-red" />
                 <span className="text-chm-red text-lg">✿</span>
