@@ -6,6 +6,8 @@ import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
+export const runtime = 'edge'
+
 export const metadata: Metadata = {
   title: {
     default: 'Convenience Hub of Maryland | Home Services DMV',
