@@ -17,6 +17,9 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
 # Logs
 *.log
 npm-debug.log*
