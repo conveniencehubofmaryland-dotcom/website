@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-chm-red: #E8192C;
+  --color-chm-black: #1A1A1A;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #ffffff;
+  color: #1A1A1A;
+}
