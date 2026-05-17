@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: false,
   },
+  images: {
+    unoptimized: true,
+  },
 }
 
 export default nextConfig

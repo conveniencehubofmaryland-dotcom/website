@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const navLinks = [
   { href: '/services', label: 'Services' },
@@ -12,9 +13,26 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+
+  useEffect(() => {
+    if (!isHome) { setScrolled(true); return }
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isHome])
+
+  const solid = scrolled || open || !isHome
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b-2 border-chm-red">
+    <nav className={`sticky top-0 z-50 transition-all duration-500 ${
+      solid
+        ? 'bg-white shadow-sm border-b border-gray-100'
+        : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
+    }`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
           <Image
@@ -24,6 +42,7 @@ export default function Navbar() {
             height={67}
             className="h-10 w-auto"
             priority
+            unoptimized
           />
         </Link>
 
@@ -33,14 +52,14 @@ export default function Navbar() {
             <Link
               key={href}
               href={href}
-              className="text-chm-black hover:text-chm-red font-medium transition-colors text-sm tracking-wide uppercase"
+              className="font-medium transition-colors text-xs tracking-[0.2em] uppercase text-chm-black/70 hover:text-chm-red"
             >
               {label}
             </Link>
           ))}
           <a
             href="https://wa.me/12025792944"
-            className="bg-chm-red text-white px-6 py-2 font-semibold text-sm tracking-wide uppercase hover:bg-red-700 transition-colors"
+            className="bg-chm-red text-white px-6 py-2 font-semibold text-xs tracking-widest uppercase hover:bg-red-700 transition-colors"
           >
             Book Now
           </a>
@@ -50,14 +69,14 @@ export default function Navbar() {
         <div className="flex md:hidden items-center gap-3">
           <a
             href="https://wa.me/12025792944"
-            className="bg-chm-red text-white px-4 py-1.5 text-sm font-semibold uppercase"
+            className="bg-chm-red text-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
           >
             Book Now
           </a>
           <button
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
-            className="text-chm-black text-2xl leading-none"
+            className="text-2xl leading-none transition-colors text-chm-black"
           >
             {open ? '✕' : '☰'}
           </button>
@@ -66,13 +85,13 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-5">
+        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-5 flex flex-col gap-5">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="font-medium text-chm-black hover:text-chm-red uppercase tracking-wide text-sm"
+              className="font-medium text-chm-black hover:text-chm-red uppercase tracking-widest text-xs"
             >
               {label}
             </Link>
