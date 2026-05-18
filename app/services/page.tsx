@@ -8,7 +8,7 @@ const SERVICE_IMAGES: Record<string, string> = {
   culinary:   'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=75',
   laundry:    'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1200&q=75',
   care:       'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1200&q=75',
-  commercial: 'https://images.pexels.com/photos/1170412/pexels-photo-1170412.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  commercial: '/commercial-hero.jpg',
 }
 
 export const runtime = 'edge'
