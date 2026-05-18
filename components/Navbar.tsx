@@ -34,20 +34,22 @@ export default function Navbar() {
         ? 'bg-white shadow-sm border-b border-gray-100'
         : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
     }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-28 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 md:h-28 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
-          {/* Crop container: logo.jpeg is 500×500 with heavy white padding.
-              We render it tall internally then crop to just the logo content band. */}
-          <div className="overflow-hidden" style={{ height: '80px', width: '420px' }}>
+          {/* Mobile logo */}
+          <div className="overflow-hidden md:hidden" style={{ height: '40px', width: '200px' }}>
             <img
               src="/logo.jpeg"
               alt="Convenience Hub of Maryland"
-              style={{
-                height: '420px',
-                width: 'auto',
-                marginTop: '-155px',
-                mixBlendMode: 'multiply',
-              }}
+              style={{ height: '200px', width: 'auto', marginTop: '-74px', mixBlendMode: 'multiply' }}
+            />
+          </div>
+          {/* Desktop logo */}
+          <div className="overflow-hidden hidden md:block" style={{ height: '80px', width: '420px' }}>
+            <img
+              src="/logo.jpeg"
+              alt="Convenience Hub of Maryland"
+              style={{ height: '420px', width: 'auto', marginTop: '-155px', mixBlendMode: 'multiply' }}
             />
           </div>
         </Link>
