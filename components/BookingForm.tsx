@@ -25,7 +25,10 @@ export default function BookingForm({ services }: Props) {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  const today = new Date().toISOString().split('T')[0]
+  // Earliest selectable date — skip Sunday
+  const todayDate = new Date()
+  if (todayDate.getDay() === 0) todayDate.setDate(todayDate.getDate() + 1)
+  const today = todayDate.toISOString().split('T')[0]
   const maxDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   function set(field: string, value: string) {
@@ -153,8 +156,11 @@ export default function BookingForm({ services }: Props) {
               onChange={e => {
                 const d = new Date(e.target.value + 'T12:00:00')
                 if (d.getDay() === 0) {
-                  setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
-                  set('appointment_date', '')
+                  // Auto-advance Sunday → Monday
+                  d.setDate(d.getDate() + 1)
+                  const nextMonday = d.toISOString().split('T')[0]
+                  setErrorMsg('We are closed on Sundays — moved to the next available Monday.')
+                  set('appointment_date', nextMonday)
                 } else {
                   setErrorMsg('')
                   set('appointment_date', e.target.value)
