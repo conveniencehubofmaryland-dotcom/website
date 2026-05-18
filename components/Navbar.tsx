@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -40,13 +39,10 @@ export default function Navbar() {
           {/* Crop container: logo.jpeg is 500×500 with heavy white padding.
               We render it tall internally then crop to just the logo content band. */}
           <div className="overflow-hidden" style={{ height: '80px', width: '420px' }}>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/logo.jpeg"
               alt="Convenience Hub of Maryland"
-              width={500}
-              height={500}
-              unoptimized
-              priority
               style={{
                 height: '420px',
                 width: 'auto',
