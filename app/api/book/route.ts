@@ -48,6 +48,7 @@ async function notifyOwner(booking: {
   customer_name: string
   phone: string
   email: string | null
+  state: string
   service_title: string
   appointment_date: string
   time_slot: string
@@ -73,6 +74,7 @@ async function notifyOwner(booking: {
             <tr><td style="padding:6px 16px 6px 0;color:#666">Customer</td><td style="font-weight:600">${booking.customer_name}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Phone</td><td><a href="tel:${booking.phone}">${booking.phone}</a></td></tr>
             ${booking.email ? `<tr><td style="padding:6px 16px 6px 0;color:#666">Email</td><td>${booking.email}</td></tr>` : ''}
+            <tr><td style="padding:6px 16px 6px 0;color:#666">Location</td><td>${booking.state}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Service</td><td>${booking.service_title}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Date</td><td>${booking.appointment_date}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Time</td><td>${booking.time_slot}</td></tr>
@@ -95,13 +97,18 @@ async function notifyOwner(booking: {
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const {
-    customer_name, phone, email,
+    customer_name, phone, email, state,
     service_id, appointment_date, time_slot,
     notes, service_title,
   } = body
 
-  if (!customer_name?.trim() || !phone?.trim() || !service_id || !appointment_date || !time_slot) {
+  if (!customer_name?.trim() || !phone?.trim() || !state || !service_id || !appointment_date || !time_slot) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  const VALID_STATES = ['MD', 'VA', 'DC']
+  if (!VALID_STATES.includes(state)) {
+    return NextResponse.json({ error: 'Sorry, we only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
   }
 
   const { error } = await dbInsert('appointments', {
@@ -127,6 +134,7 @@ export async function POST(req: NextRequest) {
     customer_name: customer_name.trim(),
     phone:         phone.trim(),
     email:         trimmedEmail,
+    state,
     service_title: title,
     appointment_date,
     time_slot,

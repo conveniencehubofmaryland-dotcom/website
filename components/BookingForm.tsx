@@ -27,11 +27,18 @@ type Props = {
   services: Pick<Service, 'id' | 'title' | 'price_from'>[]
 }
 
+const SERVICE_STATES = [
+  { value: 'MD', label: 'Maryland' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'DC', label: 'Washington D.C.' },
+]
+
 export default function BookingForm({ services }: Props) {
   const [form, setForm] = useState({
     customer_name:    '',
     phone:            '',
     email:            '',
+    state:            '',
     service_id:       '',
     service_title:    '',
     appointment_date: '',
@@ -127,17 +134,33 @@ export default function BookingForm({ services }: Props) {
             />
           </div>
         </div>
-        <div>
-          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
-            Email <span className="text-gray-400 normal-case tracking-normal">(optional)</span>
-          </label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={e => set('email', e.target.value)}
-            className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-            placeholder="jane@example.com"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+              Email <span className="text-gray-400 normal-case tracking-normal">(optional)</span>
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => set('email', e.target.value)}
+              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+              placeholder="jane@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">State / Location *</label>
+            <select
+              required
+              value={form.state}
+              onChange={e => set('state', e.target.value)}
+              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
+            >
+              <option value="">Select state…</option>
+              {SERVICE_STATES.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </fieldset>
 
