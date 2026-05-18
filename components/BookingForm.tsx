@@ -12,15 +12,25 @@ const TIME_SLOTS = [
 
 function isSlotDisabled(slot: string, selectedDate: string): boolean {
   if (!selectedDate) return false
-  const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+  const now = new Date()
+  const todayET = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   if (selectedDate !== todayET) return false
+
   const [timePart, ampm] = slot.split(' ')
-  let hour = parseInt(timePart.split(':')[0])
-  if (ampm === 'PM' && hour !== 12) hour += 12
-  if (ampm === 'AM' && hour === 12) hour = 0
-  const etDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
-  // Require at least 3 hours notice
-  return hour < etDate.getHours() + 3
+  let slotHour = parseInt(timePart.split(':')[0])
+  if (ampm === 'PM' && slotHour !== 12) slotHour += 12
+  if (ampm === 'AM' && slotHour === 12) slotHour = 0
+
+  // Use formatToParts to reliably extract ET hour/minute regardless of user's local timezone
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric', minute: 'numeric', hour12: false,
+  }).formatToParts(now)
+  const etHour   = parseInt(parts.find(p => p.type === 'hour')!.value)
+  const etMinute = parseInt(parts.find(p => p.type === 'minute')!.value)
+
+  // Disable if slot starts within 3 hours of now (in minutes)
+  return slotHour * 60 < etHour * 60 + etMinute + 180
 }
 
 type Props = {
