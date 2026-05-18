@@ -26,15 +26,25 @@ const SERVICE_IMAGES: Record<string, string> = {
 
 function LeafSVG({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 160 280" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+    <svg viewBox="0 0 160 290" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+      {/* Authentic leaf body — pointed tip, widest at upper third, tapers to base */}
       <path
         fill="currentColor"
-        d="M80,10 C80,10 143,43 153,103 C163,163 130,222 80,270 C30,222 -3,163 7,103 C17,43 80,10 80,10 Z"
+        d="M80,6 C88,18 148,55 150,108 C152,162 124,228 80,272 C36,228 8,162 10,108 C12,55 72,18 80,6 Z"
       />
-      <path fill="none" stroke="currentColor" strokeWidth="2.5" d="M80,270 L80,278" />
-      <path
-        fill="none" stroke="white" strokeWidth="0.9" strokeOpacity="0.18"
-        d="M80,270 L80,10 M80,80 C60,70 30,65 15,75 M80,80 C100,70 130,65 145,75 M80,120 C55,110 25,108 8,118 M80,120 C105,110 135,108 152,118 M80,160 C58,152 30,152 14,162 M80,160 C102,152 130,152 146,162 M80,205 C62,198 40,200 26,208 M80,205 C98,198 120,200 134,208"
+      {/* Stem */}
+      <path fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" d="M80,272 L80,285"/>
+      {/* Midrib */}
+      <path fill="none" stroke="white" strokeWidth="1.4" strokeOpacity="0.4" d="M80,272 L80,6"/>
+      {/* Secondary veins — alternating, angled upward from midrib */}
+      <path fill="none" stroke="white" strokeWidth="0.75" strokeOpacity="0.32"
+        d="M80,52 L120,38 M80,52 L40,38
+           M80,84 L138,68 M80,84 L22,68
+           M80,114 L148,100 M80,114 L12,100
+           M80,144 L146,132 M80,144 L14,132
+           M80,174 L138,164 M80,174 L22,164
+           M80,204 L124,196 M80,204 L36,196
+           M80,232 L110,227 M80,232 L50,227"
       />
     </svg>
   )
@@ -70,8 +80,8 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
-          <LeafSVG className="absolute -right-8 top-[-4%] w-[300px] h-[300px] text-chm-red opacity-[0.22] rotate-12" />
-          <LeafSVG className="absolute -left-16 bottom-[-10%] w-[420px] h-[420px] text-chm-red opacity-[0.72] -rotate-20 scale-x-[-1]" />
+          <LeafSVG className="absolute -right-8 top-[-4%] w-[340px] h-[340px] text-chm-red opacity-[0.48] rotate-12" />
+          <LeafSVG className="absolute -left-16 bottom-[-10%] w-[420px] h-[420px] text-chm-red opacity-[0.10] -rotate-20 scale-x-[-1]" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 w-full">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
@@ -115,7 +125,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-20 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-24 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },
