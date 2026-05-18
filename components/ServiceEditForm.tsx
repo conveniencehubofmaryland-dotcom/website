@@ -197,7 +197,7 @@ export default function ServiceEditForm({ service, isNew }: Props) {
           </table>
         </div>
         {items.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-4">No pricing rows yet. Click "+ Add Row" to add one.</p>
+          <p className="text-sm text-gray-400 text-center py-4">No pricing rows yet. Click &quot;+ Add Row&quot; to add one.</p>
         )}
       </div>
 

@@ -139,7 +139,7 @@ export default function DealsManager({ initialDeals }: Props) {
       {/* Deal list */}
       {deals.length === 0 && !adding ? (
         <div className="text-center py-16 border border-dashed border-gray-200">
-          <p className="text-gray-400 text-sm">No deals yet. Click "+ New Deal" to add one.</p>
+          <p className="text-gray-400 text-sm">No deals yet. Click &quot;+ New Deal&quot; to add one.</p>
         </div>
       ) : (
         <div className="space-y-3">
