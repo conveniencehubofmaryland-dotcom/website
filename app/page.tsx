@@ -22,7 +22,7 @@ const SERVICE_IMAGES: Record<string, string> = {
   culinary:   'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=75',
   laundry:    'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=900&q=75',
   care:       'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=900&q=75',
-  commercial: 'https://images.unsplash.com/photo-1497366754035-f200586c52e4?auto=format&fit=crop&w=900&q=75',
+  commercial: 'https://images.pexels.com/photos/1170412/pexels-photo-1170412.jpeg?auto=compress&cs=tinysrgb&w=900',
 }
 
 function LeafSVG({ className = '' }: { className?: string }) {
@@ -258,7 +258,11 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-100">
               {(services as Service[]).map((s, i) => (
-                <AnimatedSection key={s.id} delay={i * 60}>
+                <AnimatedSection
+                  key={s.id}
+                  delay={i * 60}
+                  className={services.length % 2 === 1 && i === services.length - 1 ? 'md:col-span-2' : ''}
+                >
                   <Link href={`/services#${s.slug}`} className="bg-white flex flex-col hover:bg-cream transition-colors group block h-full">
                     <div className="relative overflow-hidden h-44">
                       <img
