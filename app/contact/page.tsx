@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import AnimatedSection from '@/components/AnimatedSection'
 
-export const runtime = 'edge'
 
 // Next.js metadata can't be exported from a 'use client' file — set it in a parent or use Head.
 // Title/desc are handled by layout.tsx template pattern.

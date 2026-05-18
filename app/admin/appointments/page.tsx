@@ -3,7 +3,6 @@ import { dbSelectAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import AppointmentStatusButton from '@/components/AppointmentStatusButton'
 
-export const runtime = 'edge'
 
 type AppointmentRow = Omit<Appointment, 'services'> & {
   services?: { title: string } | null

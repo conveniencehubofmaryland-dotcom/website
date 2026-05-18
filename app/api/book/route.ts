@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 
-export const runtime = 'edge'
 
 async function confirmCustomer(booking: {
   customer_name: string

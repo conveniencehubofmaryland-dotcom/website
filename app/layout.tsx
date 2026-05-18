@@ -5,7 +5,6 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import TawkChat from '@/components/TawkChat'
 
-export const runtime = 'edge'
 
 export const metadata: Metadata = {
   title: {

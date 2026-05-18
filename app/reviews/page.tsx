@@ -5,7 +5,6 @@ import type { Review, Service } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import ReviewForm from '@/components/ReviewForm'
 
-export const runtime = 'edge'
 
 export const metadata: Metadata = {
   title: 'Customer Reviews',

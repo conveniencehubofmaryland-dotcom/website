@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import AnimatedSection from '@/components/AnimatedSection'
 
-export const runtime = 'edge'
 
 export const metadata: Metadata = {
   title: 'Weekly Deals | Convenience Hub of Maryland',

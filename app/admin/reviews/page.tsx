@@ -3,7 +3,6 @@ import { dbSelectAuth } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import ReviewActionButton from '@/components/ReviewActionButton'
 
-export const runtime = 'edge'
 
 export default async function AdminReviewsPage({
   searchParams,

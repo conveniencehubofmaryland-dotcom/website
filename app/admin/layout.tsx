@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import AdminLogoutButton from '@/components/AdminLogoutButton'
 
-export const runtime = 'edge'
 
 const adminLinks = [
   { href: '/admin/appointments', label: 'Appointments' },

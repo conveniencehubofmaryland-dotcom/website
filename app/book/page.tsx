@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import BookingForm from '@/components/BookingForm'
 
-export const runtime = 'edge'
 
 export const metadata: Metadata = {
   title: 'Book a Service',

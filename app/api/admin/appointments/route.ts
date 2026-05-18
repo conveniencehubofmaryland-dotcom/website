@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbPatchAuth } from '@/lib/db'
 
-export const runtime = 'edge'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 

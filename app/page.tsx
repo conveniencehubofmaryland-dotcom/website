@@ -4,7 +4,6 @@ import { dbSelect } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
-export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
