@@ -16,10 +16,15 @@ export async function dbSelect<T>(
   table: string,
   params: Record<string, string> = {}
 ): Promise<T[]> {
-  const qs = new URLSearchParams(params).toString()
-  const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, { headers })
-  if (!res.ok) return []
-  return res.json() as Promise<T[]>
+  if (!URL || !KEY) return []
+  try {
+    const qs = new URLSearchParams(params).toString()
+    const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, { headers })
+    if (!res.ok) return []
+    return res.json() as Promise<T[]>
+  } catch {
+    return []
+  }
 }
 
 export async function dbSelectAuth<T>(
@@ -27,13 +32,17 @@ export async function dbSelectAuth<T>(
   token: string,
   params: Record<string, string> = {}
 ): Promise<T[]> {
-  if (!token) return []
-  const qs  = new URLSearchParams(params).toString()
-  const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, {
-    headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-  })
-  if (!res.ok) return []
-  return res.json() as Promise<T[]>
+  if (!token || !URL || !KEY) return []
+  try {
+    const qs  = new URLSearchParams(params).toString()
+    const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, {
+      headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    })
+    if (!res.ok) return []
+    return res.json() as Promise<T[]>
+  } catch {
+    return []
+  }
 }
 
 export async function dbPatchAuth(
