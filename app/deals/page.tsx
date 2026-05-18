@@ -22,7 +22,7 @@ const DEALS = [
   {
     badge: 'Weekend Deal',
     headline: '3% OFF Bulk Laundry — 100+ lbs',
-    detail: 'Scale up and save. Any laundry order of 100 lbs or more on Saturday or Sunday receives 3% off automatically.',
+    detail: 'Scale up and save. Any laundry order of 100 lbs or more placed on Saturday receives 3% off automatically.',
   },
   {
     badge: 'Members Only',

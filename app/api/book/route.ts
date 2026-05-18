@@ -115,6 +115,7 @@ export async function POST(req: NextRequest) {
     customer_name:    customer_name.trim(),
     phone:            phone.trim(),
     email:            email?.trim() || null,
+    state,
     service_id,
     appointment_date,
     time_slot,
