@@ -71,8 +71,8 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
-          <LeafSVG className="absolute -right-8 top-[-4%] w-[300px] h-[300px] text-chm-red opacity-[0.10] rotate-12" />
-          <LeafSVG className="absolute -left-12 bottom-[-8%] w-[240px] h-[240px] text-chm-red opacity-[0.08] -rotate-20 scale-x-[-1]" />
+          <LeafSVG className="absolute -right-8 top-[-4%] w-[300px] h-[300px] text-chm-red opacity-[0.22] rotate-12" />
+          <LeafSVG className="absolute -left-12 bottom-[-8%] w-[240px] h-[240px] text-chm-red opacity-[0.16] -rotate-20 scale-x-[-1]" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 w-full">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
@@ -130,7 +130,7 @@ export default async function HomePage() {
       {services && services.length > 0 && (
         <section id="services" className="bg-white py-14 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none">
-            <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.06] -rotate-12 scale-x-[-1]" />
+            <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.14] -rotate-12 scale-x-[-1]" />
           </div>
           <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
             <AnimatedSection>
@@ -182,7 +182,7 @@ export default async function HomePage() {
       {deals && deals.length > 0 && (
         <section id="deals" className="bg-cream py-14 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none">
-            <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.09] rotate-6" />
+            <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
           </div>
           <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8">
             <AnimatedSection>

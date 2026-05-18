@@ -40,7 +40,7 @@ export default function Navbar() {
             alt="Convenience Hub of Maryland"
             width={200}
             height={67}
-            className="h-10 w-auto"
+            className="h-14 w-auto"
             priority
             unoptimized
           />
