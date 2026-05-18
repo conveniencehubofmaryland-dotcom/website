@@ -1,4 +1,5 @@
 export type PricingItem = {
+  section?: string
   label: string
   price: string
   unit?: string

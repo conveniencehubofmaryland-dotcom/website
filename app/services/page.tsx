@@ -4,10 +4,11 @@ import type { Service, PricingItem } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
 const SERVICE_IMAGES: Record<string, string> = {
-  cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=75',
-  culinary: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=75',
-  laundry:  'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1200&q=75',
-  care:     'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1200&q=75',
+  cleaning:   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=75',
+  culinary:   'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=75',
+  laundry:    'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1200&q=75',
+  care:       'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1200&q=75',
+  commercial: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=75',
 }
 
 export const runtime = 'edge'
@@ -67,20 +68,44 @@ export default async function ServicesPage() {
               {service.subtitle && <p className="text-gray-400 text-sm mb-2 uppercase tracking-wide">{service.subtitle}</p>}
               {service.description && <p className="text-gray-600 text-sm mb-8 max-w-2xl leading-relaxed">{service.description}</p>}
 
-              {service.pricing_details && service.pricing_details.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
-                  {(service.pricing_details as PricingItem[]).map((item, i) => (
-                    <div key={i} className="bg-white p-6 hover:bg-blush transition-colors">
-                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
-                      <p className="font-serif text-3xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
-                        {item.price}
-                        {item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}
-                      </p>
-                      {item.note && <p className="text-xs text-gray-400 mt-2">{item.note}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
+              {service.pricing_details && service.pricing_details.length > 0 && (() => {
+                // Group items by section
+                const sections: { name: string | null; items: PricingItem[] }[] = []
+                for (const item of service.pricing_details as PricingItem[]) {
+                  const sec = item.section ?? null
+                  const last = sections[sections.length - 1]
+                  if (!last || last.name !== sec) {
+                    sections.push({ name: sec, items: [item] })
+                  } else {
+                    last.items.push(item)
+                  }
+                }
+                return (
+                  <div className="space-y-6">
+                    {sections.map((sec, si) => (
+                      <div key={si}>
+                        {sec.name && (
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 mb-3 pb-2 border-b border-gray-100">
+                            {sec.name}
+                          </p>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
+                          {sec.items.map((item, i) => (
+                            <div key={i} className="bg-white p-6 hover:bg-blush transition-colors">
+                              <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
+                              <p className="font-serif text-2xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
+                                {item.price}
+                                {item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}
+                              </p>
+                              {item.note && <p className="text-xs text-gray-400 mt-2">{item.note}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </section>
           </AnimatedSection>
         ))}

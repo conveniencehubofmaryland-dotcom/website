@@ -37,7 +37,7 @@ export default function Navbar() {
         <Link href="/" onClick={() => setOpen(false)}>
           {/* Crop container: logo.jpeg is 500×500 with heavy white padding.
               We render it tall internally then crop to just the logo content band. */}
-          <div className="overflow-hidden" style={{ height: '80px', width: '300px' }}>
+          <div className="overflow-hidden" style={{ height: '80px', width: '420px' }}>
             <Image
               src="/logo.jpeg"
               alt="Convenience Hub of Maryland"
