@@ -36,6 +36,11 @@ export default function BookingForm({ services }: Props) {
     e.preventDefault()
     setStatus('submitting')
     setErrorMsg('')
+    if (new Date(form.appointment_date + 'T12:00:00').getDay() === 0) {
+      setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
+      setStatus('idle')
+      return
+    }
     try {
       const res = await fetch('/api/book', {
         method: 'POST',
@@ -136,14 +141,25 @@ export default function BookingForm({ services }: Props) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Preferred Date *</label>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+              Preferred Date * <span className="text-gray-400 normal-case tracking-normal">(Mon–Sat only)</span>
+            </label>
             <input
               required
               type="date"
               min={today}
               max={maxDate}
               value={form.appointment_date}
-              onChange={e => set('appointment_date', e.target.value)}
+              onChange={e => {
+                const d = new Date(e.target.value + 'T12:00:00')
+                if (d.getDay() === 0) {
+                  setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
+                  set('appointment_date', '')
+                } else {
+                  setErrorMsg('')
+                  set('appointment_date', e.target.value)
+                }
+              }}
               className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
             />
           </div>
@@ -191,7 +207,7 @@ export default function BookingForm({ services }: Props) {
       </button>
 
       <p className="text-xs text-gray-400 text-center leading-relaxed">
-        Mon–Sat 9 AM–9 PM &nbsp;·&nbsp; 202-579-2944 &nbsp;·&nbsp; Maryland, Virginia &amp; D.C.
+        Mon–Sat 9 AM–9 PM &nbsp;·&nbsp; Closed Sundays &nbsp;·&nbsp; 202-579-2944
       </p>
     </form>
   )
