@@ -246,8 +246,8 @@ export default function BookingForm({ services }: Props) {
             className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
           >
             <option value="">Select a time…</option>
-            {TIME_SLOTS.map(t => (
-              <option key={t} value={t} disabled={isSlotDisabled(t, form.appointment_date)}>{t}</option>
+            {TIME_SLOTS.filter(t => !isSlotDisabled(t, form.appointment_date)).map(t => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </div>
