@@ -27,6 +27,31 @@ const SERVICES: {
   sections: PricingSection[]
 }[] = [
   {
+    slug: 'laundry',
+    title: 'Premium Laundry Pickup & Delivery',
+    subtitle: 'Pickup · Wash · Dry · Fold · Deliver',
+    description:
+      'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 9 AM–9 PM. 10 lb minimum order.',
+    sections: [
+      {
+        name: 'Regular Service (1–3 Day Delivery)',
+        items: [
+          { label: 'Colors',          price: '$3.99', unit: '/lb' },
+          { label: 'Bedding & Linens', price: '$4.99', unit: '/lb' },
+          { label: 'Whites',          price: '$6.99', unit: '/lb' },
+        ],
+      },
+      {
+        name: 'Same Day Express Delivery',
+        items: [
+          { label: 'Colors',          price: '$5.99', unit: '/lb' },
+          { label: 'Bedding & Linens', price: '$6.99', unit: '/lb' },
+          { label: 'Whites',          price: '$8.99', unit: '/lb' },
+        ],
+      },
+    ],
+  },
+  {
     slug: 'cleaning',
     title: 'Professional Cleaning & Estate Care',
     subtitle: 'Residential · Commercial · Estate',
@@ -93,31 +118,6 @@ const SERVICES: {
           { label: 'Custom Hourly Rate',        price: '$50–$60',     unit: '/hr', note: '6-hour minimum' },
           { label: '5-Day Specialized Support', price: 'Custom Quote', note: 'Dedicated staff for total household ownership' },
           { label: 'Errands & Concierge',       price: '$0.725',       unit: '/mile', note: 'IRS standard business rate' },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'laundry',
-    title: 'Premium Laundry Pickup & Delivery',
-    subtitle: 'Pickup · Wash · Dry · Fold · Deliver',
-    description:
-      'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 9 AM–9 PM. 10 lb minimum order.',
-    sections: [
-      {
-        name: 'Regular Service (1–3 Day Delivery)',
-        items: [
-          { label: 'Colors',          price: '$3.99', unit: '/lb' },
-          { label: 'Bedding & Linens', price: '$4.99', unit: '/lb' },
-          { label: 'Whites',          price: '$6.99', unit: '/lb' },
-        ],
-      },
-      {
-        name: 'Same Day Express Delivery',
-        items: [
-          { label: 'Colors',          price: '$5.99', unit: '/lb' },
-          { label: 'Bedding & Linens', price: '$6.99', unit: '/lb' },
-          { label: 'Whites',          price: '$8.99', unit: '/lb' },
         ],
       },
     ],
