@@ -148,7 +148,7 @@ const SERVICES: {
       {
         name: 'Billing Structure',
         items: [
-          { label: 'Project Value Yield',  price: '60–80%', note: 'Typical commercial execution model' },
+          { label: 'Project Value Yield',  price: 'Custom Quote', note: 'Typical commercial execution model' },
           { label: 'All Commercial Work',  price: 'Custom Quote', note: 'Quoted per project scope' },
         ],
       },
