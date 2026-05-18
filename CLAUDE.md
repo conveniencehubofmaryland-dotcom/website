@@ -17,23 +17,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Tech Stack
 
-- **Framework:** Next.js 14+ (App Router)
-- **Styling:** Tailwind CSS
-- **Deployment:** Cloudflare Pages
+- **Framework:** Next.js 16 (App Router, edge runtime)
+- **Styling:** Tailwind CSS v4
+- **Deployment:** Cloudflare Pages via `@opennextjs/cloudflare`
+- **Database:** Supabase (REST fetch, no SDK) — used for reviews, appointments, admin
+- **Email:** Resend (`RESEND_API_KEY`) — contact form + booking confirmations
+- **Live chat:** Tawk.to — `components/TawkChat.tsx` injects widget script
 - **Domain:** conveniencehubofmaryland.com
-- **No backend** — contact is WhatsApp deep link + phone `tel:` link only
-
----
-
-## Project Status
-
-**Greenfield — not yet scaffolded.** Only `CLAUDE.md`, `CHM FLIER.pdf`, and `CHM LETTERHEAD.jpeg` exist. To initialize:
-
-```bash
-npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias "@/*"
-```
-
-Then move `components/` to the project root (Next.js scaffolds inside `src/` by default if `--no-src-dir` is omitted).
 
 ---
 
@@ -50,67 +40,82 @@ npm run lint         # ESLint check
 
 ## Architecture
 
-Single marketing site with no auth or database. All pages are static or server-rendered React components.
+Marketing + booking site. Content pages (services, deals) are fully static. Admin panel and reviews are DB-driven (Supabase).
 
 ```
 app/
-  layout.tsx          # Root layout: fonts, global nav, footer
-  page.tsx            # Hero + services overview (home)
-  services/page.tsx   # Detailed service listings with pricing
-  deals/page.tsx      # Weekly deals section
-  contact/page.tsx    # WhatsApp CTA + phone + email display
+  layout.tsx              # Root layout: fonts, Navbar, Footer, TawkChat, FloatingCTA
+  page.tsx                # Hero + static services grid + static deals + DB reviews
+  services/page.tsx       # STATIC — full pricing from STATIC_SERVICES array in file
+  deals/page.tsx          # STATIC — deals from STATIC_DEALS array in file
+  contact/page.tsx        # Contact form → Resend API
+  book/page.tsx           # Booking form → Resend confirmation email
+  reviews/page.tsx        # Public review submission
+  admin/                  # Admin panel (Supabase-authenticated)
 components/
-  Navbar.tsx
+  Navbar.tsx              # Sticky, transparent-on-scroll on home
   Footer.tsx
-  ServiceCard.tsx     # Reusable card for each service category
-  DealsBanner.tsx     # Rotating weekly deals strip
-  CTAButton.tsx       # WhatsApp / phone CTA
+  TawkChat.tsx            # Tawk.to live chat widget (client component, no env var needed)
+  FloatingCTA.tsx         # Floating WhatsApp/call button
+  AnimatedSection.tsx     # Intersection Observer fade-in
+lib/
+  db.ts                   # Supabase REST fetch helpers (dbSelect, dbInsert, dbPatchAuth)
+  types.ts                # Shared TS types
 public/
-  logo.jpeg           # copy of CHM LETTERHEAD.jpeg — red shopping cart + "Convenience Hub of Maryland" wordmark
+  logo.jpeg               # Red shopping cart + wordmark
 ```
 
 ---
 
 ## Services & Pricing (source of truth)
 
-### Professional Cleaning & Estate Care
-Locations: Homes, Apartments, Offices, Retail, Warehouses
+> Keep `app/services/page.tsx` (STATIC_SERVICES) and `app/page.tsx` (STATIC_SERVICES) in sync with this.
 
-| Tier | Rate |
+### 1. Professional Cleaning & Estate Care
+
+**Standard Residential** (per visit):
+| Size | Price |
 |---|---|
-| Individual Shift ≤4hrs | $54.99/hr |
-| Individual Shift 5+hrs | $49.99/hr |
-| Executive Residency | 5-day/week plan — custom quote |
-| Weekly / Bi-weekly / Monthly | Discounted rates (custom quote) |
+| Studio | $100–$150 |
+| 1 Bed / 1 Bath | $130–$200 |
+| 2 Bed / 2 Bath | $200–$250 |
+| 3 Bed / 2 Bath | $250–$350 |
+| 4+ Bed / Estate | $350–$450+ |
 
-### Culinary & Housekeeping (6hr minimum)
-Covers: light cooking, meal prep, tidying, laundry, errands, deep organization. Rates negotiable based on home size/tasks.
+**Deep Cleaning:** +$60–$110 add-on; Full one-time deep clean $250–$450
 
-| Tier | Rate |
-|---|---|
-| Custom hourly | $50–$60/hr |
-| 5-Day Specialized Support | Dedicated staff — custom quote |
-| Errands & Concierge | $0.725/mile |
+**Move-In / Move-Out:** 1 bed $150–$250 · 2 bed $250–$350 · 3 bed $350–$450 · 4+ bed $380–$500+
 
-### Laundry Pickup & Delivery (Pickup • Wash • Dry • Fold • Deliver)
+**Hourly:** ≤4 hrs $54.99/hr · 5+ hrs $49.99/hr · Executive Residency & recurring → custom quote
 
-| Type | Colors | Bedding | Whites |
+**À La Carte Add-Ons:** Oven/Grill $25–$45 · Fridge $25–$45 · Windows & Tracks $35–$80 · Pet Hair $20–$55 · Post-Event $40–$90
+
+### 2. Culinary, Housekeeping & Household Management
+6-hour minimum. $50–$60/hr (negotiable). 5-day dedicated staff → custom quote. Errands $0.725/mile.
+
+### 3. Premium Laundry Pickup & Delivery
+Mon–Sat 9 AM–9 PM. 10 lb minimum.
+
+| | Colors | Bedding | Whites |
 |---|---|---|---|
-| Regular (1–3 days) | $3.99/lb | $4.99/lb | $6.99/lb |
+| Regular (1–3 day) | $3.99/lb | $4.99/lb | $6.99/lb |
 | Same Day Express | $5.99/lb | $6.99/lb | $8.99/lb |
 
-Minimum: 10 lbs — Mon–Sat 9am–9pm
+### 4. Premium Nanny & Care Services
+Background-checked, CPR-certified, vaccinated staff. Custom placement packages.
 
-### Nanny, Companionship; Adult & Child Care
-Background checked, CPR certified & vaccinated staff. Pricing on inquiry.
+### 5. Commercial Operations
+Custom quote per project. 60–80% project value yield structure.
 
 **Weekly deals:**
-- Monday: $20 flat for 10lb colored laundry (1-week delivery)
+- Monday: $20 flat for 10 lb colored laundry (1-week turnaround)
 - Wednesday: 5% OFF for nurses, students & expectant mothers
-- Weekend: 3% OFF laundry orders 100+ lbs
+- Weekend: 3% OFF bulk laundry 100+ lbs
 - Members: FREE signup + 2% OFF all recurring services
 
-**Brand tagline (use in footer/hero):** "We simplify your routine so you can focus on what matters most."
+**Policies:** 24-hr cancellation notice required; late cancel = $50 or 50% of service value. Lock-out fee = cancellation fee. Deposits may be required for deep cleans / move-out jobs.
+
+**Brand tagline:** "We simplify your routine so you can focus on what matters most."
 
 ---
 
@@ -125,11 +130,9 @@ Background checked, CPR certified & vaccinated staff. Pricing on inquiry.
 
 ## CTA Pattern
 
-All booking CTAs use WhatsApp deep link:
-```
-https://wa.me/12025792944
-```
-Phone links use `tel:12025792944`. Never implement a custom form — the business handles all bookings via phone/WhatsApp.
+All booking CTAs use WhatsApp deep link: `https://wa.me/12025792944`  
+Phone links use `tel:12025792944`.  
+Contact/booking forms send email via Resend (`RESEND_API_KEY`) to `conveniencehubofmaryland@gmail.com`.
 
 ---
 

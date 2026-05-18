@@ -1,11 +1,26 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import type { Service, Deal, Review } from '@/lib/types'
+import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
+
+const STATIC_SERVICES = [
+  { slug: 'cleaning',   title: 'Professional Cleaning & Estate Care',          subtitle: 'Residential · Commercial · Estate',      description: 'Studio to estate-scale cleaning. Standard, deep clean, move-in/out, and recurring plans.',            price_from: 'From $100/visit' },
+  { slug: 'culinary',   title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Tidying · Laundry · Errands', description: 'Light cooking, meal prep, tidying, laundry, errands, and deep organization. 6-hour minimum.',           price_from: 'From $50/hr' },
+  { slug: 'laundry',    title: 'Premium Laundry Pickup & Delivery',             subtitle: 'Pickup · Wash · Dry · Fold · Deliver',    description: 'We handle everything — pickup to delivery. Regular and same-day express options available.',           price_from: 'From $3.99/lb' },
+  { slug: 'care',       title: 'Premium Nanny & Care Services',                 subtitle: 'Childcare · Companionship · Adult Care',  description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.',          price_from: 'Custom Quote' },
+  { slug: 'commercial', title: 'Commercial Operations & Special Projects',      subtitle: 'Offices · Retail · Warehouses',           description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.',           price_from: 'Custom Quote' },
+]
+
+const STATIC_DEALS = [
+  { badge: 'Monday',   headline: '$20 Flat — 10 lbs Colored Laundry',                 detail: 'Economy 1-week turnaround delivery.' },
+  { badge: 'Wednesday', headline: '5% OFF for Nurses, Students & Expectant Mothers',  detail: 'Show valid ID at time of booking to redeem.' },
+  { badge: 'Weekend',  headline: '3% OFF Bulk Laundry — 100+ lbs',                    detail: 'Saturday & Sunday only. Applied automatically.' },
+  { badge: 'Members',  headline: 'FREE Signup + 2% Off Recurring Services',           detail: 'No expiry. Locked-in discount on all monthly contracts.' },
+]
 
 export const metadata: Metadata = {
   title: 'Convenience Hub of Maryland | Home Services DMV',
@@ -133,11 +148,9 @@ function LeafSVG({ className = '' }: { className?: string }) {
 }
 
 export default async function HomePage() {
-  const [services, deals, reviews] = await Promise.all([
-    dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,slug,title,subtitle,description,price_from' }),
-    dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', select: 'id,badge,headline,detail' }),
-    dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' }),
-  ])
+  const reviews = await dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' })
+  const services = STATIC_SERVICES
+  const deals = STATIC_DEALS
 
   return (
     <>
@@ -256,7 +269,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Services ─────────────────────────────────────── */}
-      {services && services.length > 0 && (
+      {(
         <section id="services" className="bg-white py-14 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none">
             <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.14] -rotate-12 scale-x-[-1]" />
@@ -273,9 +286,9 @@ export default async function HomePage() {
             </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-100">
-              {(services ?? []).map((s, i) => (
+              {services.map((s, i) => (
                 <AnimatedSection
-                  key={s.id}
+                  key={s.slug}
                   delay={i * 60}
                   className={services.length % 2 === 1 && i === services.length - 1 ? 'md:col-span-2' : ''}
                 >
@@ -312,7 +325,7 @@ export default async function HomePage() {
       )}
 
       {/* ── Deals ────────────────────────────────────────── */}
-      {deals && deals.length > 0 && (
+      {(
         <section id="deals" className="bg-cream py-14 md:py-20 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none">
             <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
@@ -329,8 +342,8 @@ export default async function HomePage() {
             </AnimatedSection>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200">
-              {(deals ?? []).map((d, i) => (
-                <AnimatedSection key={d.id} delay={i * 60}>
+              {deals.map((d, i) => (
+                <AnimatedSection key={d.badge} delay={i * 60}>
                   <div className="bg-white p-6 hover:bg-blush transition-colors h-full">
                     <p className="text-chm-red font-semibold text-xs uppercase tracking-widest mb-3">{d.badge}</p>
                     <p className="font-serif text-chm-black text-base mb-2 leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>

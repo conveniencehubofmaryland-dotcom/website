@@ -1,19 +1,38 @@
 import type { Metadata } from 'next'
-import { dbSelect } from '@/lib/db'
-import type { Deal } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export const runtime = 'edge'
 
 export const metadata: Metadata = {
-  title: 'Weekly Deals',
+  title: 'Weekly Deals | Convenience Hub of Maryland',
   description:
     'Weekly deals on laundry, cleaning, and home services. Discounts for nurses, students, expectant mothers, and bulk laundry orders.',
 }
 
-export default async function DealsPage() {
-  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
+const DEALS = [
+  {
+    badge: 'Monday Deal',
+    headline: '$20 Flat — 10 lbs Colored Laundry',
+    detail: 'Economy 1-week turnaround delivery. Pay just $20 for 10 lbs of colored laundry — our lowest rate of the week.',
+  },
+  {
+    badge: 'Wednesday Deal',
+    headline: '5% OFF for Nurses, Students & Expectant Mothers',
+    detail: 'We appreciate healthcare workers, active students, and expectant mothers. Show valid ID to redeem 5% off premium services.',
+  },
+  {
+    badge: 'Weekend Deal',
+    headline: '3% OFF Bulk Laundry — 100+ lbs',
+    detail: 'Scale up and save. Any laundry order of 100 lbs or more on Saturday or Sunday receives 3% off automatically.',
+  },
+  {
+    badge: 'Members Only',
+    headline: 'FREE Signup + 2% Off All Recurring Services',
+    detail: 'Join the CHM network for free and lock in a permanent 2% discount on all recurring monthly service contracts. No expiry, no catches.',
+  },
+]
 
+export default function DealsPage() {
   return (
     <div className="bg-white">
       {/* Header */}
@@ -32,16 +51,13 @@ export default async function DealsPage() {
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
-          {(deals ?? []).map((d, i) => (
-            <AnimatedSection key={d.id} delay={i * 80}>
-              <div className="bg-white p-8 hover:bg-blush transition-colors h-full">
+          {DEALS.map((d, i) => (
+            <AnimatedSection key={i} delay={i * 80}>
+              <div className="bg-white p-8 hover:bg-cream transition-colors h-full">
                 <span className="text-xs font-semibold uppercase tracking-widest text-chm-red border border-chm-red/30 px-3 py-1 inline-block mb-5">
                   {d.badge}
                 </span>
-                <h2
-                  className="font-serif text-2xl text-chm-black mb-3"
-                  style={{ fontFamily: 'var(--font-serif)' }}
-                >
+                <h2 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
                   {d.headline}
                 </h2>
                 <p className="text-gray-500 text-sm leading-relaxed">{d.detail}</p>
@@ -54,10 +70,7 @@ export default async function DealsPage() {
           <div className="bg-chm-black text-white p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-3">Free to Join</p>
-              <p
-                className="font-serif text-3xl text-white mb-2"
-                style={{ fontFamily: 'var(--font-serif)' }}
-              >
+              <p className="font-serif text-3xl text-white mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
                 Become a Member
               </p>
               <p className="text-gray-400 text-sm leading-relaxed max-w-sm">

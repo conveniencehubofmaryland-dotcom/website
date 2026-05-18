@@ -10,6 +10,9 @@ out/
 .env.local
 .env.*.local
 
+# API keys / credentials — NEVER commit these
+*.csv
+
 # Build output
 dist/
 .open-next/
