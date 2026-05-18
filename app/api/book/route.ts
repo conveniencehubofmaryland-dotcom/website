@@ -116,6 +116,7 @@ export async function POST(req: NextRequest) {
   })
 
   if (error) {
+    console.error('[book] Supabase insert failed:', error)
     return NextResponse.json({ error: 'Failed to save booking. Please call us at 202-579-2944.' }, { status: 500 })
   }
 

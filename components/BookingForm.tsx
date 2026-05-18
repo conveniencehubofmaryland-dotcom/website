@@ -10,6 +10,19 @@ const TIME_SLOTS = [
   '5:00 PM',  '6:00 PM',  '7:00 PM',  '8:00 PM', '9:00 PM',
 ]
 
+function isSlotDisabled(slot: string, selectedDate: string): boolean {
+  if (!selectedDate) return false
+  const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+  if (selectedDate !== todayET) return false
+  const [timePart, ampm] = slot.split(' ')
+  let hour = parseInt(timePart.split(':')[0])
+  if (ampm === 'PM' && hour !== 12) hour += 12
+  if (ampm === 'AM' && hour === 12) hour = 0
+  const etDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
+  // Require at least 3 hours notice
+  return hour < etDate.getHours() + 3
+}
+
 type Props = {
   services: Pick<Service, 'id' | 'title' | 'price_from'>[]
 }
@@ -162,7 +175,14 @@ export default function BookingForm({ services }: Props) {
           </label>
           <BookingCalendar
             value={form.appointment_date}
-            onChange={val => { setErrorMsg(''); set('appointment_date', val) }}
+            onChange={val => {
+              setErrorMsg('')
+              setForm(f => ({
+                ...f,
+                appointment_date: val,
+                time_slot: f.time_slot && isSlotDisabled(f.time_slot, val) ? '' : f.time_slot,
+              }))
+            }}
             min={minDate}
             max={maxDate}
             onSundayAttempt={() => setErrorMsg('We are closed on Sundays — please pick a Monday–Saturday date.')}
@@ -190,7 +210,7 @@ export default function BookingForm({ services }: Props) {
           >
             <option value="">Select a time…</option>
             {TIME_SLOTS.map(t => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t} disabled={isSlotDisabled(t, form.appointment_date)}>{t}</option>
             ))}
           </select>
         </div>
