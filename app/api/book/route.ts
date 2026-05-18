@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 
 
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  bytes.forEach(b => { binary += String.fromCharCode(b) })
+  return btoa(binary)
+}
+
 function buildICS(params: {
   uid: string
   summary: string
@@ -74,7 +81,7 @@ async function confirmCustomer(booking: {
         from: 'Convenience Hub of Maryland <onboarding@resend.dev>',
         to:   [booking.email],
         subject: `Booking Received — ${booking.service_title}`,
-        attachments: [{ filename: 'appointment.ics', content: Buffer.from(ics).toString('base64') }],
+        attachments: [{ filename: 'appointment.ics', content: toBase64(ics) }],
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
             <div style="background:#E8192C;padding:24px 32px">
@@ -131,7 +138,7 @@ async function notifyOwner(booking: {
         from: 'CHM Bookings <onboarding@resend.dev>',
         to:   ['conveniencehubofmaryland@gmail.com'],
         subject: `New Booking — ${booking.service_title} on ${booking.appointment_date}`,
-        attachments: [{ filename: 'appointment.ics', content: Buffer.from(ics).toString('base64') }],
+        attachments: [{ filename: 'appointment.ics', content: toBase64(ics) }],
         html: `
           <h2 style="color:#E8192C">New Booking Request</h2>
           <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
