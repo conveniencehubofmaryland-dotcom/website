@@ -4,7 +4,6 @@ import type { Deal } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export const runtime = 'edge'
-export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Weekly Deals',

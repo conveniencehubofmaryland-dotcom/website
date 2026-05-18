@@ -12,7 +12,6 @@ const SERVICE_IMAGES: Record<string, string> = {
 }
 
 export const runtime = 'edge'
-export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Services & Pricing',
