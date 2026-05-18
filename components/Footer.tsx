@@ -37,7 +37,7 @@ const navLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-rose-50 border-t border-rose-100 relative overflow-hidden">
+    <footer className="bg-rose-100 border-t border-rose-200 relative overflow-hidden">
       {/* Botanical accent */}
       <div className="absolute right-0 top-0 opacity-[0.06] pointer-events-none text-chm-red translate-x-8 -translate-y-4">
         <RoseSVG />
@@ -87,7 +87,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-rose-100 py-5 text-center text-gray-400 text-xs tracking-wide">
+      <div className="border-t border-rose-200 py-5 text-center text-gray-400 text-xs tracking-wide">
         © {new Date().getFullYear()} Convenience Hub of Maryland. All rights reserved.
       </div>
     </footer>
