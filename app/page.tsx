@@ -205,54 +205,49 @@ export default async function HomePage() {
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-16 md:py-24">
+        {/* Background photo — full width, faint */}
+        <img
+          src="/living_room_main.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.18] pointer-events-none select-none"
+        />
+        {/* Fade edges into cream */}
+        <div className="absolute inset-0 bg-gradient-to-b from-cream/60 via-transparent to-cream/80 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-cream/50 via-transparent to-cream/50 pointer-events-none" />
 
-            {/* Text */}
-            <div className="relative z-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
-                Maryland &nbsp;·&nbsp; Virginia &nbsp;·&nbsp; Washington D.C.
-              </p>
-              <h1
-                className="font-serif text-5xl md:text-7xl text-chm-black leading-[1.05] mb-5"
-                style={{ fontFamily: 'var(--font-serif)' }}
-              >
-                Home Services,<br />
-                <span className="text-chm-red italic">Simplified.</span>
-              </h1>
-              <div className="w-10 h-px bg-chm-red mb-5" />
-              <p className="text-gray-500 text-base max-w-lg leading-relaxed mb-8 font-light">
-                Professional cleaning, laundry, culinary support, and care — tailored to your schedule.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/book" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
-                  Book Now
-                </Link>
-                <a href="https://wa.me/12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
-                  WhatsApp
-                </a>
-                <a href="tel:+12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
-                  Call 202-579-2944
-                </a>
-              </div>
-              <div className="flex items-center gap-1.5 mt-5">
-                <span className="text-amber-400 text-sm leading-none">★★★★★</span>
-                <span className="text-chm-black/60 text-xs font-medium">5.0 · Google Reviews</span>
-              </div>
-            </div>
-
-            {/* Photo */}
-            <div className="hidden md:block relative">
-              <div className="absolute -inset-2 border border-chm-red/10 pointer-events-none z-10" />
-              <img
-                src="/living_room_main.png"
-                alt="Luxury home interior"
-                className="w-full h-[480px] object-cover"
-              />
-            </div>
-
+        <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 py-16 md:py-28">
+          <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
+            Maryland &nbsp;·&nbsp; Virginia &nbsp;·&nbsp; Washington D.C.
+          </p>
+          <h1
+            className="font-serif text-5xl md:text-7xl text-chm-black leading-[1.05] mb-5 max-w-2xl"
+            style={{ fontFamily: 'var(--font-serif)' }}
+          >
+            Home Services,<br />
+            <span className="text-chm-red italic">Simplified.</span>
+          </h1>
+          <div className="w-10 h-px bg-chm-red mb-5" />
+          <p className="text-gray-500 text-base max-w-lg leading-relaxed mb-8 font-light">
+            Professional cleaning, laundry, culinary support, and care — tailored to your schedule.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/book" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
+              Book Now
+            </Link>
+            <a href="https://wa.me/12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
+              WhatsApp
+            </a>
+            <a href="tel:+12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
+              Call 202-579-2944
+            </a>
+          </div>
+          <div className="flex items-center gap-1.5 mt-5">
+            <span className="text-amber-400 text-sm leading-none">★★★★★</span>
+            <span className="text-chm-black/60 text-xs font-medium">5.0 · Google Reviews</span>
           </div>
         </div>
+
         {/* Subtle watermark */}
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
