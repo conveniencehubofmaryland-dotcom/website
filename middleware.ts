@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PUBLIC_PATHS = ['/admin/login', '/api/admin/login', '/api/admin/logout']
 
-export function proxy(req: NextRequest) {
+export function middleware(req: NextRequest) {
   if (PUBLIC_PATHS.includes(req.nextUrl.pathname)) return NextResponse.next()
 
   const token = req.cookies.get('chm_admin')?.value
