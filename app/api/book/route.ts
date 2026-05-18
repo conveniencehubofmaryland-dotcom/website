@@ -1,8 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { dbInsert, dbSelect } from '@/lib/db'
-import type { Service } from '@/lib/types'
+import { dbInsert } from '@/lib/db'
 
 export const runtime = 'edge'
+
+async function confirmCustomer(booking: {
+  customer_name: string
+  email: string
+  service_title: string
+  appointment_date: string
+  time_slot: string
+}) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) return
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Convenience Hub of Maryland <onboarding@resend.dev>',
+        to:   [booking.email],
+        subject: `Booking Received — ${booking.service_title}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+            <div style="background:#E8192C;padding:24px 32px">
+              <h1 style="color:#fff;font-size:20px;margin:0">Booking Received</h1>
+            </div>
+            <div style="padding:32px;background:#fff;border:1px solid #eee">
+              <p style="font-size:15px;color:#333">Hi ${booking.customer_name},</p>
+              <p style="font-size:14px;color:#555">We received your booking and will confirm within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).</p>
+              <table style="border-collapse:collapse;font-size:14px;width:100%;margin:20px 0">
+                <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888;width:140px">Service</td><td style="color:#222;font-weight:600">${booking.service_title}</td></tr>
+                <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888">Date</td><td style="color:#222;font-weight:600">${booking.appointment_date}</td></tr>
+                <tr><td style="padding:10px 0;color:#888">Time</td><td style="color:#222;font-weight:600">${booking.time_slot}</td></tr>
+              </table>
+              <p style="font-size:14px;color:#555">Questions? Call or text <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a>.</p>
+              <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
+            </div>
+          </div>
+        `,
+      }),
+    })
+  } catch {
+    // Non-critical
+  }
+}
 
 async function notifyOwner(booking: {
   customer_name: string
@@ -79,17 +120,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save booking. Please call us at 202-579-2944.' }, { status: 500 })
   }
 
-  // Fire-and-forget email notification
+  // Fire-and-forget emails
   const title = service_title?.trim() || service_id
+  const trimmedEmail = email?.trim() || null
   notifyOwner({
     customer_name: customer_name.trim(),
     phone:         phone.trim(),
-    email:         email?.trim() || null,
+    email:         trimmedEmail,
     service_title: title,
     appointment_date,
     time_slot,
     notes: notes?.trim() || null,
   })
+  if (trimmedEmail) {
+    confirmCustomer({
+      customer_name:    customer_name.trim(),
+      email:            trimmedEmail,
+      service_title:    title,
+      appointment_date,
+      time_slot,
+    })
+  }
 
   return NextResponse.json({ success: true })
 }

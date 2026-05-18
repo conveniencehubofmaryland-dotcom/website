@@ -1,10 +1,7 @@
 import type { Metadata } from 'next'
-import { dbSelect } from '@/lib/db'
-import type { Service } from '@/lib/types'
 import BookingForm from '@/components/BookingForm'
 
 export const runtime = 'edge'
-export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Book a Service',
@@ -12,13 +9,15 @@ export const metadata: Metadata = {
     'Book cleaning, laundry, culinary, or care services online. Convenience Hub of Maryland — Maryland, Virginia & D.C.',
 }
 
-export default async function BookPage() {
-  const services = await dbSelect<Service>('services', {
-    active: 'eq.true',
-    order: 'sort_order',
-    select: 'id,title,price_from',
-  })
+const SERVICES = [
+  { id: 'cleaning',   title: 'Professional Cleaning & Estate Care',           price_from: 'From $100/visit' },
+  { id: 'culinary',   title: 'Culinary, Housekeeping & Household Management',  price_from: 'From $50/hr' },
+  { id: 'laundry',    title: 'Premium Laundry Pickup & Delivery',              price_from: 'From $3.99/lb' },
+  { id: 'care',       title: 'Premium Nanny & Care Services',                  price_from: 'Custom Quote' },
+  { id: 'commercial', title: 'Commercial Operations & Special Projects',       price_from: 'Custom Quote' },
+]
 
+export default function BookPage() {
   return (
     <div className="bg-white">
       {/* Header */}
@@ -36,7 +35,7 @@ export default async function BookPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 sm:px-8 py-16">
-        <BookingForm services={(services ?? [])} />
+        <BookingForm services={SERVICES} />
       </div>
     </div>
   )
