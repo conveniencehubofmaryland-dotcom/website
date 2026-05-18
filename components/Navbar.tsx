@@ -35,17 +35,24 @@ export default function Navbar() {
     }`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-28 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
-          {/* mix-blend-mode: multiply makes the white JPEG background invisible against cream/white nav */}
-          <Image
-            src="/logo.jpeg"
-            alt="Convenience Hub of Maryland"
-            width={480}
-            height={160}
-            className="h-24 w-auto"
-            style={{ mixBlendMode: 'multiply' }}
-            priority
-            unoptimized
-          />
+          {/* Crop container: logo.jpeg is 500×500 with heavy white padding.
+              We render it tall internally then crop to just the logo content band. */}
+          <div className="overflow-hidden" style={{ height: '80px', width: '300px' }}>
+            <Image
+              src="/logo.jpeg"
+              alt="Convenience Hub of Maryland"
+              width={500}
+              height={500}
+              unoptimized
+              priority
+              style={{
+                height: '420px',
+                width: 'auto',
+                marginTop: '-155px',
+                mixBlendMode: 'multiply',
+              }}
+            />
+          </div>
         </Link>
 
         {/* Desktop */}
