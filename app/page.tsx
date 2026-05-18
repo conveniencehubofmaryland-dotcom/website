@@ -97,8 +97,28 @@ export default async function HomePage() {
               Call 202-579-2944
             </a>
           </div>
+          <div className="flex items-center gap-1.5 mt-5">
+            <span className="text-amber-400 text-sm leading-none">★★★★★</span>
+            <span className="text-chm-black/60 text-xs font-medium">5.0 · Google Reviews</span>
+          </div>
         </div>
       </section>
+
+      {/* ── Trust pillars ────────────────────────────────── */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-5 grid grid-cols-3 divide-x divide-gray-100">
+          {[
+            { icon: '✓', label: 'Background Checked' },
+            { icon: '✓', label: 'Fully Insured' },
+            { icon: '✓', label: 'CPR Certified & Vaccinated' },
+          ].map(({ icon, label }) => (
+            <div key={label} className="flex items-center justify-center gap-2 px-4">
+              <span className="text-chm-red font-bold text-sm">{icon}</span>
+              <span className="text-chm-black text-xs font-semibold uppercase tracking-widest">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
       <div className="bg-chm-black border-b border-white/10 sticky top-16 z-40">
