@@ -70,14 +70,19 @@ export async function dbPatchAuth(
 }
 
 export async function dbInsert(table: string, row: Record<string, unknown>): Promise<{ error: string | null }> {
-  const res = await fetch(`${URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...headers, Prefer: 'return=minimal' },
-    body: JSON.stringify(row),
-  })
-  if (!res.ok) {
-    const body = await res.text()
-    return { error: body }
+  if (!URL || !KEY) return { error: 'Database not configured' }
+  try {
+    const res = await fetch(`${URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...headers, Prefer: 'return=minimal' },
+      body: JSON.stringify(row),
+    })
+    if (!res.ok) {
+      const body = await res.text()
+      return { error: body }
+    }
+    return { error: null }
+  } catch {
+    return { error: 'Failed to connect to database' }
   }
-  return { error: null }
 }

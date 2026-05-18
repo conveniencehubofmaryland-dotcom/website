@@ -55,7 +55,7 @@ export default function BookingForm({ services }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(form),
       })
-      const data = await res.json()
+      const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
       setStatus('success')
     } catch (err) {
