@@ -87,13 +87,16 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
-          {/* Real leaf photo — top right */}
+          {/* Real leaf photo — top right, webkit prefix required for Chrome */}
           <img
             src="/leaf-hero.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute right-0 top-0 w-[380px] md:w-[460px] h-auto object-cover opacity-85 rotate-6"
-            style={{ maskImage: 'radial-gradient(ellipse 80% 80% at 70% 30%, black 40%, transparent 100%)' }}
+            className="absolute right-0 top-0 w-[380px] md:w-[500px] h-auto opacity-90 rotate-6"
+            style={{
+              WebkitMaskImage: 'radial-gradient(ellipse 80% 90% at 72% 28%, black 30%, transparent 85%)',
+              maskImage: 'radial-gradient(ellipse 80% 90% at 72% 28%, black 30%, transparent 85%)',
+            }}
           />
           {/* Subtle SVG watermark — bottom left */}
           <LeafSVG className="absolute -left-16 bottom-[-10%] w-[420px] h-[420px] text-chm-red opacity-[0.10] -rotate-20 scale-x-[-1]" />

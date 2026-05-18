@@ -35,23 +35,17 @@ export default function Navbar() {
     }`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
-          {/*
-            Logo JPEG has significant white padding.
-            We over-size the image height and use negative margin + overflow-hidden
-            to crop the padding and show only the actual logo content at large size.
-          */}
-          <div className="overflow-hidden" style={{ height: '72px', width: '260px' }}>
-            <Image
-              src="/logo.jpeg"
-              alt="Convenience Hub of Maryland"
-              width={520}
-              height={174}
-              className="w-auto"
-              style={{ height: '174px', marginTop: '-42px', marginLeft: '-8px' }}
-              priority
-              unoptimized
-            />
-          </div>
+          {/* mix-blend-mode: multiply makes the white JPEG background invisible against cream/white nav */}
+          <Image
+            src="/logo.jpeg"
+            alt="Convenience Hub of Maryland"
+            width={400}
+            height={134}
+            className="h-20 w-auto"
+            style={{ mixBlendMode: 'multiply' }}
+            priority
+            unoptimized
+          />
         </Link>
 
         {/* Desktop */}
