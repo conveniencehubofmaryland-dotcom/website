@@ -216,7 +216,12 @@ export default function ServicesPage() {
                           <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
                           <p className="font-serif text-2xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
                             {item.price === 'Custom Quote' ? (
-                              <a href="mailto:conveniencehubofmaryland@gmail.com" className="hover:underline underline-offset-4">Custom Quote</a>
+                              <a
+                                href={`mailto:conveniencehubofmaryland@gmail.com?subject=${encodeURIComponent(`Custom Quote Request — ${item.label}`)}&body=${encodeURIComponent(`Hi Convenience Hub of Maryland,\n\nI am interested in a custom quote for: ${item.label}\n\nPlease find my details below:\n\n- Name: \n- Phone: \n- Location (MD / VA / DC): \n- Preferred schedule or frequency: \n- Property size or special requirements: \n- Best time to reach me: \n\nThank you!`)}`}
+                                className="hover:underline underline-offset-4"
+                              >
+                                Custom Quote
+                              </a>
                             ) : (
                               <>{item.price}{item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}</>
                             )}
