@@ -22,6 +22,44 @@ export async function dbSelect<T>(
   return res.json() as Promise<T[]>
 }
 
+export async function dbSelectAuth<T>(
+  table: string,
+  token: string,
+  params: Record<string, string> = {}
+): Promise<T[]> {
+  if (!token) return []
+  const qs  = new URLSearchParams(params).toString()
+  const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, {
+    headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) return []
+  return res.json() as Promise<T[]>
+}
+
+export async function dbPatchAuth(
+  table: string,
+  id: string,
+  patch: Record<string, unknown>,
+  token: string
+): Promise<{ error: string | null }> {
+  if (!token) return { error: 'Unauthorized' }
+  const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(patch),
+  })
+  if (!res.ok) {
+    const body = await res.text()
+    return { error: body }
+  }
+  return { error: null }
+}
+
 export async function dbInsert(table: string, row: Record<string, unknown>): Promise<{ error: string | null }> {
   const res = await fetch(`${URL}/rest/v1/${table}`, {
     method: 'POST',

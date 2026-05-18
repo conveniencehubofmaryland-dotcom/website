@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import type { Service, Deal } from '@/lib/types'
+import type { Service, Deal, Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export const runtime = 'edge'
@@ -133,9 +133,10 @@ function LeafSVG({ className = '' }: { className?: string }) {
 }
 
 export default async function HomePage() {
-  const [services, deals] = await Promise.all([
+  const [services, deals, reviews] = await Promise.all([
     dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,slug,title,subtitle,description,price_from' }),
     dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', select: 'id,badge,headline,detail' }),
+    dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' }),
   ])
 
   return (
@@ -147,12 +148,29 @@ export default async function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'LocalBusiness',
             name: 'Convenience Hub of Maryland',
+            image: 'https://www.conveniencehubofmaryland.com/logo.jpeg',
             telephone: '+12025792944',
             email: 'conveniencehubofmaryland@gmail.com',
             url: 'https://www.conveniencehubofmaryland.com',
-            description: 'One-stop home services for the DMV.',
+            description: 'Professional cleaning, laundry pickup & delivery, culinary, and care services in Maryland, Virginia, and Washington D.C.',
+            priceRange: '$$',
+            address: { '@type': 'PostalAddress', addressRegion: 'MD', addressCountry: 'US' },
             areaServed: ['Maryland', 'Virginia', 'Washington D.C.'],
-            openingHours: 'Mo-Sa 09:00-21:00',
+            openingHoursSpecification: [{
+              '@type': 'OpeningHoursSpecification',
+              dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+              opens: '09:00', closes: '21:00',
+            }],
+            hasOfferCatalog: {
+              '@type': 'OfferCatalog',
+              name: 'Home Services',
+              itemListElement: [
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Professional Cleaning & Estate Care' }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laundry Pickup & Delivery' }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Culinary & Housekeeping' }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Nanny & Care Services' }},
+              ],
+            },
           }),
         }}
       />
@@ -327,6 +345,50 @@ export default async function HomePage() {
             <AnimatedSection className="mt-6">
               <Link href="/deals" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
                 View All Deals →
+              </Link>
+            </AnimatedSection>
+          </div>
+        </section>
+      )}
+
+      {/* ── Testimonials ─────────────────────────────────── */}
+      {reviews && reviews.length > 0 && (
+        <section className="bg-cream py-14 md:py-20 border-t border-gray-100">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <AnimatedSection>
+              <div className="mb-10">
+                <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">What They Say</p>
+                <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                  Customer Reviews
+                </h2>
+                <div className="w-10 h-px bg-chm-red mt-4" />
+              </div>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200">
+              {reviews.map((r, i) => (
+                <AnimatedSection key={r.id} delay={i * 60}>
+                  <div className="bg-white p-8 hover:bg-blush transition-colors h-full flex flex-col gap-4">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <span key={j} className={j < r.rating ? 'text-amber-400' : 'text-gray-200'}>★</span>
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed flex-1 font-light">&ldquo;{r.body}&rdquo;</p>
+                    <div>
+                      <p className="text-chm-black font-semibold text-sm">{r.customer_name}</p>
+                      {r.service_mentioned && (
+                        <p className="text-chm-red text-xs uppercase tracking-widest mt-0.5">{r.service_mentioned}</p>
+                      )}
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+
+            <AnimatedSection className="mt-6">
+              <Link href="/reviews" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
+                Leave a Review →
               </Link>
             </AnimatedSection>
           </div>

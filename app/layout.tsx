@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
+import TawkChat from '@/components/TawkChat'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap' })
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="pb-14 md:pb-0">{children}</main>
         <Footer />
         <FloatingCTA />
+        <TawkChat />
       </body>
     </html>
   )

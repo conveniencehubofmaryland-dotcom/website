@@ -26,8 +26,11 @@ const contactLinks = [
 
 const navLinks = [
   { href: '/services', label: 'Services' },
-  { href: '/deals', label: 'Deals' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/deals',    label: 'Deals'    },
+  { href: '/reviews',  label: 'Reviews'  },
+  { href: '/book',     label: 'Book Now' },
+  { href: '/contact',  label: 'Contact'  },
+  { href: '/about',    label: 'About'    },
 ]
 
 export default function Footer() {
