@@ -161,8 +161,13 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
-          {/* High-detail cordate SVG leaf — top right, prominent */}
-          <LeafSVG className="absolute -right-12 top-[-2%] w-[420px] md:w-[520px] h-auto text-chm-red opacity-[0.55] rotate-6" />
+          {/* Real leaf photo — transparent background PNG */}
+          <img
+            src="/leaf-hero.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute -right-8 top-0 w-[380px] md:w-[480px] h-auto opacity-95 rotate-3 pointer-events-none"
+          />
           {/* Subtle watermark — bottom left */}
           <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.08] -rotate-20 scale-x-[-1]" />
         </div>
