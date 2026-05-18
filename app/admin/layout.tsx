@@ -5,6 +5,8 @@ import AdminLogoutButton from '@/components/AdminLogoutButton'
 const adminLinks = [
   { href: '/admin/appointments', label: 'Appointments' },
   { href: '/admin/reviews',      label: 'Reviews'      },
+  { href: '/admin/services',     label: 'Services'     },
+  { href: '/admin/deals',        label: 'Deals'        },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

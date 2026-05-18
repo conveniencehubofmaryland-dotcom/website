@@ -331,17 +331,7 @@ export default async function HomePage() {
                       </h3>
                       <p className="text-xs text-gray-400 uppercase tracking-widest">{s.subtitle}</p>
                       <p className="text-gray-500 text-sm leading-relaxed flex-1 font-light">{s.description}</p>
-                      {s.price_from === 'Custom Quote' ? (
-                        <a
-                          href={`mailto:conveniencehubofmaryland@gmail.com?subject=${encodeURIComponent(`Custom Quote Request — ${s.title}`)}&body=${encodeURIComponent(`Hi Convenience Hub of Maryland,\n\nI am interested in a custom quote for: ${s.title}\n\nPlease find my details below:\n\n- Name: \n- Phone: \n- Location (MD / VA / DC): \n- Preferred schedule or frequency: \n- Property size or special requirements: \n- Best time to reach me: \n\nThank you!`)}`}
-                          className="text-chm-red font-semibold text-xs tracking-wide mt-1 hover:underline underline-offset-4"
-                          onClick={e => e.stopPropagation()}
-                        >
-                          Custom Quote
-                        </a>
-                      ) : (
-                        <p className="text-chm-red font-semibold text-xs tracking-wide mt-1">{s.price_from}</p>
-                      )}
+                      <p className="text-chm-red font-semibold text-xs tracking-wide mt-1">{s.price_from}</p>
                     </div>
                   </Link>
                 </AnimatedSection>

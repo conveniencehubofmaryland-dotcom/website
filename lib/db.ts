@@ -69,6 +69,56 @@ export async function dbPatchAuth(
   return { error: null }
 }
 
+export async function dbInsertAuth(
+  table: string,
+  row: Record<string, unknown>,
+  token: string
+): Promise<{ error: string | null }> {
+  if (!URL || !KEY) return { error: 'Database not configured' }
+  if (!token) return { error: 'Unauthorized' }
+  try {
+    const res = await fetch(`${URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        apikey: KEY,
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(row),
+    })
+    if (!res.ok) {
+      const body = await res.text()
+      return { error: body }
+    }
+    return { error: null }
+  } catch {
+    return { error: 'Failed to connect to database' }
+  }
+}
+
+export async function dbDeleteAuth(
+  table: string,
+  id: string,
+  token: string
+): Promise<{ error: string | null }> {
+  if (!URL || !KEY) return { error: 'Database not configured' }
+  if (!token) return { error: 'Unauthorized' }
+  const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  if (!res.ok) {
+    const body = await res.text()
+    return { error: body }
+  }
+  return { error: null }
+}
+
 export async function dbInsert(table: string, row: Record<string, unknown>): Promise<{ error: string | null }> {
   if (!URL || !KEY) return { error: 'Database not configured' }
   try {
