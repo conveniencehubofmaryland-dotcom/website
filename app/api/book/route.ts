@@ -2,7 +2,53 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 
 
+function buildICS(params: {
+  uid: string
+  summary: string
+  description: string
+  date: string      // "2026-05-19"
+  timeSlot: string  // "9:00 AM"
+  organizerEmail: string
+  attendeeEmail?: string
+}): string {
+  const [year, month, day] = params.date.split('-').map(Number)
+  const timeMatch = params.timeSlot.match(/(\d+):(\d+)\s*(AM|PM)/i)
+  let hour = 0, minute = 0
+  if (timeMatch) {
+    hour = parseInt(timeMatch[1])
+    minute = parseInt(timeMatch[2])
+    const ampm = timeMatch[3].toUpperCase()
+    if (ampm === 'PM' && hour !== 12) hour += 12
+    if (ampm === 'AM' && hour === 12) hour = 0
+  }
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const dtStart = `${year}${pad(month)}${pad(day)}T${pad(hour)}${pad(minute)}00`
+  const dtEnd   = `${year}${pad(month)}${pad(day)}T${pad(hour + 1)}${pad(minute)}00`
+  const now     = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z'
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Convenience Hub of Maryland//Booking//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:REQUEST',
+    'BEGIN:VEVENT',
+    `UID:${params.uid}@conveniencehubofmaryland.com`,
+    `DTSTAMP:${now}`,
+    `DTSTART;TZID=America/New_York:${dtStart}`,
+    `DTEND;TZID=America/New_York:${dtEnd}`,
+    `SUMMARY:${params.summary}`,
+    `DESCRIPTION:${params.description.replace(/\n/g, '\\n')}`,
+    `ORGANIZER;CN=Convenience Hub of Maryland:mailto:${params.organizerEmail}`,
+    ...(params.attendeeEmail ? [`ATTENDEE;CN=Guest;RSVP=TRUE:mailto:${params.attendeeEmail}`] : []),
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ]
+  return lines.join('\r\n')
+}
+
 async function confirmCustomer(booking: {
+  uid: string
   customer_name: string
   email: string
   service_title: string
@@ -11,6 +57,15 @@ async function confirmCustomer(booking: {
 }) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return
+  const ics = buildICS({
+    uid:            booking.uid,
+    summary:        `${booking.service_title} — Convenience Hub of Maryland`,
+    description:    `Hi ${booking.customer_name}, your booking for ${booking.service_title} on ${booking.appointment_date} at ${booking.time_slot} is received. We will confirm within 1 hour. Questions? Call 202-579-2944.`,
+    date:           booking.appointment_date,
+    timeSlot:       booking.time_slot,
+    organizerEmail: 'conveniencehubofmaryland@gmail.com',
+    attendeeEmail:  booking.email,
+  })
   try {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -19,6 +74,7 @@ async function confirmCustomer(booking: {
         from: 'Convenience Hub of Maryland <onboarding@resend.dev>',
         to:   [booking.email],
         subject: `Booking Received — ${booking.service_title}`,
+        attachments: [{ filename: 'appointment.ics', content: Buffer.from(ics).toString('base64') }],
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
             <div style="background:#E8192C;padding:24px 32px">
@@ -32,6 +88,7 @@ async function confirmCustomer(booking: {
                 <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888">Date</td><td style="color:#222;font-weight:600">${booking.appointment_date}</td></tr>
                 <tr><td style="padding:10px 0;color:#888">Time</td><td style="color:#222;font-weight:600">${booking.time_slot}</td></tr>
               </table>
+              <p style="font-size:14px;color:#555">A calendar invite is attached — add it to your calendar to save the date.</p>
               <p style="font-size:14px;color:#555">Questions? Call or text <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a>.</p>
               <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
             </div>
@@ -45,6 +102,7 @@ async function confirmCustomer(booking: {
 }
 
 async function notifyOwner(booking: {
+  uid: string
   customer_name: string
   phone: string
   email: string | null
@@ -56,18 +114,24 @@ async function notifyOwner(booking: {
 }) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return
-
+  const ics = buildICS({
+    uid:            booking.uid,
+    summary:        `New Booking: ${booking.service_title} — ${booking.customer_name}`,
+    description:    `Customer: ${booking.customer_name}\\nPhone: ${booking.phone}\\nLocation: ${booking.state}\\nService: ${booking.service_title}\\nDate: ${booking.appointment_date} at ${booking.time_slot}${booking.notes ? `\\nNotes: ${booking.notes}` : ''}`,
+    date:           booking.appointment_date,
+    timeSlot:       booking.time_slot,
+    organizerEmail: 'conveniencehubofmaryland@gmail.com',
+    attendeeEmail:  booking.email ?? undefined,
+  })
   try {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: 'CHM Bookings <onboarding@resend.dev>',
         to:   ['conveniencehubofmaryland@gmail.com'],
         subject: `New Booking — ${booking.service_title} on ${booking.appointment_date}`,
+        attachments: [{ filename: 'appointment.ics', content: Buffer.from(ics).toString('base64') }],
         html: `
           <h2 style="color:#E8192C">New Booking Request</h2>
           <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
@@ -86,6 +150,7 @@ async function notifyOwner(booking: {
               View in Admin →
             </a>
           </p>
+          <p style="font-size:12px;color:#aaa;margin-top:8px">Calendar invite attached.</p>
         `,
       }),
     })
@@ -128,10 +193,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save booking. Please call us at 202-579-2944.' }, { status: 500 })
   }
 
-  // Fire-and-forget emails
   const title = service_title?.trim() || service_id
   const trimmedEmail = email?.trim() || null
+  const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
   notifyOwner({
+    uid,
     customer_name: customer_name.trim(),
     phone:         phone.trim(),
     email:         trimmedEmail,
@@ -143,6 +210,7 @@ export async function POST(req: NextRequest) {
   })
   if (trimmedEmail) {
     confirmCustomer({
+      uid,
       customer_name:    customer_name.trim(),
       email:            trimmedEmail,
       service_title:    title,
