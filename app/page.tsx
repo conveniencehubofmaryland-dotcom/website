@@ -25,34 +25,108 @@ const SERVICE_IMAGES: Record<string, string> = {
 }
 
 function LeafSVG({ className = '' }: { className?: string }) {
-  // Cordate (heart-shaped) tropical leaf — wide lobes at top, pointed tip at bottom,
-  // notch at top center where stem attaches. Matches the reference photo aesthetic.
+  // High-detail cordate (heart-shaped) tropical leaf matching reference photo.
+  // viewBox 400×480 for crisp rendering at large sizes.
+  // Primary veins (8 pairs) + secondary network (~44 veins) = very high definition.
   return (
-    <svg viewBox="0 0 180 230" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+    <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
       {/* Stem */}
-      <path fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" d="M90,4 L90,26"/>
-      {/* Cordate leaf body: notch at top-center, lobes curve upward, pointed tip at bottom */}
+      <path fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" d="M200,50 L200,8"/>
+      {/* Cordate leaf body: two lobes at top, deep notch at center, pointed tip at bottom */}
       <path
         fill="currentColor"
-        d="M90,26
-           C 108,6  160,8  162,56
-           C 164,104 148,170 90,220
-           C 32,170 16,104 18,56
-           C 20,8   72,6   90,26 Z"
+        d="M200,50
+           C 226,18 308,15 342,78
+           C 372,138 360,242 325,335
+           C 296,412 252,455 200,474
+           C 148,455 104,412 75,335
+           C 40,242 28,138 58,78
+           C 92,15 174,18 200,50 Z"
       />
-      {/* Midrib — notch to tip */}
-      <path fill="none" stroke="white" strokeWidth="1.8" strokeOpacity="0.40" d="M90,26 L90,220"/>
-      {/* Palmate veins radiating from upper midrib toward margins, matching photo */}
-      <path fill="none" stroke="white" strokeWidth="0.85" strokeOpacity="0.28"
-        d="M90,48 C 118,40 152,44 162,56
-           M90,48 C 62,40 28,44 18,56
-           M90,72 C 130,70 158,90 160,125
-           M90,72 C 50,70 22,90 20,125
-           M90,105 C 132,106 158,130 158,165
-           M90,105 C 48,106 22,130 22,165
-           M90,140 C 128,144 150,168 146,195
-           M90,140 C 52,144 30,168 34,195"
-      />
+      {/* ── Midrib ── */}
+      <path fill="none" stroke="white" strokeWidth="3.5" strokeOpacity="0.42" d="M200,50 L200,474"/>
+      {/* ── Primary veins — 8 pairs, radiating from midrib, curving toward margin ── */}
+      <g fill="none" stroke="white" strokeLinecap="round">
+        {/* Pair 1 — into lobes */}
+        <path strokeWidth="2.4" strokeOpacity="0.38" d="M200,78 C 240,70 295,62 340,80"/>
+        <path strokeWidth="2.4" strokeOpacity="0.38" d="M200,78 C 160,70 105,62 60,80"/>
+        {/* Pair 2 */}
+        <path strokeWidth="2.2" strokeOpacity="0.36" d="M200,122 C 248,118 308,114 355,122"/>
+        <path strokeWidth="2.2" strokeOpacity="0.36" d="M200,122 C 152,118 92,114 45,122"/>
+        {/* Pair 3 */}
+        <path strokeWidth="2.0" strokeOpacity="0.34" d="M200,170 C 250,167 314,164 362,172"/>
+        <path strokeWidth="2.0" strokeOpacity="0.34" d="M200,170 C 150,167 86,164 38,172"/>
+        {/* Pair 4 */}
+        <path strokeWidth="1.8" strokeOpacity="0.32" d="M200,220 C 250,218 312,216 358,224"/>
+        <path strokeWidth="1.8" strokeOpacity="0.32" d="M200,220 C 150,218 88,216 42,224"/>
+        {/* Pair 5 */}
+        <path strokeWidth="1.6" strokeOpacity="0.30" d="M200,268 C 248,267 306,265 348,273"/>
+        <path strokeWidth="1.6" strokeOpacity="0.30" d="M200,268 C 152,267 94,265 52,273"/>
+        {/* Pair 6 */}
+        <path strokeWidth="1.4" strokeOpacity="0.28" d="M200,315 C 244,314 294,313 328,319"/>
+        <path strokeWidth="1.4" strokeOpacity="0.28" d="M200,315 C 156,314 106,313 72,319"/>
+        {/* Pair 7 */}
+        <path strokeWidth="1.2" strokeOpacity="0.26" d="M200,360 C 236,360 276,360 306,365"/>
+        <path strokeWidth="1.2" strokeOpacity="0.26" d="M200,360 C 164,360 124,360 94,365"/>
+        {/* Pair 8 — near tip */}
+        <path strokeWidth="0.9" strokeOpacity="0.22" d="M200,408 C 222,408 248,410 268,414"/>
+        <path strokeWidth="0.9" strokeOpacity="0.22" d="M200,408 C 178,408 152,410 132,414"/>
+      </g>
+      {/* ── Secondary veins — fine network between primary pairs ── */}
+      <g fill="none" stroke="white" strokeWidth="0.8" strokeOpacity="0.18" strokeLinecap="round">
+        {/* Between pairs 1-2, right */}
+        <path d="M338,82 C 344,92 350,108 352,120"/>
+        <path d="M312,66 C 320,78 328,95 330,110"/>
+        <path d="M282,62 C 288,74 294,90 296,106"/>
+        {/* Between pairs 1-2, left */}
+        <path d="M62,82 C 56,92 50,108 48,120"/>
+        <path d="M88,66 C 80,78 72,95 70,110"/>
+        <path d="M118,62 C 112,74 106,90 104,106"/>
+        {/* Between pairs 2-3, right */}
+        <path d="M353,124 C 357,136 360,152 362,164"/>
+        <path d="M326,116 C 330,128 334,144 336,158"/>
+        <path d="M298,113 C 302,126 306,142 308,156"/>
+        {/* Between pairs 2-3, left */}
+        <path d="M47,124 C 43,136 40,152 38,164"/>
+        <path d="M74,116 C 70,128 66,144 64,158"/>
+        <path d="M102,113 C 98,126 94,142 92,156"/>
+        {/* Between pairs 3-4, right */}
+        <path d="M360,174 C 362,186 362,202 360,216"/>
+        <path d="M336,166 C 338,178 340,194 340,208"/>
+        <path d="M308,163 C 310,175 312,191 312,205"/>
+        {/* Between pairs 3-4, left */}
+        <path d="M40,174 C 38,186 38,202 40,216"/>
+        <path d="M64,166 C 62,178 60,194 60,208"/>
+        <path d="M92,163 C 90,175 88,191 88,205"/>
+        {/* Between pairs 4-5, right */}
+        <path d="M356,226 C 355,238 352,254 349,266"/>
+        <path d="M332,218 C 332,230 332,246 331,260"/>
+        <path d="M306,216 C 306,228 307,244 307,258"/>
+        {/* Between pairs 4-5, left */}
+        <path d="M44,226 C 45,238 48,254 51,266"/>
+        <path d="M68,218 C 68,230 68,246 69,260"/>
+        <path d="M94,216 C 94,228 93,244 93,258"/>
+        {/* Between pairs 5-6, right */}
+        <path d="M346,275 C 343,287 338,303 334,316"/>
+        <path d="M320,268 C 318,280 316,296 314,310"/>
+        <path d="M294,266 C 293,278 293,294 293,308"/>
+        {/* Between pairs 5-6, left */}
+        <path d="M54,275 C 57,287 62,303 66,316"/>
+        <path d="M80,268 C 82,280 84,296 86,310"/>
+        <path d="M106,266 C 107,278 107,294 107,308"/>
+        {/* Between pairs 6-7, right */}
+        <path d="M326,321 C 322,333 315,348 309,360"/>
+        <path d="M302,316 C 299,328 297,344 295,357"/>
+        {/* Between pairs 6-7, left */}
+        <path d="M74,321 C 78,333 85,348 91,360"/>
+        <path d="M98,316 C 101,328 103,344 105,357"/>
+        {/* Between pairs 7-8, right */}
+        <path d="M304,367 C 299,378 291,392 284,404"/>
+        <path d="M280,363 C 276,374 272,388 268,400"/>
+        {/* Between pairs 7-8, left */}
+        <path d="M96,367 C 101,378 109,392 116,404"/>
+        <path d="M120,363 C 124,374 128,388 132,400"/>
+      </g>
     </svg>
   )
 }
@@ -87,19 +161,10 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
-          {/* Real leaf photo — top right, webkit prefix required for Chrome */}
-          <img
-            src="/leaf-hero.jpg"
-            alt=""
-            aria-hidden="true"
-            className="absolute right-0 top-0 w-[380px] md:w-[500px] h-auto opacity-90 rotate-6"
-            style={{
-              WebkitMaskImage: 'radial-gradient(ellipse 80% 90% at 72% 28%, black 30%, transparent 85%)',
-              maskImage: 'radial-gradient(ellipse 80% 90% at 72% 28%, black 30%, transparent 85%)',
-            }}
-          />
-          {/* Subtle SVG watermark — bottom left */}
-          <LeafSVG className="absolute -left-16 bottom-[-10%] w-[420px] h-[420px] text-chm-red opacity-[0.10] -rotate-20 scale-x-[-1]" />
+          {/* High-detail cordate SVG leaf — top right, prominent */}
+          <LeafSVG className="absolute -right-12 top-[-2%] w-[420px] md:w-[520px] h-auto text-chm-red opacity-[0.55] rotate-6" />
+          {/* Subtle watermark — bottom left */}
+          <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.08] -rotate-20 scale-x-[-1]" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 w-full">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
@@ -143,7 +208,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-24 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-28 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },

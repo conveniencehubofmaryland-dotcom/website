@@ -33,15 +33,15 @@ export default function Navbar() {
         ? 'bg-white shadow-sm border-b border-gray-100'
         : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
     }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-28 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
           {/* mix-blend-mode: multiply makes the white JPEG background invisible against cream/white nav */}
           <Image
             src="/logo.jpeg"
             alt="Convenience Hub of Maryland"
-            width={400}
-            height={134}
-            className="h-20 w-auto"
+            width={480}
+            height={160}
+            className="h-24 w-auto"
             style={{ mixBlendMode: 'multiply' }}
             priority
             unoptimized
