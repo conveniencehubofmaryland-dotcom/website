@@ -12,10 +12,14 @@ const wrapper = `import worker from './worker.js';
 
 export default {
   async fetch(request, env, ctx) {
-    try {
-      const assetResponse = await env.ASSETS.fetch(request.clone());
-      if (assetResponse.status !== 404) return assetResponse;
-    } catch {}
+    // ASSETS only serves static files via GET/HEAD.
+    // POST/PUT/etc. must go straight to the Worker (API routes, form submissions).
+    if (request.method === 'GET' || request.method === 'HEAD') {
+      try {
+        const assetResponse = await env.ASSETS.fetch(request.clone());
+        if (assetResponse.status !== 404) return assetResponse;
+      } catch {}
+    }
     return worker.fetch(request, env, ctx);
   },
 };
