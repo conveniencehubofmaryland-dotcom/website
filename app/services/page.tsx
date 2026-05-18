@@ -208,8 +208,11 @@ export default function ServicesPage() {
                         <div key={i} className="bg-white p-6 hover:bg-cream transition-colors">
                           <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
                           <p className="font-serif text-2xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
-                            {item.price}
-                            {item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}
+                            {item.price === 'Custom Quote' ? (
+                              <a href="mailto:conveniencehubofmaryland@gmail.com" className="hover:underline underline-offset-4">Custom Quote</a>
+                            ) : (
+                              <>{item.price}{item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}</>
+                            )}
                           </p>
                           {item.note && <p className="text-xs text-gray-400 mt-2">{item.note}</p>}
                         </div>
