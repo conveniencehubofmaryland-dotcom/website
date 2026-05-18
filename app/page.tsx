@@ -163,7 +163,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 pointer-events-none select-none">
           {/* Real leaf photo — transparent background PNG */}
           <img
-            src="/leaf-hero.webp"
+            src="/leaf-hero-removebg-preview.png"
             alt=""
             aria-hidden="true"
             className="absolute -right-8 top-0 w-[380px] md:w-[480px] h-auto opacity-95 rotate-3 pointer-events-none"
