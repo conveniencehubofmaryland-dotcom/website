@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import type { Service } from '@/lib/types'
 import BookingCalendar from '@/components/BookingCalendar'
 
@@ -74,9 +75,9 @@ export default function BookingForm({ services }: Props) {
           Thank you, <strong>{form.customer_name}</strong>. We&apos;ll confirm your booking at{' '}
           <strong>{form.phone}</strong> within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).
         </p>
-        <a href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
+        <Link href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
           ← Back to Home
-        </a>
+        </Link>
       </div>
     )
   }

@@ -39,7 +39,6 @@ export default function Navbar() {
           {/* Crop container: logo.jpeg is 500×500 with heavy white padding.
               We render it tall internally then crop to just the logo content band. */}
           <div className="overflow-hidden" style={{ height: '80px', width: '420px' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.jpeg"
               alt="Convenience Hub of Maryland"
