@@ -26,7 +26,7 @@ export default async function ServicesPage() {
   return (
     <div className="bg-white">
       {/* Header */}
-      <div className="bg-cream py-16 border-b border-gray-100">
+      <div className="bg-cream py-10 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">What We Offer</p>
           <h1 className="font-serif text-5xl md:text-6xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -39,7 +39,7 @@ export default async function ServicesPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-20">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-12">
         {(services as Service[] ?? []).map((service, idx) => (
           <AnimatedSection key={service.id} delay={idx * 80}>
             <section id={service.slug}>

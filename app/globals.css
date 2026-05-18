@@ -3,13 +3,44 @@
 @theme {
   --color-chm-red: #E8192C;
   --color-chm-black: #1A1A1A;
+  --color-cream: #FAF8F5;
+  --color-blush: #FFF5F5;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background: #ffffff;
   color: #1A1A1A;
+  font-family: var(--font-sans);
+}
+
+/* ── Scroll reveal ─────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Floral divider ─────────────────────────────────── */
+.floral-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+}
+.floral-divider::before,
+.floral-divider::after {
+  content: '';
+  flex: 1;
+  max-width: 72px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
 }

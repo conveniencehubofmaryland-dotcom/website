@@ -23,7 +23,7 @@ export default async function DealsPage() {
   return (
     <div className="bg-white">
       {/* Header */}
-      <div className="bg-cream py-16 border-b border-gray-100">
+      <div className="bg-cream py-10 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Save More</p>
           <h1 className="font-serif text-5xl md:text-6xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -36,7 +36,7 @@ export default async function DealsPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
           {(deals as Deal[] ?? []).map((d, i) => (
             <AnimatedSection key={d.id} delay={i * 80}>
