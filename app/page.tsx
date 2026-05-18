@@ -213,7 +213,7 @@ export default async function HomePage() {
           className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.18] pointer-events-none select-none"
         />
         {/* Rose tint overlay */}
-        <div className="absolute inset-0 bg-rose-200/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-rose-300/50 pointer-events-none" />
         {/* Fade edges into cream */}
         <div className="absolute inset-0 bg-gradient-to-b from-cream/60 via-transparent to-cream/80 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-cream/50 via-transparent to-cream/50 pointer-events-none" />
