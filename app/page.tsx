@@ -26,17 +26,16 @@ const SERVICE_IMAGES: Record<string, string> = {
 
 function LeafSVG({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 160 280" xmlns="http://www.w3.org/2000/svg" className={className} fill="none" stroke="currentColor">
-      <path d="M80,270 C80,270 80,200 80,10" strokeWidth="1.2"/>
-      <path d="M80,10 C80,10 140,40 150,100 C160,160 130,220 80,270 C30,220 0,160 10,100 C20,40 80,10 80,10Z" strokeWidth="0.8"/>
-      <path d="M80,80 C60,70 30,65 15,75" strokeWidth="0.6"/>
-      <path d="M80,120 C55,110 25,108 8,118" strokeWidth="0.6"/>
-      <path d="M80,160 C58,152 30,152 14,162" strokeWidth="0.6"/>
-      <path d="M80,200 C62,196 40,198 26,208" strokeWidth="0.6"/>
-      <path d="M80,80 C100,70 130,65 145,75" strokeWidth="0.6"/>
-      <path d="M80,120 C105,110 135,108 152,118" strokeWidth="0.6"/>
-      <path d="M80,160 C102,152 130,152 146,162" strokeWidth="0.6"/>
-      <path d="M80,200 C98,196 120,198 134,208" strokeWidth="0.6"/>
+    <svg viewBox="0 0 160 280" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M80,10 C80,10 143,43 153,103 C163,163 130,222 80,270 C30,222 -3,163 7,103 C17,43 80,10 80,10 Z"
+      />
+      <path fill="none" stroke="currentColor" strokeWidth="2.5" d="M80,270 L80,278" />
+      <path
+        fill="none" stroke="white" strokeWidth="0.9" strokeOpacity="0.18"
+        d="M80,270 L80,10 M80,80 C60,70 30,65 15,75 M80,80 C100,70 130,65 145,75 M80,120 C55,110 25,108 8,118 M80,120 C105,110 135,108 152,118 M80,160 C58,152 30,152 14,162 M80,160 C102,152 130,152 146,162 M80,205 C62,198 40,200 26,208 M80,205 C98,198 120,200 134,208"
+      />
     </svg>
   )
 }
@@ -72,7 +71,7 @@ export default async function HomePage() {
       <section className="relative bg-cream overflow-hidden flex items-center py-16 md:py-24">
         <div className="absolute inset-0 pointer-events-none select-none">
           <LeafSVG className="absolute -right-8 top-[-4%] w-[300px] h-[300px] text-chm-red opacity-[0.22] rotate-12" />
-          <LeafSVG className="absolute -left-12 bottom-[-8%] w-[240px] h-[240px] text-chm-red opacity-[0.16] -rotate-20 scale-x-[-1]" />
+          <LeafSVG className="absolute -left-16 bottom-[-10%] w-[420px] h-[420px] text-chm-red opacity-[0.72] -rotate-20 scale-x-[-1]" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 w-full">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
@@ -90,8 +89,11 @@ export default async function HomePage() {
             Professional cleaning, laundry, culinary support, and care — tailored to your schedule.
           </p>
           <div className="flex flex-wrap gap-3">
-            <a href="https://wa.me/12025792944" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
-              Book via WhatsApp
+            <Link href="/book" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
+              Book Now
+            </Link>
+            <a href="https://wa.me/12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
+              WhatsApp
             </a>
             <a href="tel:+12025792944" className="border border-chm-black/20 text-chm-black px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:border-chm-red hover:text-chm-red transition-colors">
               Call 202-579-2944
@@ -104,24 +106,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Trust pillars ────────────────────────────────── */}
+      {/* ── Trust strip ──────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-5 grid grid-cols-3 divide-x divide-gray-100">
-          {[
-            { icon: '✓', label: 'Background Checked' },
-            { icon: '✓', label: 'Fully Insured' },
-            { icon: '✓', label: 'CPR Certified & Vaccinated' },
-          ].map(({ icon, label }) => (
-            <div key={label} className="flex items-center justify-center gap-2 px-4">
-              <span className="text-chm-red font-bold text-sm">{icon}</span>
-              <span className="text-chm-black text-xs font-semibold uppercase tracking-widest">{label}</span>
-            </div>
-          ))}
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-center gap-3">
+          <span className="text-chm-red font-bold text-base">✓</span>
+          <span className="text-chm-black text-xs font-semibold uppercase tracking-[0.25em]">We Are Fully Insured</span>
         </div>
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-16 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-20 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },

@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 function WhatsAppIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
@@ -41,18 +42,27 @@ export default function FloatingCTA() {
 
       {/* Mobile: sticky bottom bar — always visible */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex border-t border-gray-200 shadow-lg">
+        <Link
+          href="/book"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3.5 bg-chm-black text-white font-semibold text-xs tracking-wide"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Book
+        </Link>
         <a
           href="https://wa.me/12025792944"
-          className="flex-1 flex items-center justify-center gap-2 py-4 bg-[#25D366] text-white font-semibold text-sm tracking-wide"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3.5 bg-[#25D366] text-white font-semibold text-xs tracking-wide"
         >
-          <WhatsAppIcon className="w-5 h-5" />
+          <WhatsAppIcon className="w-4 h-4" />
           WhatsApp
         </a>
         <a
           href="tel:+12025792944"
-          className="flex-1 flex items-center justify-center gap-2 py-4 bg-chm-red text-white font-semibold text-sm tracking-wide"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3.5 bg-chm-red text-white font-semibold text-xs tracking-wide"
         >
-          <PhoneIcon className="w-5 h-5" />
+          <PhoneIcon className="w-4 h-4" />
           Call Now
         </a>
       </div>

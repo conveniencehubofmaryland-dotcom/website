@@ -33,14 +33,14 @@ export default function Navbar() {
         ? 'bg-white shadow-sm border-b border-gray-100'
         : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
     }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
           <Image
             src="/logo.jpeg"
             alt="Convenience Hub of Maryland"
-            width={200}
-            height={67}
-            className="h-14 w-auto"
+            width={240}
+            height={80}
+            className="h-16 w-auto"
             priority
             unoptimized
           />
@@ -57,22 +57,22 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
-          <a
-            href="https://wa.me/12025792944"
+          <Link
+            href="/book"
             className="bg-chm-red text-white px-6 py-2 font-semibold text-xs tracking-widest uppercase hover:bg-red-700 transition-colors"
           >
             Book Now
-          </a>
+          </Link>
         </div>
 
         {/* Mobile */}
         <div className="flex md:hidden items-center gap-3">
-          <a
-            href="https://wa.me/12025792944"
+          <Link
+            href="/book"
             className="bg-chm-red text-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
           >
             Book Now
-          </a>
+          </Link>
           <button
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
