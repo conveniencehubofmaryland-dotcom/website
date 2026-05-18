@@ -3,9 +3,17 @@ import AnimatedSection from '@/components/AnimatedSection'
 
 
 export const metadata: Metadata = {
-  title: 'Services & Pricing | Convenience Hub of Maryland',
+  title: 'Services & Pricing | Cleaning, Laundry, Nanny & More — Convenience Hub of Maryland',
   description:
-    'Full pricing for professional cleaning, laundry pickup & delivery, culinary & housekeeping, and nanny & care services in Maryland, Virginia & D.C.',
+    'Full pricing for professional cleaning, laundry pickup & delivery, culinary & housekeeping, nanny & care, and commercial services in Maryland, Virginia & Washington D.C. Book online or call 202-579-2944.',
+  keywords: [
+    'cleaning service prices Maryland', 'laundry pickup delivery prices DMV',
+    'maid service prices Virginia', 'house cleaning cost Maryland',
+    'nanny services Maryland pricing', 'culinary housekeeping DMV',
+    'commercial cleaning Maryland', 'home services near me DMV',
+    'laundry service prices near me', 'move in move out cleaning Maryland',
+  ],
+  alternates: { canonical: 'https://www.conveniencehubofmaryland.com/services' },
 }
 
 const SERVICE_IMAGES: Record<string, string> = {

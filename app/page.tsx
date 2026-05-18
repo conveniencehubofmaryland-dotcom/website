@@ -22,12 +22,23 @@ const STATIC_DEALS = [
 ]
 
 export const metadata: Metadata = {
-  title: 'Convenience Hub of Maryland | Home Services DMV',
+  title: 'Convenience Hub of Maryland | Home Services DMV — Cleaning, Laundry, Nanny & More',
   description:
-    'Reliable home services in Maryland, Virginia & D.C. — cleaning, laundry pickup & delivery, culinary, and care. Call or text 202-579-2944.',
+    'Top-rated home services in Maryland, Virginia & Washington D.C. — professional cleaning, laundry pickup & delivery, culinary, nanny & care. Book online or call 202-579-2944.',
+  keywords: [
+    'home services Maryland', 'home services Virginia', 'home services Washington DC',
+    'cleaning service DMV', 'laundry pickup delivery Maryland', 'maid service Maryland',
+    'house cleaning Maryland', 'nanny services DMV', 'home cleaning near me',
+    'laundry service near me', 'housekeeping DMV', 'convenience hub of maryland',
+  ],
   openGraph: {
     title: 'Convenience Hub of Maryland | Home Services DMV',
-    description: 'Reliable home services in the DMV. Call or text 202-579-2944.',
+    description: 'Professional cleaning, laundry pickup & delivery, culinary, and care services in MD, VA & DC. Call 202-579-2944.',
+    url: 'https://www.conveniencehubofmaryland.com',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://www.conveniencehubofmaryland.com',
   },
 }
 
@@ -173,14 +184,19 @@ export default async function HomePage() {
               dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
               opens: '09:00', closes: '21:00',
             }],
+            sameAs: [
+              'https://www.facebook.com/conveniencehubofmaryland',
+              'https://www.instagram.com/conveniencehubofmaryland',
+            ],
             hasOfferCatalog: {
               '@type': 'OfferCatalog',
-              name: 'Home Services',
+              name: 'Home Services DMV',
               itemListElement: [
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Professional Cleaning & Estate Care' }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laundry Pickup & Delivery' }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Culinary & Housekeeping' }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Nanny & Care Services' }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laundry Pickup & Delivery', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Professional Cleaning & Estate Care', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Culinary & Housekeeping Management', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Nanny & Care Services', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial Cleaning & Special Projects', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
               ],
             },
           }),

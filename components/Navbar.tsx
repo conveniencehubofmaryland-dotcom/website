@@ -5,11 +5,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const navLinks = [
-  { href: '/about',    label: 'About'    },
-  { href: '/services', label: 'Services' },
-  { href: '/deals',    label: 'Deals'    },
-  { href: '/reviews',  label: 'Reviews'  },
-  { href: '/contact',  label: 'Contact'  },
+  { href: '/about',      label: 'About'      },
+  { href: '/services',   label: 'Services'   },
+  { href: '/deals',      label: 'Deals'      },
+  { href: '/membership', label: 'Membership' },
+  { href: '/careers',    label: 'Careers'    },
+  { href: '/reviews',    label: 'Reviews'    },
+  { href: '/contact',    label: 'Contact'    },
 ]
 
 export default function Navbar() {
@@ -55,7 +57,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-5">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
