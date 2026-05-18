@@ -27,24 +27,32 @@ const SERVICE_IMAGES: Record<string, string> = {
 function LeafSVG({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 160 290" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-      {/* Authentic leaf body — pointed tip, widest at upper third, tapers to base */}
+      {/*
+        Key: first control point sits directly below tip (same x=80)
+        so both halves start STRAIGHT DOWN before curving outward.
+        This produces a sharp pointed tip instead of a balloon top.
+      */}
       <path
         fill="currentColor"
-        d="M80,6 C88,18 148,55 150,108 C152,162 124,228 80,272 C36,228 8,162 10,108 C12,55 72,18 80,6 Z"
+        d="M80,5
+           C 80,32 148,62 150,108
+           C 150,158 118,230 80,274
+           C 42,230 10,158 10,108
+           C 12,62 80,32 80,5 Z"
       />
       {/* Stem */}
-      <path fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" d="M80,272 L80,285"/>
+      <path fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" d="M80,274 L80,286"/>
       {/* Midrib */}
-      <path fill="none" stroke="white" strokeWidth="1.4" strokeOpacity="0.4" d="M80,272 L80,6"/>
-      {/* Secondary veins — alternating, angled upward from midrib */}
-      <path fill="none" stroke="white" strokeWidth="0.75" strokeOpacity="0.32"
-        d="M80,52 L120,38 M80,52 L40,38
-           M80,84 L138,68 M80,84 L22,68
-           M80,114 L148,100 M80,114 L12,100
-           M80,144 L146,132 M80,144 L14,132
-           M80,174 L138,164 M80,174 L22,164
-           M80,204 L124,196 M80,204 L36,196
-           M80,232 L110,227 M80,232 L50,227"
+      <path fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.38" d="M80,274 L80,5"/>
+      {/* Secondary veins — radiate upward from midrib toward margin */}
+      <path fill="none" stroke="white" strokeWidth="0.7" strokeOpacity="0.30"
+        d="M80,55  L130,40  M80,55  L30,40
+           M80,88  L142,72  M80,88  L18,72
+           M80,118 L150,103 M80,118 L10,103
+           M80,148 L146,135 M80,148 L14,135
+           M80,178 L136,167 M80,178 L24,167
+           M80,208 L120,200 M80,208 L40,200
+           M80,238 L105,233 M80,238 L55,233"
       />
     </svg>
   )
