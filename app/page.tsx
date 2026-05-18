@@ -25,34 +25,33 @@ const SERVICE_IMAGES: Record<string, string> = {
 }
 
 function LeafSVG({ className = '' }: { className?: string }) {
+  // Cordate (heart-shaped) tropical leaf — wide lobes at top, pointed tip at bottom,
+  // notch at top center where stem attaches. Matches the reference photo aesthetic.
   return (
-    <svg viewBox="0 0 160 290" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-      {/*
-        Key: first control point sits directly below tip (same x=80)
-        so both halves start STRAIGHT DOWN before curving outward.
-        This produces a sharp pointed tip instead of a balloon top.
-      */}
+    <svg viewBox="0 0 180 230" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+      {/* Stem */}
+      <path fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" d="M90,4 L90,26"/>
+      {/* Cordate leaf body: notch at top-center, lobes curve upward, pointed tip at bottom */}
       <path
         fill="currentColor"
-        d="M80,5
-           C 80,32 148,62 150,108
-           C 150,158 118,230 80,274
-           C 42,230 10,158 10,108
-           C 12,62 80,32 80,5 Z"
+        d="M90,26
+           C 108,6  160,8  162,56
+           C 164,104 148,170 90,220
+           C 32,170 16,104 18,56
+           C 20,8   72,6   90,26 Z"
       />
-      {/* Stem */}
-      <path fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" d="M80,274 L80,286"/>
-      {/* Midrib */}
-      <path fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.38" d="M80,274 L80,5"/>
-      {/* Secondary veins — radiate upward from midrib toward margin */}
-      <path fill="none" stroke="white" strokeWidth="0.7" strokeOpacity="0.30"
-        d="M80,55  L130,40  M80,55  L30,40
-           M80,88  L142,72  M80,88  L18,72
-           M80,118 L150,103 M80,118 L10,103
-           M80,148 L146,135 M80,148 L14,135
-           M80,178 L136,167 M80,178 L24,167
-           M80,208 L120,200 M80,208 L40,200
-           M80,238 L105,233 M80,238 L55,233"
+      {/* Midrib — notch to tip */}
+      <path fill="none" stroke="white" strokeWidth="1.8" strokeOpacity="0.40" d="M90,26 L90,220"/>
+      {/* Palmate veins radiating from upper midrib toward margins, matching photo */}
+      <path fill="none" stroke="white" strokeWidth="0.85" strokeOpacity="0.28"
+        d="M90,48 C 118,40 152,44 162,56
+           M90,48 C 62,40 28,44 18,56
+           M90,72 C 130,70 158,90 160,125
+           M90,72 C 50,70 22,90 20,125
+           M90,105 C 132,106 158,130 158,165
+           M90,105 C 48,106 22,130 22,165
+           M90,140 C 128,144 150,168 146,195
+           M90,140 C 52,144 30,168 34,195"
       />
     </svg>
   )
@@ -133,7 +132,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-24 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-28 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },

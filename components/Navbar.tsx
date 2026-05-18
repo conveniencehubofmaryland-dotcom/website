@@ -33,14 +33,14 @@ export default function Navbar() {
         ? 'bg-white shadow-sm border-b border-gray-100'
         : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
     }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-28 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
           <Image
             src="/logo.jpeg"
             alt="Convenience Hub of Maryland"
-            width={320}
-            height={107}
-            className="h-20 w-auto"
+            width={380}
+            height={127}
+            className="h-24 w-auto"
             priority
             unoptimized
           />
