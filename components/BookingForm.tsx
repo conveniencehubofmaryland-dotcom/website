@@ -44,6 +44,13 @@ const SERVICE_STATES = [
 ]
 
 export default function BookingForm({ services }: Props) {
+  // Compute min/default date in ET before seeding state
+  const _etToday = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+  const _etDow   = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
+  const _defaultDate = _etDow === 'Sun'
+    ? new Date(Date.now() + 86400000).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+    : _etToday
+
   const [form, setForm] = useState({
     customer_name:    '',
     phone:            '',
@@ -51,17 +58,14 @@ export default function BookingForm({ services }: Props) {
     state:            '',
     service_id:       '',
     service_title:    '',
-    appointment_date: '',
+    appointment_date: _defaultDate,
     time_slot:        '',
     notes:            '',
   })
   const [status,   setStatus]   = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Earliest selectable date — if today is Sunday, start Monday
-  const todayDate = new Date()
-  if (todayDate.getDay() === 0) todayDate.setDate(todayDate.getDate() + 1)
-  const minDate = todayDate.toISOString().split('T')[0]
+  const minDate = _defaultDate
   const maxDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   function set(field: string, value: string) {
