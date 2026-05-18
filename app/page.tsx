@@ -18,10 +18,10 @@ export const metadata: Metadata = {
 }
 
 const SERVICE_IMAGES: Record<string, string> = {
-  cleaning:   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=75',
-  culinary:   'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=75',
-  laundry:    'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=900&q=75',
-  care:       'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=900&q=75',
+  laundry:    '/service-laundry.jpg',
+  cleaning:   '/service-cleaning.jpg',
+  culinary:   '/service-culinary.jpg',
+  care:       '/service-care.jpg',
   commercial: '/commercial-hero.jpg',
 }
 
