@@ -33,17 +33,25 @@ export default function Navbar() {
         ? 'bg-white shadow-sm border-b border-gray-100'
         : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
     }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-28 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
         <Link href="/" onClick={() => setOpen(false)}>
-          <Image
-            src="/logo.jpeg"
-            alt="Convenience Hub of Maryland"
-            width={380}
-            height={127}
-            className="h-24 w-auto"
-            priority
-            unoptimized
-          />
+          {/*
+            Logo JPEG has significant white padding.
+            We over-size the image height and use negative margin + overflow-hidden
+            to crop the padding and show only the actual logo content at large size.
+          */}
+          <div className="overflow-hidden" style={{ height: '72px', width: '260px' }}>
+            <Image
+              src="/logo.jpeg"
+              alt="Convenience Hub of Maryland"
+              width={520}
+              height={174}
+              className="w-auto"
+              style={{ height: '174px', marginTop: '-42px', marginLeft: '-8px' }}
+              priority
+              unoptimized
+            />
+          </div>
         </Link>
 
         {/* Desktop */}

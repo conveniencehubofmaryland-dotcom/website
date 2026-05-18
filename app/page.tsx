@@ -132,7 +132,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-28 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-24 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },
