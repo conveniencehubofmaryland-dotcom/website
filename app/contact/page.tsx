@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/utils/supabase/server'
+import { dbSelect } from '@/lib/db'
 import type { ContactInfo, BusinessHour } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
@@ -13,11 +13,9 @@ export const metadata: Metadata = {
 }
 
 export default async function ContactPage() {
-  const supabase = await createClient()
-
-  const [{ data: contacts }, { data: hours }] = await Promise.all([
-    supabase.from('contact_info').select('*').order('sort_order'),
-    supabase.from('business_hours').select('*').order('day_order'),
+  const [contacts, hours] = await Promise.all([
+    dbSelect<ContactInfo>('contact_info', { order: 'sort_order' }),
+    dbSelect<BusinessHour>('business_hours', { order: 'day_order' }),
   ])
 
   const ctaLabel: Record<string, string> = {
@@ -27,7 +25,7 @@ export default async function ContactPage() {
     email:    'Send Email',
   }
 
-  const openDays = (hours as BusinessHour[] ?? []).filter((h) => h.is_open)
+  const openDays = (hours ?? []).filter((h) => h.is_open)
   const firstOpen = openDays[0]
   const lastOpen  = openDays[openDays.length - 1]
 
@@ -50,7 +48,7 @@ export default async function ContactPage() {
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
         {/* Contact methods */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
-          {(contacts as ContactInfo[] ?? []).map((c, i) => (
+          {(contacts ?? []).map((c, i) => (
             <AnimatedSection key={c.id} delay={i * 80}>
               <div className="bg-white p-8 hover:bg-blush transition-colors flex flex-col justify-between gap-6 h-full">
                 <div>

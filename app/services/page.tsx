@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/utils/supabase/server'
+import { dbSelect } from '@/lib/db'
 import type { Service, PricingItem } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
@@ -21,8 +21,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ServicesPage() {
-  const supabase = await createClient()
-  const { data: services } = await supabase.from('services').select('*').eq('active', true).order('sort_order')
+  const services = await dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order' })
 
   return (
     <div className="bg-white">
@@ -41,7 +40,7 @@ export default async function ServicesPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-12">
-        {(services as Service[] ?? []).map((service, idx) => (
+        {(services ?? []).map((service, idx) => (
           <AnimatedSection key={service.id} delay={idx * 80}>
             <section id={service.slug}>
               {/* Service image */}

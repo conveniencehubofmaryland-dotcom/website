@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/utils/supabase/server'
+import { dbSelect } from '@/lib/db'
 import type { Deal } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
@@ -13,12 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DealsPage() {
-  const supabase = await createClient()
-  const { data: deals } = await supabase
-    .from('deals')
-    .select('*')
-    .eq('active', true)
-    .order('sort_order')
+  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
 
   return (
     <div className="bg-white">
@@ -38,7 +33,7 @@ export default async function DealsPage() {
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
-          {(deals as Deal[] ?? []).map((d, i) => (
+          {(deals ?? []).map((d, i) => (
             <AnimatedSection key={d.id} delay={i * 80}>
               <div className="bg-white p-8 hover:bg-blush transition-colors h-full">
                 <span className="text-xs font-semibold uppercase tracking-widest text-chm-red border border-chm-red/30 px-3 py-1 inline-block mb-5">

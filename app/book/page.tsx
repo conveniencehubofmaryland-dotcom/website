@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/utils/supabase/server'
+import { dbSelect } from '@/lib/db'
 import type { Service } from '@/lib/types'
 import BookingForm from '@/components/BookingForm'
 
@@ -13,12 +13,11 @@ export const metadata: Metadata = {
 }
 
 export default async function BookPage() {
-  const supabase = await createClient()
-  const { data: services } = await supabase
-    .from('services')
-    .select('id, title, price_from')
-    .eq('active', true)
-    .order('sort_order')
+  const services = await dbSelect<Service>('services', {
+    active: 'eq.true',
+    order: 'sort_order',
+    select: 'id,title,price_from',
+  })
 
   return (
     <div className="bg-white">
@@ -37,7 +36,7 @@ export default async function BookPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 sm:px-8 py-16">
-        <BookingForm services={(services as Service[] ?? [])} />
+        <BookingForm services={(services ?? [])} />
       </div>
     </div>
   )

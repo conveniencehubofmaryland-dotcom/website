@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
+import { dbSelect } from '@/lib/db'
 import type { Service, Deal } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 
@@ -133,11 +133,9 @@ function LeafSVG({ className = '' }: { className?: string }) {
 }
 
 export default async function HomePage() {
-  const supabase = await createClient()
-
-  const [{ data: services }, { data: deals }] = await Promise.all([
-    supabase.from('services').select('id, slug, title, subtitle, description, price_from').eq('active', true).order('sort_order'),
-    supabase.from('deals').select('id, badge, headline, detail').eq('active', true).order('sort_order'),
+  const [services, deals] = await Promise.all([
+    dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,slug,title,subtitle,description,price_from' }),
+    dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', select: 'id,badge,headline,detail' }),
   ])
 
   return (
@@ -257,7 +255,7 @@ export default async function HomePage() {
             </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-100">
-              {(services as Service[]).map((s, i) => (
+              {(services ?? []).map((s, i) => (
                 <AnimatedSection
                   key={s.id}
                   delay={i * 60}
@@ -313,7 +311,7 @@ export default async function HomePage() {
             </AnimatedSection>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200">
-              {(deals as Deal[]).map((d, i) => (
+              {(deals ?? []).map((d, i) => (
                 <AnimatedSection key={d.id} delay={i * 60}>
                   <div className="bg-white p-6 hover:bg-blush transition-colors h-full">
                     <p className="text-chm-red font-semibold text-xs uppercase tracking-widest mb-3">{d.badge}</p>
