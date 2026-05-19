@@ -3,9 +3,12 @@ export async function sendSms(to: string, body: string): Promise<void> {
   const key    = process.env.TWILIO_API_KEY
   const secret = process.env.TWILIO_API_SECRET
   const from   = process.env.TWILIO_FROM_NUMBER
-  if (!sid || !key || !secret || !from) return
+  if (!sid || !key || !secret || !from) {
+    console.error('[sms] missing env vars', { sid: !!sid, key: !!key, secret: !!secret, from: !!from })
+    return
+  }
   try {
-    await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
       method: 'POST',
       headers: {
         Authorization: `Basic ${btoa(`${key}:${secret}`)}`,
@@ -13,5 +16,8 @@ export async function sendSms(to: string, body: string): Promise<void> {
       },
       body: new URLSearchParams({ To: to, From: from, Body: body }).toString(),
     })
-  } catch { /* non-critical */ }
+    if (!res.ok) console.error('[sms] failed:', await res.text())
+  } catch (e) {
+    console.error('[sms] error:', e)
+  }
 }
