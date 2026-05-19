@@ -14,6 +14,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Email service not configured.' }, { status: 500 })
   }
 
+  // WhatsApp notification
+  const waMsg = encodeURIComponent(
+    `NEW ENQUIRY\nFrom: ${name.trim()}\n` +
+    (phone?.trim() ? `Phone: ${phone.trim()}\n` : '') +
+    (email?.trim() ? `Email: ${email.trim()}\n` : '') +
+    `Message: ${message.trim()}`
+  )
+  const waSend = (p: string, k: string) =>
+    fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => {})
+  const waKey1 = process.env.CALLMEBOT_API_KEY
+  const waPhone1 = process.env.CALLMEBOT_PHONE
+  const waKey2 = process.env.CALLMEBOT_API_KEY_2
+  const waPhone2 = process.env.CALLMEBOT_PHONE_2
+  if (waKey1 && waPhone1) waSend(waPhone1, waKey1)
+  if (waKey2 && waPhone2) waSend(waPhone2, waKey2)
+
   const replyTo = email?.trim() || undefined
 
   try {
