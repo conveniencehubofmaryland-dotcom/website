@@ -146,10 +146,10 @@ export default async function ServicesPage() {
           return (
             <AnimatedSection key={service.id} delay={idx * 80}>
               <section id={service.slug ?? service.id}>
-                {SERVICE_IMAGES[service.id] && (
+                {SERVICE_IMAGES[service.slug] && (
                   <div className="relative overflow-hidden h-64 md:h-80 mb-8">
                     <img
-                      src={SERVICE_IMAGES[service.id]}
+                      src={SERVICE_IMAGES[service.slug]}
                       alt={service.title}
                       className="w-full h-full object-cover"
                     />
