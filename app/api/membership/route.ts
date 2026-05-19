@@ -31,6 +31,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save membership. Please call us at 202-579-2944.' }, { status: 500 })
   }
 
+  // WhatsApp notification to owner
+  const waKey1 = process.env.CALLMEBOT_API_KEY
+  const waPhone1 = process.env.CALLMEBOT_PHONE
+  const waKey2 = process.env.CALLMEBOT_API_KEY_2
+  const waPhone2 = process.env.CALLMEBOT_PHONE_2
+  const waMsg = encodeURIComponent(
+    `NEW MEMBER\nName: ${name.trim()}\nPhone: ${phone.trim()}\nEmail: ${email.trim()}\nLocation: ${state}` +
+    (address?.trim() ? `\nAddress: ${address.trim()}` : '') +
+    (Array.isArray(services) && services.length ? `\nServices: ${services.join(', ')}` : '') +
+    (frequency ? `\nFrequency: ${frequency}` : '')
+  )
+  const waSend = (p: string, k: string) =>
+    fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => {})
+  if (waKey1 && waPhone1) waSend(waPhone1, waKey1)
+  if (waKey2 && waPhone2) waSend(waPhone2, waKey2)
+
   const apiKey = process.env.RESEND_API_KEY
   if (apiKey) {
     const trimmedName  = name.trim()
