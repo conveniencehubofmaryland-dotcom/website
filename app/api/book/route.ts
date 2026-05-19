@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 
 async function whatsappNotify(message: string) {
-  const apiKey = process.env.CALLMEBOT_API_KEY
-  const phone  = process.env.CALLMEBOT_PHONE
-  if (!apiKey || !phone) return
+  const apiKey  = process.env.CALLMEBOT_API_KEY
+  const phone   = process.env.CALLMEBOT_PHONE
+  const apiKey2 = process.env.CALLMEBOT_API_KEY_2
+  const phone2  = process.env.CALLMEBOT_PHONE_2
+  const encoded = encodeURIComponent(message)
   try {
-    await fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`)
+    const sends = []
+    if (apiKey && phone)   sends.push(fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encoded}&apikey=${apiKey}`))
+    if (apiKey2 && phone2) sends.push(fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone2}&text=${encoded}&apikey=${apiKey2}`))
+    await Promise.all(sends)
   } catch { /* non-critical */ }
 }
 
