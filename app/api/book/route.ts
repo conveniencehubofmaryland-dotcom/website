@@ -144,7 +144,21 @@ export async function POST(req: NextRequest) {
   const title = service_title?.trim() || service_id
   const trimmedEmail = email?.trim() || null
 
-  whatsappNotify(`New Booking: ${title}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nDate: ${appointment_date} at ${time_slot}\nState: ${state}${notes?.trim() ? `\nNotes: ${notes.trim()}` : ''}`)
+  const stateLabel = state === 'MD' ? 'Maryland' : state === 'VA' ? 'Virginia' : state === 'DC' ? 'Washington D.C.' : state
+  whatsappNotify(
+    `*New Booking Request*\n` +
+    `-------------------\n` +
+    `*Service:* ${title}\n` +
+    `*Date:* ${appointment_date} at ${time_slot}\n` +
+    `*Location:* ${stateLabel}\n` +
+    `-------------------\n` +
+    `*Customer:* ${customer_name.trim()}\n` +
+    `*Phone:* ${phone.trim()}\n` +
+    (trimmedEmail ? `*Email:* ${trimmedEmail}\n` : '') +
+    (notes?.trim() ? `*Notes:* ${notes.trim()}\n` : '') +
+    `-------------------\n` +
+    `View: https://www.conveniencehubofmaryland.com/admin/appointments`
+  )
 
   await Promise.all([
     notifyOwner({
