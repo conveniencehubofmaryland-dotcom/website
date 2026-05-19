@@ -29,8 +29,10 @@ export async function POST(req: NextRequest) {
   const waPhone1 = process.env.CALLMEBOT_PHONE
   const waKey2 = process.env.CALLMEBOT_API_KEY_2
   const waPhone2 = process.env.CALLMEBOT_PHONE_2
-  if (waKey1 && waPhone1) waSend(waPhone1, waKey1)
-  if (waKey2 && waPhone2) waSend(waPhone2, waKey2)
+  await Promise.all([
+    waKey1 && waPhone1 ? waSend(waPhone1, waKey1) : Promise.resolve(),
+    waKey2 && waPhone2 ? waSend(waPhone2, waKey2) : Promise.resolve(),
+  ])
 
   const replyTo = email?.trim() || undefined
 
