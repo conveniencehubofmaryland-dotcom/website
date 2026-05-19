@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 
+async function whatsappNotify(message: string) {
+  const apiKey = process.env.CALLMEBOT_API_KEY
+  const phone  = process.env.CALLMEBOT_PHONE
+  if (!apiKey || !phone) return
+  try {
+    await fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`)
+  } catch { /* non-critical */ }
+}
+
 
 async function confirmCustomer(booking: {
   customer_name: string
@@ -129,6 +138,8 @@ export async function POST(req: NextRequest) {
 
   const title = service_title?.trim() || service_id
   const trimmedEmail = email?.trim() || null
+
+  whatsappNotify(`New Booking: ${title}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nDate: ${appointment_date} at ${time_slot}\nState: ${state}${notes?.trim() ? `\nNotes: ${notes.trim()}` : ''}`)
 
   await Promise.all([
     notifyOwner({
