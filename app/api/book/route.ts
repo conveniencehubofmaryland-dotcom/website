@@ -9,8 +9,9 @@ async function whatsappNotify(message: string) {
   const encoded = encodeURIComponent(message)
   try {
     const sends = []
-    if (apiKey && phone)   sends.push(fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encoded}&apikey=${apiKey}`))
-    if (apiKey2 && phone2) sends.push(fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone2}&text=${encoded}&apikey=${apiKey2}`))
+    const wa = (p: string, k: string) => fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${encoded}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+    if (apiKey && phone)   sends.push(wa(phone, apiKey))
+    if (apiKey2 && phone2) sends.push(wa(phone2, apiKey2))
     await Promise.all(sends)
   } catch { /* non-critical */ }
 }
@@ -146,18 +147,15 @@ export async function POST(req: NextRequest) {
 
   const stateLabel = state === 'MD' ? 'Maryland' : state === 'VA' ? 'Virginia' : state === 'DC' ? 'Washington D.C.' : state
   whatsappNotify(
-    `*New Booking Request*\n` +
-    `-------------------\n` +
-    `*Service:* ${title}\n` +
-    `*Date:* ${appointment_date} at ${time_slot}\n` +
-    `*Location:* ${stateLabel}\n` +
-    `-------------------\n` +
-    `*Customer:* ${customer_name.trim()}\n` +
-    `*Phone:* ${phone.trim()}\n` +
-    (trimmedEmail ? `*Email:* ${trimmedEmail}\n` : '') +
-    (notes?.trim() ? `*Notes:* ${notes.trim()}\n` : '') +
-    `-------------------\n` +
-    `View: https://www.conveniencehubofmaryland.com/admin/appointments`
+    `NEW BOOKING\n` +
+    `Service: ${title}\n` +
+    `Date: ${appointment_date} at ${time_slot}\n` +
+    `Location: ${stateLabel}\n` +
+    `Customer: ${customer_name.trim()}\n` +
+    `Phone: ${phone.trim()}\n` +
+    (trimmedEmail ? `Email: ${trimmedEmail}\n` : '') +
+    (notes?.trim() ? `Notes: ${notes.trim()}\n` : '') +
+    `Admin: conveniencehubofmaryland.com/admin/appointments`
   )
 
   await Promise.all([

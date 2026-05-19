@@ -4,9 +4,7 @@ import type { Appointment } from '@/lib/types'
 import AppointmentStatusButton from '@/components/AppointmentStatusButton'
 
 
-type AppointmentRow = Omit<Appointment, 'services'> & {
-  services?: { title: string } | null
-}
+type AppointmentRow = Omit<Appointment, 'services'>
 
 const STATUS_FILTER_LABELS = ['all', 'pending', 'confirmed', 'cancelled'] as const
 
@@ -20,7 +18,7 @@ export default async function AdminAppointmentsPage({
   const token = cookieStore.get('chm_admin')?.value ?? ''
 
   const params: Record<string, string> = {
-    select: '*,services(title)',
+    select: '*',
     order:  'appointment_date.desc,created_at.desc',
   }
   if (filterStatus !== 'all') params.status = `eq.${filterStatus}`
@@ -87,7 +85,7 @@ export default async function AdminAppointmentsPage({
                     <p className="text-xs text-gray-500">{a.time_slot}</p>
                   </td>
                   <td className="py-3 px-4 text-gray-600 whitespace-nowrap">
-                    {a.services?.title ?? '—'}
+                    {a.service_id}
                   </td>
                   <td className="py-3 px-4">
                     <a href={`tel:${a.phone}`} className="text-chm-red hover:underline font-medium whitespace-nowrap">
