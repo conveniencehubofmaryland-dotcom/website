@@ -89,10 +89,10 @@ export default function AboutPage() {
           </h2>
           <p className="text-gray-600 text-sm leading-relaxed mb-6">
             We proudly serve residential and commercial clients across the greater DMV region, including all of
-            Maryland, Northern Virginia (NOVA), and Washington D.C.
+            Maryland, Northern Virginia (NOVA), Washington D.C., Howard County, and Loudoun County.
           </p>
           <div className="flex flex-wrap gap-3">
-            {['Maryland', 'Northern Virginia', 'Washington D.C.', 'Montgomery County', 'Prince George\'s County', 'Fairfax County', 'Arlington'].map(area => (
+            {['Maryland', 'Northern Virginia', 'Washington D.C.', 'Montgomery County', 'Prince George\'s County', 'Howard County', 'Fairfax County', 'Loudoun County', 'Arlington'].map(area => (
               <span key={area} className="border border-gray-200 text-gray-500 text-xs uppercase tracking-widest px-4 py-2">
                 {area}
               </span>

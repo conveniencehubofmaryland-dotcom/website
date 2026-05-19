@@ -178,7 +178,7 @@ export default async function HomePage() {
             description: 'Professional cleaning, laundry pickup & delivery, culinary, and care services in Maryland, Virginia, and Washington D.C.',
             priceRange: '$$',
             address: { '@type': 'PostalAddress', addressRegion: 'MD', addressCountry: 'US' },
-            areaServed: ['Maryland', 'Virginia', 'Washington D.C.'],
+            areaServed: ['Maryland', 'Virginia', 'Washington D.C.', 'Howard County', 'Loudoun County'],
             openingHoursSpecification: [{
               '@type': 'OpeningHoursSpecification',
               dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
@@ -192,11 +192,11 @@ export default async function HomePage() {
               '@type': 'OfferCatalog',
               name: 'Home Services DMV',
               itemListElement: [
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laundry Pickup & Delivery', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Professional Cleaning & Estate Care', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Culinary & Housekeeping Management', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Nanny & Care Services', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
-                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial Cleaning & Special Projects', areaServed: ['Maryland','Virginia','Washington D.C.'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Laundry Pickup & Delivery', areaServed: ['Maryland','Virginia','Washington D.C.','Howard County','Loudoun County'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Professional Cleaning & Estate Care', areaServed: ['Maryland','Virginia','Washington D.C.','Howard County','Loudoun County'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Culinary & Housekeeping Management', areaServed: ['Maryland','Virginia','Washington D.C.','Howard County','Loudoun County'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Nanny & Care Services', areaServed: ['Maryland','Virginia','Washington D.C.','Howard County','Loudoun County'] }},
+                { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial Cleaning & Special Projects', areaServed: ['Maryland','Virginia','Washington D.C.','Howard County','Loudoun County'] }},
               ],
             },
           }),
@@ -220,7 +220,7 @@ export default async function HomePage() {
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 py-16 md:py-28">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-4">
-            Maryland &nbsp;·&nbsp; Virginia &nbsp;·&nbsp; Washington D.C.
+            Maryland &nbsp;·&nbsp; Virginia &nbsp;·&nbsp; Washington D.C. &nbsp;·&nbsp; Howard County &nbsp;·&nbsp; Loudoun County
           </p>
           <h1
             className="font-serif text-5xl md:text-7xl text-chm-black leading-[1.05] mb-5 max-w-2xl"
