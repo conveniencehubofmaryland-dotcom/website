@@ -95,17 +95,6 @@ export async function PATCH(req: NextRequest) {
         }).catch(() => {})
       }
 
-      // WhatsApp to member's phone if on WhatsApp — skip, no member apikey.
-      // Notify owner via WhatsApp that activation was done
-      const waKey1 = process.env.CALLMEBOT_API_KEY
-      const waPhone1 = process.env.CALLMEBOT_PHONE
-      const waKey2 = process.env.CALLMEBOT_API_KEY_2
-      const waPhone2 = process.env.CALLMEBOT_PHONE_2
-      const waMsg = encodeURIComponent(`MEMBER ACTIVATED\nName: ${m.name}\nPhone: ${m.phone}\nEmail: ${m.email}`)
-      const waSend = (p: string, k: string) =>
-        fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => {})
-      if (waKey1 && waPhone1) waSend(waPhone1, waKey1)
-      if (waKey2 && waPhone2) waSend(waPhone2, waKey2)
     }
   }
 
