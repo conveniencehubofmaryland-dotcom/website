@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
     `Message: ${message.trim()}`
   )
   const waSend = (p: string, k: string) =>
-    fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => {})
+    fetch(`https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(p)}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+      .then(r => r.text().then(t => { if (!r.ok) console.error('[callmebot] failed:', t) }))
+      .catch(e => console.error('[callmebot] error:', e))
   const waKey1 = process.env.CALLMEBOT_API_KEY
   const waPhone1 = process.env.CALLMEBOT_PHONE
   const waKey2 = process.env.CALLMEBOT_API_KEY_2
