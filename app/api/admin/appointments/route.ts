@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
+import { sendSms } from '@/lib/sms'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
@@ -58,8 +59,13 @@ export async function PATCH(req: NextRequest) {
 
   if (status === 'confirmed') {
     const rows = await dbSelectAuth<Appointment>('appointments', token, { 'id': `eq.${id}`, select: '*' })
-    if (rows[0]?.email) {
-      sendConfirmationEmail(rows[0])
+    const appt = rows[0]
+    if (appt) {
+      if (appt.email) sendConfirmationEmail(appt)
+      sendSms(
+        appt.phone,
+        `Hi ${appt.customer_name}, your ${appt.service_id ?? 'service'} appointment on ${appt.appointment_date} at ${appt.time_slot} is confirmed! See you then. Questions? Call 202-579-2944.`
+      )
     }
   }
 

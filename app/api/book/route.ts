@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
+import { sendSms } from '@/lib/sms'
 
 async function whatsappNotify(message: string) {
   const apiKey  = process.env.CALLMEBOT_API_KEY
@@ -176,6 +177,10 @@ export async function POST(req: NextRequest) {
       appointment_date,
       time_slot,
     }) : Promise.resolve(),
+    sendSms(
+      phone.trim(),
+      `Hi ${customer_name.trim()}, we received your booking for ${title} on ${appointment_date} at ${time_slot}. We'll confirm within 1 hour (Mon-Sat 9AM-9PM). Questions? Call 202-579-2944.`
+    ),
   ])
 
   return NextResponse.json({ success: true })
