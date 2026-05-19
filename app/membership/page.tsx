@@ -16,7 +16,7 @@ const PERKS = [
 
 export default function MembershipPage() {
   const [form, setForm] = useState({
-    name: '', phone: '', email: '', state: '',
+    name: '', phone: '', email: '', state: '', address: '',
     services:   [] as string[],
     frequency:  '',
     recurring:  false,
@@ -138,6 +138,16 @@ export default function MembershipPage() {
                       {STATES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </select>
                   </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+                    Address <span className="text-gray-400 normal-case tracking-normal">(optional)</span>
+                  </label>
+                  <input type="text" value={form.address} onChange={e => set('address', e.target.value)}
+                    className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+                    placeholder="123 Main St, Silver Spring, MD 20901" />
                 </div>
 
                 {/* Services */}

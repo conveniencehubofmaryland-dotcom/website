@@ -1,16 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { dbInsert } from '@/lib/db'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, phone, email, state, services, frequency, recurring } = body
+  const { name, phone, email, state, address, services, frequency, recurring } = body
 
   if (!name?.trim() || !phone?.trim() || !email?.trim() || !state) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
   if (!VALID_STATES.includes(state)) {
     return NextResponse.json({ error: 'We only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
+  }
+
+  const { error } = await dbInsert('members', {
+    name:                name.trim(),
+    phone:               phone.trim(),
+    email:               email.trim(),
+    state,
+    address:             address?.trim() || null,
+    preferred_services:  Array.isArray(services) && services.length ? services : null,
+    service_frequency:   frequency || null,
+    recurring:           !!recurring,
+    active:              true,
+  })
+
+  if (error) {
+    console.error('[membership] insert failed:', error)
+    return NextResponse.json({ error: 'Failed to save membership. Please call us at 202-579-2944.' }, { status: 500 })
   }
 
   const apiKey = process.env.RESEND_API_KEY
@@ -30,6 +48,7 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:6px 16px 6px 0;color:#666">Phone</td><td><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
               <tr><td style="padding:6px 16px 6px 0;color:#666">Email</td><td>${email.trim()}</td></tr>
               <tr><td style="padding:6px 16px 6px 0;color:#666">Location</td><td>${state}</td></tr>
+              ${address?.trim() ? `<tr><td style="padding:6px 16px 6px 0;color:#666">Address</td><td>${address.trim()}</td></tr>` : ''}
               <tr><td style="padding:6px 16px 6px 0;color:#666">Services</td><td>${Array.isArray(services) && services.length ? services.join(', ') : '—'}</td></tr>
               <tr><td style="padding:6px 16px 6px 0;color:#666">Frequency</td><td>${frequency || '—'}</td></tr>
               <tr><td style="padding:6px 16px 6px 0;color:#666">Recurring</td><td>${recurring ? 'Yes' : 'No'}</td></tr>
@@ -37,9 +56,7 @@ export async function POST(req: NextRequest) {
           `,
         }),
       })
-    } catch {
-      // Non-critical
-    }
+    } catch { /* non-critical */ }
   }
 
   return NextResponse.json({ success: true })

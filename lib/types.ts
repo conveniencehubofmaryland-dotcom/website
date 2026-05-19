@@ -72,6 +72,21 @@ export type Appointment = {
   services?: Pick<Service, 'id' | 'title' | 'slug'>
 }
 
+export type Member = {
+  id: string
+  name: string
+  phone: string
+  email: string
+  state: string
+  address: string | null
+  preferred_services: string[] | null
+  service_frequency: string | null
+  recurring: boolean
+  active: boolean
+  joined_at: string
+  created_at: string
+}
+
 export type Availability = {
   id: string
   day_of_week: number
