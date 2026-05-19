@@ -95,6 +95,22 @@ export async function PATCH(req: NextRequest) {
         }).catch(() => {})
       }
 
+      // SMS to member
+      const twilioSid    = process.env.TWILIO_ACCOUNT_SID
+      const twilioKey    = process.env.TWILIO_API_KEY
+      const twilioSecret = process.env.TWILIO_API_SECRET
+      const twilioFrom   = process.env.TWILIO_FROM_NUMBER
+      if (twilioSid && twilioKey && twilioSecret && twilioFrom && m.phone) {
+        const smsBody = `Hi ${m.name}, your Convenience Hub of Maryland membership is now active! Book at conveniencehubofmaryland.com/book or call 202-579-2944.`
+        fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${btoa(`${twilioKey}:${twilioSecret}`)}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({ To: m.phone, From: twilioFrom, Body: smsBody }).toString(),
+        }).catch(() => {})
+      }
     }
   }
 
