@@ -10,8 +10,14 @@ const TIME_SLOTS = [
   '5:00 PM',  '6:00 PM',  '7:00 PM',  '8:00 PM', '9:00 PM',
 ]
 
-function isSlotDisabled(slot: string, selectedDate: string): boolean {
+// Services that require 3-hour advance notice for same-day bookings
+const ADVANCE_NOTICE_IDS = new Set(['cleaning', 'culinary', 'laundry'])
+
+function isSlotDisabled(slot: string, selectedDate: string, serviceId: string): boolean {
   if (!selectedDate) return false
+  // care and commercial are immediate — no advance restriction
+  if (!ADVANCE_NOTICE_IDS.has(serviceId)) return false
+
   const now = new Date()
   const todayET = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   if (selectedDate !== todayET) return false
@@ -106,8 +112,9 @@ export default function BookingForm({ services }: Props) {
           Booking Received
         </h2>
         <p className="text-gray-500 text-sm max-w-md mx-auto leading-relaxed mb-8">
-          Thank you, <strong>{form.customer_name}</strong>. We&apos;ll confirm your booking at{' '}
-          <strong>{form.phone}</strong> within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).
+          Thank you, <strong>{form.customer_name}</strong>. Your request has been received and is pending review.
+          Once confirmed by our team, you will receive a confirmation email{form.email ? ` at ${form.email}` : ''}.
+          For time-sensitive inquiries, please call or text us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM).
         </p>
         <Link href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
           ← Back to Home
@@ -192,7 +199,12 @@ export default function BookingForm({ services }: Props) {
             value={form.service_id}
             onChange={e => {
               const selected = services.find(s => s.id === e.target.value)
-              setForm(f => ({ ...f, service_id: e.target.value, service_title: selected?.title ?? '' }))
+              setForm(f => ({
+                ...f,
+                service_id:    e.target.value,
+                service_title: selected?.title ?? '',
+                time_slot:     f.time_slot && isSlotDisabled(f.time_slot, f.appointment_date, e.target.value) ? '' : f.time_slot,
+              }))
             }}
             className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
           >
@@ -217,7 +229,7 @@ export default function BookingForm({ services }: Props) {
               setForm(f => ({
                 ...f,
                 appointment_date: val,
-                time_slot: f.time_slot && isSlotDisabled(f.time_slot, val) ? '' : f.time_slot,
+                time_slot: f.time_slot && isSlotDisabled(f.time_slot, val, f.service_id) ? '' : f.time_slot,
               }))
             }}
             min={minDate}
@@ -246,7 +258,7 @@ export default function BookingForm({ services }: Props) {
             className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
           >
             <option value="">Select a time…</option>
-            {TIME_SLOTS.filter(t => !isSlotDisabled(t, form.appointment_date)).map(t => (
+            {TIME_SLOTS.filter(t => !isSlotDisabled(t, form.appointment_date, form.service_id)).map(t => (
               <option key={t} value={t}>{t}</option>
             ))}
           </select>

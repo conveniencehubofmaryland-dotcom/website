@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 type Status = 'pending' | 'confirmed' | 'cancelled'
 
@@ -16,8 +17,10 @@ export default function AppointmentStatusButton({
   id: string
   initialStatus: Status
 }) {
+  const router = useRouter()
   const [status,  setStatus]  = useState<Status>(initialStatus)
   const [loading, setLoading] = useState(false)
+  const [deleted, setDeleted] = useState(false)
 
   async function update(newStatus: Status) {
     setLoading(true)
@@ -33,12 +36,32 @@ export default function AppointmentStatusButton({
     }
   }
 
+  async function handleDelete() {
+    if (!confirm('Delete this appointment? This cannot be undone.')) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/appointments', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        setDeleted(true)
+        router.refresh()
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (deleted) return <span className="text-xs text-gray-300">Deleted</span>
+
   return (
     <div className="flex flex-col gap-2">
       <span className={`inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm ${COLORS[status]}`}>
         {status}
       </span>
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         {status !== 'confirmed' && (
           <button
             disabled={loading}
@@ -66,6 +89,13 @@ export default function AppointmentStatusButton({
             Reset
           </button>
         )}
+        <button
+          disabled={loading}
+          onClick={handleDelete}
+          className="text-xs text-gray-300 hover:text-red-600 transition-colors disabled:opacity-40"
+        >
+          Delete
+        </button>
       </div>
     </div>
   )

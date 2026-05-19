@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbPatchAuth, dbSelectAuth } from '@/lib/db'
+import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
@@ -63,5 +63,18 @@ export async function PATCH(req: NextRequest) {
     }
   }
 
+  return NextResponse.json({ success: true })
+}
+
+export async function DELETE(req: NextRequest) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('chm_admin')?.value ?? ''
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'Missing id.' }, { status: 400 })
+
+  const { error } = await dbDeleteAuth('appointments', id, token)
+  if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
