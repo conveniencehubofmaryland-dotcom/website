@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'CHM Careers <onboarding@resend.dev>',
+          from: 'CHM Careers <noreply@conveniencehubofmaryland.com>',
           to: ['conveniencehubofmaryland@gmail.com'],
           subject: `New Job Application — ${name.trim()}`,
           html: `

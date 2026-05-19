@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:     'CHM Website <onboarding@resend.dev>',
+        from:     'CHM Website <noreply@conveniencehubofmaryland.com>',
         to:       ['conveniencehubofmaryland@gmail.com'],
         reply_to: replyTo,
         subject:  `New Enquiry from ${name.trim()}`,
