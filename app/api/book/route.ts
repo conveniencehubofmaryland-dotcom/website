@@ -16,7 +16,8 @@ async function confirmCustomer(booking: {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Convenience Hub of Maryland <noreply@conveniencehubofmaryland.com>',
+        from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
+        reply_to: ['conveniencehubofmaryland@gmail.com'],
         to:   [booking.email],
         subject: `Booking Received — ${booking.service_title}`,
         html: `
@@ -62,7 +63,7 @@ async function notifyOwner(booking: {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'CHM Bookings <noreply@conveniencehubofmaryland.com>',
+        from: 'CHM Bookings <support@conveniencehubofmaryland.com>',
         to:   ['conveniencehubofmaryland@gmail.com'],
         subject: `New Booking — ${booking.service_title} on ${booking.appointment_date}`,
         html: `
