@@ -37,8 +37,8 @@ export default function MemberActions({ id, active }: { id: string; active: bool
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className={`inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm ${active ? 'text-green-700 bg-green-50 border-green-200' : 'text-gray-400 bg-gray-50 border-gray-200'}`}>
-        {active ? 'Active' : 'Inactive'}
+      <span className={`inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm ${active ? 'text-green-700 bg-green-50 border-green-200' : 'text-amber-700 bg-amber-50 border-amber-200'}`}>
+        {active ? 'Active' : 'Pending'}
       </span>
       <div className="flex gap-3">
         <button disabled={loading} onClick={toggle}

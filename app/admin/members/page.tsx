@@ -22,7 +22,7 @@ export default async function AdminMembersPage() {
         <div>
           <h1 className="font-serif text-3xl text-chm-black">Members</h1>
           {members.length > 0 && (
-            <p className="text-sm text-gray-400 mt-1">{activeCount} active · {members.length} total</p>
+            <p className="text-sm text-gray-400 mt-1">{activeCount} active · {members.length - activeCount} pending · {members.length} total</p>
           )}
         </div>
       </div>

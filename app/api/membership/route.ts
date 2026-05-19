@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     preferred_services:  Array.isArray(services) && services.length ? services : null,
     service_frequency:   frequency || null,
     recurring:           !!recurring,
-    active:              true,
+    active:              false,
   })
 
   if (error) {
