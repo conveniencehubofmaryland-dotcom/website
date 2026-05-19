@@ -4,9 +4,11 @@ import { dbInsert } from '@/lib/db'
 
 function toBase64(str: string): string {
   const bytes = new TextEncoder().encode(str)
-  let binary = ''
-  bytes.forEach(b => { binary += String.fromCharCode(b) })
-  return btoa(binary)
+  const chunks: string[] = []
+  for (let i = 0; i < bytes.length; i += 1024) {
+    chunks.push(String.fromCharCode(...bytes.subarray(i, i + 1024)))
+  }
+  return btoa(chunks.join(''))
 }
 
 function buildICS(params: {
