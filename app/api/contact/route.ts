@@ -21,10 +21,12 @@ export async function POST(req: NextRequest) {
     (email?.trim() ? `Email: ${email.trim()}\n` : '') +
     `Message: ${message.trim()}`
   )
-  const waSend = (p: string, k: string) =>
-    fetch(`https://api.callmebot.com/whatsapp.php?phone=${p}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
-      .then(r => r.text().then(t => { if (!r.ok) console.error('[callmebot] failed:', t) }))
+  const waSend = (p: string, k: string) => {
+    const phone = encodeURIComponent(decodeURIComponent(p))
+    return fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${waMsg}&apikey=${k}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+      .then(r => r.text().then(t => console.log('[callmebot]', r.status, t.slice(0, 200))))
       .catch(e => console.error('[callmebot] error:', e))
+  }
   const waKey1 = process.env.CALLMEBOT_API_KEY
   const waPhone1 = process.env.CALLMEBOT_PHONE
   const waKey2 = process.env.CALLMEBOT_API_KEY_2
