@@ -99,3 +99,29 @@ export type BlockedDate = {
   blocked_date: string
   reason: string | null
 }
+
+export type JobPosting = {
+  id: string
+  title: string
+  service_category: string | null
+  description: string | null
+  active: boolean
+  created_at: string
+}
+
+export type JobApplication = {
+  id: string
+  name: string
+  phone: string
+  email: string
+  address: string | null
+  city: string | null
+  state: string
+  gender: string | null
+  positions: string[] | null
+  days: string[] | null
+  hours: string | null
+  experience: string | null
+  status: 'new' | 'reviewed' | 'contacted' | 'hired' | 'rejected'
+  created_at: string
+}
