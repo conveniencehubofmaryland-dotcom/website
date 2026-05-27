@@ -1,0 +1,10 @@
+.next/
+.open-next/
+node_modules/
+.env*.local
+.env
+.playwright-mcp/
+*.jpeg
+*.jpg
+*.png
+*.pdf
