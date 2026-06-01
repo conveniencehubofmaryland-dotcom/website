@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 export default function Home() {
   return (
     <main style={{ padding: 50, fontFamily: 'sans-serif' }}>
