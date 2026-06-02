@@ -126,12 +126,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Sorry, we only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
   }
 
+  // Resolve slug to UUID
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const svcRes = await fetch(`${supabaseUrl}/rest/v1/services?slug=eq.${service_id}&select=id&limit=1`, {
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+  })
+  const svcData = await svcRes.json()
+  const resolvedServiceId = svcData[0]?.id ?? null
+
   const { error } = await dbInsert('appointments', {
     customer_name:    customer_name.trim(),
     phone:            phone.trim(),
     email:            email?.trim() || null,
     state,
-    service_id,
+    service_id: resolvedServiceId,
     appointment_date,
     time_slot,
     notes:            notes?.trim() || null,
