@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:worker": "opennextjs-cloudflare build && mv .open-next/worker.js .open-next/_worker.js"
+    "build:worker": "opennextjs-cloudflare build && node scripts/create-assets-worker.mjs"
   },
   "dependencies": {
     "next": "15.5.18",
