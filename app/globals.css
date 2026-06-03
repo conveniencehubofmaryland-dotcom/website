@@ -1,12 +1,12 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
+:root {
   --color-chm-red: #E8192C;
   --color-chm-black: #1A1A1A;
   --color-cream: #FAF8F5;
   --color-blush: #FFF5F5;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
 * { box-sizing: border-box; }
@@ -14,10 +14,9 @@
 body {
   background: #ffffff;
   color: #1A1A1A;
-  font-family: var(--font-sans);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* ── Scroll reveal ─────────────────────────────────── */
 .reveal {
   opacity: 0;
   transform: translateY(36px);
@@ -26,21 +25,4 @@ body {
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* ── Floral divider ─────────────────────────────────── */
-.floral-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  justify-content: center;
-}
-.floral-divider::before,
-.floral-divider::after {
-  content: '';
-  flex: 1;
-  max-width: 72px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.35;
 }
