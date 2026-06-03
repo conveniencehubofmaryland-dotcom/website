@@ -6,7 +6,3 @@ pages_build_output_dir = ".open-next"
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://mfsrrfmrpzmglkkgitfu.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mc3JyZm1ycHptZ2xra2dpdGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODE1MzAsImV4cCI6MjA5NTg1NzUzMH0.-6jst20Jf7XNI5zmlBzjWVTcyqjohfrP9zvZDprwhjE"
-
-[assets]
-binding = "ASSETS"
-directory = ".open-next"
