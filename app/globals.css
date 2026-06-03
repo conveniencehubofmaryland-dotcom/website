@@ -1,12 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
+@theme {
   --color-chm-red: #E8192C;
   --color-chm-black: #1A1A1A;
   --color-cream: #FAF8F5;
   --color-blush: #FFF5F5;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
 * { box-sizing: border-box; }
@@ -14,15 +14,5 @@
 body {
   background: #ffffff;
   color: #1A1A1A;
-  font-family: 'Inter', system-ui, sans-serif;
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+  font-family: var(--font-sans);
 }
