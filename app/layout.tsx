@@ -33,6 +33,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
+        <style>{`
+  :root {
+    --color-chm-red: #E8192C;
+    --color-chm-black: #1A1A1A;
+  }
+  .bg-chm-red { background-color: #E8192C !important; }
+  .text-chm-red { color: #E8192C !important; }
+  .border-chm-red { border-color: #E8192C !important; }
+  .bg-cream { background-color: #FAF8F5 !important; }
+`}</style>
       </head>
       <body className="font-sans">
         <Navbar />
