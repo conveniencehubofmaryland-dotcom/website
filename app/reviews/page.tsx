@@ -4,6 +4,7 @@ import { dbSelect } from '@/lib/db'
 import type { Review, Service } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import ReviewForm from '@/components/ReviewForm'
+export const dynamic = 'force-dynamic'
 
 
 export const metadata: Metadata = {
