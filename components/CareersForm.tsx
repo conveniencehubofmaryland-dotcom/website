@@ -1,16 +1,12 @@
 'use client'
-
 import { useState } from 'react'
-
 const DAYS  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const HOURS = ['Morning (8 AM – 12 PM)', 'Afternoon (12 PM – 5 PM)', 'Evening (5 PM – 9 PM)', 'Flexible']
 const STATES = [{ value: 'MD', label: 'Maryland' }, { value: 'VA', label: 'Virginia' }, { value: 'DC', label: 'Washington D.C.' }]
 const GENDERS = ['Male', 'Female', 'Non-binary', 'Prefer not to say']
-
 interface Props {
   positions: string[]
 }
-
 export default function CareersForm({ positions }: Props) {
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
@@ -19,21 +15,21 @@ export default function CareersForm({ positions }: Props) {
     days:      [] as string[],
     hours:     '',
     experience: '',
+    has_license: '',
+    has_insured_car: '',
   })
+  const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
-
   function set(field: string, value: string) {
     setForm(f => ({ ...f, [field]: value }))
   }
-
   function toggle(field: 'positions' | 'days', val: string) {
     setForm(f => ({
       ...f,
       [field]: f[field].includes(val) ? f[field].filter(x => x !== val) : [...f[field], val],
     }))
   }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('submitting')
@@ -52,7 +48,6 @@ export default function CareersForm({ positions }: Props) {
       setErrMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     }
   }
-
   if (status === 'success') {
     return (
       <div className="text-center py-12">
@@ -64,10 +59,8 @@ export default function CareersForm({ positions }: Props) {
       </div>
     )
   }
-
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-
       {/* Name + Phone */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -83,7 +76,6 @@ export default function CareersForm({ positions }: Props) {
             placeholder="202-555-0100" />
         </div>
       </div>
-
       {/* Email + Gender */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -101,7 +93,6 @@ export default function CareersForm({ positions }: Props) {
           </select>
         </div>
       </div>
-
       {/* Address + City */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -117,7 +108,6 @@ export default function CareersForm({ positions }: Props) {
             placeholder="Silver Spring" />
         </div>
       </div>
-
       {/* State */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -129,7 +119,27 @@ export default function CareersForm({ positions }: Props) {
           </select>
         </div>
       </div>
-
+      {/* NEW: License + Insured Car */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Do you have an active license? *</label>
+          <select required value={form.has_license} onChange={e => set('has_license', e.target.value)}
+            className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white">
+            <option value="">Select…</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Do you own an insured car? *</label>
+          <select required value={form.has_insured_car} onChange={e => set('has_insured_car', e.target.value)}
+            className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white">
+            <option value="">Select…</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
       {/* Positions */}
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-3">Position(s) Interested In *</label>
@@ -145,7 +155,6 @@ export default function CareersForm({ positions }: Props) {
         <input type="text" className="sr-only" required={form.positions.length === 0}
           value={form.positions.join(',')} readOnly aria-hidden tabIndex={-1} />
       </div>
-
       {/* Availability — days */}
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-3">Available Days</label>
@@ -159,7 +168,6 @@ export default function CareersForm({ positions }: Props) {
           ))}
         </div>
       </div>
-
       {/* Available hours */}
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Available Hours</label>
@@ -169,7 +177,6 @@ export default function CareersForm({ positions }: Props) {
           {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
         </select>
       </div>
-
       {/* Experience */}
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Experience & Background</label>
@@ -177,14 +184,22 @@ export default function CareersForm({ positions }: Props) {
           className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors resize-none"
           placeholder="Tell us about your relevant experience, certifications, or anything else we should know…" />
       </div>
-
+      {/* Resume Upload */}
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Attach Resume (PDF, DOC, DOCX)</label>
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx"
+          onChange={e => setResumeFile(e.target.files?.[0] ?? null)}
+          className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
+        />
+        {resumeFile && <p className="text-xs text-gray-400 mt-1">Selected: {resumeFile.name}</p>}
+      </div>
       {status === 'error' && <p className="text-chm-red text-sm">{errMsg}</p>}
-
       <button type="submit" disabled={status === 'submitting'}
         className="bg-chm-red text-white px-10 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60">
         {status === 'submitting' ? 'Submitting…' : 'Submit Application'}
       </button>
-
       <p className="text-xs text-gray-400 leading-relaxed">
         We review all applications within 2 business days. Questions? Call or text 202-579-2944.
       </p>
