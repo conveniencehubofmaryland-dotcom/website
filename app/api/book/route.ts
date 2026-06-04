@@ -95,7 +95,7 @@ async function notifyOwner(booking: {
             ${booking.notes ? `<tr><td style="padding:6px 16px 6px 0;color:#666">Notes</td><td>${booking.notes}</td></tr>` : ''}
           </table>
           <p style="margin-top:16px">
-            <a href="https://www.conveniencehubofmaryland.com/admin/appointments"
+            <a href="https://conveniencehubofmaryland.com/admin/appointments"
                style="background:#E8192C;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;font-size:13px">
               View in Admin →
             </a>
