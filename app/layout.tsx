@@ -41,7 +41,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   .bg-chm-red { background-color: #E8192C !important; }
   .text-chm-red { color: #E8192C !important; }
   .border-chm-red { border-color: #E8192C !important; }
-  .bg-cream { background-color: #FAF8F5 !important; }
+  .bg-cream { background-color: #fce8ea !important; }
+  .text-chm-black { color: #1A1A1A !important; }
+  .bg-blush { background-color: #FFF5F5 !important; }
+  .hover\\:bg-red-700:hover { background-color: #B91C1C !important; }
 `}</style>
       </head>
       <body className="font-sans">
