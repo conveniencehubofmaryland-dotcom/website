@@ -258,7 +258,7 @@ export default async function HomePage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-center gap-3">
           <span className="text-chm-red font-bold text-base">✓</span>
-          <span className="text-chm-black text-xs font-semibold uppercase tracking-[0.25em]">We Are Fully Insured</span>
+          
         </div>
       </div>
 
