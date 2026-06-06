@@ -43,9 +43,9 @@ export default function AdminForgotPasswordForm() {
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-200 p-4 rounded">
               <p className="text-green-800 text-sm font-medium">✓ Check your email</p>
-              <p className="text-green-700 text-xs mt-1">We've sent a password reset link to <strong>{email}</strong></p>
+              <p className="text-green-700 text-xs mt-1">We&apos;ve sent a password reset link to <strong>{email}</strong></p>
             </div>
-            <p className="text-xs text-gray-600">The link expires in 1 hour. If you don't see it, check your spam folder.</p>
+            <p className="text-xs text-gray-600">The link expires in 1 hour. If you don&apos;t see it, check your spam folder.</p>
             <a href="/admin/login" className="block w-full text-center bg-chm-red text-white py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
               Back to Login
             </a>
