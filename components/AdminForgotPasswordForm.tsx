@@ -19,8 +19,14 @@ export default function AdminForgotPasswordForm() {
       })
 
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error ?? 'Failed to send reset email')
+        let errorMsg = 'Failed to send reset email'
+        try {
+          const data = await res.json()
+          errorMsg = data.error ?? errorMsg
+        } catch {
+          errorMsg = `Server error (${res.status})`
+        }
+        throw new Error(errorMsg)
       }
 
       setStatus('success')
