@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
-
+import AuthRedirectHandler from '@/components/AuthRedirectHandler'
 export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
@@ -164,6 +164,7 @@ export default async function HomePage() {
 
   return (
     <>
+       <AuthRedirectHandler />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
