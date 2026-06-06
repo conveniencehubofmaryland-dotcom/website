@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_PATHS = ['/admin/login', '/api/admin/login', '/api/admin/logout']
+const PUBLIC_PATHS = [
+  '/admin/login',
+  '/admin/forgot-password',
+  '/admin/update-password',
+  '/api/admin/login',
+  '/api/admin/logout',
+  '/api/admin/forgot-password',
+  '/api/admin/update-password',
+]
 
 export function middleware(req: NextRequest) {
   if (PUBLIC_PATHS.includes(req.nextUrl.pathname)) return NextResponse.next()
-
+  
   const token = req.cookies.get('chm_admin')?.value
   if (!token) {
     if (req.nextUrl.pathname.startsWith('/api/')) {
