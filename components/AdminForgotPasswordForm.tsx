@@ -1,12 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function AdminForgotPasswordForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
-  const supabase = createClientComponentClient()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -14,12 +12,15 @@ export default function AdminForgotPasswordForm() {
     setErrorMsg('')
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://conveniencehubofmaryland.com/admin/update-password',
+      const res = await fetch('/api/admin/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       })
 
-      if (error) {
-        throw new Error(error.message)
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Failed to send reset email')
       }
 
       setStatus('success')
