@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
-import { sendSms } from '@/lib/sms'
+import { sendSms, sendAdminSMS } from '@/lib/sms'
 
 async function whatsappNotify(message: string) {
   const apiKey  = process.env.CALLMEBOT_API_KEY
@@ -189,6 +189,9 @@ export async function POST(req: NextRequest) {
     sendSms(
       phone.trim(),
       `Hi ${customer_name.trim()}, we received your booking for ${title} on ${appointment_date} at ${time_slot}. We'll confirm within 1 hour (Mon-Sat 9AM-9PM). Questions? Call 202-579-2944.`
+    ),
+    sendAdminSMS(
+      `NEW BOOKING\nService: ${title}\nDate: ${appointment_date} at ${time_slot}\nLocation: ${stateLabel}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nAdmin: conveniencehubofmaryland.com/admin/appointments`
     ),
   ])
 
