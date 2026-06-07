@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
-
+import { sendAdminEmail } from '@/lib/email'
+import { sendAdminSMS } from '@/lib/sms'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -26,6 +27,22 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: 'Failed to submit review. Please try again.' }, { status: 500 })
   }
+
+  // Send admin notifications
+  await Promise.all([
+    sendAdminEmail(
+      'New Review Submitted',
+      `<h2>New ${ratingNum}-Star Review</h2>
+       <p><strong>Customer:</strong> ${customer_name.trim()}</p>
+       ${service_mentioned ? `<p><strong>Service:</strong> ${service_mentioned.trim()}</p>` : ''}
+       <p><strong>Review:</strong></p>
+       <p>${reviewBody.trim()}</p>
+       <p><a href="https://conveniencehubofmaryland.com/admin/reviews" style="color:#E8192C">Approve in Admin →</a></p>`
+    ),
+    sendAdminSMS(
+      `NEW REVIEW\n⭐ ${ratingNum}/5 from ${customer_name.trim()}\n${service_mentioned ? `Service: ${service_mentioned.trim()}\n` : ''}Admin: conveniencehubofmaryland.com/admin/reviews`
+    ),
+  ])
 
   return NextResponse.json({ success: true })
 }
