@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { dbSelectAuth } from '@/lib/db'
 import type { JobApplication } from '@/lib/types'
-
+import ApplicationActionButton from '@/components/ApplicationActionButton'
 
 const STATUS_FILTERS = [
   { label: 'All',       value: 'all'       },
@@ -68,26 +68,24 @@ export default async function AdminApplicationsPage({
       ) : (
         <div className="space-y-3">
           {applications.map(a => (
-            <Link key={a.id} href={`/admin/careers/applications/${a.id}`}
-              className={`block bg-white border p-5 hover:border-chm-red/30 transition-colors ${a.status === 'new' ? 'border-amber-200' : 'border-gray-100'}`}>
-              <div className="flex flex-wrap items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-3 mb-1">
-                    <p className="font-semibold text-chm-black">{a.name}</p>
-                    <span className={`text-xs px-2 py-0.5 capitalize ${STATUS_STYLES[a.status] ?? 'bg-gray-100 text-gray-400'}`}>
-                      {a.status}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                  </div>
-                  <p className="text-gray-500 text-xs">{a.phone} · {a.email} · {a.state}</p>
-                  {a.positions && a.positions.length > 0 && (
-                    <p className="text-gray-400 text-xs mt-1">{a.positions.join(', ')}</p>
-                  )}
+            <div key={a.id} className={`bg-white border p-5 flex items-start gap-4 ${a.status === 'new' ? 'border-amber-200' : 'border-gray-100'}`}>
+              <Link href={`/admin/careers/applications/${a.id}`} className="flex-1 hover:opacity-80 transition-opacity">
+                <div className="flex flex-wrap items-center gap-3 mb-1">
+                  <p className="font-semibold text-chm-black">{a.name}</p>
+                  <span className={`text-xs px-2 py-0.5 capitalize ${STATUS_STYLES[a.status] ?? 'bg-gray-100 text-gray-400'}`}>
+                    {a.status}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
                 </div>
-              </div>
-            </Link>
+                <p className="text-gray-500 text-xs">{a.phone} · {a.email} · {a.state}</p>
+                {a.positions && a.positions.length > 0 && (
+                  <p className="text-gray-400 text-xs mt-1">{a.positions.join(', ')}</p>
+                )}
+              </Link>
+              <ApplicationActionButton id={a.id} status={a.status} />
+            </div>
           ))}
         </div>
       )}
