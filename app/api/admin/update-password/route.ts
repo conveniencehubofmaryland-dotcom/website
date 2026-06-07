@@ -11,13 +11,14 @@ export async function POST(req: NextRequest) {
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   try {
-    // Update password with the recovery token
     const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        apikey: anonKey,
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ password }),
