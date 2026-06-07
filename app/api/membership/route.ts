@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
+import { sendSms, sendAdminSMS } from '@/lib/sms'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
@@ -74,6 +75,12 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:6px 16px 6px 0;color:#666">Frequency</td><td>${frequency || '—'}</td></tr>
               <tr><td style="padding:6px 16px 6px 0;color:#666">Recurring</td><td>${recurring ? 'Yes' : 'No'}</td></tr>
             </table>
+            <p style="margin-top:16px">
+              <a href="https://conveniencehubofmaryland.com/admin/members"
+                 style="background:#E8192C;color:#fff;padding:10px 20px;text-decoration:none;font-weight:600;font-size:13px">
+                View in Admin →
+              </a>
+            </p>
           `,
         }),
       }).catch(() => {}),
@@ -121,6 +128,17 @@ export async function POST(req: NextRequest) {
           `,
         }),
       }).catch(() => {}),
+
+      // SMS to admin
+      sendAdminSMS(
+        `NEW MEMBER\nName: ${trimmedName}\nPhone: ${trimmedPhone}\nEmail: ${trimmedEmail}\nLocation: ${state}${Array.isArray(services) && services.length ? `\nServices: ${services.join(', ')}` : ''}`
+      ),
+
+      // SMS to member
+      sendSms(
+        trimmedPhone,
+        `Hi ${trimmedName}, welcome to Convenience Hub of Maryland! Your membership is confirmed. Get priority booking and exclusive member deals. Questions? Call 202-579-2944.`
+      ),
     ])
   }
 
