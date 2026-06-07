@@ -1,24 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbSelectAuth } from '@/lib/db'
-import type { JobApplication } from '@/lib/types'
+import { dbDeleteAuth } from '@/lib/db'
 
+export async function DELETE(req: NextRequest) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('chm_admin')?.value ?? ''
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-async function getToken(): Promise<string> {
-  const c = await cookies()
-  return c.get('chm_admin')?.value ?? ''
-}
+  const { id } = await req.json()
+  if (!id) {
+    return NextResponse.json({ error: 'Application ID is required.' }, { status: 400 })
+  }
 
-export async function GET(req: NextRequest) {
-  const t = await getToken()
-  if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { error } = await dbDeleteAuth('job_applications', id, token)
+  if (error) return NextResponse.json({ error }, { status: 500 })
 
-  const { searchParams } = new URL(req.url)
-  const status = searchParams.get('status')
-
-  const params: Record<string, string> = { order: 'created_at.desc' }
-  if (status && status !== 'all') params.status = `eq.${status}`
-
-  const applications = await dbSelectAuth<JobApplication>('job_applications', t, params)
-  return NextResponse.json(applications)
+  return NextResponse.json({ success: true })
 }
