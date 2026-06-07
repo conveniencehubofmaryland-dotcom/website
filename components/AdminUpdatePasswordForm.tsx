@@ -12,17 +12,19 @@ export default function AdminUpdatePasswordForm() {
   const [status, setStatus] = useState<'loading' | 'idle' | 'submitting' | 'error'>('loading')
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Extract token from URL on mount
-  useEffect(() => {
-    const hash = window.location.hash.substring(1)
-    const params = new URLSearchParams(hash)
-    const accessToken = params.get('access_token')
-    const type = params.get('type')
+useEffect(() => {
+  const hash = window.location.hash.substring(1)
+  const params = new URLSearchParams(hash)
+  const accessToken = params.get('access_token')
 
-    if (accessToken && type === 'recovery') {
-      setToken(accessToken)
-      setStatus('idle')
-    } else {
+  if (accessToken) {
+    setToken(accessToken)
+    setStatus('idle')
+  } else {
+    setStatus('error')
+    setErrorMsg('Invalid or missing reset link. Please request a new one.')
+  }
+}, [])
       setStatus('error')
       setErrorMsg('Invalid or missing reset link. Please request a new one.')
     }
