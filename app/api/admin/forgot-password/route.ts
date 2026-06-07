@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const resendApiKey = process.env.RESEND_API_KEY
 
   if (!serviceRoleKey) {
     console.error('SUPABASE_SERVICE_ROLE_KEY is not set')
@@ -18,27 +19,70 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  if (!resendApiKey) {
+    console.error('RESEND_API_KEY is not set')
+    return NextResponse.json(
+      { error: 'Email service is not configured.' },
+      { status: 500 }
+    )
+  }
+
   try {
-    const res = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
+    // Step 1: Generate recovery link from Supabase
+    const generateLinkRes = await fetch(
+      `${supabaseUrl}/auth/v1/admin/generate_link`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          type: 'recovery',
+          redirect_to: 'https://conventiencehubofmaryland.com/admin/update-password',
+        }),
+      }
+    )
+
+    if (!generateLinkRes.ok) {
+      const error = await generateLinkRes.json()
+      console.error('Supabase generate_link error:', error)
+      return NextResponse.json(
+        { error: 'Failed to generate reset link.' },
+        { status: generateLinkRes.status }
+      )
+    }
+
+    const { action_link } = await generateLinkRes.json()
+
+    // Step 2: Send email via Resend with the recovery link
+    const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        email,
-        type: 'recovery',
-        redirect_to: 'https://conveniencehubofmaryland.com/admin/update-password',
+        from: 'team@conveniencehubofmaryland.com',
+        to: email,
+        subject: 'Reset Your Password',
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>Click the link below to reset your password:</p>
+          <a href="${action_link}">Reset Password</a>
+          <p>This link expires in 1 hour.</p>
+        `,
       }),
     })
 
-    if (!res.ok) {
-      const error = await res.json()
-      console.error('Supabase admin generate_link error:', error)
+    if (!emailRes.ok) {
+      const error = await emailRes.json()
+      console.error('Resend email error:', error)
       return NextResponse.json(
-        { error: 'Failed to send reset email. Please check your email address.' },
-        { status: res.status }
+        { error: 'Failed to send reset email.' },
+        { status: emailRes.status }
       )
     }
 
