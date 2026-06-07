@@ -9,7 +9,8 @@ export default function ReviewActionButton({
   initialApproved: boolean
 }) {
   const [approved, setApproved] = useState(initialApproved)
-  const [loading,  setLoading]  = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   async function update(newApproved: boolean) {
     setLoading(true)
@@ -25,13 +26,35 @@ export default function ReviewActionButton({
     }
   }
 
+  async function deleteReview() {
+    if (!confirm('Are you sure you want to delete this review? This cannot be undone.')) {
+      return
+    }
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/admin/reviews', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        // Reload page to show updated list
+        window.location.reload()
+      }
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="flex flex-col items-end gap-2 shrink-0">
-      <span className={`text-xs px-2 py-0.5 border rounded-sm font-semibold ${
-        approved
-          ? 'text-green-700 bg-green-50 border-green-200'
-          : 'text-amber-700 bg-amber-50 border-amber-200'
-      }`}>
+      <span
+        className={`text-xs px-2 py-0.5 border rounded-sm font-semibold ${
+          approved
+            ? 'text-green-700 bg-green-50 border-green-200'
+            : 'text-amber-700 bg-amber-50 border-amber-200'
+        }`}
+      >
         {approved ? 'Live' : 'Pending'}
       </span>
       <div className="flex gap-3">
@@ -52,6 +75,13 @@ export default function ReviewActionButton({
             Revoke
           </button>
         )}
+        <button
+          disabled={deleting}
+          onClick={deleteReview}
+          className="text-xs text-red-700 hover:underline underline-offset-2 disabled:opacity-40 font-semibold"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
       </div>
     </div>
   )
