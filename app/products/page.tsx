@@ -35,14 +35,20 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream/50">
-      {/* Hero */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
-        <h1 className="font-serif text-4xl sm:text-5xl text-chm-black mb-4">
-          Premium Products
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
-        </p>
+    {/* Hero */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <div className="space-y-4 mb-12">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-chm-red">
+            Premium Selection
+          </p>
+          <h1 className="font-serif text-4xl sm:text-5xl text-chm-black">
+            Products
+          </h1>
+          <div className="w-12 h-0.5 bg-chm-black"></div>
+          <p className="text-gray-600 text-lg max-w-3xl">
+            Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
+          </p>
+        </div>
       </div>
 
       {/* Category Filter */}
