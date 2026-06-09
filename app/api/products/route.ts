@@ -9,10 +9,10 @@ export async function GET() {
       `${SUPABASE_URL}/rest/v1/products?order=sort_order.asc`,
       {
         headers: {
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          apikey: SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SUPABASE_ANON_KEY || '',
           'Content-Type': 'application/json',
-        },
+        } as HeadersInit,
       }
     )
 
