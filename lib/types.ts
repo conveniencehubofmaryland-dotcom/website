@@ -125,3 +125,16 @@ export type JobApplication = {
   status: 'new' | 'reviewed' | 'contacted' | 'hired' | 'rejected'
   created_at: string
 }
+export type Product = {
+  id: string
+  sku: string
+  title: string
+  category: string
+  description: string | null
+  price: number | null
+  image_url: string | null
+  active: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
