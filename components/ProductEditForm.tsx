@@ -134,7 +134,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
           <div className="flex items-center gap-3 pt-5">
             <input type="checkbox" id="active" checked={fields.active} onChange={e => setField('active', e.target.checked)}
               className="w-4 h-4 accent-chm-red" />
-            <label htmlFor="active" className="text-sm text-chm-black">Available (uncheck for "Coming Soon")</label>
+            <label htmlFor="active" className="text-sm text-chm-black">Available (uncheck for Coming Soon)</label>
           </div>
         </div>
       </div>
