@@ -57,7 +57,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete "${fields.title}"? This cannot be undone.`)) return
+    if (!confirm(`Delete '${fields.title}'? This cannot be undone.`)) return
     setDeleting(true)
     try {
       const res = await fetch(`/api/admin/products/${product!.id}`, { method: 'DELETE' })
