@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import type { Product } from '@/lib/types'
 
 const categories = [
@@ -16,7 +15,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProducts = async () => {
       try {
         const res = await fetch('/api/products')
         const data = await res.json()
@@ -27,7 +26,7 @@ export default function ProductsPage() {
         setLoading(false)
       }
     }
-    fetch()
+    fetchProducts()
   }, [])
 
   const filtered = selected === 'All' 
