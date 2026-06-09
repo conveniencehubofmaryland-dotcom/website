@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import AdminLogoutButton from '@/components/AdminLogoutButton'
 
-
 const adminLinks = [
   { href: '/admin/appointments', label: 'Appointments' },
   { href: '/admin/reviews',      label: 'Reviews'      },
   { href: '/admin/services',     label: 'Services'     },
   { href: '/admin/deals',        label: 'Deals'        },
+  { href: '/admin/products',     label: 'Products'     },
   { href: '/admin/members',     label: 'Members'      },
   { href: '/admin/careers',     label: 'Careers'      },
 ]
@@ -30,7 +30,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <AdminLogoutButton />
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {children}
       </div>
