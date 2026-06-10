@@ -55,33 +55,30 @@ export default function ProductsPage() {
     : products.filter(p => p.category === selected)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream/50">
-      {/* Hero */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          {/* Text */}
-          <div>
-            <h1 className="font-serif text-4xl sm:text-5xl text-chm-black mb-4">
-              Premium Products
-            </h1>
-            <p className="text-gray-600 max-w-2xl text-lg">
-              Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
-            </p>
-          </div>
-          
-          {/* Image */}
-          <div className="hidden md:block">
-            <img 
-              src="/chm-products-hero.png.png"
-              alt="CHM Premium Products"
-              className="w-full h-auto rounded-lg"
-            />
-          </div>
+    <div>
+      {/* Hero with Full-Width Image & Text Overlay */}
+      <div 
+        className="relative h-80 sm:h-96 bg-cover bg-center"
+        style={{
+          backgroundImage: `url('/chm-products-hero.png.png')`,
+        }}
+      >
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        
+        {/* Text overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          <h1 className="font-serif text-4xl sm:text-5xl mb-4">
+            Premium Products
+          </h1>
+          <p className="text-lg max-w-2xl">
+            Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
+          </p>
         </div>
       </div>
 
       {/* Category Filter */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
         <div className="flex flex-wrap gap-3 justify-center">
           {categories.map(cat => (
             <button
@@ -142,8 +139,8 @@ export default function ProductsPage() {
                     </p>
                   )}
 
-                  <div className="pt-3 border-t border-gray-100 space-y-3">
-                    <div className="flex items-center justify-between">
+                  <div className="pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-3">
                       <div>
                         {product.price ? (
                           <p className="text-lg font-bold text-chm-red">
@@ -157,6 +154,7 @@ export default function ProductsPage() {
 
                     {product.active && (
                       <div className="space-y-2">
+                        {/* Quantity Input */}
                         <div className="flex items-center gap-2">
                           <label className="text-xs font-semibold text-gray-700">Qty:</label>
                           <input
@@ -173,6 +171,7 @@ export default function ProductsPage() {
                           />
                         </div>
 
+                        {/* Add to Cart Button */}
                         <button
                           onClick={() => handleAddToCart(product)}
                           className="w-full bg-chm-red text-white px-4 py-2 text-xs font-semibold uppercase tracking-widest hover:bg-red-700 transition-colors"
