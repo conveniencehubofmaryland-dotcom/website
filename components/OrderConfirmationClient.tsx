@@ -10,7 +10,6 @@ export default function OrderConfirmationClient() {
     <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream/50 flex items-center justify-center py-12">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
         <div className="bg-white rounded-lg border border-gray-200 p-8 sm:p-12 text-center">
-          {/* Success Icon */}
           <div className="mb-6">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
               <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -19,7 +18,6 @@ export default function OrderConfirmationClient() {
             </div>
           </div>
 
-          {/* Thank You Message */}
           <h1 className="font-serif text-4xl text-chm-black mb-4">
             Thank You for Your Order!
           </h1>
@@ -30,7 +28,6 @@ export default function OrderConfirmationClient() {
             </p>
           )}
 
-          {/* Key Message */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 text-left">
             <p className="text-chm-black font-semibold mb-3">
               We&apos;ll review it and email you a secure payment link via Zelle or CashApp within 1 business day.
@@ -40,7 +37,6 @@ export default function OrderConfirmationClient() {
             </p>
           </div>
 
-          {/* What to Expect */}
           <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left">
             <h2 className="font-bold text-chm-black mb-4">What Happens Next:</h2>
             <ol className="space-y-3 text-sm text-gray-700">
@@ -63,7 +59,6 @@ export default function OrderConfirmationClient() {
             </ol>
           </div>
 
-          {/* Contact Info */}
           <div className="mb-8 text-sm text-gray-600">
             <p className="mb-2">Have questions? Contact us:</p>
             <p className="font-semibold text-chm-black">
@@ -71,7 +66,6 @@ export default function OrderConfirmationClient() {
             </p>
           </div>
 
-          {/* Action Button */}
           <div className="space-y-4">
             <Link 
               href="/products"
