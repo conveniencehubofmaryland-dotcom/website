@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import TawkChat from '@/components/TawkChat'
+import { CartProvider } from '@/lib/CartContext'
 
 export const metadata: Metadata = {
   title: {
@@ -47,12 +48,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   .hover\\:bg-red-700:hover { background-color: #B91C1C !important; }
 `}</style>
       </head>
-      <body className="font-sans">
-        <Navbar />
-        <main className="pb-14 md:pb-0">{children}</main>
-        <Footer />
-        <FloatingCTA />
-        <TawkChat />
+     <body className="font-sans">
+        <CartProvider>
+          <Navbar />
+          <main className="pb-14 md:pb-0">{children}</main>
+          <Footer />
+          <FloatingCTA />
+          <TawkChat />
+        </CartProvider>
       </body>
     </html>
   )
