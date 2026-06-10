@@ -3,11 +3,30 @@ import { sendAdminEmail } from '@/lib/email'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'conveniencehubofmaryland@gmail.com'
+
+interface OrderItem {
+  id: string
+  sku: string
+  title: string
+  price: number
+  qty: number
+}
+
+interface OrderData {
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  customer_address: string
+  order_items: OrderItem[]
+  subtotal: number
+  tax_amount: number
+  total_amount: number
+  status: string
+}
 
 export async function POST(req: Request) {
   try {
-    const orderData = await req.json()
+    const orderData: OrderData = await req.json()
 
     // Validate required fields
     if (!orderData.customer_name || !orderData.customer_email || !orderData.customer_phone || !orderData.customer_address || !orderData.order_items) {
@@ -36,7 +55,7 @@ export async function POST(req: Request) {
 
     // Send email to admin with order details
     const itemsText = orderData.order_items
-      .map((item: any) => `- ${item.title} (SKU: ${item.sku}) x${item.qty} @ $${item.price}/ea = $${(item.price * item.qty).toFixed(2)}`)
+      .map((item: OrderItem) => `- ${item.title} (SKU: ${item.sku}) x${item.qty} @ $${item.price}/ea = $${(item.price * item.qty).toFixed(2)}`)
       .join('\n')
 
     const emailContent = `
