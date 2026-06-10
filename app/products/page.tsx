@@ -57,13 +57,27 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream via-white to-cream/50">
       {/* Hero */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
-        <h1 className="font-serif text-4xl sm:text-5xl text-chm-black mb-4">
-          Premium Products
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
-        </p>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          {/* Text */}
+          <div>
+            <h1 className="font-serif text-4xl sm:text-5xl text-chm-black mb-4">
+              Premium Products
+            </h1>
+            <p className="text-gray-600 max-w-2xl text-lg">
+              Carefully curated cleaning, laundry, and home care solutions to simplify your routine.
+            </p>
+          </div>
+          
+          {/* Image */}
+          <div className="hidden md:block">
+            <img 
+              src="/chm-products-hero.png.png"
+              alt="CHM Premium Products"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Category Filter */}
