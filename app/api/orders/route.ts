@@ -89,11 +89,11 @@ Next Steps:
 Convenience Hub of Maryland
 `
 
-    try {
-      await sendAdminEmail({
-        subject: `New Order #${createdOrder.id.slice(0, 8).toUpperCase()} - ${orderData.customer_name}`,
-        body: emailContent,
-      })
+try {
+      await sendAdminEmail(
+        `New Order #${createdOrder.id.slice(0, 8).toUpperCase()} - ${orderData.customer_name}`,
+        emailContent
+      )
     } catch (emailErr) {
       console.error('Failed to send email:', emailErr)
       // Don't fail the order if email fails
