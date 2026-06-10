@@ -5,7 +5,6 @@ import Footer from '@/components/Footer'
 import FloatingCTA from '@/components/FloatingCTA'
 import TawkChat from '@/components/TawkChat'
 
-
 export const metadata: Metadata = {
   title: {
     default: 'Convenience Hub of Maryland | Home Services DMV',
@@ -29,10 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <meta name="msvalidate.01" content="1C686130420AE6C743675F3C83831A1C" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
-      <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
         <style>{`
   :root {
     --color-chm-red: #E8192C;
