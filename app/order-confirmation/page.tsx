@@ -33,7 +33,7 @@ export default function OrderConfirmationPage() {
           {/* Key Message */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 text-left">
             <p className="text-chm-black font-semibold mb-3">
-              We'll review it and email you a secure payment link via Zelle or CashApp within 1 business day.
+              We&apos;ll review it and email you a secure payment link via Zelle or CashApp within 1 business day.
             </p>
             <p className="text-gray-600 text-sm">
               Your order will ship once payment is received. We appreciate your business!
