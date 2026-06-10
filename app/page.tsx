@@ -255,11 +255,17 @@ export default async function HomePage() {
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
 
-      {/* ── Trust strip ──────────────────────────────────── */}
+    {/* ── Trust strip ──────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-center gap-3">
-          <span className="text-chm-red font-bold text-base">✓</span>
-          
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-12 flex flex-col items-center justify-center gap-4 text-center">
+          <div className="space-y-2">
+            <h2 className="font-serif text-3xl sm:text-4xl text-chm-black">
+              Total. Complete. Convenient.
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl">
+              Your home concierge, tailored to fit your needs.
+            </p>
+          </div>
         </div>
       </div>
 
