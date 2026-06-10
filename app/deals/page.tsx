@@ -16,6 +16,7 @@ const STATIC_DEALS: Deal[] = [
   { id: '2', sort_order: 2, active: true, created_at: '', badge: 'Wednesday Deal', headline: '5% OFF for Nurses, Students & Expectant Mothers', detail: 'We appreciate healthcare workers, active students, and expectant mothers. Show valid ID to redeem 5% off premium services.' },
   { id: '3', sort_order: 3, active: true, created_at: '', badge: 'Weekend Deal',  headline: '3% OFF Bulk Laundry — 100+ lbs',                   detail: 'Scale up and save. Any laundry order of 100 lbs or more placed on Saturday receives 3% off automatically.' },
   { id: '4', sort_order: 4, active: true, created_at: '', badge: 'Members Only',  headline: 'FREE Signup + 2% Off All Recurring Services',      detail: 'Join the CHM network for free and lock in a permanent 2% discount on all recurring monthly service contracts. No expiry, no catches.' },
+  { id: '5', sort_order: 5, active: true, created_at: '', badge: 'Referral Bonus', headline: '$25 Credit on Any Service Over $75', detail: 'Refer a friend and get $25 in account credit when they book any service over $75. Share the convenience!' },
 ]
 
 export default async function DealsPage() {
