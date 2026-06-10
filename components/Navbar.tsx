@@ -1,8 +1,6 @@
 'use client'
-
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useCart } from '@/lib/CartContext'
 
 const navLinks = [
   { href: '/about',      label: 'About'      },
@@ -16,99 +14,55 @@ const navLinks = [
 ]
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const pathname = usePathname()
-  const isHome = pathname === '/'
-
-  useEffect(() => {
-    if (!isHome) { setScrolled(true); return }
-    const onScroll = () => setScrolled(window.scrollY > 60)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [isHome])
-
-  const solid = scrolled || open || !isHome
+  const { items } = useCart()
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-500 ${
-      solid
-        ? 'bg-white shadow-sm border-b border-gray-100'
-        : 'bg-cream/80 backdrop-blur-sm border-b border-gray-100/60'
-    }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 md:h-28 flex items-center justify-between">
-        <Link href="/" onClick={() => setOpen(false)}>
-          {/* Mobile logo */}
-          <div className="overflow-hidden md:hidden" style={{ height: '40px', width: '200px' }}>
-            <img
-              src="/logo.jpeg"
-              alt="Convenience Hub of Maryland"
-              style={{ height: '200px', width: 'auto', marginTop: '-74px', mixBlendMode: 'multiply' }}
-            />
-          </div>
-          {/* Desktop logo */}
-          <div className="overflow-hidden hidden md:block" style={{ height: '80px', width: '420px' }}>
-            <img
-              src="/logo.jpeg"
-              alt="Convenience Hub of Maryland"
-              style={{ height: '420px', width: 'auto', marginTop: '-155px', mixBlendMode: 'multiply' }}
-            />
-          </div>
-        </Link>
+    <nav className="bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <img src="/logo.svg" alt="CHM Logo" className="h-10" />
+          </Link>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-5">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="font-medium transition-colors text-xs tracking-[0.2em] uppercase text-chm-black/70 hover:text-chm-red"
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-6">
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-gray-700 hover:text-chm-red text-sm font-semibold transition"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Cart Icon + Book Now */}
+          <div className="flex items-center gap-4">
+            {/* Cart Icon */}
+            <Link 
+              href="/cart"
+              className="relative flex items-center gap-2 text-chm-red hover:text-red-700 font-bold text-sm transition"
             >
-              {label}
+              🛒 CART
+              {items.length > 0 && (
+                <span className="absolute -top-3 -right-3 bg-chm-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {items.length}
+                </span>
+              )}
             </Link>
-          ))}
-          <Link
-            href="/book"
-            className="bg-chm-red text-white px-6 py-2 font-semibold text-xs tracking-widest uppercase hover:bg-red-700 transition-colors"
-          >
-            Book Now
-          </Link>
-        </div>
 
-        {/* Mobile */}
-        <div className="flex md:hidden items-center gap-3">
-          <Link
-            href="/book"
-            className="bg-chm-red text-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
-          >
-            Book Now
-          </Link>
-          <button
-            onClick={() => setOpen(!open)}
-            aria-label="Toggle menu"
-            className="text-2xl leading-none transition-colors text-chm-black"
-          >
-            {open ? '✕' : '☰'}
-          </button>
+            {/* Book Now Button */}
+            <Link
+              href="/book"
+              className="bg-chm-red text-white px-4 py-2 rounded font-bold text-sm hover:bg-red-700 transition whitespace-nowrap"
+            >
+              BOOK NOW
+            </Link>
+          </div>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-5 flex flex-col gap-5">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="font-medium text-chm-black hover:text-chm-red uppercase tracking-widest text-xs"
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
-      )}
     </nav>
   )
 }
