@@ -36,21 +36,17 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
-        customer_name: formData.customer_name,
-        customer_email: formData.customer_email,
-        customer_phone: formData.customer_phone,
-        customer_address: formData.customer_address,
-        order_items: items.map(item => ({
-          id: item.id,
-          sku: item.sku,
-          title: item.title,
-          price: item.price,
-          qty: item.qty,
-        })),
-        subtotal: parseFloat(subtotal.toFixed(2)),
-        tax_amount: parseFloat(tax.toFixed(2)),
-        total_amount: parseFloat(total.toFixed(2)),
-      }
+  name: formData.customer_name,
+  email: formData.customer_email,
+  phone: formData.customer_phone,
+  address: formData.customer_address,
+  items: items.map(item => ({
+    name: item.title,
+    quantity: item.qty,
+    price: item.price,
+  })),
+  total: parseFloat(total.toFixed(2)),
+}
 
       console.log('Sending order:', orderData)
 
