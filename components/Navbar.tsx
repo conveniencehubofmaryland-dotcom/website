@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useCart } from '@/lib/CartContext'
+import { useState } from 'react'
 
 const navLinks = [
   { href: '/about',      label: 'About'      },
@@ -15,6 +16,7 @@ const navLinks = [
 
 export default function Navbar() {
   const { items } = useCart()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <nav className="bg-white border-b border-gray-200">
@@ -25,7 +27,7 @@ export default function Navbar() {
             <img src="/logo.jpeg" alt="CHM Logo" className="h-52 w-auto" />
           </Link>
 
-          {/* Nav Links */}
+          {/* Nav Links - Desktop */}
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map(link => (
               <Link
@@ -53,15 +55,46 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Book Now Button */}
+            {/* Book Now Button - Hide on mobile */}
             <Link
               href="/book"
-              className="bg-chm-red text-white px-4 py-2 rounded font-bold text-sm hover:bg-red-700 transition whitespace-nowrap"
+              className="hidden sm:block bg-chm-red text-white px-4 py-2 rounded font-bold text-sm hover:bg-red-700 transition whitespace-nowrap"
+            >
+              BOOK NOW
+            </Link>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-chm-red hover:text-red-700 transition"
+            >
+              ☰
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pb-4 space-y-2">
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-2 text-gray-700 hover:text-chm-red hover:bg-gray-100 rounded transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link
+              href="/book"
+              className="block px-4 py-2 bg-chm-red text-white font-bold rounded text-center hover:bg-red-700 transition"
+              onClick={() => setMobileMenuOpen(false)}
             >
               BOOK NOW
             </Link>
           </div>
-        </div>
+        )}
       </div>
     </nav>
   )
