@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-
-async function sendCustomerEmail(order: {
+interface OrderData {
   customer_name: string
   customer_email: string
-  items: any[]
+  items: Array<{ name: string; quantity: number; price: number }>
   total: number
   subtotal: number
   tax_amount: number
-}) {
+}
+
+async function sendCustomerEmail(order: OrderData) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return
   
@@ -77,16 +77,7 @@ async function sendCustomerEmail(order: {
   }
 }
 
-async function sendAdminEmail(order: {
-  customer_name: string
-  customer_email: string
-  customer_phone: string
-  customer_address: string
-  items: any[]
-  total: number
-  subtotal: number
-  tax_amount: number
-}) {
+async function sendAdminEmail(order: OrderData) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return
   
@@ -111,18 +102,6 @@ async function sendAdminEmail(order: {
             <tr style="border-bottom:1px solid #f0f0f0">
               <td style="padding:8px 16px 8px 0;color:#666;width:120px">Customer</td>
               <td style="font-weight:600">${order.customer_name}</td>
-            </tr>
-            <tr style="border-bottom:1px solid #f0f0f0">
-              <td style="padding:8px 16px 8px 0;color:#666">Email</td>
-              <td>${order.customer_email}</td>
-            </tr>
-            <tr style="border-bottom:1px solid #f0f0f0">
-              <td style="padding:8px 16px 8px 0;color:#666">Phone</td>
-              <td><a href="tel:${order.customer_phone}">${order.customer_phone}</a></td>
-            </tr>
-            <tr style="border-bottom:1px solid #f0f0f0">
-              <td style="padding:8px 16px 8px 0;color:#666">Address</td>
-              <td>${order.customer_address}</td>
             </tr>
           </table>
 
@@ -217,8 +196,6 @@ export async function POST(request: Request) {
       sendAdminEmail({
         customer_name: name.trim(),
         customer_email: email.trim(),
-        customer_phone: phone.trim(),
-        customer_address: address.trim(),
         items,
         total: totalAmount,
         subtotal,
