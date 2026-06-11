@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     // Save order to Supabase
-    await fetch(`${supabaseUrl}/rest/v1/orders`, {
+    const dbResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,21 +40,39 @@ export async function POST(request: Request) {
       }),
     })
 
+    if (!dbResponse.ok) {
+      return Response.json({ error: 'Failed to save order' }, { status: 500 })
+    }
+
+    const itemsList = items.map((item: { name: string; quantity: number; price: number }) => 
+      `<li>${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</li>`
+    ).join('')
+
     // Send customer email
-    resend.emails.send({
-      from: 'noreply@conveniencehubofmaryland.com',
-      to: email,
-      subject: `Order Confirmation: ${orderId}`,
-      html: `<h2>Thank You!</h2><p>Order ID: ${orderId}</p><p>Total: $${total}</p><p>Send payment via Zelle to: conveniencehubofmaryland@gmail.com</p>`,
-    }).catch(e => console.error('Email error:', e))
+    try {
+      const customerEmailResponse = await resend.emails.send({
+        from: 'orders@conveniencehubofmaryland.com',
+        to: email,
+        subject: `Order Confirmation: ${orderId}`,
+        html: `<h2>Thank You for Your Order!</h2><p>Order ID: <strong>${orderId}</strong></p><p>Total: <strong>$${total.toFixed(2)}</strong></p><h3>Items:</h3><ul>${itemsList}</ul><p><strong>Payment Instructions:</strong></p><p>Send payment via Zelle to: <strong>conveniencehubofmaryland@gmail.com</strong></p>`,
+      })
+      console.log('Customer email sent:', customerEmailResponse)
+    } catch (emailError) {
+      console.error('Customer email error:', emailError)
+    }
 
     // Send admin email
-    resend.emails.send({
-      from: 'noreply@conveniencehubofmaryland.com',
-      to: 'conveniencehubofmaryland@gmail.com',
-      subject: `New Order: ${orderId}`,
-      html: `<h2>New Order</h2><p>Customer: ${name}</p><p>Email: ${email}</p><p>Total: $${total}</p>`,
-    }).catch(e => console.error('Email error:', e))
+    try {
+      const adminEmailResponse = await resend.emails.send({
+        from: 'orders@conveniencehubofmaryland.com',
+        to: 'conveniencehubofmaryland@gmail.com',
+        subject: `New Order: ${orderId}`,
+        html: `<h2>New Order Received</h2><p><strong>Customer:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Address:</strong> ${address}</p><h3>Items:</h3><ul>${itemsList}</ul><p><strong>Total:</strong> $${total.toFixed(2)}</p>`,
+      })
+      console.log('Admin email sent:', adminEmailResponse)
+    } catch (emailError) {
+      console.error('Admin email error:', emailError)
+    }
 
     return Response.json({ success: true, orderId: orderId })
   } catch (error) {
