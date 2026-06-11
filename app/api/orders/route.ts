@@ -1,5 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -8,46 +6,38 @@ export async function POST(request: Request) {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseKey) {
-      return Response.json(
-        { error: 'Missing config' },
-        { status: 500 }
-      )
+      return Response.json({ error: 'Config error' }, { status: 500 })
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([{
-        customer_name: body.customer_name,
-        customer_email: body.customer_email,
-        customer_phone: body.customer_phone,
-        customer_address: body.customer_address,
-        order_items: body.order_items,
-        subtotal: body.subtotal,
-        tax_amount: body.tax_amount,
-        total_amount: body.total_amount,
+    const res = await fetch(`${supabaseUrl}/rest/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({
+        customer_name: body.customer_name || '',
+        customer_email: body.customer_email || '',
+        customer_phone: body.customer_phone || '',
+        customer_address: body.customer_address || '',
+        order_items: body.order_items || [],
+        subtotal: body.subtotal || 0,
+        tax_amount: body.tax_amount || 0,
+        total_amount: body.total_amount || 0,
         status: 'Pending Payment',
-      }])
-      .select()
-
-    if (error) {
-      console.error('Supabase error:', error)
-      return Response.json({ error: 'Database error' }, { status: 400 })
-    }
-
-    const orderId = data[0]?.id || 'unknown'
-
-    return Response.json({ 
-      success: true, 
-      orderId 
+      }),
     })
 
+    const data = await res.json()
+
+    if (!res.ok) {
+      return Response.json({ error: 'Save failed' }, { status: 400 })
+    }
+
+    return Response.json({ success: true, orderId: data[0]?.id || 'unknown' })
+
   } catch (error) {
-    console.error('API error:', error)
-    return Response.json(
-      { error: 'Server error' },
-      { status: 500 }
-    )
+    return Response.json({ error: 'Error' }, { status: 500 })
   }
 }
