@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <img src="/logo.jpeg" alt="CHM Logo" className="h-[58px] w-auto" />
+            <img src="/logo.jpeg" alt="CHM Logo" className="h-52 w-auto" />
           </Link>
 
           {/* Nav Links */}
