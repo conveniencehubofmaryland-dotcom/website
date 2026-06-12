@@ -12,8 +12,8 @@ export default function ManageShifts() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   useEffect(() => {
-    fetchShifts()
-  }, [])
+  fetchShifts()
+}, [fetchShifts])
 
   const fetchShifts = async () => {
     const res = await fetch(`${supabaseUrl}/rest/v1/shifts?order=date.asc`, {
