@@ -134,7 +134,6 @@ export default function AvailableShifts() {
               </div>
             ))}
           </div>
-          </div>
         )}
       </div>
     </div>
