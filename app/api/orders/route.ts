@@ -166,7 +166,6 @@ export async function POST(request: Request) {
         customer_email: email.trim(),
         customer_phone: phone.trim(),
         customer_address: address.trim(),
-        order_items: items,
         subtotal: parseFloat(subtotal.toFixed(2)),
         tax_amount: parseFloat(taxAmount.toFixed(2)),
         total_amount: parseFloat(totalAmount.toFixed(2)),
