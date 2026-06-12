@@ -104,7 +104,7 @@ export default function AvailableShifts() {
           <p className="text-gray-600 text-lg">No shifts available at the moment</p>
         ) : (
           <div className="grid gap-6">
-            {shifts.map((shift: Record<string, any>) => (
+            {shifts.map((shift: Record<string, any>) =>
               <div key={shift.id} className="bg-white rounded-lg shadow p-6">
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
