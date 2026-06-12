@@ -196,10 +196,10 @@ export default function ManageShifts() {
                     Delete Shift
                   </button>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
