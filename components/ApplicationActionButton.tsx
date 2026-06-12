@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 export default function ApplicationActionButton({
   id,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   status,
 }: {
   id: string
