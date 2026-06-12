@@ -152,7 +152,7 @@ export default function ManageShifts() {
             <p className="text-gray-600">No shifts yet</p>
           ) : (
             <div className="space-y-4">
-              {shifts.map((shift: Record<string, any>) => (
+              {shifts.map((shift: Record<string, any>) =>
                 <div key={shift.id} className="border border-gray-200 rounded-lg p-6">
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
                     <div>
