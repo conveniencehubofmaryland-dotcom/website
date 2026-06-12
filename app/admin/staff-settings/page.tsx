@@ -98,7 +98,7 @@ export default function StaffSettings() {
             <h2 className="text-xl font-bold mb-4">How It Works</h2>
             <ul className="space-y-2 text-gray-700">
               <li>✓ Staff visit the link above</li>
-              <li>✓ Enter password: <span...>&quot;{currentPassword}&quot;</span>
+              <li>✓ Enter password: <span className="font-mono bg-gray-100 px-2 py-1">{`"${currentPassword}"`}</span></li>
               <li>✓ View available shifts</li>
               <li>✓ Click "Pick Up Shift" to claim</li>
               <li>✓ You see their details in Manage Shifts</li>
