@@ -20,7 +20,7 @@ export default function ManageShifts() {
 
   useEffect(() => {
     fetchShifts()
-  }, [])
+  }, [fetchShifts])
 
   const fetchShifts = async () => {
     const res = await fetch(`${supabaseUrl}/rest/v1/shifts?order=date.asc`, {
