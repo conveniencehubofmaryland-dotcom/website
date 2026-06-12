@@ -148,7 +148,7 @@ export async function POST(request: Request) {
     }
 
     // Calculate totals
-    const subtotal = items.reduce((sum: number, item) => sum + (item.price * item.quantity), 0)
+    const subtotal = items.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
     const taxAmount = subtotal * 0.06
     const totalAmount = subtotal + taxAmount
 
