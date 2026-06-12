@@ -150,8 +150,7 @@ export default function AvailableShifts() {
                   )}
                   {shift.status === 'claimed' && (
                     <p className="text-green-600 font-semibold">Claimed by {shift.staff_name}</p>
-                    )}
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
