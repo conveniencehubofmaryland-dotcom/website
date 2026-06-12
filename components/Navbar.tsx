@@ -39,38 +39,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Cart Icon + Book Now */}
-          <div className="flex items-center gap-4">
-            {/* Cart Icon */}
-            <Link 
-              href="/cart"
-              className="relative flex items-center gap-2 text-chm-red hover:text-red-700 font-bold text-sm transition"
-            >
-              🛒 CART
-              {items.length > 0 && (
-                <span className="absolute -top-3 -right-3 bg-chm-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {items.length}
-                </span>
-              )}
-            </Link>
-
-            {/* Book Now Button - Hide on mobile */}
-            <Link
-              href="/book"
-              className="hidden sm:block bg-chm-red text-white px-4 py-2 rounded font-bold text-sm hover:bg-red-700 transition whitespace-nowrap"
-            >
-              BOOK NOW
-            </Link>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-chm-red hover:text-red-700 transition"
-            >
-              ☰
-            </button>
-          </div>
-        </div>
+         
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
