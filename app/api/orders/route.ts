@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const res = await fetch(`${supabaseUrl}/rest/v1/orders`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    headers: { 'Content-Type': 'application/json', apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` }
     body: JSON.stringify({ order_id: orderId, customer_name: name, customer_email: email, customer_phone: phone, customer_address: address, subtotal, tax_amount: tax, total_amount: totalAmount, status: 'pending', created_at: new Date().toISOString() }),
   })
 
