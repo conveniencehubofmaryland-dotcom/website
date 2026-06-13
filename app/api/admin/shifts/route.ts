@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbSelectAuth, dbInsertService, dbDeleteService } from '@/lib/db'
+import { dbSelectAuth, dbInsertAuth, dbDeleteAuth } from '@/lib/db'
 
 type Shift = {
   id: string
@@ -31,6 +31,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const token = await getToken()
+  console.log('[admin/shifts] POST request received, admin token present:', Boolean(token))
+  console.log('[admin/shifts] POST runtime service role key present:', Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const { error } = await dbInsertService('shifts', {
+  const { error } = await dbInsertAuth('shifts', {
     date,
     start_time,
     end_time,
@@ -47,21 +49,29 @@ export async function POST(req: NextRequest) {
     role,
     notes: notes?.trim() || null,
     status: 'available',
-  })
+  }, token)
 
-  if (error) return NextResponse.json({ error }, { status: 500 })
+  if (error) {
+    console.error('[admin/shifts] dbInsertAuth error:', error)
+    return NextResponse.json({ error }, { status: 500 })
+  }
   return NextResponse.json({ success: true })
 }
 
 export async function DELETE(req: NextRequest) {
   const token = await getToken()
+  console.log('[admin/shifts] DELETE request received, admin token present:', Boolean(token))
+  console.log('[admin/shifts] DELETE runtime service role key present:', Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
   const id = body?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  const { error } = await dbDeleteService('shifts', id)
-  if (error) return NextResponse.json({ error }, { status: 500 })
+  const { error } = await dbDeleteAuth('shifts', id, token)
+  if (error) {
+    console.error('[admin/shifts] dbDeleteAuth error:', error)
+    return NextResponse.json({ error }, { status: 500 })
+  }
   return NextResponse.json({ success: true })
 }

@@ -5,7 +5,6 @@
 
 const URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const KEY  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 
 const headers = {
   apikey: KEY,
@@ -13,10 +12,16 @@ const headers = {
   'Content-Type': 'application/json',
 }
 
-const serviceHeaders = {
-  apikey: SERVICE_KEY,
-  Authorization: `Bearer ${SERVICE_KEY}`,
-  'Content-Type': 'application/json',
+function getServiceHeaders() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const hasServiceKey = Boolean(serviceKey)
+  console.log('[db] SUPABASE_SERVICE_ROLE_KEY present:', hasServiceKey)
+  if (!serviceKey) return null
+  return {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    'Content-Type': 'application/json',
+  }
 }
 
 export async function dbSelect<T>(
@@ -108,7 +113,8 @@ export async function dbInsertService(
   table: string,
   row: Record<string, unknown>
 ): Promise<{ error: string | null }> {
-  if (!URL || !SERVICE_KEY) return { error: 'Database not configured' }
+  const serviceHeaders = getServiceHeaders()
+  if (!URL || !serviceHeaders) return { error: 'Database not configured' }
   try {
     const res = await fetch(`${URL}/rest/v1/${table}`, {
       method: 'POST',
@@ -154,7 +160,8 @@ export async function dbDeleteService(
   table: string,
   id: string
 ): Promise<{ error: string | null }> {
-  if (!URL || !SERVICE_KEY) return { error: 'Database not configured' }
+  const serviceHeaders = getServiceHeaders()
+  if (!URL || !serviceHeaders) return { error: 'Database not configured' }
   const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
     method: 'DELETE',
     headers: serviceHeaders,

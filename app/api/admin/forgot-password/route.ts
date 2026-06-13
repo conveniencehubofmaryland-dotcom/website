@@ -10,6 +10,9 @@ export async function POST(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const resendApiKey = process.env.RESEND_API_KEY
+  console.log('[admin/forgot-password] runtime supabaseUrl present:', Boolean(supabaseUrl))
+  console.log('[admin/forgot-password] runtime SUPABASE_SERVICE_ROLE_KEY present:', Boolean(serviceRoleKey))
+  console.log('[admin/forgot-password] runtime RESEND_API_KEY present:', Boolean(resendApiKey))
 
   if (!serviceRoleKey) {
     console.error('SUPABASE_SERVICE_ROLE_KEY is not set')
@@ -56,6 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { action_link } = await generateLinkRes.json()
+    console.log('[admin/forgot-password] generated action_link:', action_link)
 
     // Step 2: Send email via Resend with the recovery link
     const emailRes = await fetch('https://api.resend.com/emails', {
@@ -85,6 +89,8 @@ export async function POST(req: NextRequest) {
         { status: emailRes.status }
       )
     }
+
+    console.log('[admin/forgot-password] reset email sent to:', email)
 
     return NextResponse.json({ success: true })
   } catch (err) {
