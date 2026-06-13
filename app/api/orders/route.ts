@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Calculate subtotal and tax
-const subtotal = items.reduce((sum: number, item: Record<string, any>) => {
+const subtotal = items.reduce((sum: number, item: { price: number; quantity: number }) =>
   return sum + (item.price * item.quantity);
 }, 0);
 
