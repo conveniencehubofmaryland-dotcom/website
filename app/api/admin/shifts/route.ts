@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbSelectAuth, dbInsertService, dbDeleteService } from '@/lib/db'
+import { dbSelectAuth, dbInsertAuth, dbDeleteAuth } from '@/lib/db'
 
 type Shift = {
   id: string
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const { error } = await dbInsertService('shifts', {
+  const { error } = await dbInsertAuth('shifts', {
     date,
     start_time,
     end_time,
@@ -49,13 +49,10 @@ export async function POST(req: NextRequest) {
     role,
     notes: notes?.trim() || null,
     status: 'available',
-  })
+  }, token)
 
   if (error) {
-    console.error('[admin/shifts] dbInsertService error:', error)
-    const formattedError = error === 'Database not configured'
-      ? 'Database not configured (missing SUPABASE_SERVICE_ROLE_KEY at runtime)'
-      : error
+    console.error('[admin/shifts] dbInsertAuth error:', error)
     return NextResponse.json({ error }, { status: 500 })
   }
   return NextResponse.json({ success: true })
@@ -71,12 +68,9 @@ export async function DELETE(req: NextRequest) {
   const id = body?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  const { error } = await dbDeleteService('shifts', id)
+  const { error } = await dbDeleteAuth('shifts', id, token)
   if (error) {
-    console.error('[admin/shifts] dbDeleteService error:', error)
-    const formattedError = error === 'Database not configured'
-      ? 'Database not configured (missing SUPABASE_SERVICE_ROLE_KEY at runtime)'
-      : error
+    console.error('[admin/shifts] dbDeleteAuth error:', error)
     return NextResponse.json({ error }, { status: 500 })
   }
   return NextResponse.json({ success: true })
