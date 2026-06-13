@@ -137,6 +137,7 @@ export default function ManageShifts() {
                       <p className="text-gray-600 text-sm">Status</p>
                       <p className={`font-semibold ${shift.status === 'claimed'? 'text-green-600' : 'text-gray-600'}`}>{shift.status}</p>
                     </div>
+                  </div>
                   {shift.status === 'claimed' && (
                     <div className="mb-4 p-3 bg-green-50 rounded-lg">
                       <p className="text-sm text-gray-600">Claimed by</p>
