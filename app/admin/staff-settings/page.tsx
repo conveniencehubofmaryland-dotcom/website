@@ -2,6 +2,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+type Setting = {
+  key: string
+  value: string
+}
+
 export default function StaffSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -18,7 +23,7 @@ export default function StaffSettings() {
     const res = await fetch(`${supabaseUrl}/rest/v1/settings?key=eq.staff_portal_password`, {
       headers: { apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` },
     })
-    const data = await res.json()
+    const data: Setting[] = await res.json()
     setCurrentPassword(data[0]?.value || '')
   }
 
@@ -31,6 +36,7 @@ export default function StaffSettings() {
     setLoading(true)
     const res = await fetch('/api/admin/update-password', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newPassword: newPassword.trim() }),
     })
     if (res.ok) {
@@ -82,11 +88,11 @@ export default function StaffSettings() {
               disabled={loading}
               className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50"
             >
-              {loading ? 'Updating...' : 'Update Password'}
+              {loading? 'Updating...' : 'Update Password'}
             </button>
 
             {message && (
-              <p className={`text-center font-semibold ${message.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-center font-semibold ${message.includes('✅')? 'text-green-600' : 'text-red-600'}`}>
                 {message}
               </p>
             )}
@@ -100,7 +106,7 @@ export default function StaffSettings() {
               <li>✓ Staff visit the link above</li>
               <li>✓ Enter password: <span className="font-mono bg-gray-100 px-2 py-1">&quot;CHM2024&quot;</span></li>
               <li>✓ View available shifts</li>
-              <li>✓ Click "Pick Up Shift" to claim</li>
+              <li>✓ Click &quot;Pick Up Shift&quot; to claim</li>
               <li>✓ You see their details in Manage Shifts</li>
             </ul>
           </div>
