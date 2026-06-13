@@ -31,16 +31,30 @@ export default function ManageShifts() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
 
   const fetchShifts = useCallback(async () => {
-    const res = await fetch(`${supabaseUrl}/rest/v1/shifts?order=date.asc`, {
-      headers: { apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` },
-    })
-    const data: Shift[] = await res.json()
+    const res = await fetch('/api/admin/shifts')
+
+    if (!res.ok) {
+      const errorText = await res.text()
+      console.error('Failed to load shifts', res.status, errorText)
+      setMessage('❌ Failed to load shifts')
+      setShifts([])
+      return
+    }
+
+    const data = await res.json()
+    if (!Array.isArray(data)) {
+      console.error('Unexpected shift data', data)
+      setMessage('❌ Failed to load shifts')
+      setShifts([])
+      return
+    }
+
     setShifts(data)
-  }, [supabaseUrl, supabaseKey])
+  }, [])
 
   useEffect(() => {
     fetchShifts()
@@ -50,13 +64,9 @@ export default function ManageShifts() {
     e.preventDefault()
     setLoading(true)
 
-    const res = await fetch(`${supabaseUrl}/rest/v1/shifts`, {
+    const res = await fetch('/api/admin/shifts', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: supabaseKey as string,
-        Authorization: `Bearer ${supabaseKey as string}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     })
 
@@ -65,6 +75,8 @@ export default function ManageShifts() {
       setFormData({ date: '', start_time: '', end_time: '', location: '', role: '', notes: '' })
       fetchShifts()
     } else {
+      const errorText = await res.text()
+      console.error('Failed to create shift', res.status, errorText)
       setMessage('❌ Failed to create shift')
     }
     setLoading(false)
@@ -73,15 +85,18 @@ export default function ManageShifts() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this shift?')) return
 
-    const res = await fetch(`${supabaseUrl}/rest/v1/shifts?id=eq.${id}`, {
+    const res = await fetch('/api/admin/shifts', {
       method: 'DELETE',
-      headers: { apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
     })
 
     if (res.ok) {
       setMessage('✅ Shift deleted')
       fetchShifts()
     } else {
+      const errorText = await res.text()
+      console.error('Failed to delete shift', res.status, errorText)
       setMessage('❌ Failed to delete shift')
     }
   }
