@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbSelectAuth, dbInsertAuth, dbDeleteAuth } from '@/lib/db'
+import { dbSelectAuth, dbInsertService, dbDeleteService } from '@/lib/db'
 
 type Shift = {
   id: string
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const { error } = await dbInsertAuth('shifts', {
+  const { error } = await dbInsertService('shifts', {
     date,
     start_time,
     end_time,
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     role,
     notes: notes?.trim() || null,
     status: 'available',
-  }, token)
+  })
 
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
@@ -61,7 +61,7 @@ export async function DELETE(req: NextRequest) {
   const id = body?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  const { error } = await dbDeleteAuth('shifts', id, token)
+  const { error } = await dbDeleteService('shifts', id)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
