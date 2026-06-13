@@ -31,9 +31,6 @@ export default function ManageShifts() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-
   const fetchShifts = useCallback(async () => {
     const res = await fetch('/api/admin/shifts')
 

@@ -1,8 +1,13 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function sendAdminEmail(subject: string, message: string) {
+  if (!resend) {
+    console.error('Missing RESEND_API_KEY; email not sent')
+    return
+  }
   try {
     const res = await resend.emails.send({
       from: 'team@conveniencehubofmaryland.com',
@@ -19,6 +24,10 @@ export async function sendAdminEmail(subject: string, message: string) {
 }
 
 export async function sendUserEmail(to: string, subject: string, message: string) {
+  if (!resend) {
+    console.error('Missing RESEND_API_KEY; email not sent')
+    return
+  }
   try {
     const res = await resend.emails.send({
       from: 'team@conveniencehubofmaryland.com',
