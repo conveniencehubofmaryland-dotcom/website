@@ -19,11 +19,14 @@ export async function POST(request: Request) {
     }
 
     // Calculate subtotal and tax
-    const subtotal = items.reduce((sum: number, item: Record<string, any>) =>
-    const taxAmount = subtotal * 0.06
-    const totalAmount = subtotal + taxAmount
+const subtotal = items.reduce((sum: number, item: Record<string, any>) => {
+  return sum + (item.price * item.quantity);
+}, 0);
 
-    // Save order to Supabase
+const taxAmount = subtotal * 0.06;
+const totalAmount = subtotal + taxAmount;
+
+// Save order to Supabase
     const dbRes = await fetch(`${supabaseUrl}/rest/v1/orders`, {
       method: 'POST',
       headers: {
