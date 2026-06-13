@@ -1,11 +1,24 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+
+type Shift = {
+  id: string
+  date: string
+  start_time: string
+  end_time: string
+  location: string
+  role: string
+  notes?: string
+  status: 'available' | 'claimed'
+  staff_name?: string
+  staff_email?: string
+  staff_phone?: string
+}
 
 export default function AvailableShifts() {
   const [password, setPassword] = useState('')
   const [authenticated, setAuthenticated] = useState(false)
-  const [shifts, setShifts] = useState([])
+  const [shifts, setShifts] = useState<Shift[]>([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -33,7 +46,7 @@ export default function AvailableShifts() {
 
   const fetchShifts = async () => {
     const res = await fetch('/api/staff/shifts')
-    const data = await res.json()
+    const data: Shift[] = await res.json()
     setShifts(data)
   }
 
@@ -93,7 +106,7 @@ export default function AvailableShifts() {
               disabled={loading}
               className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50"
             >
-              {loading ? 'Checking...' : 'Access Portal'}
+              {loading? 'Checking...' : 'Access Portal'}
             </button>
             {message && <p className="text-red-600 text-center font-semibold">{message}</p>}
           </form>
@@ -108,11 +121,11 @@ export default function AvailableShifts() {
         <h1 className="text-4xl font-bold mb-8 text-red-600">Available Shifts</h1>
 
         <div className="bg-white rounded-lg shadow p-8">
-          {shifts.length === 0 ? (
+          {shifts.length === 0? (
             <p className="text-gray-600 text-center py-8">No available shifts at the moment</p>
           ) : (
             <div className="space-y-4">
-              {shifts.map((shift: Record<string, any>) => (
+              {shifts.map((shift: Shift) => (
                 <div key={shift.id} className="border border-gray-200 rounded-lg p-6">
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
                     <div>
@@ -133,8 +146,8 @@ export default function AvailableShifts() {
                     </div>
                     <div>
                       <p className="text-gray-600 text-sm">Status</p>
-                      <p className={`font-semibold ${shift.status === 'claimed' ? 'text-green-600' : 'text-yellow-600'}`}>
-                        {shift.status === 'claimed' ? 'Claimed' : 'Available'}
+                      <p className={`font-semibold ${shift.status === 'claimed'? 'text-green-600' : 'text-yellow-600'}`}>
+                        {shift.status === 'claimed'? 'Claimed' : 'Available'}
                       </p>
                     </div>
                   </div>
@@ -160,9 +173,9 @@ export default function AvailableShifts() {
           <h2 className="text-xl font-bold mb-4">How It Works</h2>
           <ul className="space-y-2 text-gray-700">
             <li>✓ Staff visit this link</li>
-            <li>✓ Enter password: {`"CHM2024"`}</li>
+            <li>✓ Enter password: <span className="font-mono bg-gray-100 px-2 py-1">&quot;CHM2024&quot;</span></li>
             <li>✓ View available shifts</li>
-            <li>✓ Click {`"Pick Up Shift"`} to claim</li>
+            <li>✓ Click &quot;Pick Up Shift&quot; to claim</li>
             <li>✓ You see their details in Manage Shifts</li>
           </ul>
         </div>
