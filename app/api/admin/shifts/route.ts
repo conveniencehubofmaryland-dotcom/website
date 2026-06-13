@@ -31,6 +31,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const token = await getToken()
+  console.log('[admin/shifts] POST request received, admin token present:', Boolean(token))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
@@ -49,12 +50,16 @@ export async function POST(req: NextRequest) {
     status: 'available',
   })
 
-  if (error) return NextResponse.json({ error }, { status: 500 })
+  if (error) {
+    console.error('[admin/shifts] dbInsertService error:', error)
+    return NextResponse.json({ error }, { status: 500 })
+  }
   return NextResponse.json({ success: true })
 }
 
 export async function DELETE(req: NextRequest) {
   const token = await getToken()
+  console.log('[admin/shifts] DELETE request received, admin token present:', Boolean(token))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
@@ -62,6 +67,9 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
   const { error } = await dbDeleteService('shifts', id)
-  if (error) return NextResponse.json({ error }, { status: 500 })
+  if (error) {
+    console.error('[admin/shifts] dbDeleteService error:', error)
+    return NextResponse.json({ error }, { status: 500 })
+  }
   return NextResponse.json({ success: true })
 }
