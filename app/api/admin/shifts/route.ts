@@ -32,6 +32,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const token = await getToken()
   console.log('[admin/shifts] POST request received, admin token present:', Boolean(token))
+  console.log('[admin/shifts] POST runtime service role key present:', Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
@@ -52,6 +53,9 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error('[admin/shifts] dbInsertService error:', error)
+    const formattedError = error === 'Database not configured'
+      ? 'Database not configured (missing SUPABASE_SERVICE_ROLE_KEY at runtime)'
+      : error
     return NextResponse.json({ error }, { status: 500 })
   }
   return NextResponse.json({ success: true })
@@ -60,6 +64,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const token = await getToken()
   console.log('[admin/shifts] DELETE request received, admin token present:', Boolean(token))
+  console.log('[admin/shifts] DELETE runtime service role key present:', Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY))
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
@@ -69,6 +74,9 @@ export async function DELETE(req: NextRequest) {
   const { error } = await dbDeleteService('shifts', id)
   if (error) {
     console.error('[admin/shifts] dbDeleteService error:', error)
+    const formattedError = error === 'Database not configured'
+      ? 'Database not configured (missing SUPABASE_SERVICE_ROLE_KEY at runtime)'
+      : error
     return NextResponse.json({ error }, { status: 500 })
   }
   return NextResponse.json({ success: true })
