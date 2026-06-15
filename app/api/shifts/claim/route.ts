@@ -1,8 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
-
-const resendApiKey = process.env.RESEND_API_KEY
-const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function POST(request: NextRequest) {
   const { shiftId, staffName, staffEmail, staffPhone } = await request.json()
@@ -13,10 +9,15 @@ export async function POST(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const companyEmail = 'onboarding@resend.dev'
+  const resendApiKey = process.env.RESEND_API_KEY
 
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+  }
+
+  if (!resendApiKey) {
+    console.error('[shifts] RESEND_API_KEY not set')
+    return NextResponse.json({ error: 'Email service not configured' }, { status: 500 })
   }
 
   try {
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     )
 
     if (!shiftRes.ok) {
-      console.error('Error fetching shift:', shiftRes.status)
+      console.error('[shifts] Error fetching shift:', shiftRes.status)
       return NextResponse.json({ error: 'Shift not found' }, { status: 404 })
     }
 
@@ -65,11 +66,11 @@ export async function POST(request: NextRequest) {
 
     if (!updateRes.ok) {
       const errorText = await updateRes.text()
-      console.error('Error updating shift:', updateRes.status, errorText)
-      return NextResponse.json({ error: `Update failed: ${updateRes.status} - ${errorText}` }, { status: 500 })
+      console.error('[shifts] Error updating shift:', updateRes.status, errorText)
+      return NextResponse.json({ error: 'Failed to claim shift' }, { status: 500 })
     }
 
-    // 3. Format shift details for emails
+    // 3. Format shift date
     const shiftDate = new Date(shift.date).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -78,101 +79,155 @@ export async function POST(request: NextRequest) {
     })
 
     // 4. Send email to staff
-    console.log('[EMAIL] RESEND available:', !!resend)
-    console.log('[EMAIL] Attempting to send to staff:', staffEmail)
-    
-    if (resend) {
-      try {
-        console.log('[EMAIL] Sending shift confirmation to staff...')
-        const emailResponse = await resend.emails.send({
-          from: companyEmail,
-          to: staffEmail,
+    try {
+      const staffEmailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
+          reply_to: ['conveniencehubofmaryland@gmail.com'],
+          to: [staffEmail],
           subject: `Shift Confirmed - ${shift.role} on ${shiftDate}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #E8192C;">Shift Confirmation</h2>
-              <p>Dear ${staffName},</p>
-              <p>Thank you for claiming the shift! Here are the details:</p>
-              
-              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Date:</strong> ${shiftDate}</p>
-                <p><strong>Start Time:</strong> ${shift.start_time}</p>
-                <p><strong>End Time:</strong> ${shift.end_time}</p>
-                <p><strong>Location:</strong> ${shift.location}</p>
-                <p><strong>Role:</strong> ${shift.role}</p>
-                <p><strong>Pay Rate:</strong> $${shift.pay_rate || 'TBD'}</p>
+              <div style="background: #E8192C; padding: 24px 32px; border-radius: 8px 8px 0 0;">
+                <h1 style="color: #fff; font-size: 20px; margin: 0;">Shift Confirmation</h1>
               </div>
+              <div style="background: #fff; border: 1px solid #eee; padding: 32px; border-radius: 0 0 8px 8px;">
+                <p style="font-size: 15px; color: #333;">Hi ${staffName},</p>
+                <p style="font-size: 14px; color: #555;">Thank you for claiming the shift! Here are the details:</p>
+                
+                <table style="border-collapse: collapse; font-size: 14px; width: 100%; margin: 20px 0;">
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888; width: 140px;">Date</td>
+                    <td style="color: #222; font-weight: 600;">${shiftDate}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888;">Start Time</td>
+                    <td style="color: #222; font-weight: 600;">${shift.start_time}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888;">End Time</td>
+                    <td style="color: #222; font-weight: 600;">${shift.end_time}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888;">Location</td>
+                    <td style="color: #222; font-weight: 600;">${shift.location}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888;">Role</td>
+                    <td style="color: #222; font-weight: 600;">${shift.role}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px 0; color: #888;">Pay Rate</td>
+                    <td style="color: #222; font-weight: 600;">$${shift.pay_rate || 'TBD'}</td>
+                  </tr>
+                </table>
 
-              ${shift.job_description ? `
-                <div style="margin: 20px 0;">
-                  <h3>Job Description:</h3>
-                  <p style="white-space: pre-wrap; background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-                    ${shift.job_description}
-                  </p>
-                </div>
-              ` : ''}
+                ${shift.job_description ? `
+                  <div style="margin: 20px 0;">
+                    <h3 style="color: #333; margin-bottom: 10px;">Job Description:</h3>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; color: #555; white-space: pre-wrap;">
+                      ${shift.job_description}
+                    </div>
+                  </div>
+                ` : ''}
 
-              <p style="margin-top: 30px; color: #666;">
-                If you have any questions, please contact us at conveniencehubofmaryland@gmail.com or call 202-579-2944.
-              </p>
-              
-              <p style="color: #999; font-size: 12px; margin-top: 20px;">
-                Convenience Hub of Maryland
-              </p>
+                <p style="font-size: 14px; color: #555; margin-top: 30px;">
+                  Questions? Call or text <a href="tel:+12025792944" style="color: #E8192C;">202-579-2944</a>
+                </p>
+                
+                <p style="font-size: 12px; color: #aaa; margin-top: 32px;">
+                  Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.
+                </p>
+              </div>
             </div>
           `,
-        })
-        console.log('[EMAIL] Staff email sent successfully:', emailResponse)
-      } catch (emailError) {
-        console.error('[EMAIL] Error sending to staff:', emailError)
-      }
+        }),
+      })
 
-      // 5. Send email to company admin
-      try {
-        console.log('[EMAIL] Sending notification to admin:', companyEmail)
-        const adminEmailResponse = await resend.emails.send({
-          from: companyEmail,
-          to: companyEmail,
+      if (!staffEmailRes.ok) {
+        console.error('[shifts] Staff email failed:', await staffEmailRes.text())
+      } else {
+        console.log('[shifts] Staff email sent successfully')
+      }
+    } catch (emailError) {
+      console.error('[shifts] Error sending staff email:', emailError)
+    }
+
+    // 5. Send email to company admin
+    try {
+      const adminEmailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
+          to: ['conveniencehubofmaryland@gmail.com'],
           subject: `New Shift Claim - ${shift.role} by ${staffName}`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #E8192C;">New Shift Claim</h2>
-              <p>A staff member has claimed a shift. Here are the details:</p>
-              
-              <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3>Shift Details:</h3>
-                <p><strong>Date:</strong> ${shiftDate}</p>
-                <p><strong>Start Time:</strong> ${shift.start_time}</p>
-                <p><strong>End Time:</strong> ${shift.end_time}</p>
-                <p><strong>Location:</strong> ${shift.location}</p>
-                <p><strong>Role:</strong> ${shift.role}</p>
-                <p><strong>Pay Rate:</strong> $${shift.pay_rate || 'TBD'}</p>
-              </div>
-
-              <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3>Staff Information:</h3>
-                <p><strong>Name:</strong> ${staffName}</p>
-                <p><strong>Email:</strong> ${staffEmail}</p>
-                <p><strong>Phone:</strong> ${staffPhone}</p>
-              </div>
-
-              <p style="margin-top: 20px; color: #666;">
-                You can view all claimed shifts in your admin panel.
-              </p>
-            </div>
+            <h2 style="color: #E8192C;">New Shift Claim</h2>
+            <table style="border-collapse: collapse; font-family: sans-serif; font-size: 14px;">
+              <tr>
+                <td style="padding: 6px 16px 6px 0; color: #666;">Shift</td>
+                <td style="font-weight: 600;">${shift.role}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 16px 6px 0; color: #666;">Date</td>
+                <td style="font-weight: 600;">${shiftDate}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 16px 6px 0; color: #666;">Time</td>
+                <td style="font-weight: 600;">${shift.start_time} - ${shift.end_time}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 16px 6px 0; color: #666;">Location</td>
+                <td style="font-weight: 600;">${shift.location}</td>
+              </tr>
+              <tr style="border-bottom: 2px solid #f0f0f0;">
+                <td style="padding: 6px 16px 6px 0; color: #666;">Pay Rate</td>
+                <td style="font-weight: 600;">$${shift.pay_rate || 'TBD'}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f0f0f0;">
+                <td style="padding: 6px 16px 6px 0; color: #666;">Staff Name</td>
+                <td style="font-weight: 600;">${staffName}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f0f0f0;">
+                <td style="padding: 6px 16px 6px 0; color: #666;">Phone</td>
+                <td><a href="tel:${staffPhone}" style="color: #E8192C;">${staffPhone}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 16px 6px 0; color: #666;">Email</td>
+                <td><a href="mailto:${staffEmail}" style="color: #E8192C;">${staffEmail}</a></td>
+              </tr>
+            </table>
+            <p style="margin-top: 16px;">
+              <a href="https://conveniencehubofmaryland.com/admin/shifts"
+                 style="background: #E8192C; color: #fff; padding: 10px 20px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-block; border-radius: 4px;">
+                View in Admin →
+              </a>
+            </p>
           `,
-        })
-        console.log('[EMAIL] Admin email sent successfully:', adminEmailResponse)
-      } catch (emailError) {
-        console.error('[EMAIL] Error sending to admin:', emailError)
+        }),
+      })
+
+      if (!adminEmailRes.ok) {
+        console.error('[shifts] Admin email failed:', await adminEmailRes.text())
+      } else {
+        console.log('[shifts] Admin email sent successfully')
       }
-    } else {
-      console.log('[EMAIL] RESEND not initialized - emails disabled')
+    } catch (emailError) {
+      console.error('[shifts] Error sending admin email:', emailError)
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error claiming shift:', error)
-    return NextResponse.json({ error: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
+    console.error('[shifts] Error claiming shift:', error)
+    return NextResponse.json({ error: 'Failed to claim shift' }, { status: 500 })
   }
 }
