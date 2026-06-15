@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Shift = {
   id: string
@@ -8,6 +8,8 @@ type Shift = {
   end_time: string
   location: string
   role: string
+  pay_rate?: number
+  job_description?: string
   notes?: string
   status: 'available' | 'claimed'
   staff_name?: string
@@ -15,174 +17,217 @@ type Shift = {
   staff_phone?: string
 }
 
+type ClaimForm = {
+  name: string
+  email: string
+  phone: string
+}
+
 export default function AvailableShifts() {
-  const [password, setPassword] = useState('')
-  const [authenticated, setAuthenticated] = useState(false)
   const [shifts, setShifts] = useState<Shift[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [claimingShiftId, setClaimingShiftId] = useState<string | null>(null)
+  const [claimForm, setClaimForm] = useState<ClaimForm>({ name: '', email: '', phone: '' })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    const res = await fetch('/api/staff/check-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    })
-
-    if (res.ok) {
-      setAuthenticated(true)
-      fetchShifts()
-    } else {
-      setMessage('❌ Incorrect password')
-    }
-    setLoading(false)
-  }
+  useEffect(() => {
+    fetchShifts()
+  }, [])
 
   const fetchShifts = async () => {
-    const res = await fetch('/api/staff/shifts')
-    const data: Shift[] = await res.json()
-    setShifts(data)
+    try {
+      const res = await fetch('/api/shifts/available')
+      if (!res.ok) throw new Error('Failed to fetch shifts')
+      const data: Shift[] = await res.json()
+      setShifts(data)
+    } catch (error) {
+      console.error('Error fetching shifts:', error)
+      setMessage('❌ Failed to load shifts')
+      setShifts([])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleClaimShift = async (shiftId: string) => {
-    const staffName = prompt('Your name:')
-    const staffEmail = prompt('Your email:')
-    const staffPhone = prompt('Your phone:')
+  const handleClaimSubmit = async (e: React.FormEvent, shiftId: string) => {
+    e.preventDefault()
 
-    if (!staffName || !staffEmail || !staffPhone) {
-      setMessage('❌ Please provide all details')
+    if (!claimForm.name || !claimForm.email || !claimForm.phone) {
+      setMessage('❌ Please fill in all fields')
       return
     }
 
-    const res = await fetch(`${supabaseUrl}/rest/v1/shifts?id=eq.${shiftId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: supabaseKey as string,
-        Authorization: `Bearer ${supabaseKey as string}`,
-      },
-      body: JSON.stringify({
-        status: 'claimed',
-        staff_name: staffName,
-        staff_email: staffEmail,
-        staff_phone: staffPhone,
-        claimed_at: new Date().toISOString(),
-      }),
-    })
+    setLoading(true)
+    try {
+      const res = await fetch('/api/shifts/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shiftId,
+          staffName: claimForm.name,
+          staffEmail: claimForm.email,
+          staffPhone: claimForm.phone,
+        }),
+      })
 
-    if (res.ok) {
-      setMessage('✅ Shift claimed!')
-      fetchShifts()
-    } else {
-      setMessage('❌ Failed to claim shift')
+      if (res.ok) {
+        setMessage('✅ Shift claimed! Check your email for details.')
+        setClaimingShiftId(null)
+        setClaimForm({ name: '', email: '', phone: '' })
+        fetchShifts()
+      } else {
+        const error = await res.text()
+        setMessage(`❌ Failed to claim shift: ${error}`)
+      }
+    } catch (error) {
+      setMessage('❌ Error claiming shift')
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow p-8 max-w-md w-full">
-          <h1 className="text-3xl font-bold mb-6 text-red-600 text-center">Staff Portal</h1>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter staff password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50"
-            >
-              {loading? 'Checking...' : 'Access Portal'}
-            </button>
-            {message && <p className="text-red-600 text-center font-semibold">{message}</p>}
-          </form>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-red-600">Available Shifts</h1>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2 text-red-600">Available Shifts</h1>
+        <p className="text-gray-600 mb-8">Browse and claim shifts below. You'll receive a confirmation email with all details.</p>
 
-        <div className="bg-white rounded-lg shadow p-8">
-          {shifts.length === 0? (
-            <p className="text-gray-600 text-center py-8">No available shifts at the moment</p>
-          ) : (
-            <div className="space-y-4">
-              {shifts.map((shift: Shift) => (
-                <div key={shift.id} className="border border-gray-200 rounded-lg p-6">
-                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg ${message.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+            {message}
+          </div>
+        )}
+
+        {loading && !claimingShiftId ? (
+          <div className="text-center py-12 text-gray-500">Loading shifts...</div>
+        ) : shifts.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-600 text-lg">No available shifts at the moment.</p>
+            <p className="text-gray-500 mt-2">Check back soon!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {shifts.map((shift: Shift) => (
+              <div key={shift.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                {/* Shift Details */}
+                <div className="p-6 border-b border-gray-200">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <p className="text-gray-600 text-sm">Date</p>
-                      <p className="font-semibold">{shift.date}</p>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">{shift.role}</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-gray-600">📅 Date</p>
+                          <p className="font-semibold text-lg">{new Date(shift.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">🕐 Time</p>
+                          <p className="font-semibold text-lg">{shift.start_time} - {shift.end_time}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">📍 Location</p>
+                          <p className="font-semibold text-lg">{shift.location}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">💰 Pay Rate</p>
+                          <p className="font-semibold text-lg text-green-600">${shift.pay_rate || 'TBD'}</p>
+                        </div>
+                      </div>
                     </div>
+
                     <div>
-                      <p className="text-gray-600 text-sm">Time</p>
-                      <p className="font-semibold">{shift.start_time} - {shift.end_time}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Location</p>
-                      <p className="font-semibold">{shift.location}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Role</p>
-                      <p className="font-semibold">{shift.role}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 text-sm">Status</p>
-                      <p className={`font-semibold ${shift.status === 'claimed'? 'text-green-600' : 'text-yellow-600'}`}>
-                        {shift.status === 'claimed'? 'Claimed' : 'Available'}
-                      </p>
+                      {shift.job_description && (
+                        <div>
+                          <p className="text-sm text-gray-600 mb-2">📋 Job Description</p>
+                          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p className="text-gray-700 whitespace-pre-wrap">{shift.job_description}</p>
+                          </div>
+                        </div>
+                      )}
+                      {shift.notes && (
+                        <div className="mt-4">
+                          <p className="text-sm text-gray-600 mb-2">📝 Additional Notes</p>
+                          <p className="text-gray-700">{shift.notes}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {shift.notes && <p className="text-gray-600 mb-4">{shift.notes}</p>}
-                  {shift.status === 'available' && (
-                    <button
-                      onClick={() => handleClaimShift(shift.id)}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-semibold"
-                    >
-                      Pick Up Shift
-                    </button>
-                  )}
-                  {shift.status === 'claimed' && (
-                    <p className="text-green-600 font-semibold">Claimed by {shift.staff_name}</p>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        <div className="mt-8 bg-white rounded-lg shadow p-8">
-          <h2 className="text-xl font-bold mb-4">How It Works</h2>
-          <ul className="space-y-2 text-gray-700">
-            <li>✓ Staff visit this link</li>
-            <li>✓ Enter password: <span className="font-mono bg-gray-100 px-2 py-1">&quot;CHM2024&quot;</span></li>
-            <li>✓ View available shifts</li>
-            <li>✓ Click &quot;Pick Up Shift&quot; to claim</li>
-            <li>✓ You see their details in Manage Shifts</li>
-          </ul>
-        </div>
-
-        <button onClick={() => setAuthenticated(false)} className="mt-8 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-          Sign Out
-        </button>
+                {/* Claim Form or Status */}
+                {shift.status === 'claimed' ? (
+                  <div className="p-6 bg-green-50">
+                    <p className="text-green-700 font-semibold">✅ Shift claimed by {shift.staff_name}</p>
+                  </div>
+                ) : claimingShiftId === shift.id ? (
+                  <form onSubmit={(e) => handleClaimSubmit(e, shift.id)} className="p-6 bg-blue-50 border-t border-gray-200">
+                    <h4 className="font-bold text-gray-900 mb-4">Claim This Shift</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={claimForm.name}
+                          onChange={(e) => setClaimForm({ ...claimForm, name: e.target.value })}
+                          placeholder="Your full name"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input
+                          type="email"
+                          required
+                          value={claimForm.email}
+                          onChange={(e) => setClaimForm({ ...claimForm, email: e.target.value })}
+                          placeholder="your.email@example.com"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={claimForm.phone}
+                          onChange={(e) => setClaimForm({ ...claimForm, phone: e.target.value })}
+                          placeholder="(202) 555-0000"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {loading ? 'Processing...' : 'Confirm Claim'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setClaimingShiftId(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="p-6">
+                    <button
+                      onClick={() => setClaimingShiftId(shift.id)}
+                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 font-semibold"
+                    >
+                      Claim Shift
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
