@@ -55,16 +55,17 @@ export default function ManageShifts() {
   }, [])
 
   const fetchRoles = useCallback(async () => {
-    try {
-      const res = await fetch('/api/admin/careers')
-      if (!res.ok) throw new Error('Failed to load roles')
-      const data = await res.json()
-      if (Array.isArray(data)) setRoles(data)
-    } catch (error) {
-      console.error('Error loading roles:', error)
-      setRoles([])
-    }
-  }, [])
+  // Hardcoded roles - no API call needed
+  const roleList = [
+    { id: '1', title: 'Cleaning Specialist' },
+    { id: '2', title: 'Laundry Handler' },
+    { id: '3', title: 'Culinary & Housekeeping Staff' },
+    { id: '4', title: 'Nanny / Childcare Staff' },
+    { id: '5', title: 'Care Companion (Adult)' },
+    { id: '6', title: 'Commercial Cleaner' },
+  ]
+  setRoles(roleList)
+}, [])
 
   useEffect(() => {
     fetchShifts()
