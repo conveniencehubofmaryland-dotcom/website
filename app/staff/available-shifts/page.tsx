@@ -127,24 +127,12 @@ export default function AvailableShifts() {
                           <p className="text-sm text-gray-600">📍 Location</p>
                           <p className="font-semibold text-lg">{shift.location}</p>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-600">💰 Pay Rate</p>
-                          <p className="font-semibold text-lg text-green-600">${shift.pay_rate || 'TBD'}</p>
-                        </div>
                       </div>
                     </div>
 
                     <div>
-                      {shift.job_description && (
-                        <div>
-                          <p className="text-sm text-gray-600 mb-2">📋 Job Description</p>
-                          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <p className="text-gray-700 whitespace-pre-wrap">{shift.job_description}</p>
-                          </div>
-                        </div>
-                      )}
                       {shift.notes && (
-                        <div className="mt-4">
+                        <div>
                           <p className="text-sm text-gray-600 mb-2">📝 Additional Notes</p>
                           <p className="text-gray-700">{shift.notes}</p>
                         </div>
