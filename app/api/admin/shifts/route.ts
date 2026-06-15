@@ -9,6 +9,8 @@ type Shift = {
   end_time: string
   location: string
   role: string
+  pay_rate?: number
+  job_description?: string
   notes?: string
   status?: string
   staff_name?: string
@@ -36,7 +38,8 @@ export async function POST(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { date, start_time, end_time, location, role, notes } = body
+  const { date, start_time, end_time, location, role, pay_rate, job_description, notes } = body
+  
   if (!date || !start_time || !end_time || !location || !role) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
@@ -47,6 +50,8 @@ export async function POST(req: NextRequest) {
     end_time,
     location,
     role,
+    pay_rate: pay_rate ? parseFloat(pay_rate) : null,
+    job_description: job_description?.trim() || null,
     notes: notes?.trim() || null,
     status: 'available',
   }, token)
