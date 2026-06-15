@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const companyEmail = 'onboarding@resend.dev'  // RESEND test email
+  const companyEmail = 'onboarding@resend.dev'
 
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
     )
 
     if (!updateRes.ok) {
-  const errorText = await updateRes.text()
-  console.error('Error updating shift:', updateRes.status, errorText)
-  return NextResponse.json({ error: `Update failed: ${updateRes.status} - ${errorText}` }, { status: 500 })
-}
+      const errorText = await updateRes.text()
+      console.error('Error updating shift:', updateRes.status, errorText)
+      return NextResponse.json({ error: `Update failed: ${updateRes.status} - ${errorText}` }, { status: 500 })
+    }
 
     // 3. Format shift details for emails
     const shiftDate = new Date(shift.date).toLocaleDateString('en-US', {
@@ -78,9 +78,13 @@ export async function POST(request: NextRequest) {
     })
 
     // 4. Send email to staff
+    console.log('[EMAIL] RESEND available:', !!resend)
+    console.log('[EMAIL] Attempting to send to staff:', staffEmail)
+    
     if (resend) {
       try {
-        await resend.emails.send({
+        console.log('[EMAIL] Sending shift confirmation to staff...')
+        const emailResponse = await resend.emails.send({
           from: companyEmail,
           to: staffEmail,
           subject: `Shift Confirmed - ${shift.role} on ${shiftDate}`,
@@ -109,7 +113,7 @@ export async function POST(request: NextRequest) {
               ` : ''}
 
               <p style="margin-top: 30px; color: #666;">
-                If you have any questions, please contact us at ${companyEmail} or call 202-579-2944.
+                If you have any questions, please contact us at conveniencehubofmaryland@gmail.com or call 202-579-2944.
               </p>
               
               <p style="color: #999; font-size: 12px; margin-top: 20px;">
@@ -118,13 +122,15 @@ export async function POST(request: NextRequest) {
             </div>
           `,
         })
+        console.log('[EMAIL] Staff email sent successfully:', emailResponse)
       } catch (emailError) {
-        console.error('Error sending email to staff:', emailError)
+        console.error('[EMAIL] Error sending to staff:', emailError)
       }
 
       // 5. Send email to company admin
       try {
-        await resend.emails.send({
+        console.log('[EMAIL] Sending notification to admin:', companyEmail)
+        const adminEmailResponse = await resend.emails.send({
           from: companyEmail,
           to: companyEmail,
           subject: `New Shift Claim - ${shift.role} by ${staffName}`,
@@ -156,14 +162,17 @@ export async function POST(request: NextRequest) {
             </div>
           `,
         })
+        console.log('[EMAIL] Admin email sent successfully:', adminEmailResponse)
       } catch (emailError) {
-        console.error('Error sending email to admin:', emailError)
+        console.error('[EMAIL] Error sending to admin:', emailError)
       }
+    } else {
+      console.log('[EMAIL] RESEND not initialized - emails disabled')
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-  console.error('Error claiming shift:', error)
-  return NextResponse.json({ error: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
-}
+    console.error('Error claiming shift:', error)
+    return NextResponse.json({ error: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
+  }
 }
