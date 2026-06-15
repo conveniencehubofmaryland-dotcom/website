@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const companyEmail = 'conveniencehubofmaryland@gmail.com'
+  const companyEmail = 'onboarding@resend.dev'  // RESEND test email
 
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
