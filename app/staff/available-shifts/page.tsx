@@ -91,8 +91,7 @@ export default function AvailableShifts() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-2 text-red-600">Available Shifts</h1>
-        <p className="text-gray-600 mb-8">Browse and claim shifts below. You'll receive a confirmation email with all details.</p>
-
+        <p className="text-gray-600 mb-8">Browse and claim shifts below. You&apos;ll receive a confirmation email with all details.</p>
         {message && (
           <div className={`mb-6 p-4 rounded-lg ${message.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
             {message}
