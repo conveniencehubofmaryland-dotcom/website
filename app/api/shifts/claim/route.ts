@@ -64,9 +64,10 @@ export async function POST(request: NextRequest) {
     )
 
     if (!updateRes.ok) {
-      console.error('Error updating shift:', updateRes.status, await updateRes.text())
-      return NextResponse.json({ error: 'Failed to claim shift' }, { status: 500 })
-    }
+  const errorText = await updateRes.text()
+  console.error('Error updating shift:', updateRes.status, errorText)
+  return NextResponse.json({ error: `Update failed: ${updateRes.status} - ${errorText}` }, { status: 500 })
+}
 
     // 3. Format shift details for emails
     const shiftDate = new Date(shift.date).toLocaleDateString('en-US', {
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error claiming shift:', error)
-    return NextResponse.json({ error: 'Failed to claim shift' }, { status: 500 })
-  }
+  console.error('Error claiming shift:', error)
+  return NextResponse.json({ error: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
+}
 }
