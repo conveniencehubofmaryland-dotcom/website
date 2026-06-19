@@ -58,9 +58,9 @@ export default function ReferralProgram() {
                 </li>
               </ul>
 
-              <button className="w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              <a href="tel:+12025792944" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
                 Claim Discount
-              </button>
+              </a>
             </div>
           </AnimatedSection>
 
@@ -96,9 +96,9 @@ export default function ReferralProgram() {
                 </div>
               </div>
 
-              <button className="w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              <a href="tel:+12025792944" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
                 Start Earning
-              </button>
+              </a>
             </div>
           </AnimatedSection>
         </div>
