@@ -18,17 +18,15 @@ export default function ReferralProgram() {
       <div className="max-w-6xl mx-auto px-6 sm:px-8">
         <AnimatedSection>
           <div className="mb-10">
-            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Save & Earn</p>
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Save and Earn</p>
             <h2 className="font-serif text-4xl md:text-5xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
-              Referral & Discount Program
+              Referral and Discount Program
             </h2>
             <div className="w-10 h-px bg-chm-red" />
           </div>
         </AnimatedSection>
 
-        {/* Two Column Grid */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* First-Timer Discount */}
           <AnimatedSection delay={60}>
             <div className="border border-gray-200 p-8 md:p-10 bg-blush h-full">
               <h3 className="font-serif text-2xl md:text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -66,7 +64,6 @@ export default function ReferralProgram() {
             </div>
           </AnimatedSection>
 
-          {/* Referral Program */}
           <AnimatedSection delay={120}>
             <div className="border border-gray-200 p-8 md:p-10 bg-cream h-full">
               <h3 className="font-serif text-2xl md:text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -87,7 +84,7 @@ export default function ReferralProgram() {
                     <p className="font-semibold text-chm-black">Refer 3 Friends</p>
                     <p className="text-2xl font-bold text-chm-red">$150</p>
                   </div>
-                  <p className="text-xs text-gray-600">Credit + Priority scheduling</p>
+                  <p className="text-xs text-gray-600">Credit and Priority scheduling</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-4">
@@ -106,7 +103,6 @@ export default function ReferralProgram() {
           </AnimatedSection>
         </div>
 
-        {/* How It Works */}
         <AnimatedSection className="mb-12">
           <div className="border border-gray-200 bg-white p-8 md:p-10">
             <h3 className="font-serif text-2xl md:text-3xl text-chm-black mb-8" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -114,25 +110,41 @@ export default function ReferralProgram() {
             </h3>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { step: '1', title: 'Share Code', desc: 'Send referral code to friends & family' },
-                { step: '2', title: 'They Book', desc: 'Use code, get $30 off first service' },
-                { step: '3', title: 'You Earn', desc: '$40 credit after their first service' },
-                { step: '4', title: 'Redeem', desc: 'Use credits toward any service anytime' },
-              ].map((item, i) => (
-                <div key={i} className="text-center">
-                  <div className="w-12 h-12 bg-chm-red text-white rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
-                    {item.step}
-                  </div>
-                  <h4 className="font-semibold text-chm-black mb-2">{item.title}</h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">{item.desc}</p>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-chm-red text-white rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                  1
                 </div>
-              ))}
+                <h4 className="font-semibold text-chm-black mb-2">Share Code</h4>
+                <p className="text-xs text-gray-600 leading-relaxed">Send referral code to friends and family</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 bg-chm-red text-white rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                  2
+                </div>
+                <h4 className="font-semibold text-chm-black mb-2">They Book</h4>
+                <p className="text-xs text-gray-600 leading-relaxed">Use code, get $30 off first service</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 bg-chm-red text-white rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                  3
+                </div>
+                <h4 className="font-semibold text-chm-black mb-2">You Earn</h4>
+                <p className="text-xs text-gray-600 leading-relaxed">$40 credit after their first service</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 bg-chm-red text-white rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                  4
+                </div>
+                <h4 className="font-semibold text-chm-black mb-2">Redeem</h4>
+                <p className="text-xs text-gray-600 leading-relaxed">Use credits toward any service anytime</p>
+              </div>
             </div>
           </div>
         </AnimatedSection>
 
-        {/* Referral Code Box */}
         <AnimatedSection>
           <div className="bg-chm-red text-white p-8 md:p-10 text-center">
             <h3 className="font-serif text-2xl md:text-3xl mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
