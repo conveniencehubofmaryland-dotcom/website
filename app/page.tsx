@@ -4,6 +4,8 @@ import { dbSelect } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
+import SuccessStories from '@/components/SuccessStories'
+import ReferralProgram from '@/components/ReferralProgram'
 export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
@@ -391,6 +393,9 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── Success Stories ─────────────────────────────────── */}
+      <SuccessStories />
+
       {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
         <section className="bg-cream py-14 md:py-20 border-t border-gray-100">
@@ -434,6 +439,9 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Referral Program ─────────────────────────────────── */}
+      <ReferralProgram />
 
       {/* ── Contact strip ────────────────────────────────── */}
       <section id="contact" className="bg-white py-14 md:py-20 border-t border-gray-100">
