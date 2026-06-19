@@ -20,7 +20,7 @@ const stories: SuccessStory[] = [
     name: 'Sarah Mitchell',
     city: 'Rockville, MD',
     problem: 'Marketing director with two kids under 5, feeling overwhelmed. Between work and kids, house was chaos. Exhausted, guilty, marriage tension.',
-    solution: 'Weekly deep cleaning + bi-weekly laundry & linen management',
+    solution: 'Weekly deep cleaning + bi-weekly laundry and linen management',
     result: 'Stress lifted within 3 weeks. Husband and wife reconnected. Kids eating better.',
     quote: 'Game changer. We got our life back.',
     services: ['Cleaning', 'Laundry'],
@@ -47,12 +47,12 @@ const stories: SuccessStory[] = [
   },
   {
     id: 4,
-    name: 'James & Lisa Rodriguez',
+    name: 'James and Lisa Rodriguez',
     city: 'Chevy Chase, MD',
     problem: 'New parents, Lisa returning to work 8 weeks postpartum. Sleep deprived, no clean laundry, eating cold leftovers at midnight.',
     solution: 'Postpartum support: house cleaning, laundry, meal prep, childcare',
     result: 'Smoother recovery, family bonded instead of fighting about dishes.',
-    quote: 'Wish we\'d done this from day one.',
+    quote: 'Wish we had done this from day one.',
     services: ['Cleaning', 'Laundry', 'Meal Prep', 'Childcare'],
   },
   {
@@ -67,19 +67,19 @@ const stories: SuccessStory[] = [
   },
   {
     id: 6,
-    name: 'Ambassador & Dr. Okoro',
+    name: 'Ambassador and Dr. Okoro',
     city: 'Washington, D.C.',
     problem: 'Both high-powered professionals, international travel, two teenage kids. No consistent household help, kids eating fast food, house neglected.',
     solution: 'Premium service: daily meal prep, weekly cleaning, laundry, after-school coordination',
-    result: 'Kids eating healthier. House organized. Actual family dinners 5 nights/week.',
-    quote: 'Worth every penny. We can\'t imagine life without them.',
+    result: 'Kids eating healthier. House organized. Actual family dinners 5 nights per week.',
+    quote: 'Worth every penny. We cannot imagine life without them.',
     services: ['Cleaning', 'Meal Prep', 'Laundry', 'Childcare'],
   },
   {
     id: 7,
     name: 'Jennifer Walsh',
     city: 'Columbia, MD',
-    problem: 'Recently remarried, blended family with three kids, new house. Kids didn\'t feel at home, chaos everywhere, stress blocking family bonding.',
+    problem: 'Recently remarried, blended family with three kids, new house. Kids did not feel at home, chaos everywhere, stress blocking family bonding.',
     solution: 'Weekly cleaning + childcare to reduce stress and create stability',
     result: 'House became home. Kids relaxed and bonded with each other.',
     quote: 'You helped us become a real family.',
@@ -89,9 +89,9 @@ const stories: SuccessStory[] = [
     id: 8,
     name: 'David Zhang',
     city: 'Ashburn, VA',
-    problem: 'Tech entrepreneur, working 70+ hours/week, two young kids. Choosing work over family because household stuff was overwhelming.',
+    problem: 'Tech entrepreneur, working 70+ hours per week, two young kids. Choosing work over family because household stuff was overwhelming.',
     solution: 'Comprehensive service: housekeeping, laundry, meal prep, childcare',
-    result: 'Startup growing AND family thriving. Wife says he\'s "present" again.',
+    result: 'Startup growing AND family thriving. Wife says he is present again.',
     quote: 'They allowed me to have it all.',
     services: ['Cleaning', 'Laundry', 'Meal Prep', 'Childcare'],
   },
@@ -99,7 +99,7 @@ const stories: SuccessStory[] = [
     id: 9,
     name: 'Dorothy Williams',
     city: 'Hyattsville, MD',
-    problem: 'Recent widow (72), living alone, grieving. House felt too big, couldn\'t manage alone, family worried about depression.',
+    problem: 'Recent widow (72), living alone, grieving. House felt too big, could not manage alone, family worried about depression.',
     solution: 'Bi-weekly cleaning + meal prep + care companion visits for social support',
     result: 'Maintained independence while grieving. Avoided isolation spiral.',
     quote: 'They took care of me when I needed it most.',
@@ -112,7 +112,7 @@ const stories: SuccessStory[] = [
     problem: 'Solo attorney, always busy, wife managing most household responsibilities. Wife burning out, failing at life management, husband wanting to help.',
     solution: 'Weekly cleaning, Sunday meal prep, laundry, childcare coordination',
     result: 'Wife had bandwidth to relax. Couple became partners again.',
-    quote: 'Saved our marriage. Sounds dramatic but it\'s true.',
+    quote: 'Saved our marriage. Sounds dramatic but it is true.',
     services: ['Cleaning', 'Meal Prep', 'Laundry', 'Childcare'],
   },
 ]
@@ -143,11 +143,9 @@ export default function SuccessStories() {
           </div>
         </AnimatedSection>
 
-        {/* Story Display */}
         <AnimatedSection className="mb-10">
           <div className="bg-white border border-gray-200 overflow-hidden">
             <div className="grid md:grid-cols-2 gap-0">
-              {/* Left: Quote & Details */}
               <div className="p-8 md:p-10 flex flex-col justify-center bg-blush">
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
@@ -156,7 +154,7 @@ export default function SuccessStories() {
                 </div>
 
                 <p className="text-2xl md:text-3xl font-serif text-chm-black mb-8 leading-snug italic" style={{ fontFamily: 'var(--font-serif)' }}>
-                  "{story.quote}"
+                  {story.quote}
                 </p>
 
                 <div className="space-y-5 mb-8">
@@ -190,7 +188,6 @@ export default function SuccessStories() {
                 </div>
               </div>
 
-              {/* Right: Image Placeholder */}
               <div className="h-64 md:h-full bg-gray-100 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4" />
@@ -201,14 +198,13 @@ export default function SuccessStories() {
           </div>
         </AnimatedSection>
 
-        {/* Navigation */}
         <AnimatedSection className="flex items-center justify-between">
           <button
             onClick={prevStory}
             className="p-2 hover:bg-gray-100 rounded transition-colors text-2xl"
             aria-label="Previous story"
           >
-            ←
+            →
           </button>
 
           <div className="flex gap-2 flex-wrap justify-center flex-1 px-4">
@@ -230,7 +226,7 @@ export default function SuccessStories() {
             className="p-2 hover:bg-gray-100 rounded transition-colors text-2xl"
             aria-label="Next story"
           >
-            →
+            ←
           </button>
         </AnimatedSection>
       </div>
