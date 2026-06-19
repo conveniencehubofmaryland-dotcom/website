@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Gift, Copy, Check } from 'lucide-react'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export default function ReferralProgram() {
@@ -145,19 +144,9 @@ export default function ReferralProgram() {
               <p className="text-2xl font-bold">{referralCode}</p>
               <button
                 onClick={handleCopyCode}
-                className="px-4 py-2 bg-white text-chm-red font-semibold text-xs uppercase tracking-widest rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-white text-chm-red font-semibold text-xs uppercase tracking-widest rounded hover:bg-gray-100 transition-colors"
               >
-                {copied ? (
-                  <>
-                    <Check size={16} />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy size={16} />
-                    Copy
-                  </>
-                )}
+                {copied ? '✓ Copied' : 'Copy'}
               </button>
             </div>
 
