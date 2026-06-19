@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import AnimatedSection from '@/components/AnimatedSection'
 
 interface SuccessStory {
@@ -152,7 +151,7 @@ export default function SuccessStories() {
               <div className="p-8 md:p-10 flex flex-col justify-center bg-blush">
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} className="fill-amber-400 text-amber-400" />
+                    <span key={i} className="text-amber-400 text-xl">★</span>
                   ))}
                 </div>
 
@@ -206,10 +205,10 @@ export default function SuccessStories() {
         <AnimatedSection className="flex items-center justify-between">
           <button
             onClick={prevStory}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            className="p-2 hover:bg-gray-100 rounded transition-colors text-2xl"
             aria-label="Previous story"
           >
-            <ChevronLeft size={24} className="text-chm-black" />
+            ←
           </button>
 
           <div className="flex gap-2 flex-wrap justify-center flex-1 px-4">
@@ -228,10 +227,10 @@ export default function SuccessStories() {
 
           <button
             onClick={nextStory}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            className="p-2 hover:bg-gray-100 rounded transition-colors text-2xl"
             aria-label="Next story"
           >
-            <ChevronRight size={24} className="text-chm-black" />
+            →
           </button>
         </AnimatedSection>
       </div>
