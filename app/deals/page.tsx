@@ -178,6 +178,7 @@ export default function DealsPage() {
                         <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
                         <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
                       </div>
+                    </div>
                     <div className="shrink-0 bg-cream px-6 py-4 text-center">
                       <p className="text-xs uppercase tracking-widest text-chm-red mb-1">Save</p>
                       <p className="font-serif text-3xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>{bundle.save}</p>
