@@ -90,7 +90,7 @@ export default async function DealsPage() {
           ))}
         </div>
 
-        {/* First-Time Specials */}
+                {/* First-Time Specials */}
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
             <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">New Customers</p>
@@ -99,21 +99,20 @@ export default async function DealsPage() {
             </h2>
             <div className="grid sm:grid-cols-3 gap-6 text-sm">
               <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">LAUNDRY20</p>
-                <p className="text-gray-600">10% off first laundry service</p>
+                <p className="font-mono text-chm-red text-lg mb-2">LAUNDRY15</p>
+                <p className="text-gray-600">15% off first laundry service</p>
               </div>
               <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">CLEANING20</p>
-                <p className="text-gray-600">10% off first cleaning service (min. $150)</p>
+                <p className="font-mono text-chm-red text-lg mb-2">CLEANING15</p>
+                <p className="text-gray-600">15% off first cleaning service (min. $150)</p>
               </div>
               <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">WELCOME2024</p>
-                <p className="text-gray-600">10% off first service (any service)</p>
+                <p className="font-mono text-chm-red text-lg mb-2">WELCOME2026</p>
+                <p className="text-gray-600">15% off first service (any service)</p>
               </div>
             </div>
           </div>
         </AnimatedSection>
-
         <ReferralProgram />
 
         {/* Premium Member Status */}
