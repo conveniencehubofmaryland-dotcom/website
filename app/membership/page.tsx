@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import AnimatedSection from '@/components/AnimatedSection'
+import Link from 'next/link'
 
 const SERVICES   = ['Laundry Pickup & Delivery', 'Professional Cleaning', 'Culinary & Housekeeping', 'Nanny & Care Services', 'Commercial Projects']
 const FREQUENCIES = ['Weekly', 'Bi-weekly', 'Monthly', 'As needed']
@@ -12,6 +13,14 @@ const PERKS = [
   { icon: '◆', title: 'Exclusive Deals',    desc: 'Member-only weekly deals and promotions on all services.' },
   { icon: '↻', title: 'Recurring Discounts', desc: '2% off all recurring service bookings for active members.' },
   { icon: '✓', title: 'Free Signup',         desc: 'No cost to join — membership is completely free.' },
+]
+
+const PREMIUM_PERKS = [
+  '15% discount on all services',
+  'Priority scheduling',
+  'Free upgrade services (quarterly)',
+  'Dedicated customer service line',
+  'Quarterly loyalty bonus ($25 credit)',
 ]
 
 export default function MembershipPage() {
@@ -65,12 +74,50 @@ export default function MembershipPage() {
           </h1>
           <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
           <p className="text-gray-400 max-w-xl text-sm leading-relaxed font-light">
-            Free membership. Priority booking, exclusive deals, and recurring discounts — all for signing up.
+            Free membership. Priority booking, exclusive deals, and recurring discounts — all for signing up. Upgrade to Premium for 15% off everything.
           </p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+
+        {/* Membership Tiers */}
+        <AnimatedSection>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-gray-100">
+            <div className="bg-white p-8 md:p-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Standard</p>
+              <h2 className="font-serif text-3xl text-chm-black mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                Free Member
+              </h2>
+              <p className="text-2xl text-chm-black mb-6">$0<span className="text-sm text-gray-400 font-normal"> / forever</span></p>
+              <div className="w-10 h-px bg-chm-red mb-6" />
+              <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                <li className="flex gap-3"><span className="text-chm-red">✓</span>Priority booking access</li>
+                <li className="flex gap-3"><span className="text-chm-red">✓</span>Member-only weekly deals</li>
+                <li className="flex gap-3"><span className="text-chm-red">✓</span>2% off all recurring services</li>
+                <li className="flex gap-3"><span className="text-chm-red">✓</span>No fees, cancel anytime</li>
+              </ul>
+            </div>
+
+            <div className="bg-chm-black text-white p-8 md:p-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Premium</p>
+              <h2 className="font-serif text-3xl text-white mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                Premium Status
+              </h2>
+              <p className="text-2xl text-white mb-2">Unlocked with</p>
+              <p className="text-sm text-gray-400 mb-6">12-month subscription or 12+ services/year</p>
+              <div className="w-10 h-px bg-chm-red mb-6" />
+              <ul className="space-y-3 text-sm text-gray-300 mb-8">
+                {PREMIUM_PERKS.map(p => (
+                  <li key={p} className="flex gap-3"><span className="text-chm-red">✓</span>{p}</li>
+                ))}
+              </ul>
+              <Link href="/deals" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline">
+                View Bundle Pricing →
+              </Link>
+            </div>
+          </div>
+        </AnimatedSection>
 
         {/* Perks grid */}
         <AnimatedSection>
@@ -84,6 +131,30 @@ export default function MembershipPage() {
                 </div>
               </AnimatedSection>
             ))}
+          </div>
+        </AnimatedSection>
+
+        {/* Referral Program + Military */}
+        <AnimatedSection>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
+            <div className="bg-white p-8">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Refer a Friend</p>
+              <h3 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
+                Earn $25 Credit
+              </h3>
+              <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                You earn $25 credit per qualified referral. Your friend gets 10% off their first service. Unlimited referrals.
+              </p>
+            </div>
+            <div className="bg-white p-8">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Military Discount</p>
+              <h3 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
+                15% OFF All Services
+              </h3>
+              <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                We proudly offer 15% discount across board for all active duty and veterans. Military ID required.
+              </p>
+            </div>
           </div>
         </AnimatedSection>
 
@@ -191,7 +262,7 @@ export default function MembershipPage() {
                 </button>
 
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  No fees. No commitment. Cancel anytime by calling or texting 202-579-2944.
+                  No fees. No commitment. Cancel anytime by calling or texting 202-579-2944. Premium Status auto-unlocks after 12 months or 12+ services.
                 </p>
               </form>
             )}
