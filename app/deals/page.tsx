@@ -2,30 +2,13 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import AnimatedSection from '@/components/AnimatedSection'
 import ReferralProgram from '@/components/ReferralProgram'
-import { dbSelect } from '@/lib/db'
-import type { Deal } from '@/lib/types'
 
 export const metadata: Metadata = {
   title: 'Package Deals & Bundles | Convenience Hub of Maryland',
   description: 'Save 10-20% with residential and commercial service bundles. Military discounts, loyalty program, and first-time specials available.',
 }
 
-const STATIC_DEALS: Deal[] = [
-  { id: '1', sort_order: 1, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Essentials Bundle', detail: 'Weekly Standard Cleaning + Bi-Weekly Laundry. Regular: ~$850/mo. Bundle: $750/mo. Save: 15%' },
-  { id: '2', sort_order: 2, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Comfort Bundle', detail: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization. Regular: ~$1,100/mo. Bundle: $900/mo. Save: 18%' },
-  { id: '3', sort_order: 3, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Luxury Bundle', detail: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization. Regular: ~$6,000/mo. Bundle: $5,000/mo. Save: 20%' },
-  { id: '4', sort_order: 4, active: true, created_at: '', badge: 'Family Bundle', headline: 'Family Care Bundle', detail: 'Weekly Cleaning + Bi-Weekly Childcare (16 hrs) + Weekly Meal Prep + Monthly Organization. Regular: ~$3,500/mo. Bundle: $3,000/mo. Save: 20%' },
-  { id: '5', sort_order: 5, active: true, created_at: '', badge: 'Senior Bundle', headline: 'Senior Care Bundle', detail: 'Weekly Cleaning + 20 hrs/week Companion Care + Weekly Meal Prep + Monthly Organization. Regular: ~$4,500/mo. Bundle: $4,000/mo. Save: 20%' },
-  { id: '6', sort_order: 6, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Small Office Complete', detail: '3x/week Janitorial + Weekly Window Cleaning + Monthly Floor Maintenance. Regular: ~$4,500/mo. Bundle: $4,000/mo. Save: 15%' },
-  { id: '7', sort_order: 7, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Medium Office Premium', detail: '5x/week Janitorial + 2x/week Windows + 2x/month Deep Clean + Monthly Floor Maintenance. Regular: ~$5,000/mo. Bundle: $4,500/mo. Save: 10%' },
-  { id: '8', sort_order: 8, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Enterprise Comprehensive', detail: 'Daily Janitorial + Weekly Specialized Services + Monthly Floor Care + Quarterly Deep Clean. Custom quote (typically 20% savings)' },
-  { id: '9', sort_order: 9, active: true, created_at: '', badge: 'Military Discount', headline: '15% OFF All Services', detail: 'Military discount across board all services' },
-]
-
-export default async function DealsPage() {
-  const dbDeals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
-  const deals = dbDeals.length > 0 ? dbDeals : STATIC_DEALS
-
+export default function DealsPage() {
   return (
     <div className="bg-white">
       {/* Header */}
@@ -73,24 +56,146 @@ export default async function DealsPage() {
           </div>
         </AnimatedSection>
 
-        {/* Individual Bundle Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
-          {deals.map((d, i) => (
-            <AnimatedSection key={d.id} delay={i * 80}>
-              <div className="bg-white p-8 hover:bg-cream transition-colors h-full">
-                <span className="text-xs font-semibold uppercase tracking-widest text-chm-red border border-chm-red/30 px-3 py-1 inline-block mb-5">
-                  {d.badge}
-                </span>
-                <h2 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
-                  {d.headline}
-                </h2>
-                {d.detail && <p className="text-gray-500 text-sm leading-relaxed">{d.detail}</p>}
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
+        {/* Residential Bundles */}
+        <AnimatedSection>
+          <div className="space-y-8">
+            <div>
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Save Money with Bundles</p>
+              <h2 className="font-serif text-3xl md:text-4xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Residential Bundles
+              </h2>
+              <div className="w-12 h-px bg-chm-red mt-4" />
+            </div>
 
-                {/* First-Time Specials */}
+            <div className="grid grid-cols-1 gap-px bg-gray-100">
+              {[
+                {
+                  name: 'The Essentials Bundle',
+                  includes: 'Weekly Standard Cleaning + Bi-Weekly Laundry',
+                  regular: '~$850/month',
+                  bundle: '$750/month',
+                  save: '15%'
+                },
+                {
+                  name: 'The Comfort Bundle',
+                  includes: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization',
+                  regular: '~$1,100/month',
+                  bundle: '$900/month',
+                  save: '18%'
+                },
+                {
+                  name: 'The Luxury Bundle',
+                  includes: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization',
+                  regular: '~$6,000/month',
+                  bundle: '$5,000/month',
+                  save: '20%'
+                },
+                {
+                  name: 'Family Care Bundle',
+                  subtitle: 'With Children',
+                  includes: 'Weekly Cleaning + Bi-Weekly Childcare (16 hrs) + Weekly Meal Prep + Monthly Organization',
+                  regular: '~$3,500/month',
+                  bundle: '$3,000/month',
+                  save: '20%'
+                },
+                {
+                  name: 'Senior Care Bundle',
+                  subtitle: 'Elderly Parent',
+                  includes: 'Weekly Cleaning + 20 hrs/week Companion Care + Weekly Meal Prep + Monthly Organization',
+                  regular: '~$4,500/month',
+                  bundle: '$4,000/month',
+                  save: '20%'
+                }
+              ].map((bundle, i) => (
+                <div key={i} className="bg-white p-8 md:p-10">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div className="flex-1">
+                      <h3 className="font-serif text-2xl text-chm-black mb-1" style={{ fontFamily: 'var(--font-serif)' }}>
+                        {bundle.name}
+                      </h3>
+                      {bundle.subtitle && (
+                        <p className="text-xs text-chm-red uppercase tracking-widest mb-3">{bundle.subtitle}</p>
+                      )}
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">{bundle.includes}</p>
+                      <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                        <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
+                        <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
+                      </div>
+                    <div className="shrink-0 bg-cream px-6 py-4 text-center">
+                      <p className="text-xs uppercase tracking-widest text-chm-red mb-1">Save</p>
+                      <p className="font-serif text-3xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>{bundle.save}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* Commercial Bundles */}
+        <AnimatedSection>
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-serif text-3xl md:text-4xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Commercial Bundles
+              </h2>
+              <div className="w-12 h-px bg-chm-red mt-4" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-px bg-gray-100">
+              {[
+                {
+                  name: 'Small Office Complete',
+                  includes: '3x/week Janitorial + Weekly Window Cleaning + Monthly Floor Maintenance',
+                  regular: '~$4,500/month',
+                  bundle: '$4,000/month',
+                  save: '15%'
+                },
+                {
+                  name: 'Medium Office Premium',
+                  includes: '5x/week Janitorial + 2x/week Windows + 2x/month Deep Clean + Monthly Floor Maintenance',
+                  regular: '~$5,000/month',
+                  bundle: '$4,500/month',
+                  save: '10%'
+                },
+                {
+                  name: 'Enterprise Comprehensive',
+                  includes: 'Daily Janitorial + Weekly Specialized Services + Monthly Floor Care + Quarterly Deep Clean',
+                  regular: 'Custom quote',
+                  bundle: 'Custom quote',
+                  save: '20%'
+                }
+              ].map((bundle, i) => (
+                <div key={i} className="bg-white p-8 md:p-10">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div className="flex-1">
+                      <h3 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
+                        {bundle.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">{bundle.includes}</p>
+                      <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                        <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
+                        <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 bg-cream px-6 py-4 text-center">
+                      <p className="text-xs uppercase tracking-widest text-chm-red mb-1">Save</p>
+                      <p className="font-serif text-3xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>{bundle.save}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-chm-black text-white p-6 text-center">
+              <p className="text-sm">
+                <span className="text-chm-red font-semibold uppercase tracking-widest">Military Discount:</span> 15% discount across board all services
+              </p>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* First-Time Specials */}
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
             <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">New Customers</p>
@@ -113,6 +218,7 @@ export default async function DealsPage() {
             </div>
           </div>
         </AnimatedSection>
+
         <ReferralProgram />
 
         {/* Premium Member Status */}
@@ -210,7 +316,7 @@ export default async function DealsPage() {
           </div>
         </AnimatedSection>
 
-                {/* Service Areas */}
+        {/* Service Areas */}
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
             <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
