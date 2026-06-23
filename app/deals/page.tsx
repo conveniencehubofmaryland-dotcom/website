@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import AnimatedSection from '@/components/AnimatedSection'
+import ReferralProgram from '@/components/ReferralProgram'
 import { dbSelect } from '@/lib/db'
 import type { Deal } from '@/lib/types'
-
 
 export const metadata: Metadata = {
   title: 'Weekly Deals | Convenience Hub of Maryland',
@@ -12,11 +12,15 @@ export const metadata: Metadata = {
 }
 
 const STATIC_DEALS: Deal[] = [
-  { id: '1', sort_order: 1, active: true, created_at: '', badge: 'Monday Deal',   headline: '$20 Flat — 10 lbs Colored Laundry',                detail: 'Economy 1-week turnaround delivery. Pay just $20 for 10 lbs of colored laundry — our lowest rate of the week.' },
-  { id: '2', sort_order: 2, active: true, created_at: '', badge: 'Wednesday Deal', headline: '5% OFF for Nurses, Students & Expectant Mothers', detail: 'We appreciate healthcare workers, active students, and expectant mothers. Show valid ID to redeem 5% off premium services.' },
-  { id: '3', sort_order: 3, active: true, created_at: '', badge: 'Weekend Deal',  headline: '3% OFF Bulk Laundry — 100+ lbs',                   detail: 'Scale up and save. Any laundry order of 100 lbs or more placed on Saturday receives 3% off automatically.' },
-  { id: '4', sort_order: 4, active: true, created_at: '', badge: 'Members Only',  headline: 'FREE Signup + 2% Off All Recurring Services',      detail: 'Join the CHM network for free and lock in a permanent 2% discount on all recurring monthly service contracts. No expiry, no catches.' },
-  { id: '5', sort_order: 5, active: true, created_at: '', badge: 'Referral Bonus', headline: '$25 Credit on Any Service Over $75', detail: 'Refer a friend and get $25 in account credit when they book any service over $75. Share the convenience!' },
+  { id: '1', sort_order: 1, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Essentials Bundle', detail: 'Weekly Standard Cleaning + Bi-Weekly Laundry. Regular: ~$850/mo. Bundle: $750/mo. Save: 15%' },
+  { id: '2', sort_order: 2, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Comfort Bundle', detail: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization. Regular: ~$1,100/mo. Bundle: $900/mo. Save: 18%' },
+  { id: '3', sort_order: 3, active: true, created_at: '', badge: 'Residential Bundle', headline: 'The Luxury Bundle', detail: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization. Regular: ~$6,000/mo. Bundle: $5,000/mo. Save: 20%' },
+  { id: '4', sort_order: 4, active: true, created_at: '', badge: 'Family Bundle', headline: 'Family Care Bundle', detail: 'Weekly Cleaning + Bi-Weekly Childcare (16 hrs) + Weekly Meal Prep + Monthly Organization. Regular: ~$3,500/mo. Bundle: $3,000/mo. Save: 20%' },
+  { id: '5', sort_order: 5, active: true, created_at: '', badge: 'Senior Bundle', headline: 'Senior Care Bundle', detail: 'Weekly Cleaning + 20 hrs/week Companion Care + Weekly Meal Prep + Monthly Organization. Regular: ~$4,500/mo. Bundle: $4,000/mo. Save: 20%' },
+  { id: '6', sort_order: 6, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Small Office Complete', detail: '3x/week Janitorial + Weekly Window Cleaning + Monthly Floor Maintenance. Regular: ~$4,500/mo. Bundle: $4,000/mo. Save: 15%' },
+  { id: '7', sort_order: 7, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Medium Office Premium', detail: '5x/week Janitorial + 2x/week Windows + 2x/month Deep Clean + Monthly Floor Maintenance. Regular: ~$5,000/mo. Bundle: $4,500/mo. Save: 10%' },
+  { id: '8', sort_order: 8, active: true, created_at: '', badge: 'Commercial Bundle', headline: 'Enterprise Comprehensive', detail: 'Daily Janitorial + Weekly Specialized Services + Monthly Floor Care + Quarterly Deep Clean. Custom quote (typically 20% savings)' },
+  { id: '9', sort_order: 9, active: true, created_at: '', badge: 'Military Discount', headline: '15% OFF All Services', detail: 'Military discount across board all services' },
 ]
 
 export default async function DealsPage() {
@@ -55,6 +59,8 @@ export default async function DealsPage() {
             </AnimatedSection>
           ))}
         </div>
+
+        <ReferralProgram />
 
         <AnimatedSection>
           <div className="bg-chm-black text-white p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
