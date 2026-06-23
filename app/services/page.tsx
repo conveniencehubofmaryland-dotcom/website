@@ -3,7 +3,6 @@ import AnimatedSection from '@/components/AnimatedSection'
 import { dbSelect } from '@/lib/db'
 import type { Service, PricingItem } from '@/lib/types'
 
-
 export const metadata: Metadata = {
   title: 'Services & Pricing | Cleaning, Laundry, Nanny & More — Convenience Hub of Maryland',
   description:
@@ -26,13 +25,13 @@ const SERVICE_IMAGES: Record<string, string> = {
   commercial: '/commercial-hero.jpg',
 }
 
-// Static fallback — used when DB is empty
+// Updated per Service Document — Step 3
 const STATIC_SERVICES: Service[] = [
   {
     id: 'laundry', slug: 'laundry', sort_order: 1, active: true, created_at: '',
     title: 'Premium Laundry Pickup & Delivery',
     subtitle: 'Pickup · Wash · Dry · Fold · Deliver',
-    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 9 AM–9 PM. 10 lb minimum order. Free pickup and delivery.',
+    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 8 AM–10 PM EST. 10 lb minimum order. Free pickup and delivery.',
     price_from: 'From $3.99/lb',
     pricing_details: [
       { section: 'Regular Service (1–3 Day Delivery)', label: 'Colors',           price: '$3.99', unit: '/lb' },
@@ -41,13 +40,17 @@ const STATIC_SERVICES: Service[] = [
       { section: 'Same Day Express Delivery',          label: 'Colors',           price: '$5.99', unit: '/lb' },
       { section: 'Same Day Express Delivery',          label: 'Bedding & Linens', price: '$6.99', unit: '/lb' },
       { section: 'Same Day Express Delivery',          label: 'Whites',           price: '$8.99', unit: '/lb' },
+      { section: 'Weekly Laundry Subscription',        label: 'Up to 20 lbs/week', price: '$79.99', unit: '/month', note: 'Free pickup & delivery. Save vs pay-per-lb.' },
+      { section: 'Weekly Laundry Subscription',        label: 'Up to 40 lbs/week', price: '$149.99', unit: '/month', note: 'Best for families. Free pickup & delivery.' },
+      { section: 'Bundle Deals',                       label: 'Laundry + Light Cleaning', price: '$129.99', unit: '/visit', note: 'Up to 20 lbs laundry + 2-hour cleaning' },
+      { section: 'Bundle Deals',                       label: 'Family Bundle',            price: '$299.99', unit: '/month', note: '40 lbs laundry weekly + 1 deep clean/month' },
     ],
   },
   {
     id: 'cleaning', slug: 'cleaning', sort_order: 2, active: true, created_at: '',
     title: 'Professional Cleaning & Estate Care',
     subtitle: 'Residential · Commercial · Estate',
-    description: 'Customized maintenance for residential estates, luxury apartments, and commercial operations. Market-adjusted for Virginia (NOVA), Maryland, and D.C. communities.',
+    description: 'Customized maintenance for residential estates, luxury apartments, and commercial operations. Market-adjusted for Virginia (NOVA), Maryland, and D.C. communities. All products are 100% eco-friendly and non-toxic.',
     price_from: 'From $100/visit',
     pricing_details: [
       { section: 'Standard Residential Cleaning', label: 'Studio Apartment',      price: '$100–$150',  unit: 'per visit' },
@@ -70,39 +73,53 @@ const STATIC_SERVICES: Service[] = [
       { section: 'À La Carte Add-Ons', label: 'Interior Windows & Tracks',   price: '$35–$80' },
       { section: 'À La Carte Add-Ons', label: 'Heavy Pet Hair Removal',      price: '$20–$55' },
       { section: 'À La Carte Add-Ons', label: 'Post-Event Heavy Condition',  price: '$40–$90' },
+      { section: 'À La Carte Add-Ons', label: 'Carpet Shampooing',           price: '$80–$150', note: 'Per room' },
+      { section: 'À La Carte Add-Ons', label: 'Garage/Attic Cleaning',       price: '$100–$200', note: 'Based on size' },
     ],
   },
   {
     id: 'culinary', slug: 'culinary', sort_order: 3, active: true, created_at: '',
     title: 'Culinary, Housekeeping & Household Management',
     subtitle: 'Meal Prep · Tidying · Laundry · Errands',
-    description: 'Complete estate support including light cooking, custom meal prep, tidying, daily laundry, errand running, and deep organizational overhauls. 6-hour minimum.',
+    description: 'Complete estate support including light cooking, custom meal prep, tidying, daily laundry, errand running, and deep organizational overhauls. All staff background-checked, CPR-certified, fully vaccinated. 6-hour minimum.',
     price_from: 'From $50/hr',
     pricing_details: [
       { section: 'Rates', label: 'Custom Hourly Rate',        price: '$50–$60',     unit: '/hr',    note: '6-hour minimum' },
       { section: 'Rates', label: '5-Day Specialized Support', price: 'Custom Quote',                note: 'Dedicated staff for total household ownership' },
       { section: 'Rates', label: 'Errands & Concierge',       price: '$0.725',      unit: '/mile',  note: 'IRS standard business rate' },
+      { section: 'Meal Prep Packages', label: 'Weekly Meal Prep (5 meals)', price: '$249', note: 'Includes grocery shopping & cooking' },
+      { section: 'Meal Prep Packages', label: 'Family Meal Prep (10 meals)', price: '$399', note: 'Includes grocery shopping & cooking' },
+      { section: 'Organization Services', label: 'Closet/Kitchen Deep Organization', price: '$75', unit: '/hr', note: '3-hour minimum' },
     ],
   },
   {
     id: 'care', slug: 'care', sort_order: 4, active: true, created_at: '',
     title: 'Premium Nanny & Housekeeping Services',
     subtitle: 'Childcare · Companionship · Adult Care',
-    description: "Comprehensive childcare, companionship, and integrated household support. All personnel are strictly vetted — background-checked, CPR-certified, and fully vaccinated.",
+    description: "Comprehensive childcare, companionship, and integrated household support. All personnel are strictly vetted — background-checked, CPR-certified, and fully vaccinated. We match caregivers to your family's specific needs and routines.",
     price_from: 'Custom Quote',
     pricing_details: [
-      { section: 'Placement Packages', label: 'Nanny / Childcare',          price: 'Custom Quote', note: 'Tailored to family schedule & routines' },
+      { section: 'Placement Packages', label: 'Nanny / Childcare',          price: 'Custom Quote', note: 'Tailored to family schedule & routines. Part-time & full-time.' },
       { section: 'Placement Packages', label: 'Companionship & Adult Care', price: 'Custom Quote', note: 'Background checked, CPR certified staff' },
+      { section: 'Hourly Rates',       label: 'Nanny Services',             price: '$28–$35', unit: '/hr', note: 'Based on experience & # of children' },
+      { section: 'Hourly Rates',       label: 'Senior Companionship',       price: '$30–$38', unit: '/hr', note: 'Includes light housekeeping' },
+      { section: 'Overnight Care',     label: 'Overnight Nanny',            price: '$250–$350', unit: '/night', note: '12-hour shift' },
     ],
   },
   {
     id: 'commercial', slug: 'commercial', sort_order: 5, active: true, created_at: '',
     title: 'Commercial Operations & Special Projects',
     subtitle: 'Offices · Retail · Warehouses · Post-Construction',
-    description: 'Corporate offices, retail spaces, warehouses, and post-construction cleaning projects are custom-quoted per project scope.',
+    description: 'Corporate offices, retail spaces, warehouses, and post-construction cleaning projects. All services fully insured. Custom-quoted per project scope with volume discounts available for recurring contracts.',
     price_from: 'Custom Quote',
     pricing_details: [
-      { section: 'Billing Structure', label: 'All Commercial Work', price: 'Custom Quote', note: 'Quoted per project scope' },
+      { section: 'Office Cleaning',        label: 'Small Office (Under 2,000 sq ft)', price: '$150–$300', unit: '/visit', note: 'Weekly/bi-weekly discounts available' },
+      { section: 'Office Cleaning',        label: 'Medium Office (2,000–5,000 sq ft)', price: '$300–$600', unit: '/visit' },
+      { section: 'Office Cleaning',        label: 'Large Office (5,000+ sq ft)',       price: 'Custom Quote', note: 'Volume pricing available' },
+      { section: 'Special Projects',       label: 'Post-Construction Clean',          price: '$0.25–$0.50', unit: '/sq ft', note: 'Based on debris level' },
+      { section: 'Special Projects',       label: 'Warehouse Deep Clean',             price: 'Custom Quote', note: 'Quoted per project scope' },
+      { section: 'Special Projects',       label: 'Retail Space Maintenance',         price: 'Custom Quote', note: 'After-hours available' },
+      { section: 'Billing Structure',      label: 'All Commercial Work',              price: 'Custom Quote', note: 'Net 30 terms available for approved accounts' },
     ],
   },
 ]
@@ -228,13 +245,21 @@ export default async function ServicesPage() {
                 <p className="font-semibold text-chm-black mb-1">Staff Standards</p>
                 <p>Every team member is rigorously background-checked, CPR-certified, and fully vaccinated.</p>
               </div>
+              <div>
+                <p className="font-semibold text-chm-black mb-1">Service Hours</p>
+                <p>Monday–Saturday, 8 AM–10 PM EST. Sunday by appointment only.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-chm-black mb-1">No Hidden Fees</p>
+                <p>What you see is what you pay. All pricing is transparent with no surprise charges.</p>
+              </div>
             </div>
           </div>
         </AnimatedSection>
 
         <div className="bg-cream border border-gray-100 p-5">
           <p className="text-sm text-gray-600">
-            <span className="font-semibold text-chm-black">Laundry minimum:</span> 10 lbs &nbsp;•&nbsp; Mon–Sat 9 AM–9 PM
+            <span className="font-semibold text-chm-black">Laundry minimum:</span> 10 lbs &nbsp;•&nbsp; Mon–Sat 8 AM–10 PM EST
           </p>
         </div>
 
