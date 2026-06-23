@@ -6,9 +6,8 @@ import { dbSelect } from '@/lib/db'
 import type { Deal } from '@/lib/types'
 
 export const metadata: Metadata = {
-  title: 'Weekly Deals | Convenience Hub of Maryland',
-  description:
-    'Weekly deals on laundry, cleaning, and home services. Discounts for nurses, students, expectant mothers, and bulk laundry orders.',
+  title: 'Package Deals & Bundles | Convenience Hub of Maryland',
+  description: 'Save 10-20% with residential and commercial service bundles. Military discounts, loyalty program, and first-time specials available.',
 }
 
 const STATIC_DEALS: Deal[] = [
@@ -43,7 +42,8 @@ export default async function DealsPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+        {/* Bundle Overview */}
         <AnimatedSection>
           <div className="bg-white border border-gray-200 p-8 md:p-10">
             <h2 className="font-serif text-2xl md:text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -73,6 +73,7 @@ export default async function DealsPage() {
           </div>
         </AnimatedSection>
 
+        {/* Individual Bundle Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
           {deals.map((d, i) => (
             <AnimatedSection key={d.id} delay={i * 80}>
@@ -89,30 +90,191 @@ export default async function DealsPage() {
           ))}
         </div>
 
+        {/* First-Time Specials */}
+        <AnimatedSection>
+          <div className="bg-cream p-8 md:p-10">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">New Customers</p>
+            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              First-Time Customer Specials
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-6 text-sm">
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-mono text-chm-red text-lg mb-2">LAUNDRY20</p>
+                <p className="text-gray-600">10% off first laundry service</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-mono text-chm-red text-lg mb-2">CLEANING20</p>
+                <p className="text-gray-600">10% off first cleaning service (min. $150)</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-mono text-chm-red text-lg mb-2">WELCOME2024</p>
+                <p className="text-gray-600">10% off first service (any service)</p>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+
         <ReferralProgram />
 
+        {/* Premium Member Status */}
+        <AnimatedSection>
+          <div className="bg-white border border-gray-200 p-8 md:p-10">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Loyalty Program</p>
+            <h2 className="font-serif text-3xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
+              Premium Member Status
+            </h2>
+            <p className="text-gray-500 text-sm mb-6">Requirement: 12-month subscription or 12+ services/year</p>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>15% discount on all services</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Free upgrade services (quarterly)</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Dedicated customer service line</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($25 credit)</span></div>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* FAQ & Policies */}
+        <AnimatedSection>
+          <div className="space-y-10">
+            <div>
+              <h2 className="font-serif text-3xl text-chm-black mb-8" style={{ fontFamily: 'var(--font-serif)' }}>
+                Payment & Billing
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-8 text-sm">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-3">Accepted Methods</p>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>Credit/Debit Card (Visa, Mastercard, Amex)</li>
+                    <li>Bank Transfer/ACH</li>
+                    <li>Check (contracts only)</li>
+                    <li>Zelle: conveniencehubofmaryland@gmail.com</li>
+                    <li>Direct Deposit via <a href="https://link.clover.com/urlshortener/m92Kg8" className="text-chm-red underline">Clover</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-3">Invoicing</p>
+                  <ul className="space-y-2 text-gray-600">
+                    <li><span className="font-semibold text-chm-black">One-time:</span> Invoice at completion</li>
+                    <li><span className="font-semibold text-chm-black">Recurring:</span> Monthly invoice, due within 15 days</li>
+                    <li><span className="font-semibold text-chm-black">Contracts:</span> 5% discount for prepayment</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-10">
+              <h3 className="font-serif text-2xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+                Cancellation Policy
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 font-semibold text-chm-black">Notice</th>
+                      <th className="text-left py-3 font-semibold text-chm-black">Charge</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-600">
+                    <tr className="border-b border-gray-100">
+                      <td className="py-3">More than 48 hours</td>
+                      <td className="py-3">No charge, full refund available</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-3">24–48 hours</td>
+                      <td className="py-3">50% of service price</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-3">Less than 24 hours</td>
+                      <td className="py-3">100% of service price</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3">No-show</td>
+                      <td className="py-3">100% charged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-10">
+              <h3 className="font-serif text-2xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+                Guarantees & Promises
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Satisfaction Guarantee:</span> Not satisfied? Free re-do within 24 hours</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Quality Guarantee:</span> Staff background-checked, insured, professionally trained</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Price Lock Guarantee:</span> Recurring contracts lock price for 12 months</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Safety Guarantee:</span> Zero tolerance for unsafe practices</span></div>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* Service Areas */}
+        <AnimatedSection>
+          <div className="bg-cream p-8 md:p-10">
+            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              Service Areas
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-6 text-sm text-gray-600">
+              <div>
+                <p className="font-semibold text-chm-black mb-2">Maryland</p>
+                <p>Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
+              </div>
+              <div>
+                <p className="font-semibold text-chm-black mb-2">Virginia</p>
+                <p>McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
+              </div>
+              <div>
+                <p className="font-semibold text-chm-black mb-2">Washington DC</p>
+                <p>All neighborhoods</p>
+              </div>
+            <p className="text-xs text-gray-500 mt-6">Service Radius: We cover all areas</p>
+          </div>
+        </AnimatedSection>
+
+        {/* Why Choose Us */}
+        <AnimatedSection>
+          <div className="bg-white border border-gray-200 p-8 md:p-10">
+            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              Why Choose Convenience Hub?
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Professional & Vetted Staff</span> — All background-checked, CPR-certified, trained</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Eco-Friendly & Safe</span> — Non-toxic products, safe practices always</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Transparent Pricing</span> — No hidden fees, what you see is what you pay</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Flexible & Responsive</span> — We work around YOUR schedule</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Guaranteed Quality</span> — Satisfaction guaranteed or we make it right</span></div>
+              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Local DMV Experts</span> — Serving Maryland, DC, and Virginia since 2024</span></div>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* CTA */}
         <AnimatedSection>
           <div className="bg-chm-black text-white p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-3">Free to Join</p>
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-3">Book Now</p>
               <p className="font-serif text-3xl text-white mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
-                Become a Member
+                Schedule Your Service
               </p>
               <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-                Free signup. 2% off all recurring services. No expiry, no catches.
+                Phone: 202-579-2944 | Email: conveniencehubofmaryland@gmail.com<br/>
+                Mon–Sat 8AM–6PM EST | Sunday by appointment
               </p>
             </div>
             <Link
-              href="/membership"
+              href="/contact"
               className="shrink-0 bg-chm-red text-white px-8 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
             >
-              Join for Free
+              Contact Us
             </Link>
           </div>
         </AnimatedSection>
 
         <p className="text-xs text-gray-400 leading-relaxed">
-          * Bundle pricing valid for recurring monthly contracts. Cannot be combined unless specified. Contact us at 202-579-2944 to redeem.
+          * Bundle pricing valid for recurring monthly contracts. Cannot be combined unless specified. Military ID required for discount. Contact us at 202-579-2944 to redeem.
         </p>
       </div>
     </div>
