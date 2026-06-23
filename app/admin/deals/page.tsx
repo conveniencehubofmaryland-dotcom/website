@@ -3,7 +3,6 @@ import { dbSelectAuth } from '@/lib/db'
 import type { Deal } from '@/lib/types'
 import DealsManager from '@/components/DealsManager'
 
-
 export default async function AdminDealsPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
