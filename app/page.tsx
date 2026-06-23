@@ -429,7 +429,6 @@ export default async function HomePage() {
                 <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
                 <p className="font-light leading-relaxed">All neighborhoods</p>
               </div>
-            </div>
             <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
           </div>
         </section>
@@ -524,4 +523,5 @@ export default async function HomePage() {
         <section className="bg-white py-14 md:py-20 border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
             <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Policies</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
