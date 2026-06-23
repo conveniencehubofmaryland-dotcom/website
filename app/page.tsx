@@ -4,22 +4,21 @@ import { dbSelect } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
-
 export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
-  { slug: 'cleaning',   title: 'Professional Cleaning & Estate Care',          subtitle: 'Residential · Commercial · Estate',      description: 'Studio to estate-scale cleaning. Standard, deep clean, move-in/out, and recurring plans.',            price_from: 'From $100/visit' },
-  { slug: 'culinary',   title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Tidying · Laundry · Errands', description: 'Light cooking, meal prep, tidying, laundry, errands, and deep organization. 6-hour minimum.',           price_from: 'From $50/hr' },
-  { slug: 'laundry',    title: 'Premium Laundry Pickup & Delivery',             subtitle: 'Pickup · Wash · Dry · Fold · Deliver',    description: 'We handle everything — pickup to delivery. Regular and same-day express options available.',           price_from: 'From $3.99/lb' },
-  { slug: 'care',       title: 'Premium Nanny & Care Services',                 subtitle: 'Childcare · Companionship · Adult Care',  description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.',          price_from: 'Custom Quote' },
-  { slug: 'commercial', title: 'Commercial Operations & Special Projects',      subtitle: 'Offices · Retail · Warehouses',           description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.',           price_from: 'Custom Quote' },
+  { slug: 'cleaning', title: 'Professional Cleaning & Estate Care', subtitle: 'Residential · Commercial · Estate', description: 'Studio to estate-scale cleaning. Standard, deep clean, move-in/out, and recurring plans.', price_from: 'From $100/visit' },
+  { slug: 'culinary', title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Tidying · Laundry · Errands', description: 'Light cooking, meal prep, tidying, laundry, errands, and deep organization. 6-hour minimum.', price_from: 'From $50/hr' },
+  { slug: 'laundry', title: 'Premium Laundry Pickup & Delivery', subtitle: 'Pickup · Wash · Dry · Fold · Deliver', description: 'We handle everything — pickup to delivery. Regular and same-day express options available.', price_from: 'From $3.99/lb' },
+  { slug: 'care', title: 'Premium Nanny & Care Services', subtitle: 'Childcare · Companionship · Adult Care', description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.', price_from: 'Custom Quote' },
+  { slug: 'commercial', title: 'Commercial Operations & Special Projects', subtitle: 'Offices · Retail · Warehouses', description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.', price_from: 'Custom Quote' },
 ]
 
 const STATIC_DEALS = [
-  { badge: 'Monday',   headline: '$20 Flat — 10 lbs Colored Laundry',                 detail: 'Economy 1-week turnaround delivery.' },
-  { badge: 'Wednesday', headline: '5% OFF for Nurses, Students & Expectant Mothers',  detail: 'Show valid ID at time of booking to redeem.' },
-  { badge: 'Weekend',  headline: '3% OFF Bulk Laundry — 100+ lbs',                    detail: 'Saturday & Sunday only. Applied automatically.' },
-  { badge: 'Members',  headline: 'FREE Signup + 2% Off Recurring Services',           detail: 'No expiry. Locked-in discount on all monthly contracts.' },
+  { badge: 'Monday', headline: '$20 Flat — 10 lbs Colored Laundry', detail: 'Economy 1-week turnaround delivery.' },
+  { badge: 'Wednesday', headline: '5% OFF for Nurses, Students & Expectant Mothers', detail: 'Show valid ID at time of booking to redeem.' },
+  { badge: 'Weekend', headline: '3% OFF Bulk Laundry — 100+ lbs', detail: 'Saturday & Sunday only. Applied automatically.' },
+  { badge: 'Members', headline: 'FREE Signup + 2% Off Recurring Services', detail: 'No expiry. Locked-in discount on all monthly contracts.' },
 ]
 
 export const metadata: Metadata = {
@@ -44,10 +43,10 @@ export const metadata: Metadata = {
 }
 
 const SERVICE_IMAGES: Record<string, string> = {
-  laundry:    '/service-laundry.jpg',
-  cleaning:   '/service-cleaning.jpg',
-  culinary:   '/service-culinary.jpg',
-  care:       '/service-care.jpg',
+  laundry: '/service-laundry.jpg',
+  cleaning: '/service-cleaning.jpg',
+  culinary: '/service-culinary.jpg',
+  care: '/service-care.jpg',
   commercial: '/commercial-hero.jpg',
 }
 
@@ -165,7 +164,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <AuthRedirectHandler />
+       <AuthRedirectHandler />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -256,7 +255,7 @@ export default async function HomePage() {
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
 
-      {/* ── Trust strip ──────────────────────────────────── */}
+    {/* ── Trust strip ──────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 py-12 flex flex-col items-center justify-center gap-4 text-center">
           <div className="space-y-2">
@@ -271,15 +270,15 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-0 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },
-            { href: '#deals',    label: 'Deals' },
+            { href: '#deals', label: 'Deals' },
             { href: '/services', label: 'Full Pricing' },
-            { href: '#contact',  label: 'Contact' },
+            { href: '#contact', label: 'Contact' },
           ].map(({ href, label }) => (
-            
+            <a
               key={href}
               href={href}
               className="shrink-0 text-gray-400 hover:text-white text-xs uppercase tracking-widest font-semibold px-5 py-3.5 border-r border-white/10 hover:bg-white/5 transition-colors"
@@ -287,7 +286,7 @@ export default async function HomePage() {
               {label}
             </a>
           ))}
-          
+          <a
             href="https://wa.me/12025792944"
             className="shrink-0 ml-auto text-chm-red text-xs uppercase tracking-widest font-semibold px-5 py-3.5 hover:text-white transition-colors"
           >
@@ -318,12 +317,12 @@ export default async function HomePage() {
                 <AnimatedSection
                   key={s.slug}
                   delay={i * 60}
-                  className={services.length % 2 === 1 && i === services.length - 1 ? 'md:col-span-2' : ''}
+                  className={services.length % 2 === 1 && i === services.length - 1? 'md:col-span-2' : ''}
                 >
                   <Link href={`/services#${s.slug}`} className="bg-white flex flex-col hover:bg-cream transition-colors group block h-full">
                     <div className="relative overflow-hidden h-44">
                       <img
-                        src={SERVICE_IMAGES[s.slug] ?? ''}
+                        src={SERVICE_IMAGES[s.slug]?? ''}
                         alt={s.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -392,6 +391,9 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── Success Stories section removed per Step 1. Will be added to Review Page in Step 6 ── */}
+      {/* ── ReferralProgram removed per Step 1. Will be added to Deals Page in Step 4 with new tiers ── */}
+
       {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
         <section className="bg-cream py-14 md:py-20 border-t border-gray-100">
@@ -412,7 +414,7 @@ export default async function HomePage() {
                   <div className="bg-white p-8 hover:bg-blush transition-colors h-full flex flex-col gap-4">
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <span key={j} className={j < r.rating ? 'text-amber-400' : 'text-gray-200'}>★</span>
+                        <span key={j} className={j < r.rating? 'text-amber-400' : 'text-gray-200'}>★</span>
                       ))}
                     </div>
                     <p className="text-gray-600 text-sm leading-relaxed flex-1 font-light">&ldquo;{r.body}&rdquo;</p>
