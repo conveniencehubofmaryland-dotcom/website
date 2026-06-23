@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-
 export const metadata: Metadata = {
-  title: 'About Us',
+  title: 'About Us | Convenience Hub of Maryland',
   description:
-    'Learn about Convenience Hub of Maryland — a trusted home services company serving Maryland, Virginia, and Washington D.C. with cleaning, laundry, culinary, and care services.',
+    'Learn about Convenience Hub of Maryland — a trusted home services company serving Maryland, Virginia, and Washington D.C. with cleaning, laundry, culinary, and care services. Background-checked, insured, eco-friendly.',
 }
 
 export default function AboutPage() {
@@ -48,8 +47,11 @@ export default function AboutPage() {
               services designed to simplify your daily routine.
             </p>
             <p>
-              Every member of our team is rigorously vetted, background-checked, and trained to deliver consistent,
-              high-quality results. We are fully insured, giving you complete peace of mind on every visit.
+              Every member of our team is rigorously vetted, background-checked, CPR-certified, and trained to deliver consistent,
+              high-quality results. We are fully insured and use 100% eco-friendly, non-toxic products, giving you complete peace of mind on every visit.
+            </p>
+            <p>
+              We cover all areas across the DMV. Service hours: Monday–Saturday, 8 AM–10 PM EST, with Sunday by appointment.
             </p>
           </div>
         </section>
@@ -63,11 +65,12 @@ export default function AboutPage() {
           <h2 className="font-serif text-3xl md:text-4xl text-chm-black mb-8" style={{ fontFamily: 'var(--font-serif)' }}>
             Our Values
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-100">
             {[
               { title: 'Reliability', body: 'We show up on time, every time. Consistency is the foundation of trust.' },
               { title: 'Professionalism', body: 'Every team member is vetted, trained, and held to elite household standards.' },
               { title: 'Transparency', body: 'Flat rates, clear pricing, and no surprise fees — ever.' },
+              { title: 'No Hidden Fees', body: 'What you see is what you pay. 100% transparent pricing guaranteed.' },
             ].map(v => (
               <div key={v.title} className="bg-white p-8">
                 <div className="w-6 h-px bg-chm-red mb-4" />
@@ -89,10 +92,13 @@ export default function AboutPage() {
           </h2>
           <p className="text-gray-600 text-sm leading-relaxed mb-6">
             We proudly serve residential and commercial clients across the greater DMV region, including all of
-            Maryland, Northern Virginia (NOVA), Washington D.C., Howard County, and Loudoun County.
+            Maryland, all parts of Northern Virginia (NOVA), and all parts of Washington D.C. We cover every neighborhood and zip code. 
+            Specific areas include: Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Laurel, Bowie, Columbia,
+            McLean, Arlington, Falls Church, Fairfax, Ashburn, Alexandria, Reston, Tysons, Vienna, Springfield, Annandale, 
+            and all D.C. neighborhoods including Northwest, Northeast, Southeast, Southwest, Capitol Hill, Georgetown, Dupont Circle, and more.
           </p>
           <div className="flex flex-wrap gap-3">
-            {['Maryland', 'Northern Virginia', 'Washington D.C.', 'Montgomery County', 'Prince George\'s County', 'Howard County', 'Fairfax County', 'Loudoun County', 'Arlington'].map(area => (
+            {['Maryland', 'All of Northern Virginia (NOVA)', 'All of Washington D.C.', 'Montgomery County', 'Prince George\'s County', 'Howard County', 'Fairfax County', 'Loudoun County', 'Arlington County', 'Alexandria'].map(area => (
               <span key={area} className="border border-gray-200 text-gray-500 text-xs uppercase tracking-widest px-4 py-2">
                 {area}
               </span>
