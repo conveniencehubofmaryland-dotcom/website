@@ -211,7 +211,7 @@ export default async function DealsPage() {
           </div>
         </AnimatedSection>
 
-        {/* Service Areas */}
+                {/* Service Areas */}
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
             <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
@@ -230,6 +230,7 @@ export default async function DealsPage() {
                 <p className="font-semibold text-chm-black mb-2">Washington DC</p>
                 <p>All neighborhoods</p>
               </div>
+            </div>
             <p className="text-xs text-gray-500 mt-6">Service Radius: We cover all areas</p>
           </div>
         </AnimatedSection>
