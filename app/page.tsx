@@ -4,8 +4,7 @@ import { dbSelect } from '@/lib/db'
 import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
-import SuccessStories from '@/components/SuccessStories'
-import ReferralProgram from '@/components/ReferralProgram'
+
 export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
@@ -166,7 +165,7 @@ export default async function HomePage() {
 
   return (
     <>
-       <AuthRedirectHandler />
+      <AuthRedirectHandler />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -257,7 +256,7 @@ export default async function HomePage() {
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
 
-    {/* ── Trust strip ──────────────────────────────────── */}
+      {/* ── Trust strip ──────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 py-12 flex flex-col items-center justify-center gap-4 text-center">
           <div className="space-y-2">
@@ -272,7 +271,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── Quick-nav strip ───────────────────────────────── */}
-      <div className="bg-chm-black border-b border-white/10 sticky top-28 z-40">
+      <div className="bg-chm-black border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
             { href: '#services', label: 'Services' },
@@ -280,7 +279,7 @@ export default async function HomePage() {
             { href: '/services', label: 'Full Pricing' },
             { href: '#contact',  label: 'Contact' },
           ].map(({ href, label }) => (
-            <a
+            
               key={href}
               href={href}
               className="shrink-0 text-gray-400 hover:text-white text-xs uppercase tracking-widest font-semibold px-5 py-3.5 border-r border-white/10 hover:bg-white/5 transition-colors"
@@ -288,7 +287,7 @@ export default async function HomePage() {
               {label}
             </a>
           ))}
-          <a
+          
             href="https://wa.me/12025792944"
             className="shrink-0 ml-auto text-chm-red text-xs uppercase tracking-widest font-semibold px-5 py-3.5 hover:text-white transition-colors"
           >
@@ -393,9 +392,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Success Stories ─────────────────────────────────── */}
-      <SuccessStories />
-
       {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
         <section className="bg-cream py-14 md:py-20 border-t border-gray-100">
@@ -439,9 +435,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ── Referral Program ─────────────────────────────────── */}
-      <ReferralProgram />
 
       {/* ── Contact strip ────────────────────────────────── */}
       <section id="contact" className="bg-white py-14 md:py-20 border-t border-gray-100">
