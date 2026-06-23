@@ -51,14 +51,9 @@ const SERVICE_IMAGES: Record<string, string> = {
 }
 
 function LeafSVG({ className = '' }: { className?: string }) {
-  // High-detail cordate (heart-shaped) tropical leaf matching reference photo.
-  // viewBox 400×480 for crisp rendering at large sizes.
-  // Primary veins (8 pairs) + secondary network (~44 veins) = very high definition.
   return (
     <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-      {/* Stem */}
       <path fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" d="M200,50 L200,8"/>
-      {/* Cordate leaf body: two lobes at top, deep notch at center, pointed tip at bottom */}
       <path
         fill="currentColor"
         d="M200,50
@@ -69,87 +64,62 @@ function LeafSVG({ className = '' }: { className?: string }) {
            C 40,242 28,138 58,78
            C 92,15 174,18 200,50 Z"
       />
-      {/* ── Midrib ── */}
       <path fill="none" stroke="white" strokeWidth="3.5" strokeOpacity="0.42" d="M200,50 L200,474"/>
-      {/* ── Primary veins — 8 pairs, radiating from midrib, curving toward margin ── */}
       <g fill="none" stroke="white" strokeLinecap="round">
-        {/* Pair 1 — into lobes */}
         <path strokeWidth="2.4" strokeOpacity="0.38" d="M200,78 C 240,70 295,62 340,80"/>
         <path strokeWidth="2.4" strokeOpacity="0.38" d="M200,78 C 160,70 105,62 60,80"/>
-        {/* Pair 2 */}
         <path strokeWidth="2.2" strokeOpacity="0.36" d="M200,122 C 248,118 308,114 355,122"/>
         <path strokeWidth="2.2" strokeOpacity="0.36" d="M200,122 C 152,118 92,114 45,122"/>
-        {/* Pair 3 */}
         <path strokeWidth="2.0" strokeOpacity="0.34" d="M200,170 C 250,167 314,164 362,172"/>
         <path strokeWidth="2.0" strokeOpacity="0.34" d="M200,170 C 150,167 86,164 38,172"/>
-        {/* Pair 4 */}
         <path strokeWidth="1.8" strokeOpacity="0.32" d="M200,220 C 250,218 312,216 358,224"/>
         <path strokeWidth="1.8" strokeOpacity="0.32" d="M200,220 C 150,218 88,216 42,224"/>
-        {/* Pair 5 */}
         <path strokeWidth="1.6" strokeOpacity="0.30" d="M200,268 C 248,267 306,265 348,273"/>
         <path strokeWidth="1.6" strokeOpacity="0.30" d="M200,268 C 152,267 94,265 52,273"/>
-        {/* Pair 6 */}
         <path strokeWidth="1.4" strokeOpacity="0.28" d="M200,315 C 244,314 294,313 328,319"/>
         <path strokeWidth="1.4" strokeOpacity="0.28" d="M200,315 C 156,314 106,313 72,319"/>
-        {/* Pair 7 */}
         <path strokeWidth="1.2" strokeOpacity="0.26" d="M200,360 C 236,360 276,360 306,365"/>
         <path strokeWidth="1.2" strokeOpacity="0.26" d="M200,360 C 164,360 124,360 94,365"/>
-        {/* Pair 8 — near tip */}
         <path strokeWidth="0.9" strokeOpacity="0.22" d="M200,408 C 222,408 248,410 268,414"/>
         <path strokeWidth="0.9" strokeOpacity="0.22" d="M200,408 C 178,408 152,410 132,414"/>
       </g>
-      {/* ── Secondary veins — fine network between primary pairs ── */}
       <g fill="none" stroke="white" strokeWidth="0.8" strokeOpacity="0.18" strokeLinecap="round">
-        {/* Between pairs 1-2, right */}
         <path d="M338,82 C 344,92 350,108 352,120"/>
         <path d="M312,66 C 320,78 328,95 330,110"/>
         <path d="M282,62 C 288,74 294,90 296,106"/>
-        {/* Between pairs 1-2, left */}
         <path d="M62,82 C 56,92 50,108 48,120"/>
         <path d="M88,66 C 80,78 72,95 70,110"/>
         <path d="M118,62 C 112,74 106,90 104,106"/>
-        {/* Between pairs 2-3, right */}
         <path d="M353,124 C 357,136 360,152 362,164"/>
         <path d="M326,116 C 330,128 334,144 336,158"/>
         <path d="M298,113 C 302,126 306,142 308,156"/>
-        {/* Between pairs 2-3, left */}
         <path d="M47,124 C 43,136 40,152 38,164"/>
         <path d="M74,116 C 70,128 66,144 64,158"/>
         <path d="M102,113 C 98,126 94,142 92,156"/>
-        {/* Between pairs 3-4, right */}
         <path d="M360,174 C 362,186 362,202 360,216"/>
         <path d="M336,166 C 338,178 340,194 340,208"/>
         <path d="M308,163 C 310,175 312,191 312,205"/>
-        {/* Between pairs 3-4, left */}
         <path d="M40,174 C 38,186 38,202 40,216"/>
         <path d="M64,166 C 62,178 60,194 60,208"/>
         <path d="M92,163 C 90,175 88,191 88,205"/>
-        {/* Between pairs 4-5, right */}
         <path d="M356,226 C 355,238 352,254 349,266"/>
         <path d="M332,218 C 332,230 332,246 331,260"/>
         <path d="M306,216 C 306,228 307,244 307,258"/>
-        {/* Between pairs 4-5, left */}
         <path d="M44,226 C 45,238 48,254 51,266"/>
         <path d="M68,218 C 68,230 68,246 69,260"/>
         <path d="M94,216 C 94,228 93,244 93,258"/>
-        {/* Between pairs 5-6, right */}
         <path d="M346,275 C 343,287 338,303 334,316"/>
         <path d="M320,268 C 318,280 316,296 314,310"/>
         <path d="M294,266 C 293,278 293,294 293,308"/>
-        {/* Between pairs 5-6, left */}
         <path d="M54,275 C 57,287 62,303 66,316"/>
         <path d="M80,268 C 82,280 84,296 86,310"/>
         <path d="M106,266 C 107,278 107,294 107,308"/>
-        {/* Between pairs 6-7, right */}
         <path d="M326,321 C 322,333 315,348 309,360"/>
         <path d="M302,316 C 299,328 297,344 295,357"/>
-        {/* Between pairs 6-7, left */}
         <path d="M74,321 C 78,333 85,348 91,360"/>
         <path d="M98,316 C 101,328 103,344 105,357"/>
-        {/* Between pairs 7-8, right */}
         <path d="M304,367 C 299,378 291,392 284,404"/>
         <path d="M280,363 C 276,374 272,388 268,400"/>
-        {/* Between pairs 7-8, left */}
         <path d="M96,367 C 101,378 109,392 116,404"/>
         <path d="M120,363 C 124,374 128,388 132,400"/>
       </g>
@@ -206,16 +176,13 @@ export default async function HomePage() {
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden">
-        {/* Background photo — full width, faint */}
         <img
           src="/living_room_main.png"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.18] pointer-events-none select-none"
         />
-        {/* Rose tint overlay */}
         <div className="absolute inset-0 bg-rose-300/50 pointer-events-none" />
-        {/* Fade edges into cream */}
         <div className="absolute inset-0 bg-gradient-to-b from-cream/60 via-transparent to-cream/80 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-cream/50 via-transparent to-cream/50 pointer-events-none" />
 
@@ -251,7 +218,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Subtle watermark */}
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
 
@@ -351,9 +317,127 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── Why Choose Us - MOVED FROM DEALS ─────────────── */}
+      <AnimatedSection>
+        <section className="bg-white border-t border-gray-100 py-14 md:py-20">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">The CHM Difference</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Why Choose Convenience Hub?
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                { title: 'Professional & Vetted Staff', desc: 'All background-checked, CPR-certified, trained' },
+                { title: 'Eco-Friendly & Safe', desc: 'Non-toxic products, safe practices always' },
+                { title: 'Transparent Pricing', desc: 'No hidden fees, what you see is what you pay' },
+                { title: 'Flexible & Responsive', desc: 'We work around YOUR schedule' },
+                { title: 'Guaranteed Quality', desc: 'Satisfaction guaranteed or we make it right' },
+                { title: 'Local DMV Experts', desc: 'Serving Maryland, DC, and Virginia since 2024' },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <span className="text-chm-red text-xl mt-1">✓</span>
+                  <div>
+                    <p className="font-semibold text-chm-black text-sm mb-1">{item.title}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed font-light">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* ── Premium Member Status - MOVED FROM DEALS ─────── */}
+      <AnimatedSection>
+        <section className="bg-cream py-14 md:py-20">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="bg-white border border-gray-200 p-8 md:p-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Loyalty Program</p>
+              <h2 className="font-serif text-3xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
+                Premium Member Status
+              </h2>
+              <p className="text-gray-500 text-sm mb-6">Requirement: 12-month subscription or 12+ services/year</p>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>15% discount on all services</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Free upgrade services (quarterly)</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Dedicated customer service line</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($25 credit)</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* ── Guarantees & Promises - MOVED FROM DEALS ─────── */}
+      <AnimatedSection>
+        <section className="bg-white py-14 md:py-20 border-t border-gray-100">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Our Promise</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Guarantees & Promises
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-6 text-sm text-gray-600">
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Satisfaction Guarantee</p>
+                <p className="font-light">Not satisfied? Free re-do within 24 hours</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Quality Guarantee</p>
+                <p className="font-light">Staff background-checked, insured, professionally trained</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Price Lock Guarantee</p>
+                <p className="font-light">Recurring contracts lock price for 12 months</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Safety Guarantee</p>
+                <p className="font-light">Zero tolerance for unsafe practices</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* ── Service Areas - MOVED FROM DEALS ─────────────── */}
+      <AnimatedSection>
+        <section className="bg-cream py-14 md:py-20">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Service Areas
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div>
+            <div className="grid sm:grid-cols-3 gap-8 text-sm text-gray-600">
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Maryland</p>
+                <p className="font-light leading-relaxed">Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Virginia</p>
+                <p className="font-light leading-relaxed">McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
+                <p className="font-light leading-relaxed">All neighborhoods</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
+          </div>
+        </section>
+      </AnimatedSection>
+
       {/* ── Deals ────────────────────────────────────────── */}
       {(
-        <section id="deals" className="bg-cream py-14 md:py-20 relative overflow-hidden">
+        <section id="deals" className="bg-white py-14 md:py-20 relative overflow-hidden border-t border-gray-100">
           <div className="absolute inset-0 pointer-events-none select-none">
             <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
           </div>
@@ -390,9 +474,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ── Success Stories section removed per Step 1. Will be added to Review Page in Step 6 ── */}
-      {/* ── ReferralProgram removed per Step 1. Will be added to Deals Page in Step 4 with new tiers ── */}
 
       {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
@@ -438,29 +519,9 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Contact strip ────────────────────────────────── */}
-      <section id="contact" className="bg-white py-14 md:py-20 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
-          <AnimatedSection>
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-              <div>
-                <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Ready to Book?</p>
-                <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                  Get in Touch
-                </h2>
-                <div className="w-10 h-px bg-chm-red mt-4 mb-4" />
-                <p className="text-gray-400 text-xs tracking-widest uppercase">Mon – Sat &nbsp;·&nbsp; 9 AM – 9 PM</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <a href="tel:+12025792944" className="bg-chm-red text-white px-7 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">Call</a>
-                <a href="sms:+12025792944" className="border border-chm-black/20 text-chm-black px-7 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red hover:text-chm-red transition-colors">Text</a>
-                <a href="https://wa.me/12025792944" className="border border-chm-black/20 text-chm-black px-7 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red hover:text-chm-red transition-colors">WhatsApp</a>
-                <a href="mailto:conveniencehubofmaryland@gmail.com" className="border border-chm-black/20 text-chm-black px-7 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red hover:text-chm-red transition-colors">Email</a>
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-    </>
-  )
-}
+      {/* ── Payment & Policies - MOVED FROM DEALS ────────── */}
+      <AnimatedSection>
+        <section className="bg-white py-14 md:py-20 border-t border-gray-100">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0
