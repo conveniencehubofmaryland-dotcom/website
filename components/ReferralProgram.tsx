@@ -73,26 +73,34 @@ export default function ReferralProgram() {
               <div className="space-y-4 mb-8">
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 1 Friend</p>
-                    <p className="text-2xl font-bold text-chm-red">$40</p>
+                    <p className="font-semibold text-chm-black">Refer 1 friend</p>
+                    <p className="text-2xl font-bold text-chm-red">$25</p>
                   </div>
-                  <p className="text-xs text-gray-600">Credit toward your next service</p>
+                  <p className="text-xs text-gray-600">credit</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 3 Friends</p>
+                    <p className="font-semibold text-chm-black">Refer 3 friends</p>
+                    <p className="text-2xl font-bold text-chm-red">$80</p>
+                  </div>
+                  <p className="text-xs text-gray-600">credit</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="font-semibold text-chm-black">Refer 5 friends</p>
                     <p className="text-2xl font-bold text-chm-red">$150</p>
                   </div>
-                  <p className="text-xs text-gray-600">Credit and Priority scheduling</p>
+                  <p className="text-xs text-gray-600">credit</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 5 Friends</p>
-                    <p className="text-2xl font-bold text-chm-red">Free Month</p>
+                    <p className="font-semibold text-chm-black">Refer 10 friends</p>
+                    <p className="text-2xl font-bold text-chm-red">Free month</p>
                   </div>
-                  <p className="text-xs text-gray-600">Up to $400 in services</p>
+                  <p className="text-xs text-gray-600">up to $400 in services</p>
                 </div>
               </div>
 
@@ -123,7 +131,7 @@ export default function ReferralProgram() {
                   2
                 </div>
                 <h4 className="font-semibold text-chm-black mb-2">They Book</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">Use code, get $30 off first service</p>
+                <p className="text-xs text-gray-600 leading-relaxed">Use code, get discount on first service</p>
               </div>
 
               <div className="text-center">
@@ -131,7 +139,7 @@ export default function ReferralProgram() {
                   3
                 </div>
                 <h4 className="font-semibold text-chm-black mb-2">You Earn</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">$40 credit after their first service</p>
+                <p className="text-xs text-gray-600 leading-relaxed">Credit after their first service</p>
               </div>
 
               <div className="text-center">
