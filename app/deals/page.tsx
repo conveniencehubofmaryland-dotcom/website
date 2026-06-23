@@ -34,16 +34,45 @@ export default async function DealsPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Save More</p>
           <h1 className="font-serif text-5xl md:text-6xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-            This Week&apos;s Deals
+            Package Deals & Bundles
           </h1>
           <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
           <p className="text-gray-400 max-w-xl text-sm leading-relaxed font-light">
-            Special pricing every week. Contact us to redeem before booking.
+            Save money with bundled services. Special pricing on recurring packages for residential and commercial clients.
           </p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-10">
+        <AnimatedSection>
+          <div className="bg-white border border-gray-200 p-8 md:p-10">
+            <h2 className="font-serif text-2xl md:text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              Bundle Savings Overview
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-8 text-sm">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-4">Residential Bundles</p>
+                <ul className="space-y-2 text-gray-600">
+                  <li><span className="font-semibold text-chm-black">Essentials:</span> Save 15% — $750/mo</li>
+                  <li><span className="font-semibold text-chm-black">Comfort:</span> Save 18% — $900/mo</li>
+                  <li><span className="font-semibold text-chm-black">Luxury:</span> Save 20% — $5,000/mo</li>
+                  <li><span className="font-semibold text-chm-black">Family Care:</span> Save 20% — $3,000/mo</li>
+                  <li><span className="font-semibold text-chm-black">Senior Care:</span> Save 20% — $4,000/mo</li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-4">Commercial Bundles</p>
+                <ul className="space-y-2 text-gray-600">
+                  <li><span className="font-semibold text-chm-black">Small Office:</span> Save 15% — $4,000/mo</li>
+                  <li><span className="font-semibold text-chm-black">Medium Office:</span> Save 10% — $4,500/mo</li>
+                  <li><span className="font-semibold text-chm-black">Enterprise:</span> Save 20% — Custom quote</li>
+                  <li className="pt-2 border-t border-gray-100 mt-4"><span className="font-semibold text-chm-black">Military:</span> 15% OFF all services</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
           {deals.map((d, i) => (
             <AnimatedSection key={d.id} delay={i * 80}>
@@ -83,7 +112,7 @@ export default async function DealsPage() {
         </AnimatedSection>
 
         <p className="text-xs text-gray-400 leading-relaxed">
-          * Deals valid for the current week only unless stated as ongoing. Cannot be combined unless specified. Contact us at 202-579-2944 to redeem.
+          * Bundle pricing valid for recurring monthly contracts. Cannot be combined unless specified. Contact us at 202-579-2944 to redeem.
         </p>
       </div>
     </div>
