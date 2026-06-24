@@ -134,7 +134,7 @@ export default async function HomePage() {
 
   return (
     <>
-       <AuthRedirectHandler />
+      <AuthRedirectHandler />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -174,7 +174,6 @@ export default async function HomePage() {
         }}
       />
 
-      {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative bg-cream overflow-hidden">
         <img
           src="/living_room_main.png"
@@ -221,7 +220,6 @@ export default async function HomePage() {
         <LeafSVG className="absolute -left-16 bottom-[-10%] w-[400px] h-auto text-chm-red opacity-[0.05] -rotate-20 scale-x-[-1] pointer-events-none select-none" />
       </section>
 
-    {/* ── Trust strip ──────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 py-12 flex flex-col items-center justify-center gap-4 text-center">
           <div className="space-y-2">
@@ -235,7 +233,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Quick-nav strip ───────────────────────────────── */}
       <div className="bg-chm-black border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 flex items-center overflow-x-auto gap-0 scrollbar-none">
           {[
@@ -261,7 +258,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Services ─────────────────────────────────────── */}
       <section id="services" className="bg-white py-14 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none select-none">
           <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.14] -rotate-12 scale-x-[-1]" />
@@ -315,7 +311,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Why Choose Us - MOVED FROM DEALS ─────────────── */}
       <AnimatedSection>
         <section className="bg-white border-t border-gray-100 py-14 md:py-20">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
@@ -348,7 +343,6 @@ export default async function HomePage() {
         </section>
       </AnimatedSection>
 
-      {/* ── Premium Member Status - MOVED FROM DEALS ─────── */}
       <AnimatedSection>
         <section className="bg-cream py-14 md:py-20">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
@@ -370,70 +364,67 @@ export default async function HomePage() {
         </section>
       </AnimatedSection>
 
-      {/* ── Guarantees & Promises - MOVED FROM DEALS ─────── */}
-<AnimatedSection>
-  <section className="bg-white py-14 md:py-20 border-t border-gray-100">
-    <div className="max-w-6xl mx-auto px-6 sm:px-8">
-      <div className="mb-10">
-        <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Our Promise</p>
-        <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-          Guarantees & Promises
-        </h2>
-        <div className="w-10 h-px bg-chm-red mt-4" />
-      </div>
-      <div className="grid sm:grid-cols-2 gap-8">
-        <div className="bg-cream p-6">
-          <p className="font-semibold text-chm-black mb-2">Satisfaction Guarantee</p>
-          <p className="font-light">Not satisfied? Free re-do within 24 hours</p>
-        </div>
-        <div className="bg-cream p-6">
-          <p className="font-semibold text-chm-black mb-2">Quality Guarantee</p>
-          <p className="font-light">Staff background-checked, insured, professionally trained</p>
-        </div>
-        <div className="bg-cream p-6">
-          <p className="font-semibold text-chm-black mb-2">Price Lock Guarantee</p>
-          <p className="font-light">Recurring contracts lock price for 12 months</p>
-        </div>
-        <div className="bg-cream p-6">
-          <p className="font-semibold text-chm-black mb-2">Safety Guarantee</p>
-          <p className="font-light">Zero tolerance for unsafe practices</p>
-        </div>
-      </div>
-    </div>
-  </section>
-</AnimatedSection>
+      <AnimatedSection>
+        <section className="bg-white py-14 md:py-20 border-t border-gray-100">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Our Promise</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Guarantees & Promises
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-8">
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Satisfaction Guarantee</p>
+                <p className="font-light">Not satisfied? Free re-do within 24 hours</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Quality Guarantee</p>
+                <p className="font-light">Staff background-checked, insured, professionally trained</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Price Lock Guarantee</p>
+                <p className="font-light">Recurring contracts lock price for 12 months</p>
+              </div>
+              <div className="bg-cream p-6">
+                <p className="font-semibold text-chm-black mb-2">Safety Guarantee</p>
+                <p className="font-light">Zero tolerance for unsafe practices</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
 
-      {/* ── Service Areas - MOVED FROM DEALS ─────────────── */}
-<AnimatedSection>
-  <section className="bg-cream py-14 md:py-20">
-    <div className="max-w-6xl mx-auto px-6 sm:px-8">
-      <div className="mb-10">
-        <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
-        <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-          Service Areas
-        </h2>
-        <div className="w-10 h-px bg-chm-red mt-4" />
-      </div>
-      <div className="grid sm:grid-cols-3 gap-8 text-sm text-gray-600">
-        <div className="bg-white p-6 border border-gray-100">
-          <p className="font-semibold text-chm-black mb-3 text-base">Maryland</p>
-          <p className="font-light leading-relaxed">Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
-        </div>
-        <div className="bg-white p-6 border border-gray-100">
-          <p className="font-semibold text-chm-black mb-3 text-base">Virginia</p>
-          <p className="font-light leading-relaxed">McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
-        </div>
-        <div className="bg-white p-6 border border-gray-100">
-          <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
-          <p className="font-light leading-relaxed">All neighborhoods</p>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
-    </div>
-  </section>
-</AnimatedSection>
+      <AnimatedSection>
+        <section className="bg-cream py-14 md:py-20">
+          <div className="max-w-6xl mx-auto px-6 sm:px-8">
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Service Areas
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div>
+            <div className="grid sm:grid-cols-3 gap-8 text-sm text-gray-600">
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Maryland</p>
+                <p className="font-light leading-relaxed">Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Virginia</p>
+                <p className="font-light leading-relaxed">McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
+              </div>
+              <div className="bg-white p-6 border border-gray-100">
+                <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
+                <p className="font-light leading-relaxed">All neighborhoods</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
+          </div>
+        </section>
+      </AnimatedSection>
 
-      {/* ── Deals ────────────────────────────────────────── */}
       <section id="deals" className="bg-white py-14 md:py-20 relative overflow-hidden border-t border-gray-100">
         <div className="absolute inset-0 pointer-events-none select-none">
           <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
@@ -471,7 +462,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
         <section className="bg-cream py-14 md:py-20 border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
@@ -515,15 +505,21 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Payment & Policies - MOVED FROM DEALS ────────── */}
       <AnimatedSection>
-        <section className="bg-white py-14 md:py-20 border-t border-gray-100">
+        <section id="contact" className="bg-white py-14 md:py-20 border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
             <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Policies</p>
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Get In Touch</p>
               <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Payment & Billing
+                Contact Us
               </h2>
               <div className="w-10 h-px bg-chm-red mt-4" />
             </div>
-            <div className="grid sm:grid-cols-2 gap-8
+            <div className="grid sm:grid-cols-3 gap-8">
+              <div className="text-center">
+                <p className="text-chm-red font-semibold text-sm mb-2">Call</p>
+                <a href="tel:+12025792944" className="text-chm-black hover:text-chm-red transition-colors">202-579-2944</a>
+              </div>
+              <div className="text-center">
+                <p className="text-chm-red font-semibold text-sm mb-2">WhatsApp</p>
+                <a href="https://wa.me/12025792944" className="text-chm-black hover:text-chm-red transition-colors">Message
