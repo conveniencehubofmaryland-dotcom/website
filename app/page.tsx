@@ -524,4 +524,5 @@ export default async function HomePage() {
                 Payment & Billing
               </h2>
               <div className="w-10 h-px bg-chm-red mt-4" />
-            </div
+            </div>
+            <div className="grid sm:grid-cols-2 gap-8
