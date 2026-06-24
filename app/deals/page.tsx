@@ -26,35 +26,6 @@ export default function DealsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
-        {/* Bundle Overview */}
-        <AnimatedSection>
-          <div className="bg-white border border-gray-200 p-8 md:p-10">
-            <h2 className="font-serif text-2xl md:text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
-              Bundle Savings Overview
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-8 text-sm">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-4">Residential Bundles</p>
-                <ul className="space-y-2 text-gray-600">
-                  <li><span className="font-semibold text-chm-black">Essentials:</span> Save 15% — $750/mo</li>
-                  <li><span className="font-semibold text-chm-black">Comfort:</span> Save 18% — $900/mo</li>
-                  <li><span className="font-semibold text-chm-black">Luxury:</span> Save 20% — $5,000/mo</li>
-                  <li><span className="font-semibold text-chm-black">Family Care:</span> Save 20% — $3,000/mo</li>
-                  <li><span className="font-semibold text-chm-black">Senior Care:</span> Save 20% — $4,000/mo</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-chm-red mb-4">Commercial Bundles</p>
-                <ul className="space-y-2 text-gray-600">
-                  <li><span className="font-semibold text-chm-black">Small Office:</span> Save 15% — $4,000/mo</li>
-                  <li><span className="font-semibold text-chm-black">Medium Office:</span> Save 10% — $4,500/mo</li>
-                  <li><span className="font-semibold text-chm-black">Enterprise:</span> Save 20% — Custom quote</li>
-                  <li className="pt-2 border-t border-gray-100 mt-4"><span className="font-semibold text-chm-black">Military:</span> 15% OFF all services</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
 
         {/* Residential Bundles */}
         <AnimatedSection>
