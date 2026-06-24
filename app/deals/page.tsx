@@ -178,7 +178,6 @@ export default function DealsPage() {
                         <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
                         <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
                       </div>
-                    </div>
                     <div className="shrink-0 bg-cream px-6 py-4 text-center">
                       <p className="text-xs uppercase tracking-widest text-chm-red mb-1">Save</p>
                       <p className="font-serif text-3xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>{bundle.save}</p>
@@ -221,24 +220,6 @@ export default function DealsPage() {
         </AnimatedSection>
 
         <ReferralProgram />
-
-        {/* Premium Member Status */}
-        <AnimatedSection>
-          <div className="bg-white border border-gray-200 p-8 md:p-10">
-            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Loyalty Program</p>
-            <h2 className="font-serif text-3xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
-              Premium Member Status
-            </h2>
-            <p className="text-gray-500 text-sm mb-6">Requirement: 12-month subscription or 12+ services/year</p>
-            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>15% discount on all services</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Free upgrade services (quarterly)</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Dedicated customer service line</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($25 credit)</span></div>
-            </div>
-          </div>
-        </AnimatedSection>
 
         {/* FAQ & Policies */}
         <AnimatedSection>
@@ -301,59 +282,6 @@ export default function DealsPage() {
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            <div className="border-t border-gray-100 pt-10">
-              <h3 className="font-serif text-2xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
-                Guarantees & Promises
-              </h3>
-              <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Satisfaction Guarantee:</span> Not satisfied? Free re-do within 24 hours</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Quality Guarantee:</span> Staff background-checked, insured, professionally trained</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Price Lock Guarantee:</span> Recurring contracts lock price for 12 months</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Safety Guarantee:</span> Zero tolerance for unsafe practices</span></div>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* Service Areas */}
-        <AnimatedSection>
-          <div className="bg-cream p-8 md:p-10">
-            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
-              Service Areas
-            </h2>
-            <div className="grid sm:grid-cols-3 gap-6 text-sm text-gray-600">
-              <div>
-                <p className="font-semibold text-chm-black mb-2">Maryland</p>
-                <p>Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
-              </div>
-              <div>
-                <p className="font-semibold text-chm-black mb-2">Virginia</p>
-                <p>McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
-              </div>
-              <div>
-                <p className="font-semibold text-chm-black mb-2">Washington DC</p>
-                <p>All neighborhoods</p>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-6">Service Radius: We cover all areas</p>
-          </div>
-        </AnimatedSection>
-
-        {/* Why Choose Us */}
-        <AnimatedSection>
-          <div className="bg-white border border-gray-200 p-8 md:p-10">
-            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
-              Why Choose Convenience Hub?
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Professional & Vetted Staff</span> — All background-checked, CPR-certified, trained</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Eco-Friendly & Safe</span> — Non-toxic products, safe practices always</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Transparent Pricing</span> — No hidden fees, what you see is what you pay</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Flexible & Responsive</span> — We work around YOUR schedule</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Guaranteed Quality</span> — Satisfaction guaranteed or we make it right</span></div>
-              <div className="flex gap-3"><span className="text-chm-red">✓</span><span><span className="font-semibold text-chm-black">Local DMV Experts</span> — Serving Maryland, DC, and Virginia since 2024</span></div>
             </div>
           </div>
         </AnimatedSection>
