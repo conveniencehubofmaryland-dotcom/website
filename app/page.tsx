@@ -262,60 +262,58 @@ export default async function HomePage() {
       </div>
 
       {/* ── Services ─────────────────────────────────────── */}
-      {(
-        <section id="services" className="bg-white py-14 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none select-none">
-            <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.14] -rotate-12 scale-x-[-1]" />
-          </div>
-          <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
-            <AnimatedSection>
-              <div className="mb-10">
-                <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">What We Offer</p>
-                <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                  Our Services
-                </h2>
-                <div className="w-10 h-px bg-chm-red mt-4" />
-              </div>
-            </AnimatedSection>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-100">
-              {services.map((s, i) => (
-                <AnimatedSection
-                  key={s.slug}
-                  delay={i * 60}
-                  className={services.length % 2 === 1 && i === services.length - 1? 'md:col-span-2' : ''}
-                >
-                  <Link href={`/services#${s.slug}`} className="bg-white flex flex-col hover:bg-cream transition-colors group block h-full">
-                    <div className="relative overflow-hidden h-44">
-                      <img
-                        src={SERVICE_IMAGES[s.slug]?? ''}
-                        alt={s.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-chm-black/10 group-hover:bg-chm-black/5 transition-colors" />
-                    </div>
-                    <div className="p-6 md:p-8 flex flex-col gap-2 flex-1">
-                      <div className="w-6 h-px bg-chm-red" />
-                      <h3 className="font-serif text-xl text-chm-black group-hover:text-chm-red transition-colors" style={{ fontFamily: 'var(--font-serif)' }}>
-                        {s.title}
-                      </h3>
-                      <p className="text-xs text-gray-400 uppercase tracking-widest">{s.subtitle}</p>
-                      <p className="text-gray-500 text-sm leading-relaxed flex-1 font-light">{s.description}</p>
-                      <p className="text-chm-red font-semibold text-xs tracking-wide mt-1">{s.price_from}</p>
-                    </div>
-                  </Link>
-                </AnimatedSection>
-              ))}
+      <section id="services" className="bg-white py-14 md:py-20 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none select-none">
+          <LeafSVG className="absolute -left-10 top-[5%] w-[220px] h-[220px] text-chm-red opacity-[0.14] -rotate-12 scale-x-[-1]" />
+        </div>
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
+          <AnimatedSection>
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">What We Offer</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Our Services
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
             </div>
+          </AnimatedSection>
 
-            <AnimatedSection className="mt-6">
-              <Link href="/services" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
-                View Full Pricing →
-              </Link>
-            </AnimatedSection>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-100">
+            {services.map((s, i) => (
+              <AnimatedSection
+                key={s.slug}
+                delay={i * 60}
+                className={services.length % 2 === 1 && i === services.length - 1? 'md:col-span-2' : ''}
+              >
+                <Link href={`/services#${s.slug}`} className="bg-white flex flex-col hover:bg-cream transition-colors group block h-full">
+                  <div className="relative overflow-hidden h-44">
+                    <img
+                      src={SERVICE_IMAGES[s.slug]?? ''}
+                      alt={s.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-chm-black/10 group-hover:bg-chm-black/5 transition-colors" />
+                  </div>
+                  <div className="p-6 md:p-8 flex flex-col gap-2 flex-1">
+                    <div className="w-6 h-px bg-chm-red" />
+                    <h3 className="font-serif text-xl text-chm-black group-hover:text-chm-red transition-colors" style={{ fontFamily: 'var(--font-serif)' }}>
+                      {s.title}
+                    </h3>
+                    <p className="text-xs text-gray-400 uppercase tracking-widest">{s.subtitle}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed flex-1 font-light">{s.description}</p>
+                    <p className="text-chm-red font-semibold text-xs tracking-wide mt-1">{s.price_from}</p>
+                  </div>
+                </Link>
+              </AnimatedSection>
+            ))}
           </div>
-        </section>
-      )}
+
+          <AnimatedSection className="mt-6">
+            <Link href="/services" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
+              View Full Pricing →
+            </Link>
+          </AnimatedSection>
+        </div>
+      </section>
 
       {/* ── Why Choose Us - MOVED FROM DEALS ─────────────── */}
       <AnimatedSection>
@@ -435,44 +433,42 @@ export default async function HomePage() {
       </AnimatedSection>
 
       {/* ── Deals ────────────────────────────────────────── */}
-      {(
-        <section id="deals" className="bg-white py-14 md:py-20 relative overflow-hidden border-t border-gray-100">
-          <div className="absolute inset-0 pointer-events-none select-none">
-            <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
-          </div>
-          <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8">
-            <AnimatedSection>
-              <div className="mb-10">
-                <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Limited Time</p>
-                <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                  This Week&apos;s Deals
-                </h2>
-                <div className="w-10 h-px bg-chm-red mt-4" />
-              </div>
-            </AnimatedSection>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200">
-              {deals.map((d, i) => (
-                <AnimatedSection key={d.badge} delay={i * 60}>
-                  <div className="bg-white p-6 hover:bg-blush transition-colors h-full">
-                    <p className="text-chm-red font-semibold text-xs uppercase tracking-widest mb-3">{d.badge}</p>
-                    <p className="font-serif text-chm-black text-base mb-2 leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>
-                      {d.headline}
-                    </p>
-                    <p className="text-gray-500 text-xs leading-relaxed font-light">{d.detail}</p>
-                  </div>
-                </AnimatedSection>
-              ))}
+      <section id="deals" className="bg-white py-14 md:py-20 relative overflow-hidden border-t border-gray-100">
+        <div className="absolute inset-0 pointer-events-none select-none">
+          <LeafSVG className="absolute -right-6 top-[-5%] w-[260px] h-[260px] text-chm-red opacity-[0.20] rotate-6" />
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8">
+          <AnimatedSection>
+            <div className="mb-10">
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Limited Time</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                This Week&apos;s Deals
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
             </div>
+          </AnimatedSection>
 
-            <AnimatedSection className="mt-6">
-              <Link href="/deals" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
-                View All Deals →
-              </Link>
-            </AnimatedSection>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200">
+            {deals.map((d, i) => (
+              <AnimatedSection key={d.badge} delay={i * 60}>
+                <div className="bg-white p-6 hover:bg-blush transition-colors h-full">
+                  <p className="text-chm-red font-semibold text-xs uppercase tracking-widest mb-3">{d.badge}</p>
+                  <p className="font-serif text-chm-black text-base mb-2 leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>
+                    {d.headline}
+                  </p>
+                  <p className="text-gray-500 text-xs leading-relaxed font-light">{d.detail}</p>
+                </div>
+              </AnimatedSection>
+            ))}
           </div>
-        </section>
-      )}
+
+          <AnimatedSection className="mt-6">
+            <Link href="/deals" className="inline-block text-chm-red text-xs font-semibold uppercase tracking-[0.25em] hover:underline underline-offset-4">
+              View All Deals →
+            </Link>
+          </AnimatedSection>
+        </div>
+      </section>
 
       {/* ── Testimonials ─────────────────────────────────── */}
       {reviews && reviews.length > 0 && (
@@ -525,3 +521,7 @@ export default async function HomePage() {
             <div className="mb-10">
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Policies</p>
               <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                Payment & Billing
+              </h2>
+              <div className="w-10 h-px bg-chm-red mt-4" />
+            </div
