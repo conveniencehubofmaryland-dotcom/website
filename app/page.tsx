@@ -241,7 +241,7 @@ export default async function HomePage() {
             { href: '/services', label: 'Full Pricing' },
             { href: '#contact', label: 'Contact' },
           ].map(({ href, label }) => (
-            <a
+            
               key={href}
               href={href}
               className="shrink-0 text-gray-400 hover:text-white text-xs uppercase tracking-widest font-semibold px-5 py-3.5 border-r border-white/10 hover:bg-white/5 transition-colors"
@@ -249,7 +249,7 @@ export default async function HomePage() {
               {label}
             </a>
           ))}
-          <a
+          
             href="https://wa.me/12025792944"
             className="shrink-0 ml-auto text-chm-red text-xs uppercase tracking-widest font-semibold px-5 py-3.5 hover:text-white transition-colors"
           >
@@ -508,18 +508,31 @@ export default async function HomePage() {
       <AnimatedSection>
         <section id="contact" className="bg-white py-14 md:py-20 border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-6 sm:px-8">
-            <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Get In Touch</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Contact Us
+            <div className="mb-12 text-center">
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
+                Ready to Book?
               </h2>
-              <div className="w-10 h-px bg-chm-red mt-4" />
+              <p className="text-gray-600 text-lg">Get in Touch</p>
+              <p className="text-gray-500 text-sm mt-2">Mon – Sat · 9 AM – 9 PM</p>
             </div>
-            <div className="grid sm:grid-cols-3 gap-8">
-              <div className="text-center">
-                <p className="text-chm-red font-semibold text-sm mb-2">Call</p>
-                <a href="tel:+12025792944" className="text-chm-black hover:text-chm-red transition-colors">202-579-2944</a>
-              </div>
-              <div className="text-center">
-                <p className="text-chm-red font-semibold text-sm mb-2">WhatsApp</p>
-                <a href="https://wa.me/12025792944" className="text-chm-black hover:text-chm-red transition-colors">Message
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <a href="tel:+12025792944" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
+                Call
+              </a>
+              <a href="sms:+12025792944" className="border border-chm-red text-chm-red px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-50 transition-colors">
+                Text
+              </a>
+              <a href="https://wa.me/12025792944" className="border border-chm-red text-chm-red px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-50 transition-colors">
+                WhatsApp
+              </a>
+              <a href="mailto:conveniencehubofmaryland@gmail.com" className="border border-chm-red text-chm-red px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-50 transition-colors">
+                Email
+              </a>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+    </>
+  )
+}
