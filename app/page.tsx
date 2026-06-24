@@ -371,37 +371,37 @@ export default async function HomePage() {
       </AnimatedSection>
 
       {/* ── Guarantees & Promises - MOVED FROM DEALS ─────── */}
-      <AnimatedSection>
-        <section className="bg-white py-14 md:py-20 border-t border-gray-100">
-          <div className="max-w-6xl mx-auto px-6 sm:px-8">
-            <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Our Promise</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Guarantees & Promises
-              </h2>
-              <div className="w-10 h-px bg-chm-red mt-4" />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-6 text-sm text-gray-600">
-              <div className="bg-cream p-6">
-                <p className="font-semibold text-chm-black mb-2">Satisfaction Guarantee</p>
-                <p className="font-light">Not satisfied? Free re-do within 24 hours</p>
-              </div>
-              <div className="bg-cream p-6">
-                <p className="font-semibold text-chm-black mb-2">Quality Guarantee</p>
-                <p className="font-light">Staff background-checked, insured, professionally trained</p>
-              </div>
-              <div className="bg-cream p-6">
-                <p className="font-semibold text-chm-black mb-2">Price Lock Guarantee</p>
-                <p className="font-light">Recurring contracts lock price for 12 months</p>
-              </div>
-              <div className="bg-cream p-6">
-                <p className="font-semibold text-chm-black mb-2">Safety Guarantee</p>
-                <p className="font-light">Zero tolerance for unsafe practices</p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </AnimatedSection>
+<AnimatedSection>
+  <section className="bg-white py-14 md:py-20 border-t border-gray-100">
+    <div className="max-w-6xl mx-auto px-6 sm:px-8">
+      <div className="mb-10">
+        <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Our Promise</p>
+        <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+          Guarantees & Promises
+        </h2>
+        <div className="w-10 h-px bg-chm-red mt-4" />
+      </div>
+      <div className="grid sm:grid-cols-2 gap-8">
+        <div className="bg-cream p-6">
+          <p className="font-semibold text-chm-black mb-2">Satisfaction Guarantee</p>
+          <p className="font-light">Not satisfied? Free re-do within 24 hours</p>
+        </div>
+        <div className="bg-cream p-6">
+          <p className="font-semibold text-chm-black mb-2">Quality Guarantee</p>
+          <p className="font-light">Staff background-checked, insured, professionally trained</p>
+        </div>
+        <div className="bg-cream p-6">
+          <p className="font-semibold text-chm-black mb-2">Price Lock Guarantee</p>
+          <p className="font-light">Recurring contracts lock price for 12 months</p>
+        </div>
+        <div className="bg-cream p-6">
+          <p className="font-semibold text-chm-black mb-2">Safety Guarantee</p>
+          <p className="font-light">Zero tolerance for unsafe practices</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</AnimatedSection>
 
       {/* ── Service Areas - MOVED FROM DEALS ─────────────── */}
 <AnimatedSection>
