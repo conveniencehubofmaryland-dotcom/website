@@ -241,7 +241,7 @@ export default async function HomePage() {
             { href: '/services', label: 'Full Pricing' },
             { href: '#contact', label: 'Contact' },
           ].map(({ href, label }) => (
-            
+            <a
               key={href}
               href={href}
               className="shrink-0 text-gray-400 hover:text-white text-xs uppercase tracking-widest font-semibold px-5 py-3.5 border-r border-white/10 hover:bg-white/5 transition-colors"
@@ -249,7 +249,7 @@ export default async function HomePage() {
               {label}
             </a>
           ))}
-          
+          <a
             href="https://wa.me/12025792944"
             className="shrink-0 ml-auto text-chm-red text-xs uppercase tracking-widest font-semibold px-5 py-3.5 hover:text-white transition-colors"
           >
@@ -515,7 +515,7 @@ export default async function HomePage() {
               <p className="text-gray-600 text-lg">Get in Touch</p>
               <p className="text-gray-500 text-sm mt-2">Mon – Sat · 9 AM – 9 PM</p>
             </div>
-            
+
             <div className="flex flex-wrap justify-center gap-4">
               <a href="tel:+12025792944" className="bg-chm-red text-white px-8 py-3 font-semibold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors">
                 Call
