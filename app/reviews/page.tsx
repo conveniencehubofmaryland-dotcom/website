@@ -16,6 +16,19 @@ export const metadata: Metadata = {
   },
 }
 
+const serviceOptions = [
+  'Standard Cleaning',
+  'Deep Cleaning', 
+  'Laundry & Linen',
+  'Meal Prep',
+  'Home Care',
+  'Childcare',
+  'Senior Care',
+  'Organization',
+  'Care Companion',
+  'Other'
+]
+
 export default async function ReviewsPage() {
   const reviews = await dbSelect<Review>('reviews', { 
     approved: 'eq.true', 
@@ -93,7 +106,7 @@ export default async function ReviewsPage() {
             <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
               Leave a Review
             </h2>
-            <ReviewForm />
+            <ReviewForm services={serviceOptions} />
           </div>
         </AnimatedSection>
 
