@@ -404,33 +404,34 @@ export default async function HomePage() {
       </AnimatedSection>
 
       {/* ── Service Areas - MOVED FROM DEALS ─────────────── */}
-      <AnimatedSection>
-        <section className="bg-cream py-14 md:py-20">
-          <div className="max-w-6xl mx-auto px-6 sm:px-8">
-            <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Service Areas
-              </h2>
-              <div className="w-10 h-px bg-chm-red mt-4" />
-            </div>
-            <div className="grid sm:grid-cols-3 gap-8 text-sm text-gray-600">
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-semibold text-chm-black mb-3 text-base">Maryland</p>
-                <p className="font-light leading-relaxed">Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
-              </div>
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-semibold text-chm-black mb-3 text-base">Virginia</p>
-                <p className="font-light leading-relaxed">McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
-              </div>
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
-                <p className="font-light leading-relaxed">All neighborhoods</p>
-              </div>
-            <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
-          </div>
-        </section>
-      </AnimatedSection>
+<AnimatedSection>
+  <section className="bg-cream py-14 md:py-20">
+    <div className="max-w-6xl mx-auto px-6 sm:px-8">
+      <div className="mb-10">
+        <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
+        <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+          Service Areas
+        </h2>
+        <div className="w-10 h-px bg-chm-red mt-4" />
+      </div>
+      <div className="grid sm:grid-cols-3 gap-8 text-sm text-gray-600">
+        <div className="bg-white p-6 border border-gray-100">
+          <p className="font-semibold text-chm-black mb-3 text-base">Maryland</p>
+          <p className="font-light leading-relaxed">Bethesda, Chevy Chase, Potomac, Gaithersburg, Rockville, Hyattsville, Camp Springs, Laurel, Bowie, Columbia, and surrounding areas</p>
+        </div>
+        <div className="bg-white p-6 border border-gray-100">
+          <p className="font-semibold text-chm-black mb-3 text-base">Virginia</p>
+          <p className="font-light leading-relaxed">McLean, Arlington, Falls Church, Fairfax, Ashburn and surrounding areas</p>
+        </div>
+        <div className="bg-white p-6 border border-gray-100">
+          <p className="font-semibold text-chm-black mb-3 text-base">Washington DC</p>
+          <p className="font-light leading-relaxed">All neighborhoods</p>
+        </div>
+      </div>
+      <p className="text-xs text-gray-500 mt-6 text-center">Service Radius: We cover all areas</p>
+    </div>
+  </section>
+</AnimatedSection>
 
       {/* ── Deals ────────────────────────────────────────── */}
       <section id="deals" className="bg-white py-14 md:py-20 relative overflow-hidden border-t border-gray-100">
