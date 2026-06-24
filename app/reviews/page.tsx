@@ -1,27 +1,27 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import type { Review, Service } from '@/lib/types'
+import type { Review } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import ReviewForm from '@/components/ReviewForm'
+import SuccessStories from '@/components/SuccessStories'
+
 export const dynamic = 'force-dynamic'
 
-
 export const metadata: Metadata = {
-  title: 'Customer Reviews',
-  description:
-    'Read reviews from real customers of Convenience Hub of Maryland — professional cleaning, laundry, culinary, and care services in the DMV.',
+  title: 'Customer Reviews | Convenience Hub of Maryland',
+  description: 'Read real reviews from Maryland, Virginia & DC customers. 5-star rated cleaning, laundry, culinary, and care services.',
+  alternates: {
+    canonical: 'https://www.conveniencehubofmaryland.com/reviews',
+  },
 }
 
 export default async function ReviewsPage() {
-  const [reviews, services] = await Promise.all([
-    dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc' }),
-    dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,title' }),
-  ])
-
-  const avg = reviews.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : null
+  const reviews = await dbSelect<Review>('reviews', { 
+    approved: 'eq.true', 
+    order: 'created_at.desc',
+    select: 'id,customer_name,rating,body,service_mentioned,created_at'
+  })
 
   return (
     <div className="bg-white">
@@ -33,74 +33,86 @@ export default async function ReviewsPage() {
             Customer Reviews
           </h1>
           <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
-          {avg ? (
-            <div className="flex items-center gap-3">
-              <span className="text-amber-400 text-lg leading-none">{'★'.repeat(Math.round(Number(avg)))}</span>
-              <span className="text-chm-black font-semibold">{avg}</span>
-              <span className="text-gray-400 text-sm">/ 5 &nbsp;·&nbsp; {reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
-            </div>
-          ) : (
-            <p className="text-gray-400 max-w-xl text-sm leading-relaxed font-light">
-              Be the first to share your experience.
-            </p>
-          )}
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400 text-xl leading-none">★★★★★</span>
+            <span className="text-chm-black/70 text-sm font-medium">5.0 Average Rating</span>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+      {/* Success Stories - Moved from Home */}
+      <SuccessStories />
 
-        {/* Review grid */}
-        {reviews.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
-            {reviews.map((r, i) => (
-              <AnimatedSection key={r.id} delay={i * 50}>
-                <div className="bg-white p-8 hover:bg-cream transition-colors h-full flex flex-col gap-4">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <span key={j} className={j < r.rating ? 'text-amber-400' : 'text-gray-200'}>★</span>
-                    ))}
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+        
+        {/* Reviews Grid */}
+        {reviews && reviews.length > 0 ? (
+          <div className="space-y-8">
+            <AnimatedSection>
+              <h2 className="font-serif text-3xl md:text-4xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                What Our Customers Say
+              </h2>
+              <div className="w-12 h-px bg-chm-red mt-4" />
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
+              {reviews.map((review, i) => (
+                <AnimatedSection key={review.id} delay={i * 60}>
+                  <div className="bg-white p-8 hover:bg-blush transition-colors h-full flex flex-col gap-4">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <span key={j} className={j < review.rating ? 'text-amber-400' : 'text-gray-200'}>★</span>
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed flex-1 font-light">
+                      &ldquo;{review.body}&rdquo;
+                    </p>
+                    <div>
+                      <p className="text-chm-black font-semibold text-sm">{review.customer_name}</p>
+                      {review.service_mentioned && (
+                        <p className="text-chm-red text-xs uppercase tracking-widest mt-0.5">{review.service_mentioned}</p>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed flex-1 font-light">&ldquo;{r.body}&rdquo;</p>
-                  <div>
-                    <p className="text-chm-black font-semibold text-sm">{r.customer_name}</p>
-                    {r.service_mentioned && (
-                      <p className="text-chm-red text-xs uppercase tracking-widest mt-0.5">{r.service_mentioned}</p>
-                    )}
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
+        ) : (
+          <AnimatedSection>
+            <div className="text-center py-12">
+              <p className="text-gray-500">No reviews yet. Be the first to share your experience!</p>
+            </div>
+          </AnimatedSection>
         )}
 
-        {/* Submit form */}
+        {/* Leave a Review Form */}
         <AnimatedSection>
-          <div className="border-t border-chm-red/20 pt-14">
+          <div className="bg-cream p-8 md:p-10">
             <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Share Your Experience</p>
-            <h2 className="font-serif text-3xl text-chm-black mb-8" style={{ fontFamily: 'var(--font-serif)' }}>
+            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
               Leave a Review
             </h2>
-            <ReviewForm services={services.map(s => ({ id: s.id, title: s.title }))} />
+            <ReviewForm />
           </div>
         </AnimatedSection>
 
         {/* CTA */}
         <AnimatedSection>
-          <div className="border-t border-chm-red/20 pt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <p className="font-serif text-2xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Ready to experience it yourself?
-              </p>
-              <p className="text-gray-500 text-sm mt-1">Book a service today — Mon–Sat, 9 AM–9 PM.</p>
-            </div>
+          <div className="bg-chm-black text-white p-10 text-center">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-3">Ready to Experience CHM?</p>
+            <p className="font-serif text-3xl text-white mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              Book Your First Service
+            </p>
             <Link
               href="/book"
-              className="bg-chm-red text-white px-8 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
+              className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
             >
-              Book Now
+              Get Started
             </Link>
           </div>
         </AnimatedSection>
+
       </div>
     </div>
   )
