@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 }
 
 const serviceOptions = [
-  'Standard Cleaning',
-  'Deep Cleaning', 
-  'Laundry & Linen',
-  'Meal Prep',
-  'Home Care',
-  'Childcare',
-  'Senior Care',
-  'Organization',
-  'Care Companion',
-  'Other'
+  { id: 'standard-cleaning', title: 'Standard Cleaning' },
+  { id: 'deep-cleaning', title: 'Deep Cleaning' },
+  { id: 'laundry-linen', title: 'Laundry & Linen' },
+  { id: 'meal-prep', title: 'Meal Prep' },
+  { id: 'home-care', title: 'Home Care' },
+  { id: 'childcare', title: 'Childcare' },
+  { id: 'senior-care', title: 'Senior Care' },
+  { id: 'organization', title: 'Organization' },
+  { id: 'care-companion', title: 'Care Companion' },
+  { id: 'other', title: 'Other' }
 ]
 
 export default async function ReviewsPage() {
