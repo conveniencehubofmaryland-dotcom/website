@@ -55,6 +55,29 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
           </table>
         </div>
 
+        {/* Requirements */}
+        <div>
+          <p className="text-xs uppercase tracking-widest text-gray-500 mb-3">Requirements</p>
+          <table className="text-sm w-full">
+            <tbody>
+              {app.has_license && <Row label="Active License" value={app.has_license === 'yes' ? '✓ Yes' : '✗ No'} />}
+              {app.has_insured_car && <Row label="Insured Car" value={app.has_insured_car === 'yes' ? '✓ Yes' : '✗ No'} />}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Resume */}
+        {app.resume_url && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-gray-500 mb-3">Resume</p>
+            <a href={app.resume_url} target="_blank" rel="noopener noreferrer"
+              className="text-chm-red hover:underline text-sm flex items-center gap-2">
+              📄 View Resume
+              <span className="text-gray-400 text-xs">(opens in new tab)</span>
+            </a>
+          </div>
+        )}
+
         {/* Availability */}
         <div>
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-3">Availability</p>
