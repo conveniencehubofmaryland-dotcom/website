@@ -52,12 +52,12 @@ export async function POST(req: NextRequest) {
         const filename = `resumes/${timestamp}_${name.replace(/\s+/g, '_')}.${ext}`
 
         const arrayBuffer = await resumeFile.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
+        const uint8Array = new Uint8Array(arrayBuffer)
 
         // Upload to Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('job-applications')
-          .upload(filename, buffer, {
+          .upload(filename, uint8Array, {
             contentType: resumeFile.type,
             upsert: false,
           })
@@ -141,7 +141,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('[careers] error:', err)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    console.error('[careers] error:', errorMsg, err)
+    return NextResponse.json({ 
+      error: 'Server error',
+      details: errorMsg 
+    }, { status: 500 })
   }
 }
