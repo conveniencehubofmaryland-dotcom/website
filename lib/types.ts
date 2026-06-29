@@ -118,10 +118,13 @@ export type JobApplication = {
   city: string | null
   state: string
   gender: string | null
+  has_license: string | null
+  has_insured_car: string | null
   positions: string[] | null
   days: string[] | null
   hours: string | null
   experience: string | null
+  resume_url: string | null
   status: 'new' | 'reviewed' | 'contacted' | 'hired' | 'rejected'
   created_at: string
 }
