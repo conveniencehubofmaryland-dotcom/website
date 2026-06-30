@@ -5,6 +5,7 @@ import { dbInsert } from '@/lib/db'
 const VALID_STATES = ['MD', 'VA', 'DC']
 
 export async function POST(req: NextRequest) {
+  console.log('[careers] POST request received')
   try {
     const formData = await req.formData()
     
