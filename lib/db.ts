@@ -1,192 +1,83 @@
-/**
- * Lightweight Supabase REST client using fetch.
- * Replaces @supabase/supabase-js for reads to keep edge bundle under 3 MB.
- */
+import { createClient } from '@supabase/supabase-js'
 
-const URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const KEY  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-const headers = {
-  apikey: KEY,
-  Authorization: `Bearer ${KEY}`,
-  'Content-Type': 'application/json',
-}
-
-function getServiceHeaders() {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const hasServiceKey = Boolean(serviceKey)
-  console.log('[db] SUPABASE_SERVICE_ROLE_KEY present:', hasServiceKey)
-  if (!serviceKey) return null
-  return {
-    apikey: serviceKey,
-    Authorization: `Bearer ${serviceKey}`,
-    'Content-Type': 'application/json',
-  }
-}
-
-export async function dbSelect<T>(
+export async function dbInsert<T extends Record<string, any>>(
   table: string,
-  params: Record<string, string> = {}
-): Promise<T[]> {
-  if (!URL || !KEY) return []
+  data: T
+): Promise<{ data: any; error: any }> {
   try {
-    const qs = new URLSearchParams(params).toString()
-    const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, { headers })
-    if (!res.ok) return []
-    return res.json() as Promise<T[]>
-  } catch {
-    return []
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const { data: result, error } = await supabase
+      .from(table)
+      .insert([data])
+      .select()
+    return { data: result, error }
+  } catch (err) {
+    return { data: null, error: err }
   }
 }
 
 export async function dbSelectAuth<T>(
   table: string,
   token: string,
-  params: Record<string, string> = {}
+  filters?: Record<string, string>
 ): Promise<T[]> {
-  if (!token || !URL || !KEY) return []
   try {
-    const qs  = new URLSearchParams(params).toString()
-    const res = await fetch(`${URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, {
-      headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
-    if (!res.ok) return []
-    return res.json() as Promise<T[]>
-  } catch {
+    let query = supabase.from(table).select('*')
+    
+    if (filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        query = query.filter(key, value)
+      }
+    }
+    
+    const { data, error } = await query
+    if (error) throw error
+    return data as T[]
+  } catch (err) {
+    console.error(`[db] select error on ${table}:`, err)
     return []
   }
 }
 
-export async function dbPatchAuth(
+export async function dbUpdate<T extends Record<string, any>>(
   table: string,
   id: string,
-  patch: Record<string, unknown>,
-  token: string
-): Promise<{ error: string | null }> {
-  if (!token) return { error: 'Unauthorized' }
-  const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    headers: {
-      apikey: KEY,
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=minimal',
-    },
-    body: JSON.stringify(patch),
-  })
-  if (!res.ok) {
-    const body = await res.text()
-    return { error: body }
-  }
-  return { error: null }
-}
-
-export async function dbInsertAuth(
-  table: string,
-  row: Record<string, unknown>,
-  token: string
-): Promise<{ error: string | null }> {
-  if (!URL || !KEY) return { error: 'Database not configured' }
-  if (!token) return { error: 'Unauthorized' }
+  data: Partial<T>
+): Promise<{ data: any; error: any }> {
   try {
-    const res = await fetch(`${URL}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: {
-        apikey: KEY,
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify(row),
-    })
-    if (!res.ok) {
-      const body = await res.text()
-      return { error: body }
-    }
-    return { error: null }
-  } catch {
-    return { error: 'Failed to connect to database' }
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const { data: result, error } = await supabase
+      .from(table)
+      .update(data)
+      .eq('id', id)
+      .select()
+    return { data: result, error }
+  } catch (err) {
+    return { data: null, error: err }
   }
 }
 
-export async function dbInsertService(
-  table: string,
-  row: Record<string, unknown>
-): Promise<{ error: string | null }> {
-  const serviceHeaders = getServiceHeaders()
-  if (!URL || !serviceHeaders) return { error: 'Database not configured' }
-  try {
-    const res = await fetch(`${URL}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: {
-        ...serviceHeaders,
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify(row),
-    })
-    if (!res.ok) {
-      const body = await res.text()
-      return { error: body }
-    }
-    return { error: null }
-  } catch {
-    return { error: 'Failed to connect to database' }
-  }
-}
-
-export async function dbDeleteAuth(
-  table: string,
-  id: string,
-  token: string
-): Promise<{ error: string | null }> {
-  if (!URL || !KEY) return { error: 'Database not configured' }
-  if (!token) return { error: 'Unauthorized' }
-  const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    headers: {
-      apikey: KEY,
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
-  if (!res.ok) {
-    const body = await res.text()
-    return { error: body }
-  }
-  return { error: null }
-}
-
-export async function dbDeleteService(
+export async function dbDelete(
   table: string,
   id: string
-): Promise<{ error: string | null }> {
-  const serviceHeaders = getServiceHeaders()
-  if (!URL || !serviceHeaders) return { error: 'Database not configured' }
-  const res = await fetch(`${URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    headers: serviceHeaders,
-  })
-  if (!res.ok) {
-    const body = await res.text()
-    return { error: body }
-  }
-  return { error: null }
-}
-
-export async function dbInsert(table: string, row: Record<string, unknown>): Promise<{ error: string | null }> {
-  if (!URL || !KEY) return { error: 'Database not configured' }
+): Promise<{ error: any }> {
   try {
-    const res = await fetch(`${URL}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: { ...headers, Prefer: 'return=minimal' },
-      body: JSON.stringify(row),
-    })
-    if (!res.ok) {
-      const body = await res.text()
-      return { error: body }
-    }
-    return { error: null }
-  } catch {
-    return { error: 'Failed to connect to database' }
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq('id', id)
+    return { error }
+  } catch (err) {
+    return { error: err }
   }
 }
