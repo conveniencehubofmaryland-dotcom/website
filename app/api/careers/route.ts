@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { dbInsert } from '@/lib/db'
+import { dbInsertService } from '@/lib/db'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
@@ -78,8 +78,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Insert into database
-    const { error: dbError } = await dbInsert('job_applications', {
+    // Insert into database using service role key
+    const { error: dbError } = await dbInsertService('job_applications', {
       name: name.trim(),
       phone: phone.trim(),
       email: email.trim(),
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     if (dbError) {
       console.error('[careers] db error:', dbError)
-      return NextResponse.json({ error: 'Failed to save application' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save application', details: dbError }, { status: 500 })
     }
 
     // Send email notification
