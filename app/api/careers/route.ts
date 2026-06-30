@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
     })
 
     if (dbError) {
+      console.error('[careers] Database error:', JSON.stringify(dbError, null, 2))
+      console.error('[careers] Service key available:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
       return NextResponse.json({ error: 'Failed to save', details: String(dbError) }, { status: 500 })
     }
 
@@ -48,7 +50,23 @@ export async function POST(req: NextRequest) {
             from: 'CHM Careers <support@conveniencehubofmaryland.com>',
             to: ['conveniencehubofmaryland@gmail.com'],
             subject: `New Job Application — ${name.trim()}`,
-            html: `<h2>New Application from ${name.trim()}</h2>`,
+            html: `<h2 style="color:#E8192C">New Job Application</h2>
+<table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">
+<tr><td style="padding:8px 16px 8px 0;color:#666;font-weight:600">Name</td><td style="padding:8px 0;font-weight:600">${name.trim()}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Phone</td><td style="padding:8px 0"><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Email</td><td style="padding:8px 0"><a href="mailto:${email.trim()}">${email.trim()}</a></td></tr>
+${address?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">Address</td><td style="padding:8px 0">${address.trim()}</td></tr>` : ''}
+${city?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">City</td><td style="padding:8px 0">${city.trim()}</td></tr>` : ''}
+<tr><td style="padding:8px 16px 8px 0;color:#666">State</td><td style="padding:8px 0">${state}</td></tr>
+${gender?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">Gender</td><td style="padding:8px 0">${gender.trim()}</td></tr>` : ''}
+<tr><td style="padding:8px 16px 8px 0;color:#666">Active License</td><td style="padding:8px 0">${has_license === 'yes' ? '✓ Yes' : has_license === 'no' ? '✗ No' : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Insured Car</td><td style="padding:8px 0">${has_insured_car === 'yes' ? '✓ Yes' : has_insured_car === 'no' ? '✗ No' : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Positions</td><td style="padding:8px 0">${Array.isArray(positions) && positions.length ? positions.join(', ') : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Available Days</td><td style="padding:8px 0">${Array.isArray(days) && days.length ? days.join(', ') : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Available Hours</td><td style="padding:8px 0">${hours || '—'}</td></tr>
+${experience?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666;vertical-align:top">Experience</td><td style="padding:8px 0">${experience.trim()}</td></tr>` : ''}
+</table>
+<p style="margin-top:20px;font-size:12px;color:#999"><a href="https://conveniencehubofmaryland.com/admin/careers/applications" style="color:#E8192C">View in Admin Panel</a></p>`,
           }),
         })
       } catch (err) {
