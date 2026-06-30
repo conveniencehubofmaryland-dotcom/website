@@ -1,4 +1,3 @@
-cat > app/api/careers/route.ts << 'EOF'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 
@@ -49,7 +48,7 @@ export async function POST(req: NextRequest) {
             from: 'CHM Careers <support@conveniencehubofmaryland.com>',
             to: ['conveniencehubofmaryland@gmail.com'],
             subject: `New Job Application — ${name.trim()}`,
-            html: `<h2 style="color:#E8192C">New Application</h2><p>${name.trim()} (${phone.trim()}, ${email.trim()})</p>`,
+            html: `<h2>New Application from ${name.trim()}</h2>`,
           }),
         })
       } catch (err) {
@@ -64,4 +63,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Server error', details: msg }, { status: 500 })
   }
 }
-EOF
