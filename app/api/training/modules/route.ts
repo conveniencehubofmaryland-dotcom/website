@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { dbSelect, dbInsertService } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
 import type { TrainingModule } from '@/lib/types'
 
 export async function GET(req: NextRequest) {
@@ -8,21 +8,39 @@ export async function GET(req: NextRequest) {
     const position = url.searchParams.get('position')
     const moduleId = url.searchParams.get('id')
 
-    console.log('[training/modules GET] position:', position, 'id:', moduleId)
+    console.log('[training/modules] position:', position)
 
-    const params: Record<string, string> = {}
-    if (position) params.position = `eq.${position}`
-    if (moduleId) params.id = `eq.${moduleId}`
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    console.log('[training/modules GET] params:', params)
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+    }
 
-    const modules = await dbSelect<TrainingModule>('training_modules', params)
-    console.log('[training/modules GET] result count:', modules?.length, 'data:', modules)
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-    return NextResponse.json(modules)
+    let query = supabase.from('training_modules').select('*')
+
+    if (position) {
+      query = query.eq('position', position)
+    }
+
+    if (moduleId) {
+      query = query.eq('id', moduleId)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('[training/modules] error:', error)
+      return NextResponse.json({ error: 'Failed to fetch', details: error.message }, { status: 500 })
+    }
+
+    console.log('[training/modules] found:', data?.length)
+    return NextResponse.json(data || [])
   } catch (err) {
-    console.error('[training/modules] GET error:', err)
-    return NextResponse.json({ error: 'Failed to fetch modules', details: String(err) }, { status: 500 })
+    console.error('[training/modules] catch error:', err)
+    return NextResponse.json({ error: 'Server error', details: String(err) }, { status: 500 })
   }
 }
 
@@ -31,30 +49,33 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { title, description, position, content, quiz_questions } = body
 
-    console.log('[training/modules POST] received:', { title, position })
-
     if (!title?.trim() || !position?.trim()) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { error: dbError } = await dbInsertService('training_modules', {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceKey) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, serviceKey)
+
+    const { error } = await supabase.from('training_modules').insert([{
       title: title.trim(),
       description: description?.trim() || null,
       position: position.trim(),
       content: content || null,
       quiz_questions: Array.isArray(quiz_questions) ? quiz_questions : [],
-    })
+    }])
 
-    if (dbError) {
-      console.error('[training/modules] POST error:', dbError)
-      return NextResponse.json({ error: 'Failed to create module', details: String(dbError) }, { status: 500 })
+    if (error) {
+      return NextResponse.json({ error: 'Failed to create', details: error.message }, { status: 500 })
     }
 
-    console.log('[training/modules POST] success')
     return NextResponse.json({ success: true })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[training/modules] error:', msg)
-    return NextResponse.json({ error: 'Server error', details: msg }, { status: 500 })
+    return NextResponse.json({ error: 'Server error', details: String(err) }, { status: 500 })
   }
 }
