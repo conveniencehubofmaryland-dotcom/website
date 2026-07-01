@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const position = url.searchParams.get('position')
     const moduleId = url.searchParams.get('id')
 
-    let params: Record<string, string> = {}
+    const params: Record<string, string> = {}
     if (position) params.position = `eq.${position}`
     if (moduleId) params.id = `eq.${moduleId}`
 
