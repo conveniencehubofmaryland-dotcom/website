@@ -8,7 +8,8 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   params: Promise<{ id: string }>
   searchParams: Promise<{ name?: string; phone?: string }>
 }) {
-const [module, setModule] = useState<TrainingModule | null>(null)
+  const [paramId, setParamId] = useState('')
+  const [module, setModule] = useState<TrainingModule | null>(null)
   const [staffName, setStaffName] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
@@ -22,6 +23,7 @@ const [module, setModule] = useState<TrainingModule | null>(null)
     async function init() {
       const p = await params
       const sp = await searchParams
+      setParamId(p.id)
       setStaffName(sp.name || '')
       setStaffPhone(sp.phone || '')
       await fetchModule(p.id)
@@ -61,6 +63,7 @@ const [module, setModule] = useState<TrainingModule | null>(null)
     setScore(calculatedScore)
     setSubmitted(true)
 
+    // Save progress
     if (staffName && staffPhone) {
       try {
         await fetch('/api/training/progress', {
@@ -90,6 +93,7 @@ const [module, setModule] = useState<TrainingModule | null>(null)
 
   return (
     <div className="bg-white min-h-screen">
+      {/* Header */}
       <div className="bg-cream py-8 border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <Link href="/staff/training-modules" className="text-xs text-gray-400 hover:text-chm-red uppercase tracking-widest mb-4 inline-block">
@@ -105,6 +109,7 @@ const [module, setModule] = useState<TrainingModule | null>(null)
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12">
         {!showQuiz && !submitted && (
           <div>
+            {/* Module Content */}
             <div className="prose max-w-none mb-12">
               <div className="bg-gray-50 border border-gray-200 p-8 rounded">
                 <h2 className="text-2xl font-semibold text-chm-black mb-4">Module Content</h2>
@@ -114,6 +119,7 @@ const [module, setModule] = useState<TrainingModule | null>(null)
               </div>
             </div>
 
+            {/* Start Quiz Button */}
             <button
               onClick={() => setShowQuiz(true)}
               className="bg-chm-red text-white px-10 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
