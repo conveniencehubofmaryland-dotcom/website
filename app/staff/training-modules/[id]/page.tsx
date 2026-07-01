@@ -113,9 +113,33 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
             <div className="prose max-w-none mb-12">
               <div className="bg-gray-50 border border-gray-200 p-8 rounded">
                 <h2 className="text-2xl font-semibold text-chm-black mb-4">Module Content</h2>
-                <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {module.content || 'No content available'}
-                </div>
+                <div className="text-gray-600 leading-relaxed space-y-4">
+  {module.content ? (
+    <>
+      {module.content.split('. ').map((sentence, idx) => {
+        const isHeader = sentence.includes('OVERVIEW') || 
+                        sentence.includes('PLANNING') || 
+                        sentence.includes('PROCEDURES') ||
+                        sentence.includes('STANDARDS') ||
+                        sentence.includes('CONDUCT') ||
+                        sentence.includes('PROTOCOLS') ||
+                        sentence.includes('MANAGEMENT') ||
+                        sentence.includes('EQUIPMENT') ||
+                        sentence.includes('REQUIREMENTS') ||
+                        sentence.includes('SCOPE') ||
+                        sentence.includes('CERTIFICATION')
+        
+        return (
+          <p key={idx} className={isHeader ? 'font-semibold text-chm-black mt-6 mb-3' : ''}>
+            {sentence.trim()}{sentence.trim() && '.'}
+          </p>
+        )
+      })}
+    </>
+  ) : (
+    'No content available'
+  )}
+</div>
               </div>
             </div>
 
