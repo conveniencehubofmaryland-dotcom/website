@@ -141,3 +141,31 @@ export type Product = {
   created_at: string
   updated_at: string
 }
+export type TrainingModule = {
+  id: string
+  title: string
+  description: string
+  position: string
+  content: string
+  quiz_questions: QuizQuestion[]
+  created_at: string
+}
+
+export type QuizQuestion = {
+  id: string
+  question: string
+  options: string[]
+  correct_answer: string
+}
+
+export type StaffModuleProgress = {
+  id: string
+  staff_name: string
+  staff_phone: string
+  position: string
+  module_id: string
+  status: 'in_progress' | 'completed' | 'failed'
+  quiz_score: number | null
+  completed_at: string | null
+  created_at: string
+}
