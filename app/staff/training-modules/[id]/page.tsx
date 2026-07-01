@@ -8,8 +8,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   params: Promise<{ id: string }>
   searchParams: Promise<{ name?: string; phone?: string }>
 }) {
-  const [paramId, setParamId] = useState('')
-  const [module, setModule] = useState<TrainingModule | null>(null)
+const [module, setModule] = useState<TrainingModule | null>(null)
   const [staffName, setStaffName] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
@@ -23,7 +22,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     async function init() {
       const p = await params
       const sp = await searchParams
-      setParamId(p.id)
       setStaffName(sp.name || '')
       setStaffPhone(sp.phone || '')
       await fetchModule(p.id)
