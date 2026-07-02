@@ -9,6 +9,7 @@ export default function TrainingModulesPage() {
   const [selectedPosition, setSelectedPosition] = useState('')
   const [staffName, setStaffName] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
+  const [staffEmail, setStaffEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -66,29 +67,38 @@ export default function TrainingModulesPage() {
         {/* Staff Info Section */}
         <div className="bg-gray-50 border border-gray-200 p-8 mb-12">
           <h2 className="text-lg font-semibold text-chm-black mb-6">Your Information</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
-              <input
-                type="text"
-                value={staffName}
-                onChange={e => setStaffName(e.target.value)}
-                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone</label>
-              <input
-                type="tel"
-                value={staffPhone}
-                onChange={e => setStaffPhone(e.target.value)}
-                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-                placeholder="202-555-0100"
-              />
-            </div>
-          </div>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+  <div>
+    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
+    <input
+      type="text"
+      value={staffName}
+      onChange={e => setStaffName(e.target.value)}
+      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+      placeholder="Your name"
+    />
+  </div>
+  <div>
+    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+    <input
+      type="email"
+      value={staffEmail}
+      onChange={e => setStaffEmail(e.target.value)}
+      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+      placeholder="your@email.com"
+    />
+  </div>
+  <div>
+    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone</label>
+    <input
+      type="tel"
+      value={staffPhone}
+      onChange={e => setStaffPhone(e.target.value)}
+      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+      placeholder="202-555-0100"
+    />
+  </div>
+</div>
 
         {/* Position Selection */}
         <div className="mb-12">
@@ -133,7 +143,7 @@ export default function TrainingModulesPage() {
                       <Link
                         href={`/staff/training-modules/${module.id}?name=${encodeURIComponent(staffName)}&phone=${encodeURIComponent(staffPhone)}`}
                         className={`px-6 py-2 text-sm font-semibold uppercase tracking-widest whitespace-nowrap transition-colors ${
-                          staffName && staffPhone
+                          staffName && staffPhone && staffEmail
                             ? 'bg-chm-red text-white hover:bg-red-700'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }`}
