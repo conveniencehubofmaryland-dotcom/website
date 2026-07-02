@@ -22,11 +22,11 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   useEffect(() => {
     async function init() {
       const p = await params
-      const sp = await searchParams
-      setStaffName(sp.name || '')
-setStaffEmail(sp.email || '')
+const sp = await searchParams
+setStaffName(sp.name || '')
+setStaffEmail((sp.email as string) || '')
 setStaffPhone(sp.phone || '')
-      await fetchModule(p.id)
+await fetchModule(p.id)
     }
     init()
   }, [params, searchParams])
