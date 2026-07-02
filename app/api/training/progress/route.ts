@@ -23,21 +23,22 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { staff_name, staff_phone, position, module_id, quiz_score, status } = body
+    const { staff_name, staff_email, staff_phone, position, module_id, quiz_score, status } = body
 
-    if (!staff_name?.trim() || !staff_phone?.trim() || !module_id?.trim()) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
+if (!staff_name?.trim() || !staff_email?.trim() || !staff_phone?.trim() || !module_id?.trim()) {
+  return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+}
 
-    const { error: dbError } = await dbInsertService('staff_module_progress', {
-      staff_name: staff_name.trim(),
-      staff_phone: staff_phone.trim(),
-      position: position?.trim() || null,
-      module_id,
-      status: status || 'in_progress',
-      quiz_score: quiz_score || null,
-      completed_at: status === 'completed' ? new Date().toISOString() : null,
-    })
+const { error: dbError } = await dbInsertService('staff_module_progress', {
+  staff_name: staff_name.trim(),
+  staff_email: staff_email.trim(),
+  staff_phone: staff_phone.trim(),
+  position: position?.trim() || null,
+  module_id,
+  status: status || 'in_progress',
+  quiz_score: quiz_score || null,
+  completed_at: status === 'completed' ? new Date().toISOString() : null,
+})
 
     if (dbError) {
       console.error('[training/progress] POST error:', dbError)
