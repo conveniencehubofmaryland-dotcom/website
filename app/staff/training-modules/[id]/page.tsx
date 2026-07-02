@@ -11,6 +11,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const [paramId, setParamId] = useState('')
   const [module, setModule] = useState<TrainingModule | null>(null)
   const [staffName, setStaffName] = useState('')
+  const [staffEmail, setStaffEmail] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,6 +26,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       const sp = await searchParams
       setParamId(p.id)
       setStaffName(sp.name || '')
+      setStaffEmail(sp.email || '')
       setStaffPhone(sp.phone || '')
       await fetchModule(p.id)
     }
@@ -64,19 +66,20 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     setSubmitted(true)
 
     // Save progress
-    if (staffName && staffPhone) {
+    if (staffName && staffPhone && staffEmail) {
       try {
         await fetch('/api/training/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            staff_name: staffName,
-            staff_phone: staffPhone,
-            position: module.position,
-            module_id: module.id,
-            quiz_score: calculatedScore,
-            status: calculatedScore >= 80 ? 'completed' : 'failed',
-          }),
+         body: JSON.stringify({
+  staff_name: staffName,
+  staff_email: staffEmail,
+  staff_phone: staffPhone,
+  position: module.position,
+  module_id: module.id,
+  quiz_score: calculatedScore,
+  status: calculatedScore >= 80 ? 'completed' : 'failed',
+}),
         })
       } catch (err) {
         console.error('Error saving progress:', err)
