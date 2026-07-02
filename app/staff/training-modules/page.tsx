@@ -9,7 +9,6 @@ export default function TrainingModulesPage() {
   const [selectedPosition, setSelectedPosition] = useState('')
   const [staffName, setStaffName] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
-  const [staffEmail, setStaffEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -23,11 +22,8 @@ export default function TrainingModulesPage() {
   ]
 
   useEffect(() => {
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
     if (selectedPosition) {
+      console.log('[Training] Fetching modules for position:', selectedPosition)
       fetchModules(selectedPosition)
     }
   }, [selectedPosition])
@@ -35,11 +31,16 @@ export default function TrainingModulesPage() {
   async function fetchModules(position: string) {
     try {
       setLoading(true)
-      const res = await fetch(`/api/training/modules?position=${encodeURIComponent(position)}`)
+      const url = `/api/training/modules?position=${encodeURIComponent(position)}`
+      console.log('[Training] Fetching from:', url)
+      const res = await fetch(url)
+      console.log('[Training] Response status:', res.status)
       if (!res.ok) throw new Error('Failed to fetch modules')
       const data = await res.json()
+      console.log('[Training] Data received:', data)
       setModules(data || [])
     } catch (err) {
+      console.error('[Training] Error:', err)
       setError(err instanceof Error ? err.message : 'Error loading modules')
       setModules([])
     } finally {
@@ -67,38 +68,29 @@ export default function TrainingModulesPage() {
         {/* Staff Info Section */}
         <div className="bg-gray-50 border border-gray-200 p-8 mb-12">
           <h2 className="text-lg font-semibold text-chm-black mb-6">Your Information</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-  <div>
-    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
-    <input
-      type="text"
-      value={staffName}
-      onChange={e => setStaffName(e.target.value)}
-      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-      placeholder="Your name"
-    />
-  </div>
-  <div>
-    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
-    <input
-      type="email"
-      value={staffEmail}
-      onChange={e => setStaffEmail(e.target.value)}
-      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-      placeholder="your@email.com"
-    />
-  </div>
-  <div>
-    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone</label>
-    <input
-      type="tel"
-      value={staffPhone}
-      onChange={e => setStaffPhone(e.target.value)}
-      className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-      placeholder="202-555-0100"
-    />
-  </div>
-</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
+              <input
+                type="text"
+                value={staffName}
+                onChange={e => setStaffName(e.target.value)}
+                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+                placeholder="Your name"
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone</label>
+              <input
+                type="tel"
+                value={staffPhone}
+                onChange={e => setStaffPhone(e.target.value)}
+                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+                placeholder="202-555-0100"
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Position Selection */}
         <div className="mb-12">
@@ -143,7 +135,7 @@ export default function TrainingModulesPage() {
                       <Link
                         href={`/staff/training-modules/${module.id}?name=${encodeURIComponent(staffName)}&phone=${encodeURIComponent(staffPhone)}`}
                         className={`px-6 py-2 text-sm font-semibold uppercase tracking-widest whitespace-nowrap transition-colors ${
-                          staffName && staffPhone && staffEmail
+                          staffName && staffPhone
                             ? 'bg-chm-red text-white hover:bg-red-700'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }`}
