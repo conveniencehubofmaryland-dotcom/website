@@ -8,6 +8,7 @@ export default function TrainingModulesPage() {
   const [modules, setModules] = useState<TrainingModule[]>([])
   const [selectedPosition, setSelectedPosition] = useState('')
   const [staffName, setStaffName] = useState('')
+  const [staffEmail, setStaffEmail] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -15,11 +16,15 @@ export default function TrainingModulesPage() {
   const positions = [
     'Cleaning Specialist',
     'Laundry Handler',
-    'Culinary & Housekeeping Staff',
-    'Nanny / Childcare Staff',
-    'Care Companion (Adult)',
-    'Commercial Cleaner',
+    'Culinary / Chef',
+    'Nanny / Childcare Specialist',
+    'Care Companion (Adult/Senior)',
+    'Housekeeping Staff',
   ]
+
+  useEffect(() => {
+    setLoading(false)
+  }, [])
 
   useEffect(() => {
     if (selectedPosition) {
@@ -68,7 +73,7 @@ export default function TrainingModulesPage() {
         {/* Staff Info Section */}
         <div className="bg-gray-50 border border-gray-200 p-8 mb-12">
           <h2 className="text-lg font-semibold text-chm-black mb-6">Your Information</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
               <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
               <input
@@ -77,6 +82,16 @@ export default function TrainingModulesPage() {
                 onChange={e => setStaffName(e.target.value)}
                 className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
                 placeholder="Your name"
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+              <input
+                type="email"
+                value={staffEmail}
+                onChange={e => setStaffEmail(e.target.value)}
+                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+                placeholder="your@email.com"
               />
             </div>
             <div>
@@ -133,14 +148,14 @@ export default function TrainingModulesPage() {
                         <p className="text-xs text-gray-400">Position: {module.position}</p>
                       </div>
                       <Link
-                        href={`/staff/training-modules/${module.id}?name=${encodeURIComponent(staffName)}&phone=${encodeURIComponent(staffPhone)}`}
+                        href={`/staff/training-modules/${module.id}?name=${encodeURIComponent(staffName)}&email=${encodeURIComponent(staffEmail)}&phone=${encodeURIComponent(staffPhone)}`}
                         className={`px-6 py-2 text-sm font-semibold uppercase tracking-widest whitespace-nowrap transition-colors ${
-                          staffName && staffPhone
+                          staffName && staffEmail && staffPhone
                             ? 'bg-chm-red text-white hover:bg-red-700'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }`}
                         onClick={e => {
-                          if (!staffName || !staffPhone) {
+                          if (!staffName || !staffEmail || !staffPhone) {
                             e.preventDefault()
                           }
                         }}
