@@ -13,14 +13,14 @@ export default function TrainingModulesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const positions = [
-    'Cleaning Specialist',
-    'Laundry Handler',
-    'Culinary / Chef',
-    'Nanny / Childcare Specialist',
-    'Care Companion (Adult/Senior)',
-    'Housekeeping Staff',
-  ]
+ const positions = [
+  'Cleaning Specialist',
+  'Laundry Handler',
+  'Culinary / Chef',
+  'Nanny / Childcare Specialist',
+  'Care Companion (Adult/Senior)',
+  'Housekeeping Staff',
+]
 
   useEffect(() => {
     setLoading(false)
