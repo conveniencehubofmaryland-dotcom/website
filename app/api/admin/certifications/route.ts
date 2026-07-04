@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export async function GET() {
@@ -38,7 +38,7 @@ export async function GET() {
     }
 
     // Merge progress with module titles
-    const merged = progress.map((p: any) => {
+    const merged = progress.map((p: Record<string, any>) => {
       const moduleData = modules?.find(m => m.id === p.module_id)
       return {
         ...p,
