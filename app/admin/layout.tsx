@@ -10,6 +10,7 @@ const adminLinks = [
   { href: '/admin/products',     label: 'Products'     },
   { href: '/admin/members',     label: 'Members'      },
   { href: '/admin/modules',     label: 'Modules'     },
+  { href: '/admin/certifications',     label: 'Certifications'     },
   { href: '/admin/careers',     label: 'Careers'      },
 ]
 
