@@ -38,14 +38,14 @@ export async function GET() {
     }
 
     // Merge progress with module titles
-    const merged = progress.map((p: Record<string, any>) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const moduleData = modules?.find((m: any) => m.id === p.module_id)
-      return {
-        ...p,
-        module_title: moduleData?.title || 'Unknown Module',
-      }
-    })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const merged = (progress as any).map((p: Record<string, any>) => {
+  const moduleData = modules?.find((m: { id: string; title: string }) => m.id === p.module_id)
+  return {
+    ...p,
+    module_title: moduleData?.title || 'Unknown Module',
+  }
+})
 
     return NextResponse.json(merged)
   } catch (err) {
