@@ -10,7 +10,7 @@ if (!supabaseUrl || !serviceKey) {
 
 const supabase = createClient(supabaseUrl, serviceKey)
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { data, error } = await supabase
       .from('training_modules')
