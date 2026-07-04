@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !serviceKey) {
-  throw new Error('Missing Supabase credentials')
+  return new NextResponse('Missing Supabase config', { status: 500 })
 }
 
 const supabase = createClient(supabaseUrl, serviceKey)
@@ -14,13 +14,17 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from('training_modules')
-      .select('*')
+      .select('id, title, description, position, content, created_at')
       .order('created_at', { ascending: false })
 
-    if (error) throw error
-    return NextResponse.json(data)
+    if (error) {
+      console.error('Supabase error:', error)
+      throw error
+    }
+
+    return NextResponse.json(data || [])
   } catch (err) {
-    console.error('Error:', err)
+    console.error('API error:', err)
     return NextResponse.json({ error: 'Failed to fetch modules' }, { status: 500 })
   }
 }
@@ -40,15 +44,19 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         description: description?.trim() || null,
         position: position.trim(),
-        content: content || null,
+        content: content?.trim() || null,
         quiz_questions: [],
       }])
       .select()
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase error:', error)
+      throw error
+    }
+
     return NextResponse.json(data[0])
   } catch (err) {
-    console.error('Error:', err)
+    console.error('API error:', err)
     return NextResponse.json({ error: 'Failed to create module' }, { status: 500 })
   }
 }
