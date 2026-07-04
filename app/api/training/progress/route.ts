@@ -34,14 +34,13 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-    const { data: modules } = await supabase
-      .from('training_modules')
-      .select('title')
-      .eq('id', module_id)
-      .single()
-    
-    const module = modules || { title: 'Training Module' }
+    const { data: moduleData } = await supabase
+  .from('training_modules')
+  .select('title')
+  .eq('id', module_id)
+  .single()
 
+const trainingModule = moduleData || { title: 'Training Module' }
     const { error: dbError } = await dbInsertService('staff_module_progress', {
       staff_name: staff_name.trim(),
       staff_email: staff_email.trim(),
@@ -66,7 +65,7 @@ if (calculatedScore >= 80 && staff_email) {
       body: JSON.stringify({
         staff_name,
         staff_email,
-        module_title: module.title,
+        module_title: trainingModule.title,
         position,
         quiz_score: calculatedScore,
         completed_at: new Date().toISOString(),
