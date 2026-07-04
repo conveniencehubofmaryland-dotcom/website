@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { dbSelect, dbInsertService } from '@/lib/db'
+import { createClient } from '@supabase/supabase-js'
+import { dbInsertService } from '@/lib/db'
 import type { StaffModuleProgress } from '@/lib/types'
 
 export async function GET(req: NextRequest) {
