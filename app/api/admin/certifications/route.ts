@@ -10,7 +10,7 @@ if (!supabaseUrl || !serviceKey) {
 
 const supabase = createClient(supabaseUrl, serviceKey)
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { data: progress, error: progressError } = await supabase
       .from('staff_module_progress')
@@ -28,10 +28,10 @@ export async function GET(req: NextRequest) {
 
     // Merge data
     const merged = progress.map(p => {
-      const module = modules?.find(m => m.id === p.module_id)
+      const moduleData = modules?.find(m => m.id === p.module_id)
       return {
         ...p,
-        module_title: module?.title || 'Unknown Module',
+        module_title: moduleData?.title || 'Unknown Module',
       }
     })
 
