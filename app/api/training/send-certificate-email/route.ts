@@ -58,24 +58,29 @@ export async function POST(req: NextRequest) {
     `
 
     const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        from: 'noreply@conveniencehubofmaryland.com',
-        to: staff_email,
-        subject: `🎉 Training Certification Complete - ${module_title}`,
-        html: emailHtml,
-      }),
-    })
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${resendApiKey}`,
+  },
+  body: JSON.stringify({
+    from: 'noreply@conveniencehubofmaryland.com',
+    to: staff_email,
+    subject: `🎉 Training Certification Complete - ${module_title}`,
+    html: emailHtml,
+  }),
+})
 
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('Resend error:', error)
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
-    }
+const resendResponse = await response.json()
+console.log('Resend response:', resendResponse)
+
+if (!response.ok) {
+  console.error('Resend API error:', response.status, resendResponse)
+  return NextResponse.json({ 
+    error: 'Failed to send email', 
+    details: resendResponse 
+  }, { status: 500 })
+}
 
     const data = await response.json()
     return NextResponse.json({ success: true, messageId: data.id })
