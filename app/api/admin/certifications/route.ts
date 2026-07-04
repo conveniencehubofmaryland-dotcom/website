@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !serviceKey) {
-  return new NextResponse('Missing Supabase config', { status: 500 })
-}
-
-const supabase = createClient(supabaseUrl, serviceKey)
-
 export async function GET() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceKey) {
+      return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, serviceKey)
+
     // Get all staff progress
     const { data: progress, error: progressError } = await supabase
       .from('staff_module_progress')
