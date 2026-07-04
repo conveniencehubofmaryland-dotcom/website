@@ -15,7 +15,7 @@ export async function GET() {
     const { data: progress, error: progressError } = await supabase
       .from('staff_module_progress')
       .select('*')
-      .order('completed_at', { ascending: false, nullsLast: true })
+      .order('completed_at', { ascending: false, nullsFirst: false })
 
     if (progressError) throw progressError
 
