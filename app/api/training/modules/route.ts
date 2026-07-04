@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import type { TrainingModule } from '@/lib/types'
+// Removed unused import
 
 export async function GET(req: NextRequest) {
   try {
