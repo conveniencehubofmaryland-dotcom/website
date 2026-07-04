@@ -58,7 +58,7 @@ const trainingModule = moduleData || { title: 'Training Module' }
     }
 
     // Send certificate email if quiz passed
-if (calculatedScore >= 80 && staff_email) {
+if (quiz_score >= 80 && staff_email) {
   try {
     await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
       method: 'POST',
@@ -68,13 +68,12 @@ if (calculatedScore >= 80 && staff_email) {
         staff_email,
         module_title: trainingModule.title,
         position,
-        quiz_score: calculatedScore,
+        quiz_score,
         completed_at: new Date().toISOString(),
       }),
     })
   } catch (emailErr) {
     console.error('Failed to send certificate email:', emailErr)
-    // Don't fail the quiz submission if email fails
   }
 }
 
