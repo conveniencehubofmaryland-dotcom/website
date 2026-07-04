@@ -147,16 +147,22 @@ export default function ModulesAdminPage() {
 
             <div className="space-y-6">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-gray-600 mb-2">Title *</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={e => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
-                  placeholder="e.g., Professional Cleaning & Estate Care"
-                />
-              </div>
-
+  <label className="block text-xs uppercase tracking-widest text-gray-600 mb-2">Position *</label>
+  <input
+    type="text"
+    value={formData.position}
+    onChange={e => setFormData({ ...formData, position: e.target.value })}
+    placeholder="e.g., Cleaning Specialist, Laundry Handler, etc."
+    list="positionList"
+    className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+  />
+  <datalist id="positionList">
+    {positions.map(pos => (
+      <option key={pos} value={pos} />
+    ))}
+  </datalist>
+  <p className="text-xs text-gray-500 mt-2">Start typing to see suggestions, or enter a custom position</p>
+</div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-gray-600 mb-2">Description</label>
                 <textarea
