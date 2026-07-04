@@ -39,7 +39,8 @@ export async function GET() {
 
     // Merge progress with module titles
     const merged = progress.map((p: Record<string, any>) => {
-      const moduleData = modules?.find(m => m.id === p.module_id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const moduleData = modules?.find((m: any) => m.id === p.module_id)
       return {
         ...p,
         module_title: moduleData?.title || 'Unknown Module',
