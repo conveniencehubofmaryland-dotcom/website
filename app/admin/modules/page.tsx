@@ -40,8 +40,8 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody>
-              {(modules as Record<string, unknown>[]).map(m => (
-                <tr key={(m as Record<string, unknown>).id} className="border-b border-gray-100 hover:bg-gray-50">
+              {(modules as Record<string, unknown>[]).map((m, idx) => (
+                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-semibold text-chm-black">{(m as Record<string, unknown>).title}</td>
                   <td className="py-3 px-4 text-gray-500 text-xs">{(m as Record<string, unknown>).position}</td>
                   <td className="py-3 px-4 text-gray-500 text-sm max-w-xs truncate">{(m as Record<string, unknown>).description || '—'}</td>
