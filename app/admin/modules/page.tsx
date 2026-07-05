@@ -7,13 +7,16 @@ export default async function AdminModulesPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
   
-  console.log('[modules/page] Token:', token ? 'EXISTS' : 'MISSING')
+  console.log('[AdminModules] Token present:', !!token, 'Value:', token?.substring(0, 10))
   
-  const modules = await dbSelectAuth('training_modules', token, { order: 'created_at.desc' })
+  const modules = await dbSelectAuth<any>('training_modules', token, { order: 'created_at.desc' })
   
-  console.log('[modules/page] Modules count:', modules?.length)
-  console.log('[modules/page] First module:', modules?.[0])
-  
+  console.log('[AdminModules] Result from dbSelectAuth:', {
+    isArray: Array.isArray(modules),
+    length: modules?.length || 0,
+    firstItem: modules?.[0],
+  })
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
