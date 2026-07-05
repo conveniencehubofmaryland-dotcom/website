@@ -1,75 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { dbSelectAuth, dbInsertAuth, dbUpdateAuth, dbDeleteAuth } from '@/lib/db'
 
-export async function GET(req: NextRequest) {
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+async function getToken(): Promise<string> {
+  const c = await cookies()
+  return c.get('chm_admin')?.value ?? ''
+}
 
-    console.log('[admin/modules] URL exists:', !!supabaseUrl)
-    console.log('[admin/modules] Key exists:', !!serviceKey)
-
-    if (!supabaseUrl || !serviceKey) {
-      return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 })
-    }
-
-    const supabase = createClient(supabaseUrl, serviceKey)
-    console.log('[admin/modules] Supabase client created')
-
-    const { data, error } = await supabase
-      .from('training_modules')
-      .select('*')
-
-    console.log('[admin/modules] Query result:', { count: data?.length, error })
-
-    if (error) {
-      console.error('[admin/modules] Query error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json(data || [])
-  } catch (err) {
-    console.error('[admin/modules] Exception:', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
-  }
+export async function GET() {
+  const t = await getToken()
+  if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  
+  const modules = await dbSelectAuth('training_modules', t, { order: 'created_at.desc' })
+  return NextResponse.json(modules)
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const t = await getToken()
+  if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  
+  const body = await req.json()
+  const { title, description, position, content } = body
 
-    if (!supabaseUrl || !serviceKey) {
-      return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 })
-    }
-
-    const supabase = createClient(supabaseUrl, serviceKey)
-    const body = await req.json()
-    const { title, description, position, content } = body
-
-    if (!title?.trim() || !position?.trim()) {
-      return NextResponse.json({ error: 'Title and Position required' }, { status: 400 })
-    }
-
-    const { data, error } = await supabase
-      .from('training_modules')
-      .insert([{
-        title: title.trim(),
-        description: description?.trim() || null,
-        position: position.trim(),
-        content: content?.trim() || null,
-        quiz_questions: [],
-      }])
-      .select()
-
-    if (error) {
-      console.error('[admin/modules] Insert error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json(data?.[0] || {})
-  } catch (err) {
-    console.error('[admin/modules] Exception:', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+  if (!title?.trim() || !position?.trim()) {
+    return NextResponse.json({ error: 'Title and Position required' }, { status: 400 })
   }
+
+  const { error } = await dbInsertAuth('training_modules', {
+    title: title.trim(),
+    description: description?.trim() || null,
+    position: position.trim(),
+    content: content?.trim() || null,
+    quiz_questions: [],
+  }, t)
+
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
 }
