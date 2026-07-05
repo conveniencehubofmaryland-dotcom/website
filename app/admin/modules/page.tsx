@@ -7,14 +7,15 @@ export default async function AdminModulesPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
   
-  console.log('[AdminModules] Token present:', !!token, 'Value:', token?.substring(0, 10))
+  console.log('[modules PAGE] Token exists:', !!token)
+  console.log('[modules PAGE] Token value:', token?.substring(0, 20))
   
-  const modules = await dbSelectAuth<any>('training_modules', token, { order: 'created_at.desc' })
+  const modules = await dbSelectAuth('training_modules', token, { order: 'created_at.desc' })
   
-  console.log('[AdminModules] Result from dbSelectAuth:', {
+  console.log('[modules PAGE] Modules result:', {
     isArray: Array.isArray(modules),
-    length: modules?.length || 0,
-    firstItem: modules?.[0],
+    count: modules?.length,
+    first: modules?.[0],
   })
 
   return (
