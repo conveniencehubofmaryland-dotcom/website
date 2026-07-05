@@ -6,8 +6,14 @@ import { dbSelectAuth } from '@/lib/db'
 export default async function AdminModulesPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
+  
+  console.log('[modules/page] Token:', token ? 'EXISTS' : 'MISSING')
+  
   const modules = await dbSelectAuth('training_modules', token, { order: 'created_at.desc' })
-
+  
+  console.log('[modules/page] Modules count:', modules?.length)
+  console.log('[modules/page] First module:', modules?.[0])
+  
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
