@@ -41,6 +41,7 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {modules.map((m: any) => (
                 <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-semibold text-chm-black">{m.title}</td>
