@@ -5,8 +5,7 @@ import { dbSelectAuth } from '@/lib/db'
 export default async function AdminModulesPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const modules = await dbSelectAuth<any>('training_modules', token, { order: 'created_at.desc' })
+  const modules = await dbSelectAuth('training_modules', token, { order: 'created_at.desc' })
 
   return (
     <div>
@@ -41,15 +40,14 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {modules.map((m: any) => (
-                <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-semibold text-chm-black">{m.title}</td>
-                  <td className="py-3 px-4 text-gray-500 text-xs">{m.position}</td>
-                  <td className="py-3 px-4 text-gray-500 text-sm max-w-xs truncate">{m.description || '—'}</td>
-                  <td className="py-3 px-4 text-gray-400 text-xs">{new Date(m.created_at).toLocaleDateString()}</td>
+              {(modules as Record<string, unknown>[]).map(m => (
+                <tr key={(m as Record<string, unknown>).id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-3 px-4 font-semibold text-chm-black">{(m as Record<string, unknown>).title}</td>
+                  <td className="py-3 px-4 text-gray-500 text-xs">{(m as Record<string, unknown>).position}</td>
+                  <td className="py-3 px-4 text-gray-500 text-sm max-w-xs truncate">{(m as Record<string, unknown>).description || '—'}</td>
+                  <td className="py-3 px-4 text-gray-400 text-xs">{new Date((m as Record<string, unknown>).created_at as string).toLocaleDateString()}</td>
                   <td className="py-3 px-4">
-                    <Link href={`/admin/modules/${m.id}`}
+                    <Link href={`/admin/modules/${(m as Record<string, unknown>).id}`}
                       className="text-xs text-chm-red hover:underline underline-offset-4">
                       Edit
                     </Link>
