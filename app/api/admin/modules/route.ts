@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbSelectAuth, dbInsertAuth, dbUpdateAuth, dbDeleteAuth } from '@/lib/db'
+import { dbSelectAuth, dbInsertAuth } from '@/lib/db'
 
 async function getToken(): Promise<string> {
   const c = await cookies()
