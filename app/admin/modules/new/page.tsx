@@ -86,22 +86,16 @@ export default function NewModulePage() {
             />
           </div>
 
-          <div>
+         <div>
             <label className="block text-xs uppercase tracking-widest text-gray-600 mb-2">Position *</label>
             <input
               type="text"
               value={formData.position}
               onChange={e => setFormData({ ...formData, position: e.target.value })}
               placeholder="e.g., Cleaning Specialist"
-              list="positionList"
               className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
             />
-            <datalist id="positionList">
-              {positions.map(pos => (
-                <option key={pos} value={pos} />
-              ))}
-            </datalist>
-            <p className="text-xs text-gray-500 mt-2">Start typing to see suggestions, or enter a custom position</p>
+            <p className="text-xs text-gray-500 mt-2">Common positions: Cleaning Specialist, Laundry Handler, Culinary / Chef, Nanny / Childcare Specialist, Care Companion (Adult/Senior), Housekeeping Staff</p>
           </div>
 
           <div>
