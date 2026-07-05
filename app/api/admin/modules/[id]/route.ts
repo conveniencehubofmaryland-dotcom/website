@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbUpdateAuth, dbDeleteAuth } from '@/lib/db'
+import { dbPatchAuth, dbDeleteAuth } from '@/lib/db'
 
 async function getToken(): Promise<string> {
   const c = await cookies()
@@ -19,12 +19,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Title and Position required' }, { status: 400 })
   }
 
-  const { error } = await dbUpdateAuth('training_modules', {
+  const { error } = await dbPatchAuth('training_modules', id, {
     title: title.trim(),
     description: description?.trim() || null,
     position: position.trim(),
     content: content?.trim() || null,
-  }, `id.eq.${id}`, t)
+  }, t)
 
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
@@ -36,7 +36,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const { id } = await params
 
-  const { error } = await dbDeleteAuth('training_modules', `id.eq.${id}`, t)
+  const { error } = await dbDeleteAuth('training_modules', id, t)
 
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
