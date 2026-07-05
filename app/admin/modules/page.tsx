@@ -10,7 +10,7 @@ export default async function AdminModulesPage() {
   console.log('[modules PAGE] Token exists:', !!token)
   console.log('[modules PAGE] Token value:', token?.substring(0, 20))
   
-  const modules = await dbSelectAuth('training_modules', token, { order: 'created_at.desc' })
+  const modules = await dbSelectAuth('training_modules', token)
   
   console.log('[modules PAGE] Modules result:', {
     isArray: Array.isArray(modules),
