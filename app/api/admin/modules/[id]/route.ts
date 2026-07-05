@@ -1,57 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { dbUpdateAuth, dbDeleteAuth } from '@/lib/db'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !serviceKey) {
-  throw new Error('Missing Supabase credentials')
+async function getToken(): Promise<string> {
+  const c = await cookies()
+  return c.get('chm_admin')?.value ?? ''
 }
 
-const supabase = createClient(supabaseUrl, serviceKey)
-
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
-    const body = await req.json()
-    const { title, description, position, content } = body
+  const t = await getToken()
+  if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (!title?.trim() || !position?.trim()) {
-      return NextResponse.json({ error: 'Title and Position required' }, { status: 400 })
-    }
+  const { id } = await params
+  const body = await req.json()
+  const { title, description, position, content } = body
 
-    const { data, error } = await supabase
-      .from('training_modules')
-      .update({
-        title: title.trim(),
-        description: description?.trim() || null,
-        position: position.trim(),
-        content: content || null,
-      })
-      .eq('id', id)
-      .select()
-
-    if (error) throw error
-    return NextResponse.json(data[0])
-  } catch (err) {
-    console.error('Error:', err)
-    return NextResponse.json({ error: 'Failed to update module' }, { status: 500 })
+  if (!title?.trim() || !position?.trim()) {
+    return NextResponse.json({ error: 'Title and Position required' }, { status: 400 })
   }
+
+  const { error } = await dbUpdateAuth('training_modules', {
+    title: title.trim(),
+    description: description?.trim() || null,
+    position: position.trim(),
+    content: content?.trim() || null,
+  }, `id.eq.${id}`, t)
+
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
+  const t = await getToken()
+  if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { error } = await supabase
-      .from('training_modules')
-      .delete()
-      .eq('id', id)
+  const { id } = await params
 
-    if (error) throw error
-    return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('Error:', err)
-    return NextResponse.json({ error: 'Failed to delete module' }, { status: 500 })
-  }
+  const { error } = await dbDeleteAuth('training_modules', `id.eq.${id}`, t)
+
+  if (error) return NextResponse.json({ error }, { status: 500 })
+  return NextResponse.json({ success: true })
 }
