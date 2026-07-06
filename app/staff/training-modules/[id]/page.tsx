@@ -18,6 +18,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
   const [score, setScore] = useState(0)
+  const [saveError, setSaveError] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -63,24 +64,32 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     setScore(calculatedScore)
     setSubmitted(true)
 
-    if (staffName && staffPhone && staffEmail) {
-      try {
-        await fetch('/api/training/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            staff_name: staffName,
-            staff_email: staffEmail,
-            staff_phone: staffPhone,
-            position: module.position,
-            module_id: module.id,
-            quiz_score: calculatedScore,
-            status: calculatedScore >= 80 ? 'completed' : 'failed',
-          }),
-        })
-      } catch (err) {
-        console.error('Error saving progress:', err)
+    if (!staffName || !staffEmail) {
+      setSaveError('Your name and email were missing, so this result was NOT saved. Please go back to the module list and fill in your info first.')
+      return
+    }
+
+    try {
+      const res = await fetch('/api/training/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          staff_name: staffName,
+          staff_email: staffEmail,
+          staff_phone: staffPhone,
+          position: module.position,
+          module_id: module.id,
+          quiz_score: calculatedScore,
+          status: calculatedScore >= 80 ? 'completed' : 'failed',
+        }),
+      })
+      if (!res.ok) {
+        console.error('Progress save failed:', await res.text())
+        setSaveError('There was a problem saving your result. Please contact your manager.')
       }
+    } catch (err) {
+      console.error('Error saving progress:', err)
+      setSaveError('There was a problem saving your result. Please contact your manager.')
     }
   }
 
@@ -183,6 +192,11 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
                 ? 'You have successfully completed this training module and earned your certification.'
                 : 'You need 80% to pass. Review the module content and try again.'}
             </p>
+            {saveError && (
+              <p className="text-red-600 bg-red-50 border border-red-200 px-4 py-3 mb-8 max-w-md mx-auto text-sm">
+                {saveError}
+              </p>
+            )}
             <div className="flex gap-4 justify-center">
               {!passed && (
                 <button
