@@ -34,10 +34,11 @@ export default function EditModulePage() {
     fetch(`/api/admin/modules`)
       .then(r => r.json())
       .then(modules => {
-        const module = modules.find((m: any) => m.id === moduleId)
-        if (module) {
-          setFormData({
-            title: module.title || '',
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+const moduleData = modules.find((m: any) => m.id === moduleId)
+        if (moduleData) {
+  setFormData({
+    title: moduleData.title || '',
             description: module.description || '',
             position: module.position || '',
             content: module.content || '',
