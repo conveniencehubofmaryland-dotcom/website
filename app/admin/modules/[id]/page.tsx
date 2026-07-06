@@ -39,11 +39,11 @@ const moduleData = modules.find((m: any) => m.id === moduleId)
         if (moduleData) {
   setFormData({
     title: moduleData.title || '',
-            description: module.description || '',
-            position: module.position || '',
-            content: module.content || '',
-          })
-        }
+    description: (moduleData as any).description || '',
+    position: (moduleData as any).position || '',
+    content: (moduleData as any).content || '',
+  })
+}
         setLoading(false)
       })
       .catch(err => {
