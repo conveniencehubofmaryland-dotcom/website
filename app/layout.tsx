@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
@@ -47,6 +48,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   .bg-blush { background-color: #FFF5F5 !important; }
   .hover\\:bg-red-700:hover { background-color: #B91C1C !important; }
 `}</style>
+        {/* Google Analytics */}
+<Script
+  src="https://www.googletagmanager.com/gtag/js?id=G-763GL1QN0G"
+  strategy="afterInteractive"
+/>
+<Script
+  id="google-analytics"
+  strategy="afterInteractive"
+  dangerouslySetInnerHTML={{
+    __html: `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-763GL1QN0G');
+    `,
+  }}
+/>
       </head>
      <body className="font-sans">
         <CartProvider>
