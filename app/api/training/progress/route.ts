@@ -1,69 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { dbSelect, dbInsertService } from '@/lib/db'
-import type { StaffModuleProgress } from '@/lib/types'
-
-export async function GET(req: NextRequest) {
-  try {
-    const url = new URL(req.url)
-    const staffPhone = url.searchParams.get('phone')
-    const moduleId = url.searchParams.get('module_id')
-
-    const params: Record<string, string> = {}
-    if (staffPhone) params.staff_phone = `eq.${staffPhone}`
-    if (moduleId) params.module_id = `eq.${moduleId}`
-
-    const progress = await dbSelect<StaffModuleProgress>('staff_module_progress', params)
-    return NextResponse.json(progress)
-  } catch (err) {
-    console.error('[training/progress] GET error:', err)
-    return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 })
-  }
-}
+import { dbInsertService } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
     console.log('[progress] POST request received')
     
     const body = await req.json()
-    console.log('[progress] Body:', body)
+    console.log('[progress] Body:', {
+      staff_name: body.staff_name,
+      staff_email: body.staff_email,
+      module_id: body.module_id,
+      quiz_score: body.quiz_score,
+    })
     
     const { staff_name, staff_email, staff_phone, position, module_id, quiz_score } = body
 
+    // Validate required fields
     if (!staff_name?.trim() || !staff_email?.trim() || !module_id?.trim()) {
-      console.log('[progress] Missing fields')
+      console.log('[progress] Missing required fields')
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    console.log('[progress] Calling dbInsertService...')
-    const { error } = await dbInsertService('staff_module_progress', {
+    const finalScore = Math.round(quiz_score || 0)
+
+    console.log('[progress] Inserting to database...')
+    const { error: dbError } = await dbInsertService('staff_module_progress', {
       staff_name: staff_name.trim(),
       staff_email: staff_email.trim(),
-      staff_phone: staff_phone.trim() || null,
+      staff_phone: staff_phone?.trim() || null,
       position: position?.trim() || null,
       module_id,
-      status: 'completed',
-      quiz_score: Math.round(quiz_score) || null,
+      status: finalScore >= 80 ? 'completed' : 'failed',
+      quiz_score: finalScore,
       completed_at: new Date().toISOString(),
     })
 
-    console.log('[progress] dbInsertService result:', { error })
-
-    if (error) {
-      console.error('[progress] Database error:', error)
-      return NextResponse.json({ error: String(error) }, { status: 500 })
+    if (dbError) {
+      console.error('[progress] Database error:', dbError)
+      return NextResponse.json({ error: `Database error: ${dbError}` }, { status: 500 })
     }
 
-    console.log('[progress] Success')
-    return NextResponse.json({ success: true })
+    console.log('[progress] Data saved successfully')
+
+    // Send certificate email if passed (80%+)
+    if (finalScore >= 80) {
+      console.log('[progress] Score 80+, sending certificate email...')
+      try {
+        const emailRes = await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            staff_name: staff_name.trim(),
+            staff_email: staff_email.trim(),
+            module_title: 'Training Module Certification',
+            position: position?.trim() || 'Staff Member',
+            quiz_score: finalScore,
+            completed_at: new Date().toISOString(),
+          }),
+        })
+
+        const emailData = await emailRes.json()
+        console.log('[progress] Email send result:', emailData)
+      } catch (emailErr) {
+        console.error('[progress] Email send error:', emailErr)
+        // Don't fail quiz submission if email fails
+      }
+    }
+
+    console.log('[progress] Returning success')
+    return NextResponse.json({ success: true, score: finalScore })
   } catch (err) {
-    console.error('[progress] Exception:', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
-  }
-}
-    return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('[progress] Error:', err)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[progress] Exception:', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
