@@ -6,17 +6,7 @@ import { dbSelectAuth } from '@/lib/db'
 export default async function AdminModulesPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
-  
-  console.log('[modules PAGE] Token exists:', !!token)
-  console.log('[modules PAGE] Token value:', token?.substring(0, 20))
-  
   const modules = await dbSelectAuth('training_modules', token)
-  
-  console.log('[modules PAGE] Modules result:', {
-    isArray: Array.isArray(modules),
-    count: modules?.length,
-    first: modules?.[0],
-  })
 
   return (
     <div>
@@ -43,14 +33,13 @@ export default async function AdminModulesPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                {['Title', 'Position', 'Description', 'Created', ''].map(h => (
-                  <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
+                <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Title</th>
+                <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Position</th>
+                <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Description</th>
+                <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Created</th>
+                <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody>
             <tbody>
               {modules.map((m: any) => (
                 <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
