@@ -23,18 +23,23 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('[progress] POST request received')
+    
     const body = await req.json()
-    const { staff_name, staff_email, staff_phone, position, module_id, quiz_score, status } = body
+    console.log('[progress] Body:', body)
+    
+    const { staff_name, staff_email, staff_phone, position, module_id, quiz_score } = body
 
-    if (!staff_name?.trim() || !staff_email?.trim() || !staff_phone?.trim() || !module_id?.trim()) {
+    if (!staff_name?.trim() || !staff_email?.trim() || !module_id?.trim()) {
+      console.log('[progress] Missing fields')
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Use dbInsertService (no auth required) instead of dbInsertAuth
+    console.log('[progress] Calling dbInsertService...')
     const { error } = await dbInsertService('staff_module_progress', {
       staff_name: staff_name.trim(),
       staff_email: staff_email.trim(),
-      staff_phone: staff_phone.trim(),
+      staff_phone: staff_phone.trim() || null,
       position: position?.trim() || null,
       module_id,
       status: 'completed',
@@ -42,31 +47,20 @@ export async function POST(req: NextRequest) {
       completed_at: new Date().toISOString(),
     })
 
+    console.log('[progress] dbInsertService result:', { error })
+
     if (error) {
-      console.error('[progress] Insert error:', error)
-      return NextResponse.json({ error: 'Failed to save progress' }, { status: 500 })
+      console.error('[progress] Database error:', error)
+      return NextResponse.json({ error: String(error) }, { status: 500 })
     }
 
-    // Send certificate email if 80%+
-    if (quiz_score >= 80) {
-      try {
-        await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            staff_name,
-            staff_email,
-            module_title: 'Training Module',
-            position,
-            quiz_score: Math.round(quiz_score),
-            completed_at: new Date().toISOString(),
-          }),
-        })
-      } catch (err) {
-        console.error('Email error:', err)
-      }
-    }
-
+    console.log('[progress] Success')
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[progress] Exception:', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[progress] Error:', err)
