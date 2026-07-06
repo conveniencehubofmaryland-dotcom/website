@@ -22,67 +22,54 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  console.log('[progress API] Request received')
   try {
     const body = await req.json()
-    console.log('[progress API] Body:', body)
     const { staff_name, staff_email, staff_phone, position, module_id, quiz_score, status } = body
 
     if (!staff_name?.trim() || !staff_email?.trim() || !staff_phone?.trim() || !module_id?.trim()) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Get module details for email
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    const { data: moduleData } = await supabase
-  .from('training_modules')
-  .select('title')
-  .eq('id', module_id)
-  .single()
-
-const trainingModule = moduleData || { title: 'Training Module' }
-    const { error: dbError } = await dbInsertService('staff_module_progress', {
+    // Use dbInsertService (no auth required) instead of dbInsertAuth
+    const { error } = await dbInsertService('staff_module_progress', {
       staff_name: staff_name.trim(),
       staff_email: staff_email.trim(),
       staff_phone: staff_phone.trim(),
       position: position?.trim() || null,
       module_id,
-      status: status || 'in_progress',
-      quiz_score: quiz_score || null,
-      completed_at: status === 'completed' ? new Date().toISOString() : null,
+      status: 'completed',
+      quiz_score: Math.round(quiz_score) || null,
+      completed_at: new Date().toISOString(),
     })
 
-    if (dbError) {
-      return NextResponse.json({ error: 'Failed to save progress', details: String(dbError) }, { status: 500 })
+    if (error) {
+      console.error('[progress] Insert error:', error)
+      return NextResponse.json({ error: 'Failed to save progress' }, { status: 500 })
     }
 
-    // Send certificate email if quiz passed
-if (quiz_score >= 80 && staff_email) {
-  try {
-    await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        staff_name,
-        staff_email,
-        module_title: trainingModule.title,
-        position,
-        quiz_score,
-        completed_at: new Date().toISOString(),
-      }),
-    })
-  } catch (emailErr) {
-    console.error('Failed to send certificate email:', emailErr)
-  }
-}
+    // Send certificate email if 80%+
+    if (quiz_score >= 80) {
+      try {
+        await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            staff_name,
+            staff_email,
+            module_title: 'Training Module',
+            position,
+            quiz_score: Math.round(quiz_score),
+            completed_at: new Date().toISOString(),
+          }),
+        })
+      } catch (err) {
+        console.error('Email error:', err)
+      }
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[training/progress] error:', msg)
-    return NextResponse.json({ error: 'Server error', details: msg }, { status: 500 })
+    console.error('[progress] Error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
