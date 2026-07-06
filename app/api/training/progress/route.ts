@@ -22,8 +22,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log('[progress API] Request received')
   try {
     const body = await req.json()
+    console.log('[progress API] Body:', body)
     const { staff_name, staff_email, staff_phone, position, module_id, quiz_score, status } = body
 
     if (!staff_name?.trim() || !staff_email?.trim() || !staff_phone?.trim() || !module_id?.trim()) {
