@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { dbInsertService } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
     console.log('[PROGRESS] Request received')
     
     const body = await req.json()
-    console.log('[PROGRESS] Body:', { staff_name: body.staff_name, module_id: body.module_id, score: body.quiz_score })
+    console.log('[PROGRESS] Body:', { staff_name: body.staff_name, module_id: body.module_id })
 
     const { staff_name, staff_email, staff_phone, position, module_id, quiz_score } = body
 
@@ -15,41 +15,52 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Use direct Supabase insert with service role
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const finalScore = Math.round(quiz_score || 0)
 
-    if (!supabaseUrl || !serviceKey) {
-      console.error('[PROGRESS] Missing Supabase config')
-      return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
-    }
+    console.log('[PROGRESS] Calling dbInsertService...')
+    const { error } = await dbInsertService('staff_module_progress', {
+      staff_name: staff_name.trim(),
+      staff_email: staff_email.trim(),
+      staff_phone: staff_phone?.trim() || null,
+      position: position?.trim() || null,
+      module_id,
+      status: finalScore >= 80 ? 'completed' : 'failed',
+      quiz_score: finalScore,
+      completed_at: new Date().toISOString(),
+    })
 
-    const supabase = createClient(supabaseUrl, serviceKey)
-
-    console.log('[PROGRESS] Inserting to staff_module_progress...')
-    const { data, error } = await supabase
-      .from('staff_module_progress')
-      .insert([{
-        staff_name: staff_name.trim(),
-        staff_email: staff_email.trim(),
-        staff_phone: staff_phone?.trim() || null,
-        position: position?.trim() || null,
-        module_id,
-        status: Math.round(quiz_score || 0) >= 80 ? 'completed' : 'failed',
-        quiz_score: Math.round(quiz_score || 0),
-        completed_at: new Date().toISOString(),
-      }])
-      .select()
-
-    console.log('[PROGRESS] Insert result:', { error, dataCount: data?.length })
+    console.log('[PROGRESS] Insert result:', { error })
 
     if (error) {
-      console.error('[PROGRESS] Database error:', error.message)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[PROGRESS] Database error:', error)
+      return NextResponse.json({ error: String(error) }, { status: 500 })
     }
 
-    console.log('[PROGRESS] Data saved! Returning success')
-    return NextResponse.json({ success: true, data })
+    console.log('[PROGRESS] Success! Score:', finalScore)
+
+    // Send email if 80+
+    if (finalScore >= 80) {
+      console.log('[PROGRESS] Sending certificate email...')
+      try {
+        await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            staff_name: staff_name.trim(),
+            staff_email: staff_email.trim(),
+            module_title: 'Training Module',
+            position: position?.trim() || 'Staff',
+            quiz_score: finalScore,
+            completed_at: new Date().toISOString(),
+          }),
+        })
+        console.log('[PROGRESS] Email sent')
+      } catch (emailErr) {
+        console.error('[PROGRESS] Email error:', emailErr)
+      }
+    }
+
+    return NextResponse.json({ success: true })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[PROGRESS] Exception:', msg)
