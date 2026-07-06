@@ -33,17 +33,16 @@ export default function EditModulePage() {
     // Fetch module data
     fetch(`/api/admin/modules`)
       .then(r => r.json())
-      .then(modules => {
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-const moduleData = modules.find((m: any) => m.id === moduleId)
+      .then((modules: Array<{ id: string; title: string; description: string; position: string; content: string }>) => {
+        const moduleData = modules.find((m) => m.id === moduleId)
         if (moduleData) {
-  setFormData({
-    title: moduleData.title || '',
-    description: (moduleData as any).description || '',
-    position: (moduleData as any).position || '',
-    content: (moduleData as any).content || '',
-  })
-}
+          setFormData({
+            title: moduleData.title || '',
+            description: moduleData.description || '',
+            position: moduleData.position || '',
+            content: moduleData.content || '',
+          })
+        }
         setLoading(false)
       })
       .catch(err => {
