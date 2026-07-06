@@ -51,6 +51,7 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody>
+            <tbody>
               {modules.map((m: any) => (
                 <tr key={m.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 font-semibold text-chm-black">{m.title}</td>
@@ -58,13 +59,7 @@ export default async function AdminModulesPage() {
                   <td className="py-3 px-4 text-gray-500 text-sm max-w-xs truncate">{m.description || '—'}</td>
                   <td className="py-3 px-4 text-gray-400 text-xs">{new Date(m.created_at).toLocaleDateString()}</td>
                   <td className="py-3 px-4">
-  <Link href={`/admin/modules/${m.id}`}
-    className="text-xs text-chm-red hover:underline underline-offset-4">
-    Edit
-  </Link>
-</td>
-                    <Link href={`/admin/modules/${m.id}`}
-                      className="text-xs text-chm-red hover:underline underline-offset-4">
+                    <Link href={`/admin/modules/${m.id}`} className="text-xs text-chm-red hover:underline">
                       Edit
                     </Link>
                   </td>
