@@ -37,8 +37,10 @@ const MEALPREP_PLANS: Record<string, number> = {
 }
 
 type Selections = Record<string, unknown>
+type LineItem = { label: string; amount: number }
 
-function calcCleaning(sel: Selections): number {
+function calcCleaning(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const breakdown: LineItem[] = []
   let base = 0
   const serviceType = sel.serviceType as string
 
@@ -47,52 +49,81 @@ function calcCleaning(sel: Selections): number {
     const condition = sel.moveCondition as 'good' | 'poor'
     const sizeTable = MOVEINOUT[moveSize]
     base = sizeTable ? sizeTable[condition] || 0 : 0
+    breakdown.push({ label: `Move-In/Move-Out (${moveSize}, ${condition})`, amount: base })
   } else {
     const table = serviceType === 'deep' ? DEEP_CLEANING : STANDARD_CLEANING
     const homeSize = sel.homeSize as string
     base = table[homeSize] || 0
+    breakdown.push({ label: `${serviceType === 'deep' ? 'Deep' : 'Standard'} Cleaning (${homeSize})`, amount: base })
+
     if (serviceType === 'standard' && sel.firstTime) {
-      base = base * (1 + FIRST_TIME_SURCHARGE)
+      const surcharge = base * FIRST_TIME_SURCHARGE
+      breakdown.push({ label: 'First-Time Service Surcharge (30%)', amount: surcharge })
+      base = base + surcharge
     }
+
     const discount = FREQUENCY_DISCOUNT[sel.frequency as string] ?? 0
-    base = base * (1 - discount)
+    if (discount > 0) {
+      const discountAmt = base * discount
+      breakdown.push({ label: `Recurring Discount (${Math.round(discount * 100)}%)`, amount: -discountAmt })
+      base = base - discountAmt
+    }
   }
 
-  let addOnsTotal = 0
   if (Array.isArray(sel.addOns)) {
-    for (const a of sel.addOns as string[]) addOnsTotal += ADDON_PRICES[a] || 0
+    for (const a of sel.addOns as string[]) {
+      const price = ADDON_PRICES[a] || 0
+      if (price > 0) breakdown.push({ label: `Add-On: ${a}`, amount: price })
+    }
   }
 
   const petFee = PET_FEE[sel.pets as string] || 0
+  if (petFee > 0) breakdown.push({ label: 'Pet Fee', amount: petFee })
 
-  return base + addOnsTotal + petFee
+  const total = breakdown.reduce((sum, item) => sum + item.amount, 0)
+  return { total, breakdown }
 }
 
-function calcLaundry(sel: Selections): number {
+function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const breakdown: LineItem[] = []
   const planType = sel.planType as string
 
   if (planType === 'recurring') {
-    return LAUNDRY_RECURRING[sel.recurringPlan as string] || 0
+    const cost = LAUNDRY_RECURRING[sel.recurringPlan as string] || 0
+    breakdown.push({ label: `Recurring Plan (${sel.recurringPlan})`, amount: cost })
+    return { total: cost, breakdown }
   }
 
   const table = planType === 'pickupdelivery' ? LAUNDRY_PICKUP : LAUNDRY_DROPOFF
   const perLoad = table[sel.serviceType as string] || 0
   const loads = Math.max(1, Number(sel.loads) || 1)
-  let subtotal = perLoad * loads
+  const base = perLoad * loads
+  breakdown.push({ label: `${sel.serviceType} × ${loads} load(s)`, amount: base })
 
-  if (sel.express) subtotal = subtotal * (1 + EXPRESS_SURCHARGE)
+  let total = base
+  if (sel.express) {
+    const surcharge = base * EXPRESS_SURCHARGE
+    breakdown.push({ label: 'Express Service (+50%)', amount: surcharge })
+    total = base + surcharge
+  }
 
-  return subtotal
+  return { total, breakdown }
 }
 
-function calcMealPrep(sel: Selections): number {
-  return MEALPREP_PLANS[sel.planTier as string] || 0
+function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const cost = MEALPREP_PLANS[sel.planTier as string] || 0
+  return { total: cost, breakdown: [{ label: `Meal Prep Plan (${sel.planTier})`, amount: cost }] }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, phone, category, selections } = body
+    const { name, email, phone, category, selections, promoCode, honeypot } = body
+
+    // Spam protection: honeypot field should always be empty for real users
+    if (honeypot) {
+      return NextResponse.json({ success: true }) // silently pretend success to bots
+    }
 
     if (!name?.trim() || !email?.trim() || !phone?.trim() || !category) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -101,19 +132,35 @@ export async function POST(req: NextRequest) {
     let subtotal: number | null = null
     let tax: number | null = null
     let total: number | null = null
+    let deposit: number | null = null
+    let breakdown: LineItem[] = []
 
     if (category === 'cleaning') {
-      subtotal = calcCleaning(selections || {})
+      const r = calcCleaning(selections || {})
+      subtotal = r.total
+      breakdown = r.breakdown
     } else if (category === 'laundry') {
-      subtotal = calcLaundry(selections || {})
+      const r = calcLaundry(selections || {})
+      subtotal = r.total
+      breakdown = r.breakdown
     } else if (category === 'mealprep') {
-      subtotal = calcMealPrep(selections || {})
+      const r = calcMealPrep(selections || {})
+      subtotal = r.total
+      breakdown = r.breakdown
     }
 
     if (subtotal !== null) {
+      const isValidPromo = typeof promoCode === 'string' && promoCode.trim().toUpperCase() === 'WELCOME2024'
+      if (isValidPromo) {
+        const discountAmt = subtotal * 0.20
+        breakdown.push({ label: 'First-Time Customer Discount (WELCOME2024, 20%)', amount: -discountAmt })
+        subtotal = subtotal - discountAmt
+      }
+
       subtotal = Math.round(subtotal * 100) / 100
       tax = Math.round(subtotal * TAX_RATE * 100) / 100
       total = Math.round((subtotal + tax) * 100) / 100
+      deposit = Math.round(total * 0.30 * 100) / 100
     }
 
     const { error: dbError } = await dbInsertService('quote_requests', {
@@ -121,7 +168,7 @@ export async function POST(req: NextRequest) {
       email: email.trim(),
       phone: phone.trim(),
       category,
-      selections: selections || {},
+      selections: { ...selections, promoCode: promoCode || null, breakdown },
       estimated_subtotal: subtotal,
       estimated_tax: tax,
       estimated_total: total,
@@ -184,7 +231,7 @@ ${priceBlock}
       }
     }
 
-    return NextResponse.json({ success: true, subtotal, tax, total })
+    return NextResponse.json({ success: true, subtotal, tax, total, deposit, breakdown })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[quote] error:', msg)
