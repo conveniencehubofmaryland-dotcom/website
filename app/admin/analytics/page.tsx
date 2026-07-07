@@ -1,11 +1,12 @@
 import { cookies } from 'next/headers'
-import Link from 'next/link'
 import { dbSelectAuth } from '@/lib/db'
+import StaffRecordsTable from './StaffRecordsTable'
 
 type Progress = {
   id: string
   staff_name: string
   staff_email: string
+  staff_phone: string | null
   position: string | null
   module_id: string
   status: 'in_progress' | 'completed' | 'failed'
@@ -29,8 +30,8 @@ export default async function AdminAnalyticsPage() {
   const totalAttempts = progress.length
   const completed = progress.filter(p => p.status === 'completed').length
   const failed = progress.filter(p => p.status === 'failed').length
+  const inProgress = progress.filter(p => p.status === 'in_progress').length
   const passRate = totalAttempts > 0 ? Math.round((completed / totalAttempts) * 100) : 0
-
   const uniqueStaff = new Set(progress.map(p => p.staff_email)).size
 
   const scoredAttempts = progress.filter(p => p.quiz_score !== null)
@@ -38,7 +39,6 @@ export default async function AdminAnalyticsPage() {
     ? Math.round(scoredAttempts.reduce((sum, p) => sum + (p.quiz_score || 0), 0) / scoredAttempts.length)
     : 0
 
-  // Breakdown by module
   const moduleStats = modules.map(m => {
     const attempts = progress.filter(p => p.module_id === m.id)
     const modCompleted = attempts.filter(p => p.status === 'completed').length
@@ -51,7 +51,6 @@ export default async function AdminAnalyticsPage() {
     }
   })
 
-  // Breakdown by position
   const positionMap = new Map<string, { attempts: number; completed: number }>()
   progress.forEach(p => {
     const pos = p.position || 'Unspecified'
@@ -66,21 +65,29 @@ export default async function AdminAnalyticsPage() {
     passRate: stats.attempts > 0 ? Math.round((stats.completed / stats.attempts) * 100) : 0,
   }))
 
-  // Recent activity, most recent first
-  const recent = [...progress]
-    .filter(p => p.completed_at)
-    .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())
-    .slice(0, 10)
+  const merged = progress
+    .map(p => {
+      const moduleData = modules.find(m => m.id === p.module_id)
+      return {
+        ...p,
+        module_title: moduleData?.title || 'Unknown Module',
+      }
+    })
+    .sort((a, b) => {
+      const aDate = a.completed_at ? new Date(a.completed_at).getTime() : 0
+      const bDate = b.completed_at ? new Date(b.completed_at).getTime() : 0
+      return bDate - aDate
+    })
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="font-serif text-3xl text-chm-black">Training Analytics</h1>
-        <p className="text-sm text-gray-400 mt-1">Overview of staff training performance</p>
+        <h1 className="font-serif text-3xl text-chm-black">Training Analytics & Certifications</h1>
+        <p className="text-sm text-gray-400 mt-1">Overview and full record of staff training performance</p>
       </div>
 
       {/* Top stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-12">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 mb-12">
         <div className="border border-gray-200 p-5">
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Total Attempts</p>
           <p className="text-3xl font-bold text-chm-black">{totalAttempts}</p>
@@ -96,6 +103,14 @@ export default async function AdminAnalyticsPage() {
         <div className="border border-gray-200 p-5">
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Failed</p>
           <p className="text-3xl font-bold text-red-600">{failed}</p>
+        </div>
+        <div className="border border-gray-200 p-5">
+          <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">In Progress</p>
+          <p className="text-3xl font-bold text-gray-400">{inProgress}</p>
+        </div>
+        <div className="border border-gray-200 p-5">
+          <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Pass Rate</p>
+          <p className="text-3xl font-bold text-chm-red">{passRate}%</p>
         </div>
         <div className="border border-gray-200 p-5">
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Avg Score</p>
@@ -167,49 +182,10 @@ export default async function AdminAnalyticsPage() {
         )}
       </div>
 
-      {/* Recent Activity */}
+      {/* Full staff records, filterable/searchable */}
       <div>
-        <h2 className="font-serif text-2xl text-chm-black mb-4">Recent Activity</h2>
-        {recent.length === 0 ? (
-          <p className="text-gray-400 text-sm">No recent activity yet.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b-2 border-gray-200 bg-gray-50">
-                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Name</th>
-                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Score</th>
-                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Status</th>
-                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map(p => (
-                  <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-semibold text-chm-black">{p.staff_name}</td>
-                    <td className="py-3 px-4 text-gray-600">{p.quiz_score ?? '—'}%</td>
-                    <td className="py-3 px-4">
-                      <span className={`text-xs font-semibold uppercase tracking-widest px-3 py-1 ${
-                        p.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                      }`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-gray-400 text-xs">
-                      {p.completed_at ? new Date(p.completed_at).toLocaleDateString() : '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <Link href="/admin/certifications" className="text-xs text-chm-red hover:underline uppercase tracking-widest">
-          ← Back to Certifications
-        </Link>
+        <h2 className="font-serif text-2xl text-chm-black mb-4">All Staff Records</h2>
+        <StaffRecordsTable records={merged} />
       </div>
     </div>
   )
