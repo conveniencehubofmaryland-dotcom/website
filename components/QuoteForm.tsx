@@ -19,7 +19,7 @@ export default function QuoteForm() {
 
   function toggleAddon(val: string) {
     setSel(s => {
-      const current: string[] = s.addOns || []
+      const current: string[] = (s.addOns as string[] | undefined) || []
       return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
     })
   }
