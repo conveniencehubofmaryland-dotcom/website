@@ -46,6 +46,36 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let resumeUrl: string | null = null
+
+    if (resume_base64 && resume_filename) {
+      try {
+        const safeName = resume_filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')
+        const uniqueName = `${Date.now()}-${safeName}`
+        const fileBuffer = Buffer.from(resume_base64, 'base64')
+
+        const uploadRes = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/resumes/${uniqueName}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'Content-Type': resume_type || 'application/octet-stream',
+            },
+            body: fileBuffer,
+          }
+        )
+
+        if (uploadRes.ok) {
+          resumeUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/resumes/${uniqueName}`
+        } else {
+          console.error('[careers] Resume upload failed:', await uploadRes.text())
+        }
+      } catch (err) {
+        console.error('[careers] Resume upload error:', err)
+      }
+    }
+
     const { error: dbError } = await dbInsertService('job_applications', {
       name: name.trim(),
       phone: phone.trim(),
@@ -80,6 +110,9 @@ export async function POST(req: NextRequest) {
             from: 'CHM Careers <support@conveniencehubofmaryland.com>',
             to: ['conveniencehubofmaryland@gmail.com'],
             subject: `New Job Application — ${name.trim()}`,
+            ...(resume_base64 && resume_filename
+              ? { attachments: [{ filename: resume_filename, content: resume_base64 }] }
+              : {}),
             html: `<h2 style="color:#E8192C">New Job Application</h2>
 <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">
 <tr><td style="padding:8px 16px 8px 0;color:#666;font-weight:600">Name</td><td style="padding:8px 0;font-weight:600">${name.trim()}</td></tr>
