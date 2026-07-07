@@ -23,7 +23,7 @@ const ADDON_PRICES: Record<string, number> = {
   carpet: 175, windowInt: 97.5, windowExt: 175, appliance: 112.5,
   grout: 212.5, petOdor: 137.5, disinfect: 75,
 }
-const FIRST_TIME_SURCHARGE = 0.30
+const FIRST_TIME_SURCHARGE = 0.10
 
 const LAUNDRY_DROPOFF: Record<string, number> = { wdf: 30, wih: 42.5, premium: 62.5 }
 const LAUNDRY_PICKUP: Record<string, number> = { wdf: 45, wih: 55, premium: 75 }
@@ -57,9 +57,9 @@ function calcCleaning(sel: Selections): { total: number; breakdown: LineItem[] }
     breakdown.push({ label: `${serviceType === 'deep' ? 'Deep' : 'Standard'} Cleaning (${homeSize})`, amount: base })
 
     if (serviceType === 'standard' && sel.firstTime) {
-      const surcharge = base * FIRST_TIME_SURCHARGE
-      breakdown.push({ label: 'First-Time Service Surcharge (30%)', amount: surcharge })
-      base = base + surcharge
+      const discountAmt = base * FIRST_TIME_DISCOUNT
+      breakdown.push({ label: 'First-Time Customer Discount (10%)', amount: -discountAmt })
+      base = base - discountAmt
     }
 
     const discount = FREQUENCY_DISCOUNT[sel.frequency as string] ?? 0
