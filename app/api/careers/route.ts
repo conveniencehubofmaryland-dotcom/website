@@ -16,6 +16,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'We only hire in Maryland, Virginia, and Washington D.C.' }, { status: 400 })
     }
 
+    let resumeUrl: string | null = null
+
+    if (resume_base64 && resume_filename) {
+      try {
+        const safeName = resume_filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')
+        const uniqueName = `${Date.now()}-${safeName}`
+        const fileBuffer = Buffer.from(resume_base64, 'base64')
+
+        const uploadRes = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/resumes/${uniqueName}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'Content-Type': resume_type || 'application/octet-stream',
+            },
+            body: fileBuffer,
+          }
+        )
+
+        if (uploadRes.ok) {
+          resumeUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/resumes/${uniqueName}`
+        } else {
+          console.error('[careers] Resume upload failed:', await uploadRes.text())
+        }
+      } catch (err) {
+        console.error('[careers] Resume upload error:', err)
+      }
+    }
+
     const { error: dbError } = await dbInsertService('job_applications', {
       name: name.trim(),
       phone: phone.trim(),
@@ -30,7 +60,7 @@ export async function POST(req: NextRequest) {
       days: Array.isArray(days) ? days : [],
       hours: hours?.trim() || null,
       experience: experience?.trim() || null,
-      resume_url: null,
+      resume_url: resumeUrl,
       status: 'new',
     })
 
