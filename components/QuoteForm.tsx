@@ -160,12 +160,7 @@ export default function QuoteForm() {
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Spot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.deposit?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">30% deposit due to book</p>
-              
-                href={CLOVER_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors"
-              >
+              <a href={CLOVER_LINK} target="_blank" rel="noopener noreferrer" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
                 Pay Deposit via Clover
               </a>
               <p className="text-xs text-gray-400 mt-3">
