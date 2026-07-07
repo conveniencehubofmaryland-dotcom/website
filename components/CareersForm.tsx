@@ -30,15 +30,34 @@ export default function CareersForm({ positions }: Props) {
       [field]: f[field].includes(val) ? f[field].filter(x => x !== val) : [...f[field], val],
     }))
   }
+  async function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve((reader.result as string).split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('submitting')
     setErrMsg('')
     try {
+      let resume_base64: string | null = null
+      let resume_filename: string | null = null
+      let resume_type: string | null = null
+
+      if (resumeFile) {
+        resume_base64 = await fileToBase64(resumeFile)
+        resume_filename = resumeFile.name
+        resume_type = resumeFile.type
+      }
+
       const res = await fetch('/api/careers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, resume_base64, resume_filename, resume_type }),
       })
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
