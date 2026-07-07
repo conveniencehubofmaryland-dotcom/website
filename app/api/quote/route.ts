@@ -23,7 +23,8 @@ const ADDON_PRICES: Record<string, number> = {
   carpet: 175, windowInt: 97.5, windowExt: 175, appliance: 112.5,
   grout: 212.5, petOdor: 137.5, disinfect: 75,
 }
-const FIRST_TIME_DISCOUNT = 0.10
+const FIRST_TIME_DISCOUNT = 0.15
+const SITE_URL = 'https://conveniencehubofmaryland.com'
 
 const LAUNDRY_DROPOFF: Record<string, number> = { wdf: 30, wih: 42.5, premium: 62.5 }
 const LAUNDRY_PICKUP: Record<string, number> = { wdf: 45, wih: 55, premium: 75 }
@@ -58,7 +59,7 @@ function calcCleaning(sel: Selections): { total: number; breakdown: LineItem[] }
 
     if (serviceType === 'standard' && sel.firstTime) {
       const discountAmt = base * FIRST_TIME_DISCOUNT
-      breakdown.push({ label: 'First-Time Customer Discount (10%)', amount: -discountAmt })
+      breakdown.push({ label: 'First-Time Customer Discount (15%)', amount: -discountAmt })
       base = base - discountAmt
     }
 
@@ -115,10 +116,24 @@ function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] }
   return { total: cost, breakdown: [{ label: `Meal Prep Plan (${sel.planTier})`, amount: cost }] }
 }
 
+function bookNowUrl(category: string, name: string, email: string, phone: string): string {
+  const serviceMap: Record<string, string> = {
+    cleaning: 'cleaning',
+    laundry: 'laundry',
+    mealprep: 'culinary',
+    other: 'care',
+  }
+  const params = new URLSearchParams({
+    name, email, phone,
+    service: serviceMap[category] || '',
+  })
+  return `${SITE_URL}/book?${params.toString()}`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, phone, category, selections, promoCode, honeypot } = body
+    const { name, email, phone, category, selections, honeypot } = body
 
     // Spam protection: honeypot field should always be empty for real users
     if (honeypot) {
@@ -150,13 +165,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (subtotal !== null) {
-      const isValidPromo = typeof promoCode === 'string' && promoCode.trim().toUpperCase() === 'WELCOME2024'
-      if (isValidPromo) {
-        const discountAmt = subtotal * 0.20
-        breakdown.push({ label: 'First-Time Customer Discount (WELCOME2024, 20%)', amount: -discountAmt })
-        subtotal = subtotal - discountAmt
-      }
-
       subtotal = Math.round(subtotal * 100) / 100
       tax = Math.round(subtotal * TAX_RATE * 100) / 100
       total = Math.round((subtotal + tax) * 100) / 100
@@ -168,7 +176,7 @@ export async function POST(req: NextRequest) {
       email: email.trim(),
       phone: phone.trim(),
       category,
-      selections: { ...selections, promoCode: promoCode || null, breakdown },
+      selections: { ...selections, breakdown },
       estimated_subtotal: subtotal,
       estimated_tax: tax,
       estimated_total: total,
@@ -189,6 +197,16 @@ export async function POST(req: NextRequest) {
 </table>
 <p style="font-size:12px;color:#999;margin-top:10px">This is an estimate. Final pricing confirmed after a brief assessment.</p>`
       : `<p style="font-size:14px;color:#333">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>`
+
+    const bookLink = bookNowUrl(category, name.trim(), email.trim(), phone.trim())
+    const bookNowBlock = total !== null
+      ? `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
+<p style="font-size:13px;color:#333;margin:0 0 12px">Already paid your deposit? Click below to confirm your appointment details.</p>
+<a href="${bookLink}" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">Book Now →</a>
+</div>`
+      : `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
+<a href="${bookLink}" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">Book Now →</a>
+</div>`
 
     if (apiKey) {
       try {
@@ -223,6 +241,7 @@ ${priceBlock}`,
             html: `<h2 style="color:#E8192C">Thanks, ${name.trim()}!</h2>
 <p style="font-size:14px;color:#333">Here's a summary of your request:</p>
 ${priceBlock}
+${bookNowBlock}
 <p style="font-size:13px;color:#666;margin-top:16px">Questions? Call or text us at 202-579-2944.</p>`,
           }),
         })
@@ -231,7 +250,7 @@ ${priceBlock}
       }
     }
 
-    return NextResponse.json({ success: true, subtotal, tax, total, deposit, breakdown })
+    return NextResponse.json({ success: true, subtotal, tax, total, deposit, breakdown, bookLink })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[quote] error:', msg)
