@@ -16,7 +16,16 @@ const SERVICES = [
   { id: 'commercial', title: 'Commercial Operations & Special Projects',       price_from: 'Custom Quote' },
 ]
 
-export default function BookPage() {
+type SearchParams = { [key: string]: string | string[] | undefined }
+
+export default async function BookPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const params = await searchParams
+  const initial = {
+    name: typeof params.name === 'string' ? params.name : '',
+    email: typeof params.email === 'string' ? params.email : '',
+    phone: typeof params.phone === 'string' ? params.phone : '',
+    serviceId: typeof params.service === 'string' ? params.service : '',
+  }
   return (
     <div className="bg-white">
       {/* Header */}
@@ -34,7 +43,7 @@ export default function BookPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 sm:px-8 py-16">
-        <BookingForm services={SERVICES} />
+        <BookingForm services={SERVICES} initial={initial} />
       </div>
     </div>
   )
