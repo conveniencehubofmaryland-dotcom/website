@@ -7,7 +7,7 @@ type Category = 'cleaning' | 'laundry' | 'mealprep' | 'other' | ''
 export default function QuoteForm() {
   const [step, setStep] = useState(1)
   const [category, setCategory] = useState<Category>('')
-  const [sel, setSel] = useState<Record<string, any>>({})
+  const [sel, setSel] = useState<Record<string, unknown>>({})
   const [contact, setContact] = useState({ name: '', email: '', phone: '' })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
@@ -83,7 +83,7 @@ export default function QuoteForm() {
       { id: 'cleaning', title: 'Cleaning & Estate Care', desc: 'Standard, deep, or move-in/move-out cleaning' },
       { id: 'laundry', title: 'Laundry Pickup & Delivery', desc: 'Drop-off, pickup & delivery, or recurring plans' },
       { id: 'mealprep', title: 'Meal Prep', desc: 'Weekly meal preparation plans' },
-      { id: 'other', title: 'Nanny, Elder Care, Commercial & Special Projects', desc: "We'll send you a custom quote" },
+      { id: 'other', title: 'Nanny, Elder Care, Commercial & Special Projects', desc: 'We&apos;ll send you a custom quote' },
     ]
     return (
       <div className="max-w-2xl space-y-4">
