@@ -41,6 +41,7 @@ function isSlotDisabled(slot: string, selectedDate: string, serviceId: string): 
 
 type Props = {
   services: Pick<Service, 'id' | 'title' | 'price_from'>[]
+  initial?: { name: string; email: string; phone: string; serviceId: string }
 }
 
 const SERVICE_STATES = [
@@ -49,7 +50,16 @@ const SERVICE_STATES = [
   { value: 'DC', label: 'Washington D.C.' },
 ]
 
-export default function BookingForm({ services }: Props) {
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve((reader.result as string).split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+export default function BookingForm({ services, initial }: Props) {
   // Compute min/default date in ET before seeding state
   const _etToday = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   const _etDow   = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
@@ -57,17 +67,20 @@ export default function BookingForm({ services }: Props) {
     ? new Date(Date.now() + 86400000).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
     : _etToday
 
+  const initialService = initial?.serviceId ? services.find(s => s.id === initial.serviceId) : undefined
+
   const [form, setForm] = useState({
-    customer_name:    '',
-    phone:            '',
-    email:            '',
+    customer_name:    initial?.name || '',
+    phone:            initial?.phone || '',
+    email:            initial?.email || '',
     state:            '',
-    service_id:       '',
-    service_title:    '',
+    service_id:       initialService?.id ?? '',
+    service_title:    initialService?.title ?? '',
     appointment_date: _defaultDate,
     time_slot:        '',
     notes:            '',
   })
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null)
   const [status,   setStatus]   = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -90,10 +103,20 @@ export default function BookingForm({ services }: Props) {
     }
 
     try {
+      let invoice_base64: string | null = null
+      let invoice_filename: string | null = null
+      let invoice_type: string | null = null
+
+      if (invoiceFile) {
+        invoice_base64 = await fileToBase64(invoiceFile)
+        invoice_filename = invoiceFile.name
+        invoice_type = invoiceFile.type
+      }
+
       const res = await fetch('/api/book', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(form),
+        body:    JSON.stringify({ ...form, invoice_base64, invoice_filename, invoice_type }),
       })
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
@@ -268,7 +291,7 @@ export default function BookingForm({ services }: Props) {
       <div className="h-px bg-gray-100" />
 
       {/* Notes */}
-      <fieldset>
+      <fieldset className="space-y-5">
         <legend className="text-xs uppercase tracking-[0.2em] text-chm-red font-semibold block mb-5">
           Additional Notes
         </legend>
@@ -279,6 +302,18 @@ export default function BookingForm({ services }: Props) {
           className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors resize-none"
           placeholder="Address, special requirements, frequency of service…"
         />
+
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
+            Invoice Screenshot <span className="text-gray-400 normal-case tracking-normal">(optional — if you already paid a deposit)</span>
+          </label>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={e => setInvoiceFile(e.target.files?.[0] || null)}
+            className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:uppercase file:tracking-widest file:font-semibold file:bg-gray-100 file:text-chm-black"
+          />
+        </div>
       </fieldset>
 
       {(status === 'error' || errorMsg) && (
