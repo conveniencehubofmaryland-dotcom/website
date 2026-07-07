@@ -6,7 +6,7 @@ const VALID_STATES = ['MD', 'VA', 'DC']
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, phone, email, address, city, state, gender, positions, days, hours, experience, has_license, has_insured_car } = body
+    const { name, phone, email, address, city, state, gender, positions, days, hours, experience, has_license, has_insured_car, resume_base64, resume_filename, resume_type } = body
 
     if (!name?.trim() || !phone?.trim() || !email?.trim() || !state) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -14,36 +14,6 @@ export async function POST(req: NextRequest) {
 
     if (!VALID_STATES.includes(state)) {
       return NextResponse.json({ error: 'We only hire in Maryland, Virginia, and Washington D.C.' }, { status: 400 })
-    }
-
-    let resumeUrl: string | null = null
-
-    if (resume_base64 && resume_filename) {
-      try {
-        const safeName = resume_filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')
-        const uniqueName = `${Date.now()}-${safeName}`
-        const fileBuffer = Buffer.from(resume_base64, 'base64')
-
-        const uploadRes = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/resumes/${uniqueName}`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-              'Content-Type': resume_type || 'application/octet-stream',
-            },
-            body: fileBuffer,
-          }
-        )
-
-        if (uploadRes.ok) {
-          resumeUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/resumes/${uniqueName}`
-        } else {
-          console.error('[careers] Resume upload failed:', await uploadRes.text())
-        }
-      } catch (err) {
-        console.error('[careers] Resume upload error:', err)
-      }
     }
 
     let resumeUrl: string | null = null
