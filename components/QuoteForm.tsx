@@ -66,7 +66,7 @@ export default function QuoteForm() {
             <div className="flex justify-between text-lg font-bold text-chm-black border-t border-gray-200 pt-3">
               <span>Estimated Total</span><span className="text-chm-red">${result.total?.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-4">This is an estimate. Final pricing confirmed after a brief assessment. We've emailed a copy to you.</p>
+            <p className="text-xs text-gray-400 mt-4">This is an estimate. Final pricing confirmed after a brief assessment. We&apos;ve emailed a copy to you.</p>
           </div>
         ) : (
           <p className="text-gray-500 text-sm max-w-sm mx-auto">
