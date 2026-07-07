@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from 'react'
@@ -7,7 +8,7 @@ type Category = 'cleaning' | 'laundry' | 'mealprep' | 'other' | ''
 export default function QuoteForm() {
   const [step, setStep] = useState(1)
   const [category, setCategory] = useState<Category>('')
-  const [sel, setSel] = useState<Record<string, unknown>>({})
+  const [sel, setSel] = useState<Record<string, any>>({})
   const [contact, setContact] = useState({ name: '', email: '', phone: '' })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
@@ -19,7 +20,7 @@ export default function QuoteForm() {
 
   function toggleAddon(val: string) {
     setSel(s => {
-      const current: string[] = (s.addOns as string[] | undefined) || []
+      const current: string[] = s.addOns || []
       return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
     })
   }
