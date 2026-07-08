@@ -73,6 +73,7 @@ export default function BookingForm({ services, initial }: Props) {
     customer_name:    initial?.name || '',
     phone:            initial?.phone || '',
     email:            initial?.email || '',
+    address:          '',
     state:            '',
     service_id:       initialService?.id ?? '',
     service_title:    initialService?.title ?? '',
@@ -205,6 +206,17 @@ export default function BookingForm({ services, initial }: Props) {
               ))}
             </select>
           </div>
+        </div>
+        <div>
+          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Address *</label>
+          <input
+            required
+            type="text"
+            value={form.address}
+            onChange={e => set('address', e.target.value)}
+            className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+            placeholder="123 Main St, Apt 4B, Silver Spring, MD 20901"
+          />
         </div>
       </fieldset>
 
