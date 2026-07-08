@@ -70,21 +70,37 @@ export default function ReferralProgram() {
                 Existing Customer?
               </h3>
 
-              <div className="space-y-4 mb-8">
+             <div className="space-y-4 mb-8">
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Every Qualified Referral</p>
-                    <p className="text-2xl font-bold text-chm-red">$20</p>
+                    <p className="font-semibold text-chm-black">Refer 1 friend</p>
+                    <p className="text-2xl font-bold text-chm-red">$25</p>
                   </div>
-                  <p className="text-xs text-gray-600">credit — unlimited, no cap on referrals</p>
+                  <p className="text-xs text-gray-600">credit</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Your Friend Gets</p>
-                    <p className="text-2xl font-bold text-chm-red">10%</p>
+                    <p className="font-semibold text-chm-black">Refer 3 friends</p>
+                    <p className="text-2xl font-bold text-chm-red">$80</p>
                   </div>
-                  <p className="text-xs text-gray-600">off their first service</p>
+                  <p className="text-xs text-gray-600">credit</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="font-semibold text-chm-black">Refer 5 friends</p>
+                    <p className="text-2xl font-bold text-chm-red">$150</p>
+                  </div>
+                  <p className="text-xs text-gray-600">credit</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="font-semibold text-chm-black">Refer 10 friends</p>
+                    <p className="text-2xl font-bold text-chm-red">Free month</p>
+                  </div>
+                  <p className="text-xs text-gray-600">up to $400 in services</p>
                 </div>
               </div>
 
