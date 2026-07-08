@@ -62,6 +62,7 @@ export type Appointment = {
   customer_name: string
   phone: string
   email: string | null
+  address: string | null
   state: string | null
   service_id: string | null
   appointment_date: string
