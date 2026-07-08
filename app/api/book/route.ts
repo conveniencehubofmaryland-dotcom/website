@@ -112,9 +112,11 @@ async function notifyOwner(booking: {
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const {
+    const {
     customer_name, phone, email, state,
     service_id, appointment_date, time_slot,
     notes, service_title,
+    invoice_base64, invoice_filename, invoice_type,
   } = body
 
   if (!customer_name?.trim() || !phone?.trim() || !state || !service_id || !appointment_date || !time_slot) {
@@ -135,6 +137,36 @@ export async function POST(req: NextRequest) {
   const svcData = await svcRes.json()
   const resolvedServiceId = svcData[0]?.id ?? null
 
+  let invoiceUrl: string | null = null
+
+  if (invoice_base64 && invoice_filename) {
+    try {
+      const safeName = invoice_filename.replace(/[^a-zA-Z0-9.\-_]/g, '_')
+      const uniqueName = `${Date.now()}-${safeName}`
+      const fileBuffer = Buffer.from(invoice_base64, 'base64')
+
+      const uploadRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/invoices/${uniqueName}`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Content-Type': invoice_type || 'application/octet-stream',
+          },
+          body: fileBuffer,
+        }
+      )
+
+      if (uploadRes.ok) {
+        invoiceUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/invoices/${uniqueName}`
+      } else {
+        console.error('[book] Invoice upload failed:', await uploadRes.text())
+      }
+    } catch (err) {
+      console.error('[book] Invoice upload error:', err)
+    }
+  }
+
   const { error } = await dbInsert('appointments', {
     customer_name:    customer_name.trim(),
     phone:            phone.trim(),
@@ -145,6 +177,7 @@ export async function POST(req: NextRequest) {
     time_slot,
     notes:            notes?.trim() || null,
     status:           'pending',
+    invoice_screenshot_url: invoiceUrl,
   })
 
   if (error) {
