@@ -396,18 +396,12 @@ export default async function DealsPage() {
         </AnimatedSection>
 
         {/* CTA */}
+        {/* CTA */}
         <AnimatedSection>
-          <div className="bg-chm-black text-white p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-3">Book Now</p>
-              <p className="font-serif text-3xl text-white mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
-                Schedule Your Service
-              </p>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-                Phone: 202-579-2944 | Email: conveniencehubofmaryland@gmail.com<br/>
-                Mon–Sat 8AM–6PM EST | Sunday by appointment
-              </p>
-            </div>
+          <div className="bg-chm-black text-white p-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <p className="font-serif text-3xl text-white" style={{ fontFamily: 'var(--font-serif)' }}>
+              Experience Us Today!
+            </p>
             <Link
               href="/contact"
               className="shrink-0 bg-chm-red text-white px-8 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
