@@ -8,6 +8,13 @@ type LineItem = { label: string; amount: number }
 
 const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
 
+const SERVICE_MAP: Record<string, string> = {
+  cleaning: 'cleaning',
+  laundry: 'laundry',
+  mealprep: 'culinary',
+  other: 'care',
+}
+
 const STEP_LABELS = ['Service', 'Details', 'Review', 'Contact']
 
 function formatPhone(value: string) {
@@ -58,14 +65,15 @@ export default function QuoteForm() {
   const [category, setCategory] = useState<Category>('')
   const [sel, setSel] = useState<Record<string, any>>({})
   const [contact, setContact] = useState({ name: '', email: '', phone: '' })
-  const [promoCode, setPromoCode] = useState('')
-  const [honeypot, setHoneypot] = useState('')
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
-  const [errMsg, setErrMsg] = useState('')
   const [result, setResult] = useState<{ subtotal: number | null; tax: number | null; total: number | null; deposit: number | null; breakdown: LineItem[] }>({
     subtotal: null, tax: null, total: null, deposit: null, breakdown: [],
   })
-
+  const [honeypot, setHoneypot] = useState('')
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errMsg, setErrMsg] = useState('')
+  const [result, setResult] = useState<{ subtotal: number | null; tax: number | null; total: number | null; deposit: number | null; breakdown: LineItem[]; bookLink: string }>({
+    subtotal: null, tax: null, total: null, deposit: null, breakdown: [], bookLink: '',
+  })
   function set(field: string, value: unknown) {
     setSel(s => ({ ...s, [field]: value }))
   }
@@ -85,16 +93,18 @@ export default function QuoteForm() {
       const res = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...contact, category, selections: sel, promoCode, honeypot }),
+        body: JSON.stringify({ ...contact, category, selections: sel, honeypot }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      const fallbackLink = `/book?name=${encodeURIComponent(contact.name)}&email=${encodeURIComponent(contact.email)}&phone=${encodeURIComponent(contact.phone)}&service=${SERVICE_MAP[category] || ''}`
       setResult({
         subtotal: data.subtotal ?? null,
         tax: data.tax ?? null,
         total: data.total ?? null,
         deposit: data.deposit ?? null,
         breakdown: data.breakdown ?? [],
+        bookLink: data.bookLink || fallbackLink,
       })
       setStatus('success')
     } catch (err) {
@@ -166,6 +176,12 @@ export default function QuoteForm() {
               <p className="text-xs text-gray-400 mt-3">
                 On the Clover page, enter <strong>${result.deposit?.toFixed(2)}</strong> as your payment amount.
               </p>
+              <div className="border-t border-gray-200 mt-5 pt-5">
+                <p className="text-xs text-gray-500 mb-3">Already paid? Click below to complete your booking with full details.</p>
+                <a href={result.bookLink} className="inline-block border-2 border-chm-red text-chm-red px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors">
+                  Book Now →
+                </a>
+              </div>
             </div>
 
             <p className="text-xs text-gray-400 mt-4">This is an estimate. Final pricing confirmed after a brief assessment. We&apos;ve emailed a copy to you.</p>
@@ -475,13 +491,6 @@ export default function QuoteForm() {
           <label className={labelClass}>Email *</label>
           <input required type="email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} className={inputClass} placeholder="jane@example.com" />
         </div>
-
-        {category !== 'other' && (
-          <div>
-            <label className={labelClass}>Promo Code (optional)</label>
-            <input type="text" value={promoCode} onChange={e => setPromoCode(e.target.value)} className={inputClass} placeholder="e.g. WELCOME2024" />
-          </div>
-        )}
 
         {/* Honeypot field — hidden from real users, bots tend to fill every field */}
         <input
