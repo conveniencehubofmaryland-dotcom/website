@@ -64,7 +64,7 @@ export default async function AdminAppointmentsPage({
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                {['Customer', 'Date & Time', 'Service', 'Contact', 'Notes', 'Status'].map(h => (
+                {['Customer', 'Date & Time', 'Service', 'Contact', 'Address', 'Notes', 'Status'].map(h => (
                   <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                     {h}
                   </th>
@@ -92,6 +92,12 @@ export default async function AdminAppointmentsPage({
                       {a.phone}
                     </a>
                     {a.email && <p className="text-xs text-gray-500 mt-0.5">{a.email}</p>}
+                  </td>
+                  <td className="py-3 px-4 max-w-[200px]">
+                    {a.address
+                      ? <p className="text-xs text-gray-600 leading-relaxed">{a.address}</p>
+                      : <span className="text-gray-300 text-xs">—</span>
+                    }
                   </td>
                   <td className="py-3 px-4 max-w-[200px]">
                     {a.notes
