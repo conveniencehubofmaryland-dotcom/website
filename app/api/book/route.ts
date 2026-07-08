@@ -112,7 +112,6 @@ async function notifyOwner(booking: {
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const {
-    const {
     customer_name, phone, email, state,
     service_id, appointment_date, time_slot,
     notes, service_title,
