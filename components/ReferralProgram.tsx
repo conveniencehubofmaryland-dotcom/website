@@ -74,7 +74,7 @@ export default function ReferralProgram() {
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
                     <p className="font-semibold text-chm-black">Refer 1 friend</p>
-                    <p className="text-2xl font-bold text-chm-red">$25</p>
+                    <p className="text-2xl font-bold text-chm-red">$20</p>
                   </div>
                   <p className="text-xs text-gray-600">credit</p>
                 </div>
