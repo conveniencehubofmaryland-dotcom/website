@@ -66,6 +66,7 @@ async function notifyOwner(booking: {
   customer_name: string
   phone: string
   email: string | null
+  address: string
   state: string
   service_title: string
   appointment_date: string
@@ -88,6 +89,7 @@ async function notifyOwner(booking: {
             <tr><td style="padding:6px 16px 6px 0;color:#666">Customer</td><td style="font-weight:600">${booking.customer_name}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Phone</td><td><a href="tel:${booking.phone}">${booking.phone}</a></td></tr>
             ${booking.email ? `<tr><td style="padding:6px 16px 6px 0;color:#666">Email</td><td>${booking.email}</td></tr>` : ''}
+            <tr><td style="padding:6px 16px 6px 0;color:#666">Address</td><td>${booking.address}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Location</td><td>${booking.state}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Service</td><td>${booking.service_title}</td></tr>
             <tr><td style="padding:6px 16px 6px 0;color:#666">Date</td><td>${booking.appointment_date}</td></tr>
@@ -112,13 +114,13 @@ async function notifyOwner(booking: {
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const {
-    customer_name, phone, email, state,
+    customer_name, phone, email, address, state,
     service_id, appointment_date, time_slot,
     notes, service_title,
     invoice_base64, invoice_filename, invoice_type,
   } = body
 
-  if (!customer_name?.trim() || !phone?.trim() || !state || !service_id || !appointment_date || !time_slot) {
+  if (!customer_name?.trim() || !phone?.trim() || !address?.trim() || !state || !service_id || !appointment_date || !time_slot) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -170,6 +172,7 @@ export async function POST(req: NextRequest) {
     customer_name:    customer_name.trim(),
     phone:            phone.trim(),
     email:            email?.trim() || null,
+    address:          address.trim(),
     state,
     service_id: resolvedServiceId,
     appointment_date,
@@ -192,6 +195,7 @@ export async function POST(req: NextRequest) {
     `NEW BOOKING\n` +
     `Service: ${title}\n` +
     `Date: ${appointment_date} at ${time_slot}\n` +
+    `Address: ${address.trim()}\n` +
     `Location: ${stateLabel}\n` +
     `Customer: ${customer_name.trim()}\n` +
     `Phone: ${phone.trim()}\n` +
@@ -205,6 +209,7 @@ export async function POST(req: NextRequest) {
       customer_name: customer_name.trim(),
       phone:         phone.trim(),
       email:         trimmedEmail,
+      address:       address.trim(),
       state,
       service_title: title,
       appointment_date,
@@ -223,7 +228,7 @@ export async function POST(req: NextRequest) {
       `Hi ${customer_name.trim()}, we received your booking for ${title} on ${appointment_date} at ${time_slot}. We'll confirm within 1 hour (Mon-Sat 9AM-9PM). Questions? Call 202-579-2944.`
     ),
     sendAdminSMS(
-      `NEW BOOKING\nService: ${title}\nDate: ${appointment_date} at ${time_slot}\nLocation: ${stateLabel}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nAdmin: conveniencehubofmaryland.com/admin/appointments`
+      `NEW BOOKING\nService: ${title}\nDate: ${appointment_date} at ${time_slot}\nAddress: ${address.trim()}\nLocation: ${stateLabel}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nAdmin: conveniencehubofmaryland.com/admin/appointments`
     ),
   ])
 
