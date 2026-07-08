@@ -35,14 +35,14 @@ export default function ReferralProgram() {
 
               <div className="mb-8">
                 <p className="text-5xl md:text-6xl font-bold text-chm-red mb-2">15%</p>
-                <p className="text-chm-black font-semibold mb-4">Off Your First Service</p>
+                <p className="text-chm-black font-semibold mb-4">Off Your First Cleaning or Laundry Service</p>
                 <div className="w-8 h-px bg-chm-red mb-6" />
               </div>
 
               <ul className="space-y-3 mb-8 text-sm text-gray-700">
                 <li className="flex items-start gap-3">
                   <span className="text-chm-red font-bold mt-0.5">✓</span>
-                  <span>15% discount on your first service</span>
+                  <span>15% off first laundry or cleaning service (10% on other services)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-chm-red font-bold mt-0.5">✓</span>
@@ -73,34 +73,18 @@ export default function ReferralProgram() {
               <div className="space-y-4 mb-8">
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 1 friend</p>
-                    <p className="text-2xl font-bold text-chm-red">$25</p>
+                    <p className="font-semibold text-chm-black">Every Qualified Referral</p>
+                    <p className="text-2xl font-bold text-chm-red">$20</p>
                   </div>
-                  <p className="text-xs text-gray-600">credit</p>
+                  <p className="text-xs text-gray-600">credit — unlimited, no cap on referrals</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 3 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">$80</p>
+                    <p className="font-semibold text-chm-black">Your Friend Gets</p>
+                    <p className="text-2xl font-bold text-chm-red">10%</p>
                   </div>
-                  <p className="text-xs text-gray-600">credit</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 5 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">$150</p>
-                  </div>
-                  <p className="text-xs text-gray-600">credit</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 10 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">Free month</p>
-                  </div>
-                  <p className="text-xs text-gray-600">up to $400 in services</p>
+                  <p className="text-xs text-gray-600">off their first service</p>
                 </div>
               </div>
 
