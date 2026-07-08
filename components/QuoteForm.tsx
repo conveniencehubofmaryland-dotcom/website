@@ -65,9 +65,6 @@ export default function QuoteForm() {
   const [category, setCategory] = useState<Category>('')
   const [sel, setSel] = useState<Record<string, any>>({})
   const [contact, setContact] = useState({ name: '', email: '', phone: '' })
-  const [result, setResult] = useState<{ subtotal: number | null; tax: number | null; total: number | null; deposit: number | null; breakdown: LineItem[] }>({
-    subtotal: null, tax: null, total: null, deposit: null, breakdown: [],
-  })
   const [honeypot, setHoneypot] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
