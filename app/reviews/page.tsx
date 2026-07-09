@@ -51,14 +51,9 @@ export default async function ReviewsPage() {
               <span className="text-amber-400 text-xl leading-none">★★★★★</span>
               <span className="text-chm-black/70 text-sm font-medium">5.0 Average Rating</span>
             </div>
-            
-              href="https://g.page/r/CR84fHf4AZk-EAE/review"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border-2 border-chm-red text-chm-red px-5 py-2 text-xs font-semibold uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors"
-            >
+            <button type="button" onClick={() => window.open('https://g.page/r/CR84fHf4AZk-EAE/review', '_blank')} className="inline-flex items-center gap-2 border-2 border-chm-red text-chm-red px-5 py-2 text-xs font-semibold uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors">
               Review Us on Google →
-            </a>
+            </button>
           </div>
         </div>
       </div>
