@@ -345,9 +345,9 @@ export default function QuoteForm() {
                 <p className={labelClass}>Plan Type *</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {[
-                    { v: 'dropoff', l: 'Drop-Off (Per Load)' },
-                    { v: 'pickupdelivery', l: 'Pickup & Delivery' },
-                    { v: 'recurring', l: 'Recurring Monthly Plan' },
+                    { v: 'standard', l: 'Standard Service (Per Pound)' },
+                    { v: 'foldingOnly', l: 'Folding Only (Pre-Washed)' },
+                    { v: 'recurring', l: 'Monthly Subscription' },
                   ].map(o => (
                     <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
                       <input type="radio" required name="planType" checked={sel.planType === o.v}
@@ -358,26 +358,41 @@ export default function QuoteForm() {
                 </div>
               </div>
 
-              {(sel.planType === 'dropoff' || sel.planType === 'pickupdelivery') && (
+              {sel.planType === 'standard' && (
                 <>
                   <div>
-                    <label className={labelClass}>Service Type *</label>
-                    <select required value={sel.serviceType || ''} onChange={e => set('serviceType', e.target.value)} className={inputClass}>
+                    <label className={labelClass}>Fabric Category *</label>
+                    <select required value={sel.category || ''} onChange={e => set('category', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
-                      <option value="wdf">Wash, Dry & Fold</option>
-                      <option value="wih">Wash, Iron & Hang</option>
-                      <option value="premium">Premium Iron & Press</option>
+                      <option value="colors">Colors — $3.99/lb</option>
+                      <option value="mixed">Mixed Load — $4.99/lb</option>
+                      <option value="bedding">Bedding & Linens — $4.99/lb</option>
+                      <option value="whites">Whites — $6.99/lb</option>
+                      <option value="wool">Wool & Sweaters — $7.99/lb</option>
+                      <option value="delicates">Delicates — $8.99/lb</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Number of Loads *</label>
-                    <input required type="number" min={1} value={sel.loads || ''} onChange={e => set('loads', e.target.value)} className={inputClass} placeholder="e.g. 2" />
+                    <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
+                    <input required type="number" min={10} value={sel.weight || ''} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 20" />
                   </div>
-                  <label className="flex items-center gap-3 text-sm">
-                    <input type="checkbox" checked={!!sel.express} onChange={e => set('express', e.target.checked)} className="w-4 h-4 accent-chm-red" />
-                    Express Service (+50%, faster turnaround)
-                  </label>
+                  <div>
+                    <label className={labelClass}>Premium Add-On</label>
+                    <select value={sel.premiumOption || 'none'} onChange={e => set('premiumOption', e.target.value)} className={inputClass}>
+                      <option value="none">None</option>
+                      <option value="ironhang">Iron & Hang (+$2.00/lb)</option>
+                      <option value="expressiron">Express Iron & Press (+$4.00/lb, 2–3 day)</option>
+                      <option value="samedayexpress">Same-Day Express (+$1.75/lb)</option>
+                    </select>
+                  </div>
                 </>
+              )}
+
+              {sel.planType === 'foldingOnly' && (
+                <div>
+                  <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
+                  <input required type="number" min={10} value={sel.weight || ''} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 15" />
+                </div>
               )}
 
               {sel.planType === 'recurring' && (
@@ -385,11 +400,43 @@ export default function QuoteForm() {
                   <label className={labelClass}>Choose a Plan *</label>
                   <select required value={sel.recurringPlan || ''} onChange={e => set('recurringPlan', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
-                    <option value="standard">Standard — 4 loads/month ($160)</option>
-                    <option value="regular">Regular — 8 loads/month ($300)</option>
-                    <option value="premium">Premium — 12 loads/month ($420)</option>
-                    <option value="luxury">Luxury — 16+ loads/month ($560)</option>
+                    <option value="light">Light Load — up to 40 lbs/mo ($140)</option>
+                    <option value="standard">Standard Load — up to 80 lbs/mo ($250)</option>
+                    <option value="premium">Premium Load — up to 120 lbs/mo ($350)</option>
+                    <option value="unlimited">Unlimited Load — no limit ($500)</option>
                   </select>
+                </div>
+              )}
+
+              {sel.planType && (
+                <div>
+                  <p className={labelClass}>Specialty Add-Ons (optional)</p>
+                  <div className="space-y-2">
+                    {[
+                      { key: 'stainRemoval', label: 'Stain Removal Treatment', price: '$15/item' },
+                      { key: 'allergenFree', label: 'Allergen-Free Wash Cycle', price: '+$15/load' },
+                      { key: 'hypoallergenic', label: 'Hypoallergenic Detergent', price: '+$10/load' },
+                      { key: 'comforter', label: 'Comforter / Duvet Cleaning', price: '$40 each' },
+                      { key: 'beddingSet', label: 'Bedding Set (full + pillowcases)', price: '$50/set' },
+                      { key: 'curtainPanels', label: 'Curtain Panels', price: '$3.50/panel' },
+                      { key: 'tablecloths', label: 'Tablecloths', price: '$20 each' },
+                    ].map(a => (
+                      <div key={a.key} className="flex items-center justify-between gap-3 border border-gray-100 px-4 py-2">
+                        <span className="text-sm text-gray-700">{a.label} <span className="text-gray-400 text-xs">({a.price})</span></span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={(sel.addOnQty || {})[a.key] || ''}
+                          onChange={e => {
+                            const qty = e.target.value
+                            setSel(s => ({ ...s, addOnQty: { ...(s.addOnQty || {}), [a.key]: qty } }))
+                          }}
+                          className="w-16 border border-gray-200 px-2 py-1 text-sm text-center"
+                          placeholder="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>
