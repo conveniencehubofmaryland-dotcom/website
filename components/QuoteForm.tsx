@@ -462,16 +462,126 @@ export default function QuoteForm() {
           )}
 
           {category === 'mealprep' && (
-            <div>
-              <label className={labelClass}>Choose a Plan *</label>
-              <select required value={sel.planTier || ''} onChange={e => set('planTier', e.target.value)} className={inputClass}>
-                <option value="">Select…</option>
-                <option value="starter">Starter — 10 servings/week (~$350/mo)</option>
-                <option value="standard">Standard — 20 servings/week (~$675/mo)</option>
-                <option value="premium">Premium — 30 servings/week (~$975/mo)</option>
-                <option value="luxury">Luxury — 40+ servings/week (~$1,350/mo)</option>
-              </select>
-            </div>
+            <>
+              <div>
+                <p className={labelClass}>How would you like to be billed? *</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    { v: 'monthly', l: 'Monthly Meal Prep Plan' },
+                    { v: 'hourly', l: 'Hourly Culinary Service' },
+                    { v: 'specialty', l: 'Specialty Meals (Per Serving)' },
+                    { v: 'grocery', l: 'Grocery Shopping Service' },
+                  ].map(o => (
+                    <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
+                      <input type="radio" required name="mode" checked={sel.mode === o.v}
+                        onChange={() => set('mode', o.v)} className="accent-chm-red" />
+                      {o.l}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {sel.mode === 'monthly' && (
+                <div>
+                  <label className={labelClass}>Choose a Plan *</label>
+                  <select required value={sel.planTier || ''} onChange={e => set('planTier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="starter">Starter — 10 servings/week (~$350/mo)</option>
+                    <option value="standard">Standard — 20 servings/week (~$675/mo)</option>
+                    <option value="premium">Premium — 30 servings/week (~$975/mo)</option>
+                    <option value="luxury">Luxury — 40+ servings/week (~$1,350/mo)</option>
+                  </select>
+                </div>
+              )}
+
+              {sel.mode === 'hourly' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="personalchef">Personal Chef / Meal Prep — $90/hr</option>
+                      <option value="eventcatering">Special Event Catering Prep — $87.50/hr</option>
+                      <option value="kitchencoaching">Kitchen Coaching & Training — $105/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 3" />
+                  </div>
+                </>
+              )}
+
+              {sel.mode === 'specialty' && (
+                <div>
+                  <p className={labelClass}>Servings Needed</p>
+                  <div className="space-y-2">
+                    {[
+                      { key: 'breakfast', label: 'Breakfast Prep', price: '$10/serving' },
+                      { key: 'lunch', label: 'Lunch Pack', price: '$12.50/serving' },
+                      { key: 'dinner', label: 'Dinner Entrée', price: '$16/serving' },
+                      { key: 'dessert', label: 'Dessert/Baked Goods', price: '$9/serving' },
+                    ].map(a => (
+                      <div key={a.key} className="flex items-center justify-between gap-3 border border-gray-100 px-4 py-2">
+                        <span className="text-sm text-gray-700">{a.label} <span className="text-gray-400 text-xs">({a.price})</span></span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={(sel.specialtyQty || {})[a.key] || ''}
+                          onChange={e => {
+                            const qty = e.target.value
+                            setSel(s => ({ ...s, specialtyQty: { ...(s.specialtyQty || {}), [a.key]: qty } }))
+                          }}
+                          className="w-16 border border-gray-200 px-2 py-1 text-sm text-center"
+                          placeholder="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {sel.mode === 'grocery' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={sel.grocerySubtype || ''} onChange={e => set('grocerySubtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="basic">Basic Grocery Shopping — $40/visit</option>
+                      <option value="premium">Premium Sourcing (Specialty/Organic) — $62.50/visit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Visits *</label>
+                    <input required type="number" min={1} value={sel.groceryVisits || ''} onChange={e => set('groceryVisits', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                  <p className="text-xs text-gray-400">Mileage and receipt reimbursement calculated separately at time of service.</p>
+                </>
+              )}
+
+              {(sel.mode === 'monthly' || sel.mode === 'specialty') && sel.mode && (
+                <div>
+                  <p className={labelClass}>Dietary Modifications (optional)</p>
+                  <div className="space-y-2">
+                    {[
+                      { v: 'glutenfree', l: 'Gluten-Free (+17.5%)' },
+                      { v: 'vegan', l: 'Vegan/Vegetarian (+10%)' },
+                      { v: 'keto', l: 'Keto/Low-Carb (+17.5%)' },
+                    ].map(d => (
+                      <label key={d.v} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" checked={(sel.dietary || []).includes(d.v)}
+                          onChange={() => setSel(cur => {
+                            const list: string[] = cur.dietary || []
+                            return { ...cur, dietary: list.includes(d.v) ? list.filter((x: string) => x !== d.v) : [...list, d.v] }
+                          })} className="w-4 h-4 accent-chm-red" />
+                        {d.l}
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">Need an allergen-free or medical diet plan? Select &quot;Nanny, Elder Care, Commercial &amp; Special Projects&quot; on the previous step for a custom quote instead.</p>
+                </div>
+              )}
+            </>
           )}
 
           {(category === 'nanny' || category === 'eldercare') && (
