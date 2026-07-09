@@ -16,9 +16,8 @@ export async function getGoogleRating(): Promise<GoogleRating> {
         'X-Goog-FieldMask': 'places.rating,places.userRatingCount,places.id',
       },
       body: JSON.stringify({
-        textQuery: 'Convenience Hub of Maryland, Lanham, MD',
+        textQuery: 'Convenience Hub of Maryland 904-820-0881',
       }),
-      next: { revalidate: 86400 }, // cache for 24 hours
     })
 
     if (!res.ok) {
