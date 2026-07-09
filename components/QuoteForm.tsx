@@ -474,24 +474,170 @@ export default function QuoteForm() {
             </div>
           )}
 
-          {category === 'other' && (
+          {(category === 'nanny' || category === 'eldercare') && (
             <>
               <div>
-                <label className={labelClass}>Which service? *</label>
-                <select required value={sel.subCategory || ''} onChange={e => set('subCategory', e.target.value)} className={inputClass}>
-                  <option value="">Select…</option>
-                  <option value="nanny">Nanny / Childcare</option>
-                  <option value="eldercare">Elderly / Companion Care</option>
-                  <option value="commercial">Commercial Cleaning / Janitorial</option>
-                  <option value="special">Special Project / Event</option>
-                </select>
+                <p className={labelClass}>How would you like to be billed? *</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {[
+                    { v: 'monthly', l: 'Monthly Plan' },
+                    { v: 'hourly', l: 'Hourly Service' },
+                    ...(category === 'eldercare' ? [{ v: 'dayprogram', l: 'Adult Day Program' }] : []),
+                  ].map(o => (
+                    <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
+                      <input type="radio" required name="mode" checked={sel.mode === o.v}
+                        onChange={() => set('mode', o.v)} className="accent-chm-red" />
+                      {o.l}
+                    </label>
+                  ))}
+                </div>
               </div>
-              <div>
-                <label className={labelClass}>Tell us more about what you need *</label>
-                <textarea required rows={4} value={sel.details || ''} onChange={e => set('details', e.target.value)} className={inputClass}
-                  placeholder="Hours needed, frequency, special requirements, event date, etc." />
-              </div>
+
+              {sel.mode === 'monthly' && category === 'nanny' && (
+                <div>
+                  <label className={labelClass}>Nanny Tier *</label>
+                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="parttime">Part-Time — 15-20 hrs/week (~$2,400-3,200/mo)</option>
+                    <option value="standard">Standard — 30-35 hrs/week (~$4,800-6,300/mo)</option>
+                    <option value="premium">Premium — 40+ hrs/week (~$7,200-10,000/mo)</option>
+                  </select>
+                </div>
+              )}
+
+              {sel.mode === 'monthly' && category === 'eldercare' && (
+                <div>
+                  <label className={labelClass}>Companion Care Tier *</label>
+                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="light">Light — 8-10 hrs/week (~$800-1,000/mo)</option>
+                    <option value="standard">Standard — 20-25 hrs/week (~$2,000-2,750/mo)</option>
+                    <option value="fulltime">Full-Time — 40+ hrs/week (~$4,000-6,000/mo)</option>
+                    <option value="24hour">24-Hour Care (~$8,000-12,000/mo)</option>
+                  </select>
+                </div>
+              )}
+
+              {sel.mode === 'dayprogram' && category === 'eldercare' && (
+                <div>
+                  <label className={labelClass}>Program Type *</label>
+                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="social">Social Activities — ~$60-80/day</option>
+                    <option value="wellness">Wellness & Activity — ~$80-120/day</option>
+                    <option value="fullservice">Full-Service — ~$120-150/day</option>
+                  </select>
+                </div>
+              )}
+
+              {sel.mode === 'hourly' && category === 'nanny' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="babysitting">Standard Babysitting — $35-45/hr</option>
+                      <option value="overnight">Overnight Care — $30-40/hr</option>
+                      <option value="nannyhousekeeping">Nanny Plus Housekeeping — $35-45/hr</option>
+                      <option value="event">Event/Party Supervision — $30-40/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                  <label className="flex items-center gap-3 text-sm">
+                    <input type="checkbox" checked={!!sel.weekend} onChange={e => set('weekend', e.target.checked)} className="w-4 h-4 accent-chm-red" />
+                    Weekend / Evening Rate (+$4/hr)
+                  </label>
+                  <label className="flex items-center gap-3 text-sm">
+                    <input type="checkbox" checked={!!sel.holiday} onChange={e => set('holiday', e.target.checked)} className="w-4 h-4 accent-chm-red" />
+                    Holiday Rate (+37.5%)
+                  </label>
+                </>
+              )}
+
+              {sel.mode === 'hourly' && category === 'eldercare' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="companion">Care Companion — $30-40/hr</option>
+                      <option value="personalcare">Personal Care Assistant — $30-40/hr</option>
+                      <option value="postrecovery">Post-Recovery Care — $30-40/hr</option>
+                      <option value="respite">Respite Care — $30-40/hr</option>
+                      <option value="overnight">Overnight Care — $30-40/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                </>
+              )}
+
+              {category === 'nanny' && sel.mode && (
+                <>
+                  <div>
+                    <label className={labelClass}>Additional Children <span className="text-gray-400 normal-case">(beyond first child)</span></label>
+                    <input type="number" min={0} value={sel.extraChildren || ''} onChange={e => set('extraChildren', e.target.value)} className={inputClass} placeholder="0" />
+                  </div>
+                  <div>
+                    <p className={labelClass}>Specialized Care (optional)</p>
+                    <div className="space-y-2">
+                      {[
+                        { v: 'infant', l: 'Infant Care Specialist (+$4/hr)' },
+                        { v: 'specialneeds', l: 'Special Needs Care (+$6.50/hr)' },
+                        { v: 'bilingual', l: 'Bilingual Nanny (+$5/hr)' },
+                      ].map(s => (
+                        <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input type="checkbox" checked={(sel.specialized || []).includes(s.v)}
+                            onChange={() => setSel(cur => {
+                              const list: string[] = cur.specialized || []
+                              return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] }
+                            })} className="w-4 h-4 accent-chm-red" />
+                          {s.l}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {category === 'eldercare' && (sel.mode === 'monthly' || sel.mode === 'hourly') && (
+                <div>
+                  <p className={labelClass}>Specialized Care (optional)</p>
+                  <div className="space-y-2">
+                    {[
+                      { v: 'dementia', l: "Dementia/Alzheimer's Care (+$6/hr)" },
+                      { v: 'postsurgical', l: 'Post-Surgical Recovery Support (+$7.50/hr)' },
+                      { v: 'mobility', l: 'Mobility & Physical Assistance (+$4.50/hr)' },
+                      { v: 'medication', l: 'Medication Management (+$3/hr)' },
+                    ].map(s => (
+                      <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" checked={(sel.specialized || []).includes(s.v)}
+                          onChange={() => setSel(cur => {
+                            const list: string[] = cur.specialized || []
+                            return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] }
+                          })} className="w-4 h-4 accent-chm-red" />
+                        {s.l}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
+          )}
+
+          {(category === 'commercial' || category === 'special') && (
+            <div>
+              <label className={labelClass}>Tell us more about what you need *</label>
+              <textarea required rows={5} value={sel.details || ''} onChange={e => set('details', e.target.value)} className={inputClass}
+                placeholder={category === 'commercial'
+                  ? 'Property size (sq ft), office type, cleaning frequency needed, any specialized requirements (medical, restaurant, gym, etc.)'
+                  : 'Project type, timeline, event date, scope of work, special requirements, etc.'} />
+            </div>
           )}
 
           <div className="flex gap-4 pt-2">
