@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
 import type { Review, Deal } from '@/lib/types'
+import { getGoogleRating } from '@/lib/googleReviews'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
 export const dynamic = 'force-dynamic'
@@ -123,7 +124,7 @@ function LeafSVG({ className = '' }: { className?: string }) {
 export default async function HomePage() {
   const reviews = await dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' })
   const services = STATIC_SERVICES
-  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', limit: '4' })
+  const googleRating = await getGoogleRating()
 
   return (
     <>
@@ -206,7 +207,9 @@ export default async function HomePage() {
           </div>
           <div className="flex items-center gap-1.5 mt-5">
             <span className="text-amber-400 text-sm leading-none">★★★★★</span>
-            <span className="text-chm-black/60 text-xs font-medium">5.0 · Google Reviews</span>
+            <span className="text-chm-black/60 text-xs font-medium">
+              {googleRating ? `${googleRating.rating.toFixed(1)} · ${googleRating.reviewCount} Google Reviews` : '5.0 · Google Reviews'}
+            </span>
           </div>
         </div>
 
