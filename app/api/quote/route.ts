@@ -26,11 +26,19 @@ const ADDON_PRICES: Record<string, number> = {
 const FIRST_TIME_DISCOUNT = 0.15
 const SITE_URL = 'https://conveniencehubofmaryland.com'
 
-const LAUNDRY_DROPOFF: Record<string, number> = { wdf: 30, wih: 42.5, premium: 62.5 }
-const LAUNDRY_PICKUP: Record<string, number> = { wdf: 45, wih: 55, premium: 75 }
-const EXPRESS_SURCHARGE = 0.50
+const LAUNDRY_PER_LB: Record<string, number> = {
+  colors: 3.99, mixed: 4.99, bedding: 4.99, whites: 6.99, wool: 7.99, delicates: 8.99,
+}
+const LAUNDRY_PREMIUM_PER_LB: Record<string, number> = {
+  none: 0, ironhang: 2.00, expressiron: 4.00, samedayexpress: 1.75,
+}
+const LAUNDRY_FOLDING_RATE = 1.50
 const LAUNDRY_RECURRING: Record<string, number> = {
-  standard: 160, regular: 300, premium: 420, luxury: 560,
+  light: 140, standard: 250, premium: 350, unlimited: 500,
+}
+const LAUNDRY_ADDON_PRICES: Record<string, number> = {
+  stainRemoval: 15, allergenFree: 15, hypoallergenic: 10,
+  comforter: 40, beddingSet: 50, curtainPanels: 3.5, tablecloths: 20,
 }
 
 const MEALPREP_PLANS: Record<string, number> = {
@@ -88,29 +96,56 @@ function calcCleaning(sel: Selections): { total: number; breakdown: LineItem[] }
 function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } {
   const breakdown: LineItem[] = []
   const planType = sel.planType as string
+  let total = 0
 
   if (planType === 'recurring') {
     const cost = LAUNDRY_RECURRING[sel.recurringPlan as string] || 0
-    breakdown.push({ label: `Recurring Plan (${sel.recurringPlan})`, amount: cost })
-    return { total: cost, breakdown }
+    breakdown.push({ label: `Monthly Subscription (${sel.recurringPlan})`, amount: cost })
+    total = cost
+  } else if (planType === 'foldingOnly') {
+    const weight = Math.max(10, Number(sel.weight) || 10)
+    const cost = LAUNDRY_FOLDING_RATE * weight
+    breakdown.push({ label: `Folding Only — ${weight} lbs @ $1.50/lb`, amount: cost })
+    total = cost
+  } else {
+    // per-pound standard service
+    const category = sel.category as string
+    const weight = Math.max(10, Number(sel.weight) || 10)
+    const rate = LAUNDRY_PER_LB[category] || 0
+    const base = rate * weight
+    breakdown.push({ label: `${category} — ${weight} lbs @ $${rate.toFixed(2)}/lb`, amount: base })
+    total = base
+
+    const premium = sel.premiumOption as string
+    if (premium && premium !== 'none') {
+      const premRate = LAUNDRY_PREMIUM_PER_LB[premium] || 0
+      const premCost = premRate * weight
+      const premLabels: Record<string, string> = {
+        ironhang: 'Iron & Hang', expressiron: 'Express Iron & Press', samedayexpress: 'Same-Day Express',
+      }
+      breakdown.push({ label: `${premLabels[premium]} (+$${premRate.toFixed(2)}/lb)`, amount: premCost })
+      total += premCost
+    }
   }
 
-  const table = planType === 'pickupdelivery' ? LAUNDRY_PICKUP : LAUNDRY_DROPOFF
-  const perLoad = table[sel.serviceType as string] || 0
-  const loads = Math.max(1, Number(sel.loads) || 1)
-  const base = perLoad * loads
-  breakdown.push({ label: `${sel.serviceType} × ${loads} load(s)`, amount: base })
-
-  let total = base
-  if (sel.express) {
-    const surcharge = base * EXPRESS_SURCHARGE
-    breakdown.push({ label: 'Express Service (+50%)', amount: surcharge })
-    total = base + surcharge
+  // Specialty add-ons (apply to any plan type)
+  const addOnQty = (sel.addOnQty || {}) as Record<string, number>
+  for (const [key, price] of Object.entries(LAUNDRY_ADDON_PRICES)) {
+    const qty = Number(addOnQty[key]) || 0
+    if (qty > 0) {
+      const addonLabels: Record<string, string> = {
+        stainRemoval: 'Stain Removal Treatment', allergenFree: 'Allergen-Free Wash Cycle',
+        hypoallergenic: 'Hypoallergenic Detergent', comforter: 'Comforter/Duvet Cleaning',
+        beddingSet: 'Bedding Set', curtainPanels: 'Curtain Panels', tablecloths: 'Tablecloths',
+      }
+      const cost = price * qty
+      breakdown.push({ label: `${addonLabels[key]} × ${qty}`, amount: cost })
+      total += cost
+    }
   }
 
   return { total, breakdown }
 }
-
 function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] } {
   const cost = MEALPREP_PLANS[sel.planTier as string] || 0
   return { total: cost, breakdown: [{ label: `Meal Prep Plan (${sel.planTier})`, amount: cost }] }
