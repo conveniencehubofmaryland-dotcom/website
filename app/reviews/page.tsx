@@ -46,7 +46,7 @@ export default async function ReviewsPage() {
             Customer Reviews
           </h1>
           <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
-          <<div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-amber-400 text-xl leading-none">★★★★★</span>
               <span className="text-chm-black/70 text-sm font-medium">5.0 Average Rating</span>
