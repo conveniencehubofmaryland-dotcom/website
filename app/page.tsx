@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 const STATIC_SERVICES = [
   { slug: 'cleaning', title: 'Professional Cleaning & Estate Care', subtitle: 'Residential · Commercial · Estate', description: 'Studio to estate-scale cleaning. Standard, deep clean, move-in/out, and recurring plans.', price_from: 'From $100/visit' },
-  { slug: 'culinary', title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Tidying · Laundry · Errands', description: 'Light cooking, meal prep, tidying, laundry, errands, and deep organization. 6-hour minimum.', price_from: 'From $50/hr' },
+  { slug: 'culinary', title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Organization · Home Management · Errands', description: 'Meal prep plans, personal chef services, household organization, and errand running tailored to your needs.', price_from: 'From $300/month' },
   { slug: 'laundry', title: 'Premium Laundry Pickup & Delivery', subtitle: 'Pickup · Wash · Dry · Fold · Deliver', description: 'We handle everything — pickup to delivery. Regular and same-day express options available.', price_from: 'From $3.99/lb' },
   { slug: 'care', title: 'Premium Nanny & Care Services', subtitle: 'Childcare · Companionship · Adult Care', description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.', price_from: 'Custom Quote' },
   { slug: 'commercial', title: 'Commercial Operations & Special Projects', subtitle: 'Offices · Retail · Warehouses', description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.', price_from: 'Custom Quote' },
@@ -357,7 +357,7 @@ export default async function HomePage() {
                 <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
                 <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Free upgrade services (quarterly)</span></div>
                 <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Dedicated customer service line</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($25 credit)</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($20 credit)</span></div>
               </div>
             </div>
           </div>
