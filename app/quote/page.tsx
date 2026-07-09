@@ -3,7 +3,7 @@ import QuoteForm from '@/components/QuoteForm'
 
 export const metadata: Metadata = {
   title: 'Get a Quote',
-  description: 'Get an instant price estimate for cleaning, laundry, or meal prep services from Convenience Hub of Maryland.',
+  description: 'Get an instant price estimate for cleaning, laundry, meal prep, nanny, or elder care services from Convenience Hub of Maryland.',
 }
 
 export default function QuotePage() {
