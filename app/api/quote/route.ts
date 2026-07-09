@@ -40,7 +40,23 @@ const LAUNDRY_ADDON_PRICES: Record<string, number> = {
   stainRemoval: 15, allergenFree: 15, hypoallergenic: 10,
   comforter: 40, beddingSet: 50, curtainPanels: 3.5, tablecloths: 20,
 }
-
+const MEALPREP_PLANS: Record<string, number> = {
+  starter: 350, standard: 675, premium: 975, luxury: 1350,
+}
+const CULINARY_HOURLY: Record<string, { rate: number; minHrs: number }> = {
+  personalchef: { rate: 90, minHrs: 3 },
+  eventcatering: { rate: 87.5, minHrs: 4 },
+  kitchencoaching: { rate: 105, minHrs: 2 },
+}
+const CULINARY_SPECIALTY_PER_SERVING: Record<string, number> = {
+  breakfast: 10, lunch: 12.5, dinner: 16, dessert: 9,
+}
+const CULINARY_GROCERY: Record<string, number> = {
+  basic: 40, premium: 62.5,
+}
+const CULINARY_DIETARY_PCT: Record<string, number> = {
+  glutenfree: 0.175, vegan: 0.10, keto: 0.175,
+}
 // Nanny / Childcare
 const NANNY_MONTHLY: Record<string, { cost: number; avgWeeklyHrs: number }> = {
   parttime: { cost: 2800, avgWeeklyHrs: 17.5 },
@@ -177,6 +193,59 @@ function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } 
       const cost = price * qty
       breakdown.push({ label: `${addonLabels[key]} × ${qty}`, amount: cost })
       total += cost
+    }
+  }
+
+  return { total, breakdown }
+}
+function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const breakdown: LineItem[] = []
+  const mode = sel.mode as string || 'monthly'
+  let total = 0
+
+  if (mode === 'hourly') {
+    const opt = CULINARY_HOURLY[sel.subtype as string]
+    if (opt) {
+      const hrs = Math.max(opt.minHrs, Number(sel.hours) || opt.minHrs)
+      const labels: Record<string, string> = { personalchef: 'Personal Chef / Meal Prep', eventcatering: 'Special Event Catering Prep', kitchencoaching: 'Kitchen Coaching & Training' }
+      const cost = opt.rate * hrs
+      breakdown.push({ label: `${labels[sel.subtype as string]} — ${hrs} hrs @ $${opt.rate}/hr`, amount: cost })
+      total = cost
+    }
+  } else if (mode === 'specialty') {
+    const qty = (sel.specialtyQty || {}) as Record<string, number>
+    const labels: Record<string, string> = { breakfast: 'Breakfast Prep', lunch: 'Lunch Pack', dinner: 'Dinner Entrée', dessert: 'Dessert/Baked Goods' }
+    for (const [key, price] of Object.entries(CULINARY_SPECIALTY_PER_SERVING)) {
+      const n = Number(qty[key]) || 0
+      if (n > 0) {
+        const cost = price * n
+        breakdown.push({ label: `${labels[key]} × ${n} servings`, amount: cost })
+        total += cost
+      }
+    }
+  } else if (mode === 'grocery') {
+    const service = sel.grocerySubtype as string
+    const visits = Math.max(1, Number(sel.groceryVisits) || 1)
+    const rate = CULINARY_GROCERY[service] || 0
+    const cost = rate * visits
+    const labels: Record<string, string> = { basic: 'Basic Grocery Shopping', premium: 'Premium Sourcing (Specialty/Organic)' }
+    breakdown.push({ label: `${labels[service]} × ${visits} visit(s)`, amount: cost })
+    total = cost
+  } else {
+    const cost = MEALPREP_PLANS[sel.planTier as string] || 0
+    breakdown.push({ label: `Meal Prep Plan (${sel.planTier})`, amount: cost })
+    total = cost
+  }
+
+  if ((mode === 'monthly' || mode === 'specialty') && Array.isArray(sel.dietary)) {
+    const dietaryLabels: Record<string, string> = { glutenfree: 'Gluten-Free (+17.5%)', vegan: 'Vegan/Vegetarian (+10%)', keto: 'Keto/Low-Carb (+17.5%)' }
+    for (const d of sel.dietary as string[]) {
+      const pct = CULINARY_DIETARY_PCT[d]
+      if (pct) {
+        const cost = total * pct
+        breakdown.push({ label: dietaryLabels[d], amount: cost })
+        total += cost
+      }
     }
   }
 
