@@ -31,8 +31,7 @@ const contactLinks = [
 const navLinks = [
   { href: '/services',   label: 'Services'   },
   { href: '/deals',      label: 'Deals'      },
-  { href: '/membership', label: 'Membership' },
-  { href: '/careers',    label: 'Careers'    },
+  { href: '/deals',      label: 'Deals & Membership' },
   { href: '/reviews',    label: 'Reviews'    },
   { href: '/book',       label: 'Book Now'   },
   { href: '/contact',    label: 'Contact'    },
