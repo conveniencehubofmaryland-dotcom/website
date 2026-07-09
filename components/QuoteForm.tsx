@@ -58,8 +58,19 @@ function summarizeSelections(category: Category, sel: Record<string, any>): stri
     }
   } else if (category === 'mealprep') {
     lines.push(`Plan: ${sel.planTier || '—'}`)
-  } else if (category === 'other') {
-    lines.push(`Service: ${sel.subCategory || '—'}`)
+  } else if (category === 'nanny' || category === 'eldercare') {
+    if (sel.mode === 'monthly') {
+      lines.push(`Monthly Plan: ${sel.tier || '—'}`)
+    } else if (sel.mode === 'dayprogram') {
+      lines.push(`Adult Day Program: ${sel.tier || '—'}`)
+    } else {
+      lines.push(`Hourly: ${sel.subtype || '—'} — ${sel.hours || '—'} hrs`)
+    }
+    if (sel.extraChildren && Number(sel.extraChildren) > 0) lines.push(`Additional children: ${sel.extraChildren}`)
+    if (Array.isArray(sel.specialized) && sel.specialized.length > 0) lines.push(`Specialized care: ${sel.specialized.join(', ')}`)
+    if (sel.weekend) lines.push('Weekend/Evening rate')
+    if (sel.holiday) lines.push('Holiday rate')
+  } else if (category === 'commercial' || category === 'special') {
     if (sel.details) lines.push(`Details: ${sel.details}`)
   }
   return lines
@@ -203,7 +214,10 @@ export default function QuoteForm() {
       { id: 'cleaning', title: 'Cleaning & Estate Care', desc: 'Standard, deep, or move-in/move-out cleaning' },
       { id: 'laundry', title: 'Laundry Pickup & Delivery', desc: 'Drop-off, pickup & delivery, or recurring plans' },
       { id: 'mealprep', title: 'Meal Prep', desc: 'Weekly meal preparation plans' },
-      { id: 'other', title: 'Nanny, Elder Care, Commercial & Special Projects', desc: "We'll send you a custom quote" },
+      { id: 'nanny', title: 'Nanny & Childcare', desc: 'Full-time, hourly, or specialized childcare' },
+      { id: 'eldercare', title: 'Elder & Companion Care', desc: 'Companion care, hourly support, or day programs' },
+      { id: 'commercial', title: 'Commercial Cleaning', desc: "We'll send you a custom quote" },
+      { id: 'special', title: 'Special Project / Event', desc: "We'll send you a custom quote" },
     ]
     return (
       <div className="max-w-2xl">
@@ -509,7 +523,7 @@ export default function QuoteForm() {
           </div>
 
           <p className="text-xs text-gray-400">
-            Everything look right? Continue to get your {category === 'other' ? 'custom quote request' : 'instant estimate'}.
+            Everything look right? Continue to get your {(category === 'commercial' || category === 'special') ? 'custom quote request' : 'instant estimate'}.
           </p>
 
           <div className="flex gap-4 pt-2">
