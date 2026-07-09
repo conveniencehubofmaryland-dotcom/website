@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import type { Review } from '@/lib/types'
+import type { Review, Deal } from '@/lib/types'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
 export const dynamic = 'force-dynamic'
@@ -12,13 +12,6 @@ const STATIC_SERVICES = [
   { slug: 'laundry', title: 'Premium Laundry Pickup & Delivery', subtitle: 'Pickup · Wash · Dry · Fold · Deliver', description: 'We handle everything — pickup to delivery. Regular and same-day express options available.', price_from: 'From $3.99/lb' },
   { slug: 'care', title: 'Premium Nanny & Care Services', subtitle: 'Childcare · Companionship · Adult Care', description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.', price_from: 'Custom Quote' },
   { slug: 'commercial', title: 'Commercial Operations & Special Projects', subtitle: 'Offices · Retail · Warehouses', description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.', price_from: 'Custom Quote' },
-]
-
-const STATIC_DEALS = [
-  { badge: 'Monday', headline: '$20 Flat — 10 lbs Colored Laundry', detail: 'Economy 1-week turnaround delivery.' },
-  { badge: 'Wednesday', headline: '5% OFF for Nurses, Students & Expectant Mothers', detail: 'Show valid ID at time of booking to redeem.' },
-  { badge: 'Weekend', headline: '3% OFF Bulk Laundry — 100+ lbs', detail: 'Saturday & Sunday only. Applied automatically.' },
-  { badge: 'Members', headline: 'FREE Signup + 2% Off Recurring Services', detail: 'No expiry. Locked-in discount on all monthly contracts.' },
 ]
 
 export const metadata: Metadata = {
@@ -130,7 +123,7 @@ function LeafSVG({ className = '' }: { className?: string }) {
 export default async function HomePage() {
   const reviews = await dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' })
   const services = STATIC_SERVICES
-  const deals = STATIC_DEALS
+  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', limit: '4' })
 
   return (
     <>
@@ -442,7 +435,7 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200">
             {deals.map((d, i) => (
-              <AnimatedSection key={d.badge} delay={i * 60}>
+              <AnimatedSection key={d.id} delay={i * 60}>
                 <div className="bg-white p-6 hover:bg-blush transition-colors h-full">
                   <p className="text-chm-red font-semibold text-xs uppercase tracking-widest mb-3">{d.badge}</p>
                   <p className="font-serif text-chm-black text-base mb-2 leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>
