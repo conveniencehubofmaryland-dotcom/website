@@ -41,8 +41,44 @@ const LAUNDRY_ADDON_PRICES: Record<string, number> = {
   comforter: 40, beddingSet: 50, curtainPanels: 3.5, tablecloths: 20,
 }
 
-const MEALPREP_PLANS: Record<string, number> = {
-  starter: 350, standard: 675, premium: 975, luxury: 1350,
+// Nanny / Childcare
+const NANNY_MONTHLY: Record<string, { cost: number; avgWeeklyHrs: number }> = {
+  parttime: { cost: 2800, avgWeeklyHrs: 17.5 },
+  standard: { cost: 5550, avgWeeklyHrs: 32.5 },
+  premium:  { cost: 8600, avgWeeklyHrs: 40 },
+}
+const NANNY_HOURLY: Record<string, { rate: number; minHrs: number }> = {
+  babysitting: { rate: 40, minHrs: 2 },
+  overnight: { rate: 35, minHrs: 8 },
+  nannyhousekeeping: { rate: 40, minHrs: 3 },
+  event: { rate: 35, minHrs: 2 },
+}
+const NANNY_SPECIALIZED_PER_HR: Record<string, number> = {
+  infant: 4, specialneeds: 6.5, bilingual: 5,
+}
+const NANNY_EXTRA_CHILD_PER_HR = 3.5
+const NANNY_WEEKEND_PER_HR = 4
+const NANNY_HOLIDAY_MULTIPLIER = 0.375
+
+// Elder / Companion Care
+const CARE_MONTHLY: Record<string, { cost: number; avgWeeklyHrs: number }> = {
+  light: { cost: 900, avgWeeklyHrs: 9 },
+  standard: { cost: 2375, avgWeeklyHrs: 22.5 },
+  fulltime: { cost: 5000, avgWeeklyHrs: 40 },
+  '24hour': { cost: 10000, avgWeeklyHrs: 168 },
+}
+const CARE_HOURLY: Record<string, { rate: number; minHrs: number }> = {
+  companion: { rate: 35, minHrs: 2 },
+  personalcare: { rate: 35, minHrs: 3 },
+  postrecovery: { rate: 35, minHrs: 4 },
+  respite: { rate: 35, minHrs: 4 },
+  overnight: { rate: 35, minHrs: 8 },
+}
+const CARE_SPECIALIZED_PER_HR: Record<string, number> = {
+  dementia: 6, postsurgical: 7.5, mobility: 4.5, medication: 3,
+}
+const CARE_DAY_PROGRAM: Record<string, number> = {
+  social: 350, wellness: 500, fullservice: 675,
 }
 
 type Selections = Record<string, unknown>
@@ -146,9 +182,106 @@ function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } 
 
   return { total, breakdown }
 }
-function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] } {
-  const cost = MEALPREP_PLANS[sel.planTier as string] || 0
-  return { total: cost, breakdown: [{ label: `Meal Prep Plan (${sel.planTier})`, amount: cost }] }
+function calcNanny(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const breakdown: LineItem[] = []
+  const mode = sel.mode as string
+  let total = 0
+  let effectiveHrs = 0
+
+  if (mode === 'monthly') {
+    const tier = NANNY_MONTHLY[sel.tier as string]
+    if (tier) {
+      breakdown.push({ label: `${sel.tier} Nanny (Monthly)`, amount: tier.cost })
+      total = tier.cost
+      effectiveHrs = tier.avgWeeklyHrs * 4.33
+    }
+  } else {
+    const opt = NANNY_HOURLY[sel.subtype as string]
+    if (opt) {
+      const hrs = Math.max(opt.minHrs, Number(sel.hours) || opt.minHrs)
+      const base = opt.rate * hrs
+      breakdown.push({ label: `${sel.subtype} — ${hrs} hrs @ $${opt.rate}/hr`, amount: base })
+      total = base
+      effectiveHrs = hrs
+    }
+  }
+
+  const extraChildren = Number(sel.extraChildren) || 0
+  if (extraChildren > 0 && effectiveHrs > 0) {
+    const cost = extraChildren * NANNY_EXTRA_CHILD_PER_HR * effectiveHrs
+    breakdown.push({ label: `${extraChildren} Additional Child(ren)`, amount: cost })
+    total += cost
+  }
+
+  if (Array.isArray(sel.specialized)) {
+    for (const s of sel.specialized as string[]) {
+      const perHr = NANNY_SPECIALIZED_PER_HR[s]
+      if (perHr && effectiveHrs > 0) {
+        const cost = perHr * effectiveHrs
+        const labels: Record<string, string> = { infant: 'Infant Care Specialist', specialneeds: 'Special Needs Care', bilingual: 'Bilingual Nanny' }
+        breakdown.push({ label: labels[s], amount: cost })
+        total += cost
+      }
+    }
+  }
+
+  if (sel.weekend && mode === 'hourly' && effectiveHrs > 0) {
+    const cost = NANNY_WEEKEND_PER_HR * effectiveHrs
+    breakdown.push({ label: 'Weekend/Evening Rate', amount: cost })
+    total += cost
+  }
+
+  if (sel.holiday && mode === 'hourly') {
+    const cost = total * NANNY_HOLIDAY_MULTIPLIER
+    breakdown.push({ label: 'Holiday Rate (+37.5%)', amount: cost })
+    total += cost
+  }
+
+  return { total, breakdown }
+}
+
+function calcElderCare(sel: Selections): { total: number; breakdown: LineItem[] } {
+  const breakdown: LineItem[] = []
+  const mode = sel.mode as string
+  let total = 0
+  let effectiveHrs = 0
+
+  if (mode === 'monthly') {
+    const tier = CARE_MONTHLY[sel.tier as string]
+    if (tier) {
+      const label = sel.tier === '24hour' ? '24-Hour Care (Monthly)' : `${sel.tier} Companion Care (Monthly)`
+      breakdown.push({ label, amount: tier.cost })
+      total = tier.cost
+      effectiveHrs = tier.avgWeeklyHrs * 4.33
+    }
+  } else if (mode === 'dayprogram') {
+    const weekly = CARE_DAY_PROGRAM[sel.tier as string] || 0
+    breakdown.push({ label: `Adult Day Program (${sel.tier}) — Weekly`, amount: weekly })
+    total = weekly
+  } else {
+    const opt = CARE_HOURLY[sel.subtype as string]
+    if (opt) {
+      const hrs = Math.max(opt.minHrs, Number(sel.hours) || opt.minHrs)
+      const base = opt.rate * hrs
+      breakdown.push({ label: `${sel.subtype} — ${hrs} hrs @ $${opt.rate}/hr`, amount: base })
+      total = base
+      effectiveHrs = hrs
+    }
+  }
+
+  if (Array.isArray(sel.specialized)) {
+    for (const s of sel.specialized as string[]) {
+      const perHr = CARE_SPECIALIZED_PER_HR[s]
+      if (perHr && effectiveHrs > 0) {
+        const cost = perHr * effectiveHrs
+        const labels: Record<string, string> = { dementia: "Dementia/Alzheimer's Care", postsurgical: 'Post-Surgical Recovery Support', mobility: 'Mobility & Physical Assistance', medication: 'Medication Management' }
+        breakdown.push({ label: labels[s], amount: cost })
+        total += cost
+      }
+    }
+  }
+
+  return { total, breakdown }
 }
 
 function bookNowUrl(category: string, name: string, email: string, phone: string): string {
