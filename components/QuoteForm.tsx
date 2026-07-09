@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 
-type Category = 'cleaning' | 'laundry' | 'mealprep' | 'other' | ''
+type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
 
 const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
@@ -12,9 +12,11 @@ const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
   laundry: 'laundry',
   mealprep: 'culinary',
-  other: 'care',
+  nanny: 'care',
+  eldercare: 'care',
+  commercial: 'commercial',
+  special: 'care',
 }
-
 const STEP_LABELS = ['Service', 'Details', 'Review', 'Contact']
 
 function formatPhone(value: string) {
@@ -28,7 +30,10 @@ const CATEGORY_TITLES: Record<string, string> = {
   cleaning: 'Cleaning & Estate Care',
   laundry: 'Laundry Pickup & Delivery',
   mealprep: 'Meal Prep',
-  other: 'Custom Service Request',
+  nanny: 'Nanny & Childcare',
+  eldercare: 'Elder & Companion Care',
+  commercial: 'Commercial Cleaning',
+  special: 'Special Project / Event',
 }
 
 function summarizeSelections(category: Category, sel: Record<string, any>): string[] {
