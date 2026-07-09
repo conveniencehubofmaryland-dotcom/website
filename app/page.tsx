@@ -124,8 +124,8 @@ function LeafSVG({ className = '' }: { className?: string }) {
 export default async function HomePage() {
   const reviews = await dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' })
   const services = STATIC_SERVICES
+  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', limit: '4' })
   const googleRating = await getGoogleRating()
-
   return (
     <>
       <AuthRedirectHandler />
