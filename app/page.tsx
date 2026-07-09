@@ -258,10 +258,13 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
           <AnimatedSection>
             <div className="mb-10">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">What We Offer</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-                Our Services
+              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Where We Serve</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
+                Service Areas
               </h2>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-2xl">
+                Hi Neighbors! We&apos;re already serving homes across the DMV — premium cleaning, free laundry pickup, and household management from background-checked staff. Try us today with exclusive neighborhood deals.
+              </p>
               <div className="w-10 h-px bg-chm-red mt-4" />
             </div>
           </AnimatedSection>
