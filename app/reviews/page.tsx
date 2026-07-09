@@ -46,9 +46,19 @@ export default async function ReviewsPage() {
             Customer Reviews
           </h1>
           <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
-          <div className="flex items-center gap-2">
-            <span className="text-amber-400 text-xl leading-none">★★★★★</span>
-            <span className="text-chm-black/70 text-sm font-medium">5.0 Average Rating</span>
+          <<div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-400 text-xl leading-none">★★★★★</span>
+              <span className="text-chm-black/70 text-sm font-medium">5.0 Average Rating</span>
+            </div>
+            
+              href="https://g.page/r/CR84fHf4AZk-EAE/review"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border-2 border-chm-red text-chm-red px-5 py-2 text-xs font-semibold uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors"
+            >
+              Review Us on Google →
+            </a>
           </div>
         </div>
       </div>
@@ -103,9 +113,16 @@ export default async function ReviewsPage() {
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
             <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Share Your Experience</p>
-            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+            <h2 className="font-serif text-3xl text-chm-black mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
               Leave a Review
             </h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Share your experience below, or{' '}
+              <a href="https://g.page/r/CR84fHf4AZk-EAE/review" target="_blank" rel="noopener noreferrer" className="text-chm-red underline">
+                leave us a review on Google
+              </a>
+              {' '}instead.
+            </p>
             <ReviewForm services={serviceOptions} />
           </div>
         </AnimatedSection>
