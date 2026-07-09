@@ -4,19 +4,19 @@ import { dbInsertService } from '@/lib/db'
 const TAX_RATE = 0.06
 
 const STANDARD_CLEANING: Record<string, number> = {
-  studio: 150, '1br': 200, '2br': 250, '3br': 300, '4br': 350, '5br+': 450,
+  studio: 100, '1br': 150, '2br': 250, '3br': 350, '4br': 450, '5br+': 500,
 }
 const DEEP_CLEANING: Record<string, number> = {
   studio: 250, '1br': 300, '2br': 350, '3br': 450, '4br': 600, '5br+': 750,
 }
 const MOVEINOUT: Record<string, { good: number; poor: number }> = {
-  '1br': { good: 380, poor: 520 },
-  '3br': { good: 580, poor: 820 },
-  '4br': { good: 760, poor: 1100 },
+  '1br': { good: 450, poor: 600 },
+  '3br': { good: 600, poor: 900 },
+  '4br': { good: 800, poor: 1200 },
   '5br': { good: 950, poor: 1350 },
 }
 const FREQUENCY_DISCOUNT: Record<string, number> = {
-  onetime: 0, monthly: 0.10, biweekly: 0.15, weekly: 0.20, twiceweekly: 0.25,
+  onetime: 0, monthly: 0.10, biweekly: 0.10, weekly: 0.15, twiceweekly: 0.15,
 }
 const PET_FEE: Record<string, number> = { '0': 0, '1': 27.5, '2': 50, '3+': 80 }
 const ADDON_PRICES: Record<string, number> = {
