@@ -289,7 +289,10 @@ function bookNowUrl(category: string, name: string, email: string, phone: string
     cleaning: 'cleaning',
     laundry: 'laundry',
     mealprep: 'culinary',
-    other: 'care',
+    nanny: 'care',
+    eldercare: 'care',
+    commercial: 'commercial',
+    special: 'care',
   }
   const params = new URLSearchParams({
     name, email, phone,
@@ -328,6 +331,14 @@ export async function POST(req: NextRequest) {
       breakdown = r.breakdown
     } else if (category === 'mealprep') {
       const r = calcMealPrep(selections || {})
+      subtotal = r.total
+      breakdown = r.breakdown
+    } else if (category === 'nanny') {
+      const r = calcNanny(selections || {})
+      subtotal = r.total
+      breakdown = r.breakdown
+    } else if (category === 'eldercare') {
+      const r = calcElderCare(selections || {})
       subtotal = r.total
       breakdown = r.breakdown
     }
