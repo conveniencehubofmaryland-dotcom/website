@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 const POSITIONS = [
   'Cleaning Specialist',
@@ -57,7 +56,7 @@ export default function WelcomeCenterPage() {
             Thank you, <strong>{form.full_name}</strong>. We've received your information and sent a confirmation email to <strong>{form.email}</strong>.
           </p>
           <p className="text-gray-500 text-sm leading-relaxed mb-8">
-            Our team will review your application and be in touch within 1–2 business days with your offer letter and next steps.
+            Our team will review your application and be in touch within 1-2 business days with your offer letter and next steps..
           </p>
           <p className="text-gray-400 text-xs">
             Questions? Call us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM)
