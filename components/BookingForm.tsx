@@ -182,10 +182,11 @@ export default function BookingForm({ services, initial }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
-              Email <span className="text-gray-400 normal-case tracking-normal">(optional)</span>
+              Email
             </label>
             <input
               type="email"
+              required
               value={form.email}
               onChange={e => set('email', e.target.value)}
               className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
