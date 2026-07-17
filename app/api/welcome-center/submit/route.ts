@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { dbSelectAuth, dbInsertService } from '@/lib/db'
+import { dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
 
 export async function POST(req: Request) {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     sendUserEmail(
       email.trim(),
       'Welcome to Convenience Hub of Maryland',
-      `Hi ${full_name.trim()}, thank you for your interest in joining our team as a ${position.trim()}. We've received your information and our team will be in touch shortly with next steps, including your offer letter.`
+      `Hi ${full_name.trim()}, thank you for your interest in joining our team as a ${position.trim()}. We&apos;ve received your information and our team will be in touch shortly with next steps, including your offer letter.`
     ),
     sendAdminEmail(
       `New Welcome Center submission: ${full_name.trim()} - ${position.trim()}`,
