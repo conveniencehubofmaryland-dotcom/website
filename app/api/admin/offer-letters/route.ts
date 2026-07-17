@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
-import { dbSelectAuth, dbInsertAuth } from '@/lib/db'
+import { dbSelectAuth, dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
   }
 
-  const { error: insertError } = await dbInsertAuth('offer_letters', token, {
+  const { error: insertError } = await dbInsertService('offer_letters', {
     applicant_id,
     position,
     salary_annual,
