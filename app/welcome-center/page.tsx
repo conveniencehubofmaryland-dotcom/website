@@ -53,13 +53,13 @@ export default function WelcomeCenterPage() {
           <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
           <h1 className="font-serif text-3xl text-chm-black mb-4">Thank You</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
-            Thank you, <strong>{form.full_name}</strong>. We've received your information and sent a confirmation email to <strong>{form.email}</strong>.
+            Thank you, <strong>{form.full_name}</strong>. We&apos;ve received your information and sent a confirmation email to <strong>{form.email}</strong>.
           </p>
           <p className="text-gray-500 text-sm leading-relaxed mb-8">
-            Our team will review your application and be in touch within 1-2 business days with your offer letter and next steps..
+            Our team will review your application and be in touch within 1-2 business days with your offer letter and next steps.
           </p>
           <p className="text-gray-400 text-xs">
-            Questions? Call us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM)
+            Questions? Call us at <strong>202-579-2944</strong> (Mon&#8211;Sat, 9 AM&#8211;9 PM)
           </p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function WelcomeCenterPage() {
           </button>
 
           <p className="text-xs text-gray-400 text-center">
-            Mon–Sat 9 AM–9 PM · 202-579-2944
+            Mon&#8211;Sat 9 AM&#8211;9 PM · 202-579-2944
           </p>
         </form>
       </div>
