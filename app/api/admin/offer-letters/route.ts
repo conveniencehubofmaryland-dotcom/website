@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { dbSelectAuth, dbInsertAuth } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const applicants = await dbSelectAuth<any>('offer_letter_applicants', token, {
+  const applicants = await dbSelectAuth<{ id: string; full_name: string; email: string; position: string }>('offer_letter_applicants', token, {
     select: 'id,full_name,email,position',
   })
 
