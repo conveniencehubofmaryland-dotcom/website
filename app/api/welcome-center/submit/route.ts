@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { dbInsertService } from '@/lib/db'
+import { dbSelectAuth, dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
 
 export async function POST(req: Request) {
