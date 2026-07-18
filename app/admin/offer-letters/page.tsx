@@ -4,6 +4,7 @@ import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
+import ApplicantNotesButton from '@/components/ApplicantNotesButton'
 
 type Applicant = {
   id: string
@@ -13,9 +14,9 @@ type Applicant = {
   position: string
   address: string | null
   status: 'draft' | 'sent' | 'signed' | 'expired'
+  notes: string | null
   created_at: string
 }
-
 type OfferLetter = {
   id: string
   applicant_id: string
@@ -111,7 +112,7 @@ export default async function AdminOfferLettersPage({
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200 bg-gray-50">
-                      {['Name', 'Email', 'Phone', 'Status', 'Applied', 'Action'].map(h => (
+                      {['Name', 'Email', 'Phone', 'Status', 'Notes', 'Applied', 'Action'].map(h => (
                         <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                           {h}
                         </th>
@@ -130,6 +131,9 @@ export default async function AdminOfferLettersPage({
                           <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
                           <td className="py-3 px-4">
                             <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
+                          </td>
+                          <td className="py-3 px-4">
+                            <ApplicantNotesButton applicantId={applicant.id} initialNotes={applicant.notes} />
                           </td>
                           <td className="py-3 px-4 text-xs text-gray-500">
                             {new Date(applicant.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
