@@ -3,6 +3,8 @@ import { dbSelectAuth } from '@/lib/db'
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 
+console.log('[admin/offer-letters] Page rendering')
+
 type Applicant = {
   id: string
   full_name: string
@@ -13,6 +15,9 @@ type Applicant = {
   status: 'draft' | 'sent' | 'signed'
   created_at: string
 }
+
+console.log('[admin/offer-letters] Token:', token ? 'present' : 'missing')
+console.log('[admin/offer-letters] Applicants found:', applicants.length)
 
 export default async function AdminOfferLettersPage() {
   const cookieStore = await cookies()
