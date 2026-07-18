@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     ])
 
     console.log('[welcome-center] Emails sent successfully')
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, id: applicant_id })
   } catch (err) {
     console.error('[welcome-center] Unexpected error:', err)
     return NextResponse.json({ error: 'Unexpected error. Please call us at 202-579-2944.' }, { status: 500 })
