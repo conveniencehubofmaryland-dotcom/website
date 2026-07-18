@@ -11,40 +11,24 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Insert applicant and get the response with ID
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants`,
-      {
-        method: 'POST',
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          'Content-Type': 'application/json',
-          Prefer: 'return=representation',
-        },
-        body: JSON.stringify({
-          full_name,
-          email,
-          phone,
-          position,
-          address: address || null,
-          status: 'draft',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }),
-      }
-    )
+    // Generate UUID for the applicant
+    const applicant_id = crypto.randomUUID()
 
-    if (!res.ok) {
-      const error = await res.text()
-      console.error('[welcome-center] Supabase error:', error)
-      return NextResponse.json({ error: 'Failed to create applicant record' }, { status: 500 })
-    }
+    // Insert using dbInsertService (uses service role key with full permissions)
+    const { error: insertError } = await dbInsertService('offer_letter_applicants', {
+      id: applicant_id,
+      full_name,
+      email,
+      phone,
+      position,
+      address: address || null,
+      status: 'draft',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
 
-    const insertedRows = await res.json()
-    const applicant_id = insertedRows[0]?.id
-
-    if (!applicant_id) {
-      console.error('[welcome-center] No ID returned from insert')
+    if (insertError) {
+      console.error('[welcome-center] Insert error:', insertError)
       return NextResponse.json({ error: 'Failed to create applicant record' }, { status: 500 })
     }
 
