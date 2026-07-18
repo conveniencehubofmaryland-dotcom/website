@@ -41,28 +41,58 @@ export async function POST(req: NextRequest) {
   const deadlineDateFormatted = new Date(deadline_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
   const offerLetterHtml = `
-    <p><strong>Convenience Hub of Maryland Offer Letter</strong></p>
-    <p>Date: ${today}</p>
-    <p>Dear ${applicant.full_name},</p>
-    <p>We are excited to offer you the position of <strong>${position}</strong> at Convenience Hub of Maryland. Your start date will be <strong>${startDateFormatted}</strong>.</p>
-    <p><strong>Pay:</strong> $${salary_annual} per ${pay_frequency || 'year'}, paid ${pay_frequency === 'hour' ? 'weekly every Friday' : 'weekly'}.</p>
-    <p><strong>Benefits include:</strong></p>
-    <ul>
-      <li>Weekly Pay – Get paid every week for your work performed in the prior work week.</li>
-      <li>401(k) Plan – After 90 days of employment, you&apos;ll be eligible to join Convenience Hub of Maryland&apos;s 401(k) plan to save for your future.</li>
-      ${benefits_summary ? `<li>${benefits_summary}</li>` : ''}
-    </ul>
-    <p>Additional details on benefits will be provided during onboarding.</p>
-    <p><strong>Important Terms:</strong></p>
-    <ul>
-      <li>This offer is contingent on completing a background check and company paperwork.</li>
-      <li>Employment with Convenience Hub of Maryland is at-will.</li>
-    </ul>
-    <p><strong>To accept, please sign and return this letter by ${deadlineDateFormatted}.</strong></p>
-    <p>Welcome to the Convenience Hub of Maryland team!</p>
-    <p>Sincerely,<br>${manager_name}<br>Convenience Hub of Maryland<br>202-579-2944</p>
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
+      <h2 style="text-align: center; color: #1a1a1a;">CONVENIENCE HUB OF MARYLAND</h2>
+      <h3 style="text-align: center; color: #666;">Offer of Employment</h3>
+      
+      <p style="margin-top: 30px;"><strong>Date:</strong> ${today}</p>
+      
+      <p>Dear ${applicant.full_name},</p>
+      
+      <p>We are pleased to offer you the position of <strong>${position}</strong> at Convenience Hub of Maryland, effective <strong>${startDateFormatted}</strong>.</p>
+      
+      <h4>POSITION DETAILS</h4>
+      <ul>
+        <li><strong>Position:</strong> ${position}</li>
+        <li><strong>Reports To:</strong> ${manager_name}</li>
+        <li><strong>Employment Type:</strong> Full-Time</li>
+        <li><strong>Hours:</strong> 40 hours per week (schedule to be discussed)</li>
+        <li><strong>Hourly Rate:</strong> $${salary_annual}/hour, paid weekly every Friday</li>
+      </ul>
+      
+      <h4>COMPENSATION &amp; BENEFITS</h4>
+      <ul>
+        <li><strong>Weekly Pay:</strong> Paid every Friday for work performed in the prior week</li>
+        <li><strong>401(k) Retirement Plan:</strong> Eligible after 90 days of employment</li>
+      </ul>
+      
+      <h4>TERMS OF EMPLOYMENT</h4>
+      <ul>
+        <li>This offer is contingent on successful completion of a background check and reference verification</li>
+        <li>Employment is at-will and may be terminated by either party at any time</li>
+        <li>You must complete all required company paperwork before your start date</li>
+      </ul>
+      
+      <h4>NEXT STEPS</h4>
+      <ol>
+        <li>Review and sign this offer letter</li>
+        <li>Return signed copy by <strong>${deadlineDateFormatted}</strong></li>
+        <li>Complete background check authorization</li>
+        <li>Bring government ID and proof of work authorization on Day 1</li>
+        <li>Complete required training: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
+        <li>Claim your shifts: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
+      </ol>
+      
+      <p style="margin-top: 30px;">Please reply to this email or call us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM) to confirm your acceptance.</p>
+      
+      <p style="margin-top: 40px;"><strong>Sincerely,</strong></p>
+      <p style="margin: 50px 0 0 0;">
+        ${manager_name}<br>
+        Convenience Hub of Maryland<br>
+        202-579-2944
+      </p>
+    </div>
   `
-
   await sendUserEmail(
     applicant.email,
     'Your Offer Letter from Convenience Hub of Maryland',
