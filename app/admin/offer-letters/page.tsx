@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
+import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 
 type Applicant = {
   id: string
@@ -10,34 +11,63 @@ type Applicant = {
   phone: string
   position: string
   address: string | null
-  status: 'draft' | 'sent' | 'signed'
+  status: 'draft' | 'sent' | 'signed' | 'expired'
   created_at: string
 }
 
-export default async function AdminOfferLettersPage() {
+type FilterStatus = 'all' | 'draft' | 'sent' | 'signed' | 'expired'
+
+const STATUS_FILTER_LABELS: FilterStatus[] = ['all', 'draft', 'sent', 'signed', 'expired']
+
+export default async function AdminOfferLettersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
+  const { status: filterStatus = 'all' } = await searchParams
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
-
-  console.log('[admin/offer-letters] Token:', token ? 'present' : 'missing')
 
   const applicants = await dbSelectAuth<Applicant>('offer_letter_applicants', token, {
     select: '*',
     order: 'created_at.desc',
   })
 
-  console.log('[admin/offer-letters] Applicants found:', applicants.length)
+  // Filter by status
+  const filtered = filterStatus === 'all' 
+    ? applicants 
+    : applicants.filter(a => a.status === filterStatus)
 
   // Group by position
   const grouped: Record<string, Applicant[]> = {}
   POSITION_LIST.forEach(pos => {
-    grouped[pos] = applicants.filter(a => a.position === pos)
+    grouped[pos] = filtered.filter(a => a.position === pos)
   })
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl text-chm-black">Offer Letters</h1>
-        <p className="text-sm text-gray-500 mt-1">{applicants.length} applicant{applicants.length !== 1 ? 's' : ''}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-serif text-3xl text-chm-black">Offer Letters</h1>
+          <p className="text-sm text-gray-500 mt-1">{filtered.length} applicant{filtered.length !== 1 ? 's' : ''}</p>
+        </div>
+        
+        {/* Status filter */}
+        <div className="flex gap-2 flex-wrap">
+          {STATUS_FILTER_LABELS.map(s => (
+            
+              key={s}
+              href={s === 'all' ? '/admin/offer-letters' : `/admin/offer-letters?status=${s}`}
+              className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
+                filterStatus === s
+                  ? 'bg-chm-black text-white border-chm-black'
+                  : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
+              }`}
+            >
+              {s}
+            </a>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-10">
@@ -83,15 +113,7 @@ export default async function AdminOfferLettersPage() {
                         <td className="py-3 px-4 text-gray-600">{applicant.email}</td>
                         <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-block text-xs px-2 py-1 rounded font-semibold ${
-                            applicant.status === 'signed'
-                              ? 'bg-green-100 text-green-700'
-                              : applicant.status === 'sent'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-amber-100 text-amber-700'
-                          }`}>
-                            {applicant.status}
-                          </span>
+                          <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
                         </td>
                         <td className="py-3 px-4 text-xs text-gray-500">
                           {new Date(applicant.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -113,9 +135,9 @@ export default async function AdminOfferLettersPage() {
         })}
       </div>
 
-      {applicants.length === 0 && (
+      {filtered.length === 0 && (
         <div className="text-center py-16 text-gray-400">
-          <p className="text-sm">No applicants yet.</p>
+          <p className="text-sm">No applicants found.</p>
         </div>
       )}
     </div>
