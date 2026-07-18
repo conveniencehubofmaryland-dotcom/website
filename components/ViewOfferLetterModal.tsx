@@ -26,10 +26,7 @@ export default function ViewOfferLetterModal({
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="text-xs text-chm-black hover:underline font-semibold"
-      >
+      <button onClick={() => setOpen(true)} className="text-xs text-chm-black hover:underline font-semibold">
         View Offer
       </button>
 
@@ -41,42 +38,35 @@ export default function ViewOfferLetterModal({
                 <h2 className="font-serif text-2xl text-chm-black">Offer Letter</h2>
                 <p className="text-sm text-gray-500">{applicantName}</p>
               </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="text-gray-400 hover:text-chm-black text-2xl leading-none"
-              >
+              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-chm-black text-2xl leading-none">
                 &times;
               </button>
             </div>
 
             <div className="prose prose-sm max-w-none">
               <p className="text-xs text-gray-500">Sent: {createdDateFormatted}</p>
-              
               <h3>POSITION DETAILS</h3>
               <ul>
                 <li><strong>Position:</strong> {offer.position}</li>
                 <li><strong>Start Date:</strong> {startDateFormatted}</li>
                 <li><strong>Hourly Rate:</strong> ${offer.salary_annual}/hour</li>
               </ul>
-
               {offer.benefits_summary && (
                 <>
                   <h3>ADDITIONAL BENEFITS</h3>
                   <p>{offer.benefits_summary}</p>
                 </>
               )}
-
               <p className="text-xs text-gray-500 mt-8">ID: {offer.id}</p>
-
-              {offer.pdf_url && (
-                <div className="mt-6 pt-6 border-t border-gray-200"><a href={offer.pdf_url} download className="inline-block bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">Download PDF</a></div>
-              )}
-                  <a href={offer.pdf_url} download className="inline-block bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-                    Download PDF
-                  </a>
-                </div>
-              )}
             </div>
+
+            {offer.pdf_url && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <a href={offer.pdf_url} download className="inline-block bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+                  Download PDF
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
