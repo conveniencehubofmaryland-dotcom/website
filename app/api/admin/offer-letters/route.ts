@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     // Upload to Supabase Storage
     const pdfFileName = `${applicant_id}-${Date.now()}.pdf`
-    const uploadRes = await fetch(
+   const uploadRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/offer-letters/${pdfFileName}`,
       {
         method: 'POST',
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           'Content-Type': 'application/pdf',
         },
-        body: pdfBuffer,
+        body: new Uint8Array(pdfBuffer),
       }
     )
 
