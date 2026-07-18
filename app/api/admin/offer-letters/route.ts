@@ -143,8 +143,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('[offer-letters] Error:', err)
-    return NextResponse.json({ error: 'Failed to generate offer letter' }, { status: 500 })
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    console.error('[offer-letters] Detailed error:', {
+      message: errorMessage,
+      stack: err instanceof Error ? err.stack : 'no stack',
+    })
+    return NextResponse.json({ error: `Failed to generate offer letter: ${errorMessage}` }, { status: 500 })
   }
 }
 
