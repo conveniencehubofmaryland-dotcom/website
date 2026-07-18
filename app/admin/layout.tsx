@@ -2,7 +2,6 @@ import Link from 'next/link'
 import AdminLogoutButton from '@/components/AdminLogoutButton'
 
 const adminLinks = [
-  const adminLinks = [
   { href: '/admin/appointments', label: 'Appointments' },
   { href: '/admin/offer-letters', label: 'Offer Letters' },
   { href: '/admin/shifts',       label: 'Shifts'       },
