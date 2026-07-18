@@ -3,6 +3,7 @@ import { dbSelectAuth } from '@/lib/db'
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
+import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
 
 type Applicant = {
   id: string
@@ -12,6 +13,16 @@ type Applicant = {
   position: string
   address: string | null
   status: 'draft' | 'sent' | 'signed' | 'expired'
+  created_at: string
+}
+
+type OfferLetter = {
+  id: string
+  applicant_id: string
+  position: string
+  salary_annual: number
+  start_date: string
+  benefits_summary: string | null
   created_at: string
 }
 
@@ -32,6 +43,13 @@ export default async function AdminOfferLettersPage({
     select: '*',
     order: 'created_at.desc',
   })
+
+  const offers = await dbSelectAuth<OfferLetter>('offer_letters', token, {
+    select: '*',
+  })
+
+  // Create a map of applicant_id -> offer for quick lookup
+  const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
 
   // Filter by status
   const filtered = filterStatus === 'all' 
@@ -56,11 +74,10 @@ export default async function AdminOfferLettersPage({
         <div className="flex gap-2 flex-wrap">
           {STATUS_FILTER_LABELS.map(s => (
             <a key={s} href={s === 'all' ? '/admin/offer-letters' : `/admin/offer-letters?status=${s}`} className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
-                filterStatus === s
-                  ? 'bg-chm-black text-white border-chm-black'
-                  : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
-              }`}
-            >
+              filterStatus === s
+                ? 'bg-chm-black text-white border-chm-black'
+                : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
+            }`}>
               {s}
             </a>
           ))}
@@ -102,28 +119,35 @@ export default async function AdminOfferLettersPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {positionApplicants.map(applicant => (
-                      <tr key={applicant.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4">
-                          <p className="font-semibold text-chm-black">{applicant.full_name}</p>
-                        </td>
-                        <td className="py-3 px-4 text-gray-600">{applicant.email}</td>
-                        <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
-                        <td className="py-3 px-4">
-                          <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
-                        </td>
-                        <td className="py-3 px-4 text-xs text-gray-500">
-                          {new Date(applicant.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
-                        <td className="py-3 px-4">
-                          <OfferLetterClient
-                            applicantId={applicant.id}
-                            applicantName={applicant.full_name}
-                            position={applicant.position}
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                    {positionApplicants.map(applicant => {
+                      const offer = offerMap.get(applicant.id)
+                      return (
+                        <tr key={applicant.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4">
+                            <p className="font-semibold text-chm-black">{applicant.full_name}</p>
+                          </td>
+                          <td className="py-3 px-4 text-gray-600">{applicant.email}</td>
+                          <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
+                          <td className="py-3 px-4">
+                            <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
+                          </td>
+                          <td className="py-3 px-4 text-xs text-gray-500">
+                            {new Date(applicant.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </td>
+                          <td className="py-3 px-4 space-y-1">
+                            {offer ? (
+                              <ViewOfferLetterModal offer={offer} applicantName={applicant.full_name} />
+                            ) : (
+                              <OfferLetterClient
+                                applicantId={applicant.id}
+                                applicantName={applicant.full_name}
+                                position={applicant.position}
+                              />
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
