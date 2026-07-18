@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function ThankYouPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -25,9 +27,9 @@ export default function ThankYouPage() {
         </p>
 
         <div className="space-y-3">
-          <a href="/staff/training-modules" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+          <Link href="/staff/training-modules" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
             View Training Modules
-          </a>
+          </Link>
           <p className="text-xs text-gray-400">
             Questions? Call 202-579-2944<br/>Mon–Sat, 9 AM–9 PM
           </p>
