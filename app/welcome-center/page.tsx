@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const POSITIONS = [
   'Cleaning Specialist',
@@ -12,6 +13,7 @@ const POSITIONS = [
 ]
 
 export default function WelcomeCenterPage() {
+  const router = useRouter()
   const [form, setForm] = useState({
     full_name: '',
     email: '',
@@ -39,7 +41,16 @@ export default function WelcomeCenterPage() {
       })
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      
       setStatus('success')
+      
+      // Redirect to orientation page with applicant ID
+      const applicantId = data.id
+      if (applicantId) {
+        setTimeout(() => {
+          router.push(`/welcome-center/orientation/${applicantId}`)
+        }, 1000)
+      }
     } catch (err) {
       setStatus('error')
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
@@ -53,13 +64,7 @@ export default function WelcomeCenterPage() {
           <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
           <h1 className="font-serif text-3xl text-chm-black mb-4">Thank You</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
-            Thank you, <strong>{form.full_name}</strong>. We&apos;ve received your information and sent a confirmation email to <strong>{form.email}</strong>.
-          </p>
-          <p className="text-gray-500 text-sm leading-relaxed mb-8">
-            Our team will review your application and be in touch within 1-2 business days with your offer letter and next steps.
-          </p>
-          <p className="text-gray-400 text-xs">
-            Questions? Call us at <strong>202-579-2944</strong> (Mon&#8211;Sat, 9 AM&#8211;9 PM)
+            Thank you, <strong>{form.full_name}</strong>. Your information has been received. Redirecting to orientation…
           </p>
         </div>
       </div>
@@ -147,11 +152,11 @@ export default function WelcomeCenterPage() {
             disabled={status === 'submitting'}
             className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
           >
-            {status === 'submitting' ? 'Submitting…' : 'Submit Application'}
+            {status === 'submitting' ? 'Submitting…' : 'Continue to Orientation'}
           </button>
 
           <p className="text-xs text-gray-400 text-center">
-            Mon&#8211;Sat 9 AM&#8211;9 PM · 202-579-2944
+            Mon–Sat 9 AM–9 PM · 202-579-2944
           </p>
         </form>
       </div>
