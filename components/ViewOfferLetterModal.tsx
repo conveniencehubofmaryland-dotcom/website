@@ -69,7 +69,8 @@ export default function ViewOfferLetterModal({
               <p className="text-xs text-gray-500 mt-8">ID: {offer.id}</p>
 
               {offer.pdf_url && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-6 pt-6 border-t border-gray-200"><a href={offer.pdf_url} download className="inline-block bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">Download PDF</a></div>
+              )}
                   <a href={offer.pdf_url} download className="inline-block bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
                     Download PDF
                   </a>
