@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/pdf',
         },
-        body: pdfBuffer,
+        body: new Uint8Array(pdfBuffer),
       }
     )
 
