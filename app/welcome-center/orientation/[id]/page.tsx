@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
@@ -92,6 +92,14 @@ Phone & Device Use
 - Personal phone use is not permitted during client care time except for emergencies
 - Do not photograph clients or share any images without explicit permission
 - All work-related communication should go through the CHM app
+
+NO SOLICITATION POLICY
+
+Staff shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract. This is strictly prohibited and includes private arrangements, side deals, or work under different entity names.
+
+Engaging in private dealings with CHM clients for services that CHM offers is forbidden for the duration of employment AND for 24 months after separation from CHM.
+
+Violation of this no-solicitation policy is a material breach and may result in legal action and liquidated damages.
 
 4. TRAINING & DEVELOPMENT
 
@@ -217,15 +225,12 @@ W-2 Employees:
 
 AT-WILL EMPLOYMENT
 
-This MOU does not alter at-will employment status where applicable. Either CHM or Staff may terminate employment at any time, for any lawful reason or no reason, with or without notice. However, the obligations under this MOU (non-solicitation, confidentiality, liquidated damages) survive termination indefinitely.
+This MOU does not alter at-will employment status where applicable. Either CHM or Staff may terminate employment at any time, for any lawful reason or no reason, with or without notice. However, the obligations under this MOU (non-solicitation, confidentiality, liquidated damages) survive termination indefinitely.`
 
----
-
-By signing below, you acknowledge that you have read, understand, and agree to all terms outlined in this Orientation Document and Memorandum of Understanding.`
-
-export default function OrientationPage({ params }: { params: { id: string } }) {
+export default function OrientationPage() {
   const router = useRouter()
-  const applicantId = params.id
+  const params = useParams()
+  const applicantId = params.id as string
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -266,7 +271,6 @@ export default function OrientationPage({ params }: { params: { id: string } }) 
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Failed to save acknowledgment')
 
-      // Redirect to thank you page
       router.push('/welcome-center/thank-you')
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
@@ -278,19 +282,16 @@ export default function OrientationPage({ params }: { params: { id: string } }) 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <div className="w-12 h-px bg-chm-red mb-6" />
           <h1 className="font-serif text-3xl text-chm-black mb-2">Employee Orientation</h1>
           <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
         </div>
 
-        {/* Document */}
         <div className="bg-white p-8 shadow-sm mb-8 max-h-[500px] overflow-y-auto border border-gray-200 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
           {ORIENTATION_DOCUMENT}
         </div>
 
-        {/* Acknowledgment Form */}
         <form onSubmit={handleSubmit} className="bg-white p-8 shadow-sm space-y-6">
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name *</label>
@@ -329,7 +330,6 @@ export default function OrientationPage({ params }: { params: { id: string } }) 
             <p className="text-xs text-gray-400 mt-1">By typing your name, you are electronically signing this acknowledgment.</p>
           </div>
 
-          {/* Checkboxes */}
           <div className="space-y-3 border-t border-gray-200 pt-6">
             <label className="flex items-start gap-3">
               <input
@@ -354,12 +354,10 @@ export default function OrientationPage({ params }: { params: { id: string } }) 
             </label>
           </div>
 
-          {/* Error Message */}
           {errorMsg && (
             <p className="text-chm-red text-sm bg-red-50 p-3 rounded">{errorMsg}</p>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
