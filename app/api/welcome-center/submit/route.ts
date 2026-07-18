@@ -36,9 +36,9 @@ export async function POST(req: Request) {
         `Hi ${full_name.trim()}, thank you for your interest in joining our team as a ${position.trim()}. We&apos;ve received your information and our team will be in touch shortly with next steps, including your offer letter.`
       ),
       sendAdminEmail(
-        `New Welcome Center submission: ${full_name.trim()} - ${position.trim()}`,
-        `Name: ${full_name.trim()}<br>Email: ${email.trim()}<br>Phone: ${phone.trim()}<br>Position: ${position.trim()}<br>Address: ${address?.trim() || '—'}`
-      ),
+      `New Welcome Center submission: ${full_name.trim()} - ${position.trim()}`,
+      `Name: ${full_name.trim()}<br>Email: ${email.trim()}<br>Phone: ${phone.trim()}<br>Position: ${position.trim()}<br>Address: ${address?.trim() || '—'}<br><br><a href="https://conveniencehubofmaryland.com/admin/offer-letters">View in Admin Dashboard</a>`
+    ),
     ])
 
     console.log('[welcome-center] Emails sent successfully')
