@@ -1,47 +1,81 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+  const { full_name, email, phone, position, address } = body
+
+  if (!full_name || !email || !phone || !position) {
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
   try {
-    const body = await req.json()
-    const { full_name, email, phone, position, address } = body
+    // Insert applicant and get the response with ID
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify({
+          full_name,
+          email,
+          phone,
+          position,
+          address: address || null,
+          status: 'draft',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }),
+      }
+    )
 
-    if (!full_name?.trim() || !email?.trim() || !phone?.trim() || !position?.trim()) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    if (!res.ok) {
+      const error = await res.text()
+      console.error('[welcome-center] Supabase error:', error)
+      return NextResponse.json({ error: 'Failed to create applicant record' }, { status: 500 })
     }
 
-    console.log('[welcome-center] Attempting to insert:', { full_name, email, phone, position, address })
+    const insertedRows = await res.json()
+    const applicant_id = insertedRows[0]?.id
 
-    const { error } = await dbInsertService('offer_letter_applicants', {
-      full_name: full_name.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      position: position.trim(),
-      address: address?.trim() || null,
-      status: 'draft',
-    })
-
-    if (error) {
-      console.error('[welcome-center] dbInsertService error:', error)
-      return NextResponse.json({ error: `Database error: ${error}` }, { status: 500 })
+    if (!applicant_id) {
+      console.error('[welcome-center] No ID returned from insert')
+      return NextResponse.json({ error: 'Failed to create applicant record' }, { status: 500 })
     }
 
-    console.log('[welcome-center] Insert successful, sending emails')
+    // Send emails
+    const applicantEmailHtml = `
+      <p>Dear ${full_name},</p>
+      <p>Thank you for your interest in joining Convenience Hub of Maryland!</p>
+      <p>Your application has been received. We're excited to move forward with you.</p>
+      <p><strong>Next Step:</strong> You will receive an offer letter with position details and compensation information within 24-48 business hours.</p>
+      <p>In the meantime, please review our orientation document and familiarize yourself with our company values and policies.</p>
+      <p>If you have any questions, contact us at 202-579-2944 (Mon–Sat, 9 AM–9 PM).</p>
+      <p>Best regards,<br>Convenience Hub of Maryland</p>
+    `
 
-    await Promise.all([
-      sendUserEmail(
-        email.trim(),
-        'Welcome to Convenience Hub of Maryland',
-        `Hi ${full_name.trim()}, thank you for your interest in joining our team as a ${position.trim()}. We&apos;ve received your information and our team will be in touch shortly with next steps, including your offer letter.`
-      ),
-      sendAdminEmail(
-      `New Welcome Center submission: ${full_name.trim()} - ${position.trim()}`,
-      `Name: ${full_name.trim()}<br>Email: ${email.trim()}<br>Phone: ${phone.trim()}<br>Position: ${position.trim()}<br>Address: ${address?.trim() || '—'}<br><br><a href="https://conveniencehubofmaryland.com/admin/offer-letters">View in Admin Dashboard</a>`
-    ),
-    ])
+    const adminEmailHtml = `
+      <p>New application received:</p>
+      <ul>
+        <li><strong>Name:</strong> ${full_name}</li>
+        <li><strong>Email:</strong> ${email}</li>
+        <li><strong>Phone:</strong> ${phone}</li>
+        <li><strong>Position:</strong> ${position}</li>
+        <li><strong>Address:</strong> ${address || 'Not provided'}</li>
+      </ul>
+      <p><a href="https://conveniencehubofmaryland.com/admin/offer-letters">View in Admin Dashboard</a></p>
+    `
 
-    console.log('[welcome-center] Emails sent successfully')
+    await sendUserEmail(email, 'Your Application to CHM – Welcome!', applicantEmailHtml)
+    await sendAdminEmail('New Application Received', adminEmailHtml)
+
+    console.log('[welcome-center] Applicant created:', applicant_id)
+
     return NextResponse.json({ success: true, id: applicant_id })
   } catch (err) {
     console.error('[welcome-center] Unexpected error:', err)
