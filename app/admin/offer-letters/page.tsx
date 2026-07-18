@@ -55,10 +55,7 @@ export default async function AdminOfferLettersPage({
         {/* Status filter */}
         <div className="flex gap-2 flex-wrap">
           {STATUS_FILTER_LABELS.map(s => (
-            
-              key={s}
-              href={s === 'all' ? '/admin/offer-letters' : `/admin/offer-letters?status=${s}`}
-              className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
+            <a key={s} href={s === 'all' ? '/admin/offer-letters' : `/admin/offer-letters?status=${s}`} className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
                 filterStatus === s
                   ? 'bg-chm-black text-white border-chm-black'
                   : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
