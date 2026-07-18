@@ -24,9 +24,9 @@ type OfferLetter = {
   salary_annual: number
   start_date: string
   benefits_summary: string | null
+  pdf_url: string | null
   created_at: string
 }
-
 type FilterStatus = 'all' | 'draft' | 'sent' | 'signed' | 'expired'
 
 const STATUS_FILTER_LABELS: FilterStatus[] = ['all', 'draft', 'sent', 'signed', 'expired']
