@@ -3,8 +3,6 @@ import { dbSelectAuth } from '@/lib/db'
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 
-console.log('[admin/offer-letters] Page rendering')
-
 type Applicant = {
   id: string
   full_name: string
@@ -16,17 +14,18 @@ type Applicant = {
   created_at: string
 }
 
-console.log('[admin/offer-letters] Token:', token ? 'present' : 'missing')
-console.log('[admin/offer-letters] Applicants found:', applicants.length)
-
 export default async function AdminOfferLettersPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
+
+  console.log('[admin/offer-letters] Token:', token ? 'present' : 'missing')
 
   const applicants = await dbSelectAuth<Applicant>('offer_letter_applicants', token, {
     select: '*',
     order: 'created_at.desc',
   })
+
+  console.log('[admin/offer-letters] Applicants found:', applicants.length)
 
   // Group by position
   const grouped: Record<string, Applicant[]> = {}
