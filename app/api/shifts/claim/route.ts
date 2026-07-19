@@ -44,14 +44,14 @@ export async function POST(request: NextRequest) {
 
     const shift = shifts[0]
 
-    // 2. Update shift with staff details
+    // 2. Update shift with staff details using service role
     const updateRes = await fetch(
       `${supabaseUrl}/rest/v1/shifts?id=eq.${encodeURIComponent(shiftId)}`,
       {
         method: 'PATCH',
         headers: {
           apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
