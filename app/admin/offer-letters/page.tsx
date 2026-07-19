@@ -53,9 +53,12 @@ export default async function AdminOfferLettersPage({
   const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
 
   // Filter by status
+  console.log('[offer-letters] filterStatus:', filterStatus)
+  console.log('[offer-letters] applicants:', applicants.length)
   const filtered = filterStatus === 'all' 
     ? applicants 
     : applicants.filter(a => a.status === filterStatus)
+  console.log('[offer-letters] filtered:', filtered.length)
 
   // Group by position
   const grouped: Record<string, Applicant[]> = {}
