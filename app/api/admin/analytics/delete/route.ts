@@ -11,7 +11,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Missing table or id' }, { status: 400 })
   }
 
-  const allowedTables = ['offer_letters', 'staff_module_progress']
+ const allowedTables = ['offer_letters', 'offer_letter_applicants', 'staff_module_progress']
   if (!allowedTables.includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 })
   }
