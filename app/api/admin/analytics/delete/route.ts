@@ -17,6 +17,8 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
+    console.log('[delete] Deleting from', table, 'id:', id)
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,
       {
@@ -28,14 +30,18 @@ export async function DELETE(req: NextRequest) {
       }
     )
 
+    const resText = await res.text()
+    console.log('[delete] Response status:', res.status)
+    console.log('[delete] Response:', resText)
+
     if (!res.ok) {
-      console.error(`[delete] ${table} delete failed:`, await res.text())
-      return NextResponse.json({ error: 'Failed to delete record' }, { status: 500 })
+      console.error(`[delete] ${table} delete failed:`, resText)
+      return NextResponse.json({ error: `Delete failed: ${resText}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('[delete] Error:', err)
-    return NextResponse.json({ error: 'Failed to delete record' }, { status: 500 })
+    console.error('[delete] Exception:', err)
+    return NextResponse.json({ error: `Exception: ${err instanceof Error ? err.message : 'Unknown error'}` }, { status: 500 })
   }
 }
