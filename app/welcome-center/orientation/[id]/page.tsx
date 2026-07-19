@@ -288,8 +288,10 @@ export default function OrientationPage() {
           <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
         </div>
 
-        <div className="bg-white p-8 shadow-sm mb-8 max-h-[500px] overflow-y-auto border border-gray-200 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-          {ORIENTATION_DOCUMENT}
+        <div className="bg-white p-8 shadow-sm mb-8 border border-gray-200 text-sm leading-relaxed text-gray-700">
+          <div className="whitespace-pre-wrap break-words max-h-[600px] overflow-y-auto pr-4">
+            {ORIENTATION_DOCUMENT}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white p-8 shadow-sm space-y-6">
