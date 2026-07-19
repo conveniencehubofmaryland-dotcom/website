@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbSelectAuth, dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
-import PDFDocument from 'pdfkit'
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
@@ -28,45 +27,14 @@ export async function POST(req: NextRequest) {
   const deadlineDateFormatted = new Date(deadline_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
   try {
-    // Generate PDF
-    const pdfBuffer = await generateOfferPDF({
-      applicantName: applicant.full_name,
-      position,
-      startDate: startDateFormatted,
-      managerName: manager_name,
-      salaryAnnual: salary_annual,
-      deadlineDate: deadlineDateFormatted,
-      benefitsSummary: benefits_summary,
-      payFrequency: pay_frequency || 'year',
-    })
-
-    // Upload to Supabase Storage
-    const pdfFileName = `${applicant_id}-${Date.now()}.pdf`
-   const uploadRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/offer-letters/${pdfFileName}`,
-      {
-        method: 'POST',
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          'Content-Type': 'application/pdf',
-        },
-        body: new Uint8Array(pdfBuffer),
-      }
-    )
-
-    let pdfUrl: string | null = null
-    if (uploadRes.ok) {
-      pdfUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/offer-letters/${pdfFileName}`
-    }
-
-    // Create offer letter record
+    // Create offer letter record (no PDF - Cloudflare doesn't support fs)
     const { error: insertError } = await dbInsertService('offer_letters', {
       applicant_id,
       position,
       salary_annual,
       start_date,
       benefits_summary: benefits_summary || null,
-      pdf_url: pdfUrl,
+      pdf_url: null,
     })
 
     if (insertError) {
@@ -74,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create offer letter' }, { status: 500 })
     }
 
-    // Send offer letter email
+    // Send offer letter email (HTML only)
     const offerLetterHtml = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
         <h2 style="text-align: center; color: #1a1a1a;">CONVENIENCE HUB OF MARYLAND</h2>
@@ -126,7 +94,6 @@ export async function POST(req: NextRequest) {
           Convenience Hub of Maryland<br>
           202-579-2944
         </p>
-        ${pdfUrl ? `<p style="margin-top: 30px; text-align: center;"><a href="${pdfUrl}" style="color: #d73a3a; text-decoration: none; font-weight: bold;">Download Offer Letter PDF</a></p>` : ''}
       </div>
     `
 
@@ -138,92 +105,13 @@ export async function POST(req: NextRequest) {
 
     await sendAdminEmail(
       `Offer letter sent: ${applicant.full_name}`,
-      `Position: ${position}<br>Salary: $${salary_annual}/${pay_frequency || 'year'}<br>Start Date: ${startDateFormatted}<br>Sent to: ${applicant.email}${pdfUrl ? `<br><a href="${pdfUrl}">View PDF</a>` : ''}`
+      `Position: ${position}<br>Salary: $${salary_annual}/${pay_frequency || 'year'}<br>Start Date: ${startDateFormatted}<br>Sent to: ${applicant.email}`
     )
 
     return NextResponse.json({ success: true })
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
-    console.error('[offer-letters] Detailed error:', {
-      message: errorMessage,
-      stack: err instanceof Error ? err.stack : 'no stack',
-    })
-    return NextResponse.json({ error: `Failed to generate offer letter: ${errorMessage}` }, { status: 500 })
+    console.error('[offer-letters] Error:', errorMessage)
+    return NextResponse.json({ error: 'Failed to generate offer letter' }, { status: 500 })
   }
-}
-
-async function generateOfferPDF(data: {
-  applicantName: string
-  position: string
-  startDate: string
-  managerName: string
-  salaryAnnual: number
-  deadlineDate: string
-  benefitsSummary: string | null
-  payFrequency: string
-}): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument()
-    const chunks: Buffer[] = []
-
-    doc.on('data', (chunk: Buffer) => chunks.push(chunk))
-    doc.on('end', () => resolve(Buffer.concat(chunks)))
-    doc.on('error', reject)
-
-    doc.fontSize(16).font('Helvetica-Bold').text('CONVENIENCE HUB OF MARYLAND', { align: 'center' })
-    doc.fontSize(12).font('Helvetica').text('Offer of Employment', { align: 'center' })
-    doc.moveDown()
-
-    doc.fontSize(10).text(`Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`)
-    doc.moveDown()
-
-    doc.fontSize(11).text(`Dear ${data.applicantName},`)
-    doc.moveDown()
-
-    doc.fontSize(11).text(`We are pleased to offer you the position of ${data.position} at Convenience Hub of Maryland, effective ${data.startDate}.`)
-    doc.moveDown()
-
-    doc.fontSize(11).font('Helvetica-Bold').text('POSITION DETAILS')
-    doc.font('Helvetica').fontSize(10)
-    doc.text(`Position: ${data.position}`)
-    doc.text(`Reports To: ${data.managerName}`)
-    doc.text('Employment Type: Full-Time')
-    doc.text('Hours: 40 hours per week')
-    doc.text(`Hourly Rate: $${data.salaryAnnual}/hour, paid weekly every Friday`)
-    doc.moveDown()
-
-    doc.fontSize(11).font('Helvetica-Bold').text('COMPENSATION & BENEFITS')
-    doc.font('Helvetica').fontSize(10)
-    doc.text('Weekly Pay: Paid every Friday for work performed in the prior week')
-    doc.text('401(k) Retirement Plan: Eligible after 90 days of employment')
-    doc.moveDown()
-
-    doc.fontSize(11).font('Helvetica-Bold').text('TERMS OF EMPLOYMENT')
-    doc.font('Helvetica').fontSize(10)
-    doc.text('This offer is contingent on successful completion of a background check and reference verification')
-    doc.text('Employment is at-will and may be terminated by either party at any time')
-    doc.text('You must complete all required company paperwork before your start date')
-    doc.moveDown()
-
-    doc.fontSize(11).font('Helvetica-Bold').text('NEXT STEPS')
-    doc.font('Helvetica').fontSize(10)
-    doc.text('1. Review and sign this offer letter')
-    doc.text(`2. Return signed copy by ${data.deadlineDate}`)
-    doc.text('3. Complete background check authorization')
-    doc.text('4. Bring government ID and proof of work authorization on Day 1')
-    doc.text('5. Complete required training')
-    doc.text('6. Claim your shifts')
-    doc.moveDown()
-
-    doc.fontSize(10).text('Please reply to this email or call us at 202-579-2944 (Mon–Sat, 9 AM–9 PM) to confirm your acceptance.')
-    doc.moveDown(2)
-
-    doc.fontSize(11).font('Helvetica-Bold').text('Sincerely,')
-    doc.moveDown(2)
-    doc.font('Helvetica').fontSize(10).text(data.managerName)
-    doc.text('Convenience Hub of Maryland')
-    doc.text('202-579-2944')
-
-    doc.end()
-  })
 }
