@@ -4,7 +4,7 @@ export async function GET(req: NextRequest) {
   const applicantId = req.nextUrl.searchParams.get('applicant_id')
 
   if (!applicantId) {
-    return NextResponse.json({ error: 'Missing applicant_id' }, { status: 400 })
+    return NextResponse.json({ error: 'Missing applicant_id', orientation_accepted: false }, { status: 400 })
   }
 
   try {
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ orientation_accepted: false })
     }
 
-    return NextResponse.json({ orientation_accepted: data[0].orientation_accepted })
+    return NextResponse.json({ orientation_accepted: data[0].orientation_accepted || false })
   } catch (err) {
     console.error('[welcome-check] Error:', err)
     return NextResponse.json({ orientation_accepted: false })
