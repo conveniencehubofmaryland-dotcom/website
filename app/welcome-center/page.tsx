@@ -3,162 +3,167 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const POSITIONS = [
-  'Cleaning Specialist',
-  'Laundry Handler',
-  'Culinary / Chef',
-  'Nanny / Childcare Specialist',
-  'Care Companion (Adult/Senior)',
-  'Housekeeping Staff',
-]
-
 export default function WelcomeCenterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
     position: '',
     address: '',
   })
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
-  const [errorMsg, setErrorMsg] = useState('')
 
-  function set(field: string, value: string) {
-    setForm(f => ({ ...f, [field]: value }))
+  const POSITIONS = [
+    'Cleaning Specialist',
+    'Laundry Handler',
+    'Culinary/Chef',
+    'Nanny/Childcare Specialist',
+    'Care Companion (Adult/Senior)',
+    'Housekeeping Staff',
+  ]
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('submitting')
-    setErrorMsg('')
+    setLoading(true)
+    setError('')
 
     try {
       const res = await fetch('/api/welcome-center/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formData),
       })
-      const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
-      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
-      
-      setStatus('success')
-      
-      // Redirect to orientation page with applicant ID
-      const applicantId = data.id
-      if (applicantId) {
-        setTimeout(() => {
-          router.push(`/welcome-center/orientation/${applicantId}`)
-        }, 1000)
-      }
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Submission failed')
+
+      // Store applicant ID for later
+      localStorage.setItem('applicant_id', data.id)
+
+      router.push(`/welcome-center/orientation/${data.id}`)
     } catch (err) {
-      setStatus('error')
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (status === 'success') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
-          <h1 className="font-serif text-3xl text-chm-black mb-4">Thank You</h1>
-          <p className="text-gray-500 text-sm leading-relaxed mb-6">
-            Thank you, <strong>{form.full_name}</strong>. Your information has been received. Redirecting to orientation…
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <div className="w-12 h-px bg-chm-red mb-6" />
-          <h1 className="font-serif text-3xl text-chm-black mb-2">Welcome to Our Team</h1>
-          <p className="text-sm text-gray-500">Join Convenience Hub of Maryland and serve families across the DMV.</p>
+          <h1 className="font-serif text-3xl text-chm-black mb-2">Welcome to CHM</h1>
+          <p className="text-sm text-gray-500">Start your onboarding journey with Convenience Hub of Maryland</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 shadow-sm">
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name *</label>
-            <input
-              required
-              type="text"
-              value={form.full_name}
-              onChange={e => set('full_name', e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="Jane Smith"
-            />
-          </div>
+        <div className="bg-white p-8 shadow-sm mb-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+                placeholder="Your full name"
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email *</label>
-            <input
-              required
-              type="email"
-              value={form.email}
-              onChange={e => set('email', e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="jane@example.com"
-            />
-          </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+                placeholder="your@email.com"
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone *</label>
-            <input
-              required
-              type="tel"
-              value={form.phone}
-              onChange={e => set('phone', e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="202-555-0100"
-            />
-          </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
+                Phone
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+                placeholder="(555) 123-4567"
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Position *</label>
-            <select
-              required
-              value={form.position}
-              onChange={e => set('position', e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
+                Position
+              </label>
+              <select
+                name="position"
+                value={formData.position}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+              >
+                <option value="">Select a position</option>
+                {POSITIONS.map(pos => (
+                  <option key={pos} value={pos}>
+                    {pos}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
+                Address (Optional)
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
+                placeholder="Your home address"
+                rows={3}
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
             >
-              <option value="">Select a position…</option>
-              {POSITIONS.map(pos => (
-                <option key={pos} value={pos}>{pos}</option>
-              ))}
-            </select>
-          </div>
+              {loading ? 'Processing...' : 'Continue to Orientation'}
+            </button>
+          </form>
+        </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Address</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={e => set('address', e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="123 Main St, Silver Spring, MD"
-            />
-          </div>
-
-          {(status === 'error' || errorMsg) && (
-            <p className="text-chm-red text-sm">{errorMsg}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={status === 'submitting'}
-            className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
-          >
-            {status === 'submitting' ? 'Submitting…' : 'Continue to Orientation'}
-          </button>
-
-          <p className="text-xs text-gray-400 text-center">
-            Mon–Sat 9 AM–9 PM · 202-579-2944
-          </p>
-        </form>
+        <p className="text-xs text-gray-400 text-center">
+          Questions? Call 202-579-2944 (Mon–Sat, 9 AM–9 PM)
+        </p>
       </div>
     </div>
   )
