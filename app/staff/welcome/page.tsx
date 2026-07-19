@@ -6,15 +6,16 @@ import { useRouter } from 'next/navigation'
 export default function WelcomePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     async function checkStatus() {
       try {
-        // Get the applicant ID from localStorage or session
-        const applicantId = localStorage.getItem('applicant_id')
+        // Get the applicant ID from localStorage
+        const applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
         
         if (!applicantId) {
-          // No applicant ID, send to welcome center form
+          // No applicant ID stored, send to welcome center form
           router.push('/welcome-center')
           return
         }
@@ -24,7 +25,7 @@ export default function WelcomePage() {
         const data = await res.json()
 
         if (data.orientation_accepted) {
-          // Already completed, send to training modules
+          // Already completed orientation, send to training modules
           router.push('/staff/training-modules')
         } else {
           // Not completed, send to welcome center orientation
@@ -32,8 +33,7 @@ export default function WelcomePage() {
         }
       } catch (err) {
         console.error('Error checking welcome status:', err)
-        router.push('/welcome-center')
-      } finally {
+        setError('Failed to load. Please try again.')
         setLoading(false)
       }
     }
@@ -41,10 +41,24 @@ export default function WelcomePage() {
     checkStatus()
   }, [router])
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <a href="/welcome-center" className="text-chm-red font-semibold hover:underline">
+            Start over
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="text-center">
-        <p className="text-gray-500">Loading...</p>
+        <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
+        <p className="text-gray-500">Loading your welcome experience...</p>
       </div>
     </div>
   )
