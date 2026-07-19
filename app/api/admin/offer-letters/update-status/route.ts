@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { dbSelectAuth } from '@/lib/db'
 
 export async function PATCH(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
