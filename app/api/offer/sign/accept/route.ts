@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           signed_at: now,
           sign_token: null,
+          status: 'signed',
         }),
       }
     )
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch offer and applicant details for email
     const fetchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${offer_id}&select=*,offer_letter_applicants(full_name,email)`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${offer_id}&select=*,offer_letter_applicants(id,full_name,email)`,
       {
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -64,6 +65,24 @@ export async function POST(req: NextRequest) {
 
     const offer = data[0]
     const applicant = offer.offer_letter_applicants
+
+    // Update applicant status to 'signed'
+    const appStatusRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'signed', updated_at: now }),
+      }
+    )
+
+    if (!appStatusRes.ok) {
+      console.error('[accept] Applicant status update failed:', await appStatusRes.text())
+    }
 
     // Send confirmation email to applicant
     const confirmationHtml = `
