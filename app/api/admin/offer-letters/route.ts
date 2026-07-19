@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { dbSelectAuth, dbInsertService } from '@/lib/db'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
@@ -7,115 +6,127 @@ export async function POST(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { applicant_id, position, salary_annual, start_date, benefits_summary, manager_name, deadline_date, pay_frequency } = body
+  const { applicant_id, position, salary_annual, start_date, benefits_summary } = body
 
-  if (!applicant_id || !position || !salary_annual || !start_date || !manager_name || !deadline_date) {
+  if (!applicant_id || !position || !salary_annual || !start_date) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const applicants = await dbSelectAuth<{ id: string; full_name: string; email: string; position: string }>('offer_letter_applicants', token, {
-    select: 'id,full_name,email,position',
-  })
-
-  const applicant = applicants.find(a => a.id === applicant_id)
-  if (!applicant) {
-    return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
-  }
-
-  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-  const startDateFormatted = new Date(start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-  const deadlineDateFormatted = new Date(deadline_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-
   try {
+    // Fetch applicant details
+    const appRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    )
+
+    const appData = await appRes.json()
+    if (!appData || appData.length === 0) {
+      return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
+    }
+
+    const applicant = appData[0]
+
     // Generate unique signing token
     const sign_token = crypto.randomUUID()
 
     // Create offer letter record
-    const { error: insertError } = await dbInsertService('offer_letters', {
-      applicant_id,
-      position,
-      salary_annual,
-      start_date,
-      benefits_summary: benefits_summary || null,
-      pdf_url: null,
-      sign_token: sign_token,
-    })
+    const { error: insertError } = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          applicant_id,
+          position,
+          salary_annual,
+          start_date,
+          benefits_summary: benefits_summary || null,
+          pdf_url: null,
+          sign_token,
+          status: 'sent',
+        }),
+      }
+    ).then(r => r.json())
 
     if (insertError) {
       console.error('[offer-letters] Supabase insert failed:', insertError)
       return NextResponse.json({ error: 'Failed to create offer letter' }, { status: 500 })
     }
 
-    // Send offer letter email (HTML only)
-    const offerLetterHtml = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
-        <h2 style="text-align: center; color: #1a1a1a;">CONVENIENCE HUB OF MARYLAND</h2>
-        <h3 style="text-align: center; color: #666;">Offer of Employment</h3>
-        
-        <p style="margin-top: 30px;"><strong>Date:</strong> ${today}</p>
-        
-        <p>Dear ${applicant.full_name},</p>
-        
-        <p>We are pleased to offer you the position of <strong>${position}</strong> at Convenience Hub of Maryland, effective <strong>${startDateFormatted}</strong>.</p>
-        
-        <h4>POSITION DETAILS</h4>
-        <ul>
-          <li><strong>Position:</strong> ${position}</li>
-          <li><strong>Reports To:</strong> ${manager_name}</li>
-          <li><strong>Employment Type:</strong> Full-Time</li>
-          <li><strong>Hours:</strong> 40 hours per week</li>
-          <li><strong>Hourly Rate:</strong> $${salary_annual}/hour, paid weekly every Friday</li>
-        </ul>
-        
-        <h4>COMPENSATION & BENEFITS</h4>
-        <ul>
-          <li><strong>Weekly Pay:</strong> Paid every Friday for work performed in the prior week</li>
-          <li><strong>401(k) Retirement Plan:</strong> Eligible after 90 days of employment</li>
-        </ul>
-        
-        <h4>TERMS OF EMPLOYMENT</h4>
-        <ul>
-          <li>This offer is contingent on successful completion of a background check and reference verification</li>
-          <li>Employment is at-will and may be terminated by either party at any time</li>
-          <li>You must complete all required company paperwork before your start date</li>
-        </ul>
-        
-<h4>NEXT STEPS</h4>
-        <ol>
-          <li><a href="https://conveniencehubofmaryland.com/offer/sign/${sign_token}" style="color: #d73a3a; font-weight: bold;">Review and electronically sign this offer letter</a></li>
-          <li>Return signed copy by <strong>${deadlineDateFormatted}</strong></li>
-          <li>Complete background check authorization</li>
-          <li>Bring government ID and proof of work authorization on Day 1</li>
-          <li>Complete required training: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
-          <li>Claim your shifts: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
-        </ol>
-        
-        <p style="margin-top: 30px;">Please reply to this email or call us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM) to confirm your acceptance.</p>
-        
-        <p style="margin-top: 40px;"><strong>Sincerely,</strong></p>
-        <p style="margin: 50px 0 0 0;">
-          ${manager_name}<br>
-          Convenience Hub of Maryland<br>
-          202-579-2944
-        </p>
-      </div>
+    // Update applicant status to 'sent'
+    const statusRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'sent', updated_at: new Date().toISOString() }),
+      }
+    )
+
+    if (!statusRes.ok) {
+      console.error('[offer-letters] Status update failed:', await statusRes.text())
+    }
+
+    // Send offer letter email to applicant
+    const offerHtml = `
+      <p>Dear ${applicant.full_name},</p>
+      <p>We are pleased to offer you the position of <strong>${position}</strong> at Convenience Hub of Maryland, effective <strong>${new Date(start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>.</p>
+      
+      <h3>POSITION DETAILS</h3>
+      <ul>
+        <li><strong>Position:</strong> ${position}</li>
+        <li><strong>Start Date:</strong> ${new Date(start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</li>
+        <li><strong>Employment Type:</strong> Full-Time</li>
+        <li><strong>Hours:</strong> 40 hours per week</li>
+        <li><strong>Hourly Rate:</strong> $${salary_annual}/hour, paid weekly every Friday</li>
+      </ul>
+
+      <h3>COMPENSATION & BENEFITS</h3>
+      <ul>
+        <li><strong>Weekly Pay:</strong> Paid every Friday for work performed in the prior week</li>
+        <li><strong>401(k) Retirement Plan:</strong> Eligible after 90 days of employment</li>
+      </ul>
+
+      <h3>NEXT STEPS</h3>
+      <ol>
+        <li><a href="https://conveniencehubofmaryland.com/offer/sign/${sign_token}" style="color: #d73a3a; font-weight: bold;">Review and electronically sign this offer letter</a></li>
+        <li>Complete all required training modules</li>
+        <li>Bring government ID and proof of work authorization on Day 1</li>
+      </ol>
+
+      <p>We are excited to have you join the team!</p>
+      <p>Convenience Hub of Maryland<br/>202-579-2944</p>
     `
 
     await sendUserEmail(
       applicant.email,
-      'Your Offer Letter from Convenience Hub of Maryland',
-      offerLetterHtml
+      'Offer Letter – Convenience Hub of Maryland',
+      offerHtml
     )
 
+    // Send admin notification
     await sendAdminEmail(
-      `Offer letter sent: ${applicant.full_name}`,
-      `Position: ${position}<br>Salary: $${salary_annual}/${pay_frequency || 'year'}<br>Start Date: ${startDateFormatted}<br>Sent to: ${applicant.email}`
+      `New Offer Letter Sent: ${applicant.full_name}`,
+      `Offer letter sent to ${applicant.full_name} for ${position} position at $${salary_annual}/hour, starting ${new Date(start_date).toLocaleDateString()}.`
     )
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err)
-    console.error('[offer-letters] Error:', errorMessage)
-    return NextResponse.json({ error: 'Failed to generate offer letter' }, { status: 500 })
+    console.error('[offer-letters] Error:', err)
+    return NextResponse.json({ error: 'Unexpected error' }, { status: 500 })
   }
 }
