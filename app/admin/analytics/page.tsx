@@ -292,7 +292,7 @@ export default async function AdminAnalyticsPage() {
         {/* All Staff Records */}
         <div>
           <h3 className="font-serif text-xl text-chm-black mb-4">All Staff Records</h3>
-          <StaffRecordsTable records={merged} deleteButton={DeleteButton} />
+          <StaffRecordsTable records={merged} />
         </div>
       </div>
     </div>
