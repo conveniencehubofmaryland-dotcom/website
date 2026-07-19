@@ -15,7 +15,12 @@ type StaffProgress = {
   completed_at: string | null
 }
 
-export default function StaffRecordsTable({ records }: { records: StaffProgress[] }) {
+type Props = {
+  records: StaffProgress[]
+  deleteButton?: (props: { table: 'staff_module_progress'; id: string; name: string }) => React.ReactNode
+}
+
+export default function StaffRecordsTable({ records, deleteButton: DeleteButtonComponent }: Props) {
   const [filter, setFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -80,6 +85,9 @@ export default function StaffRecordsTable({ records }: { records: StaffProgress[
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-widest text-gray-600">Score</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-widest text-gray-600">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-widest text-gray-600">Completed</th>
+                {DeleteButtonComponent && (
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-widest text-gray-600">Action</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -104,6 +112,11 @@ export default function StaffRecordsTable({ records }: { records: StaffProgress[
                   <td className="px-4 py-3 text-gray-600">
                     {p.completed_at ? new Date(p.completed_at).toLocaleDateString() : '—'}
                   </td>
+                  {DeleteButtonComponent && (
+                    <td className="px-4 py-3">
+                      <DeleteButtonComponent table="staff_module_progress" id={p.id} name={p.staff_name} />
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
