@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { TrainingModule, QuizQuestion } from '@/lib/types'
 
 export default function TrainingModuleDetailPage({ params, searchParams }: {
   params: Promise<{ id: string }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const router = useRouter()
   const [module, setModule] = useState<TrainingModule | null>(null)
   const [staffName, setStaffName] = useState('')
   const [staffEmail, setStaffEmail] = useState('')
@@ -19,11 +21,13 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const [submitted, setSubmitted] = useState(false)
   const [score, setScore] = useState(0)
   const [saveError, setSaveError] = useState('')
+  const [moduleId, setModuleId] = useState('')
 
   useEffect(() => {
     async function init() {
       const p = await params
       const sp = await searchParams
+      setModuleId(p.id)
       setStaffName((sp.name as string) || '')
       setStaffEmail((sp.email as string) || '')
       setStaffPhone((sp.phone as string) || '')
@@ -62,10 +66,11 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 
     const calculatedScore = Math.round((correctCount / questions.length) * 100)
     setScore(calculatedScore)
-    setSubmitted(true)
+    const passed = calculatedScore >= 80
 
     if (!staffName || !staffEmail) {
       setSaveError('Your name and email were missing, so this result was NOT saved. Please go back to the module list and fill in your info first.')
+      setSubmitted(true)
       return
     }
 
@@ -80,16 +85,28 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
           position: module.position,
           module_id: module.id,
           quiz_score: calculatedScore,
-          status: calculatedScore >= 80 ? 'completed' : 'failed',
+          status: passed ? 'completed' : 'failed',
         }),
       })
       if (!res.ok) {
         console.error('Progress save failed:', await res.text())
         setSaveError('There was a problem saving your result. Please contact your manager.')
+        setSubmitted(true)
+        return
+      }
+
+      // If passed, redirect to thank-you page
+      if (passed) {
+        setTimeout(() => {
+          router.push(`/staff/training-modules/${moduleId}/thank-you`)
+        }, 500)
+      } else {
+        setSubmitted(true)
       }
     } catch (err) {
       console.error('Error saving progress:', err)
       setSaveError('There was a problem saving your result. Please contact your manager.')
+      setSubmitted(true)
     }
   }
 
@@ -176,21 +193,19 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
           </div>
         )}
 
-        {submitted && (
+        {submitted && !passed && (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center text-4xl">
-              {passed ? '✓' : '✗'}
+              ✗
             </div>
             <h2 className="font-serif text-3xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
-              {passed ? 'Congratulations!' : 'Not Quite There'}
+              Not Quite There
             </h2>
             <p className="text-gray-500 text-lg mb-8">
               Your Score: <span className="font-bold text-chm-red">{score}%</span>
             </p>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {passed
-                ? 'You have successfully completed this training module and earned your certification.'
-                : 'You need 80% to pass. Review the module content and try again.'}
+              You need 80% to pass. Review the module content and try again.
             </p>
             {saveError && (
               <p className="text-red-600 bg-red-50 border border-red-200 px-4 py-3 mb-8 max-w-md mx-auto text-sm">
@@ -198,18 +213,16 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
               </p>
             )}
             <div className="flex gap-4 justify-center">
-              {!passed && (
-                <button
-                  onClick={() => {
-                    setShowQuiz(true)
-                    setSubmitted(false)
-                    setAnswers({})
-                  }}
-                  className="bg-chm-red text-white px-8 py-2 font-semibold text-sm uppercase tracking-widest hover:bg-red-700"
-                >
-                  Try Again
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setShowQuiz(true)
+                  setSubmitted(false)
+                  setAnswers({})
+                }}
+                className="bg-chm-red text-white px-8 py-2 font-semibold text-sm uppercase tracking-widest hover:bg-red-700"
+              >
+                Try Again
+              </button>
               <Link
                 href="/staff/training-modules"
                 className="border-2 border-chm-red text-chm-red px-8 py-2 font-semibold text-sm uppercase tracking-widest hover:bg-red-50"
