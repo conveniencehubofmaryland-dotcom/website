@@ -5,6 +5,7 @@ import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
 import ApplicantNotesButton from '@/components/ApplicantNotesButton'
+import StatusFilter from './StatusFilter'
 
 type Applicant = {
   id: string
@@ -17,6 +18,7 @@ type Applicant = {
   notes: string | null
   created_at: string
 }
+
 type OfferLetter = {
   id: string
   applicant_id: string
@@ -27,9 +29,6 @@ type OfferLetter = {
   pdf_url: string | null
   created_at: string
 }
-type FilterStatus = 'all' | 'draft' | 'sent' | 'signed' | 'expired'
-
-const STATUS_FILTER_LABELS: FilterStatus[] = ['all', 'draft', 'sent', 'signed', 'expired']
 
 export default async function AdminOfferLettersPage({
   searchParams,
@@ -52,30 +51,15 @@ export default async function AdminOfferLettersPage({
   // Create a map of applicant_id -> offer for quick lookup
   const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
 
-  import StatusFilter from './StatusFilter'
+  // Filter by status
+  const filtered = filterStatus === 'all' 
+    ? applicants 
+    : applicants.filter(a => a.status === filterStatus)
 
-// ... keep all other imports ...
-
-export default async function AdminOfferLettersPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string }>
-}) {
-  const { status: filterStatus = 'all' } = await searchParams
-  // ... rest of code stays the same until the render ...
-
-  return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-serif text-3xl text-chm-black">Offer Letters</h1>
-          <p className="text-sm text-gray-500 mt-1">{filtered.length} applicant{filtered.length !== 1 ? 's' : ''}</p>
-        </div>
-        
-        <StatusFilter />
-      </div>
-
-      {/* rest of the page stays the same */}
+  // Group by position
+  const grouped: Record<string, Applicant[]> = {}
+  POSITION_LIST.forEach(pos => {
+    grouped[pos] = filtered.filter(a => a.position === pos)
   })
 
   return (
@@ -86,18 +70,7 @@ export default async function AdminOfferLettersPage({
           <p className="text-sm text-gray-500 mt-1">{filtered.length} applicant{filtered.length !== 1 ? 's' : ''}</p>
         </div>
         
-        {/* Status filter */}
-        <div className="flex gap-2 flex-wrap">
-          {STATUS_FILTER_LABELS.map(s => (
-            <a key={s} href={s === 'all' ? '/admin/offer-letters' : `/admin/offer-letters?status=${s}`} className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
-              filterStatus === s
-                ? 'bg-chm-black text-white border-chm-black'
-                : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
-            }`}>
-              {s}
-            </a>
-          ))}
-        </div>
+        <StatusFilter />
       </div>
 
       <div className="space-y-10">
