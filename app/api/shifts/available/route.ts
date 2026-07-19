@@ -1,17 +1,15 @@
+import { NextResponse } from 'next/server'
+
 export async function GET() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  console.log('Supabase URL:', supabaseUrl ? 'SET' : 'MISSING')
-  console.log('Supabase Key:', supabaseKey ? 'SET' : 'MISSING')
-
   if (!supabaseUrl || !supabaseKey) {
-    return Response.json({ error: 'Missing Supabase credentials' }, { status: 500 })
+    return NextResponse.json({ error: 'Missing Supabase credentials' }, { status: 500 })
   }
 
   try {
-    const url = `${supabaseUrl}/rest/v1/shifts?status=eq.available&order=date.asc`
-    console.log('Fetching from:', url)
+    const url = `${supabaseUrl}/rest/v1/shifts?status=eq.available&order=date.asc,start_time.asc`
     
     const res = await fetch(url, {
       headers: {
@@ -20,19 +18,16 @@ export async function GET() {
       },
     })
 
-    console.log('Supabase response status:', res.status)
-    
     if (!res.ok) {
       const errorText = await res.text()
-      console.error('Supabase error response:', errorText)
-      return Response.json({ error: `Supabase error: ${res.status} - ${errorText}` }, { status: 500 })
+      console.error('[shifts] Supabase error:', res.status, errorText)
+      return NextResponse.json({ error: 'Failed to fetch shifts' }, { status: 500 })
     }
 
     const shifts = await res.json()
-    console.log('Shifts fetched:', shifts.length)
-    return Response.json(shifts)
+    return NextResponse.json(shifts)
   } catch (error) {
-    console.error('Error fetching available shifts:', error)
-    return Response.json({ error: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
+    console.error('[shifts] Error:', error)
+    return NextResponse.json({ error: 'Failed to fetch shifts' }, { status: 500 })
   }
 }
