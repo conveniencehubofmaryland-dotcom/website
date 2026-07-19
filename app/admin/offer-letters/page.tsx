@@ -6,6 +6,7 @@ import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
 import ApplicantNotesButton from '@/components/ApplicantNotesButton'
 import StatusFilter from './StatusFilter'
+import { DeleteButton } from '@/components/DeleteButton'
 
 type Applicant = {
   id: string
@@ -100,7 +101,7 @@ export default async function AdminOfferLettersPage({
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200 bg-gray-50">
-                      {['Name', 'Email', 'Phone', 'Status', 'Notes', 'Applied', 'Action'].map(h => (
+                      {['Name', 'Email', 'Phone', 'Status', 'Notes', 'Applied', 'Action', 'Delete'].map(h => (
                         <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                           {h}
                         </th>
@@ -136,6 +137,13 @@ export default async function AdminOfferLettersPage({
                                 position={applicant.position}
                               />
                             )}
+                          </td>
+                          <td className="py-3 px-4">
+                            <DeleteButton 
+                              table="offer_letter_applicants" 
+                              id={applicant.id} 
+                              name={applicant.full_name}
+                            />
                           </td>
                         </tr>
                       )
