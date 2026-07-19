@@ -45,13 +45,19 @@ export async function POST(request: NextRequest) {
     const shift = shifts[0]
 
     // 2. Update shift with staff details using service role
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceRoleKey) {
+      console.error('[shifts] SUPABASE_SERVICE_ROLE_KEY not set')
+      return NextResponse.json({ error: 'Service configuration missing' }, { status: 500 })
+    }
+
     const updateRes = await fetch(
       `${supabaseUrl}/rest/v1/shifts?id=eq.${encodeURIComponent(shiftId)}`,
       {
         method: 'PATCH',
         headers: {
           apikey: supabaseKey,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          Authorization: `Bearer ${serviceRoleKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -64,10 +70,10 @@ export async function POST(request: NextRequest) {
       }
     )
 
+    const updateText = await updateRes.text()
     if (!updateRes.ok) {
-      const errorText = await updateRes.text()
-      console.error('[shifts] Error updating shift:', updateRes.status, errorText)
-      return NextResponse.json({ error: 'Failed to claim shift' }, { status: 500 })
+      console.error('[shifts] PATCH failed:', updateRes.status, updateText)
+      return NextResponse.json({ error: `Update failed: ${updateText}` }, { status: 500 })
     }
 
     // 3. Format shift date
