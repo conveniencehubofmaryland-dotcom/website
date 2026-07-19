@@ -9,7 +9,7 @@ export default function OfferThankYouPage() {
         <h1 className="font-serif text-3xl text-chm-black mb-4">Welcome to CHM!</h1>
         
         <p className="text-gray-600 text-sm leading-relaxed mb-8">
-          Thank you for accepting your offer. We&apos;re excited to have you join the Convenience Hub of Maryland team.
+          Thank you for accepting your offer. We are excited to have you join the Convenience Hub of Maryland team.
         </p>
 
         <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-8 text-left">
