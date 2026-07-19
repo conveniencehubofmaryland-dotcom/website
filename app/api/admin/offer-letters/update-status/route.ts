@@ -17,22 +17,27 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceRoleKey) {
+      return NextResponse.json({ error: 'Service configuration missing' }, { status: 500 })
+    }
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
       {
         method: 'PATCH',
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${serviceRoleKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
       }
     )
 
+    const resText = await res.text()
     if (!res.ok) {
-      const error = await res.text()
-      console.error('[update-status] Supabase error:', error)
+      console.error('[update-status] Supabase error:', res.status, resText)
       return NextResponse.json({ error: 'Failed to update status' }, { status: 500 })
     }
 
