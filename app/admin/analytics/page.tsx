@@ -20,12 +20,28 @@ type ModuleRow = {
   position: string | null
 }
 
+type OfferLetter = {
+  id: string
+  applicant_id: string
+  position: string
+  status: string
+  created_at: string
+  signed_at: string | null
+  offer_letter_applicants: {
+    full_name: string
+    email: string
+  }
+}
+
 export default async function AdminAnalyticsPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
 
   const progress = await dbSelectAuth<Progress>('staff_module_progress', token)
   const modules = await dbSelectAuth<ModuleRow>('training_modules', token)
+  const offerLetters = await dbSelectAuth<OfferLetter>('offer_letters', token, {
+    select: 'id,applicant_id,position,status,created_at,signed_at,offer_letter_applicants(full_name,email)'
+  })
 
   const totalAttempts = progress.length
   const completed = progress.filter(p => p.status === 'completed').length
@@ -86,6 +102,90 @@ export default async function AdminAnalyticsPage() {
         <p className="text-sm text-gray-400 mt-1">Overview and full record of staff training performance</p>
       </div>
 
+      {/* Offer Letters Section */}
+      <div className="mb-12 pb-12 border-b border-gray-200">
+        <h2 className="font-serif text-2xl text-chm-black mb-6">Offer Letters</h2>
+        
+        {/* Offer Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+          {(() => {
+            const total = offerLetters.length
+            const draft = offerLetters.filter(o => o.status === 'draft').length
+            const sent = offerLetters.filter(o => o.status === 'sent').length
+            const signed = offerLetters.filter(o => o.status === 'signed').length
+            const pending = sent + draft
+            const acceptanceRate = sent > 0 ? Math.round((signed / sent) * 100) : 0
+
+            return (
+              <>
+                <div className="border border-gray-200 p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Total Offers</p>
+                  <p className="text-3xl font-bold text-chm-black">{total}</p>
+                </div>
+                <div className="border border-gray-200 p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Pending</p>
+                  <p className="text-3xl font-bold text-orange-600">{pending}</p>
+                </div>
+                <div className="border border-gray-200 p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Signed</p>
+                  <p className="text-3xl font-bold text-green-600">{signed}</p>
+                </div>
+                <div className="border border-gray-200 p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Acceptance Rate</p>
+                  <p className="text-3xl font-bold text-chm-red">{acceptanceRate}%</p>
+                </div>
+                <div className="border border-gray-200 p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Draft</p>
+                  <p className="text-3xl font-bold text-gray-500">{draft}</p>
+                </div>
+              </>
+            )
+          })()}
+        </div>
+
+        {/* Recent Offers Table */}
+        {offerLetters.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-200 bg-gray-50">
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Applicant</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Position</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Status</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Created</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Signed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {offerLetters
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                  .slice(0, 10)
+                  .map((offer, i) => (
+                    <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 font-semibold text-chm-black">{offer.offer_letter_applicants?.full_name || 'Unknown'}</td>
+                      <td className="py-3 px-4 text-gray-600 text-xs">{offer.position}</td>
+                      <td className="py-3 px-4">
+                        <span className={`text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded ${
+                          offer.status === 'signed' ? 'bg-green-100 text-green-700' :
+                          offer.status === 'sent' ? 'bg-blue-100 text-blue-700' :
+                          offer.status === 'draft' ? 'bg-gray-100 text-gray-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {offer.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-gray-500 text-xs">{new Date(offer.created_at).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-gray-500 text-xs">{offer.signed_at ? new Date(offer.signed_at).toLocaleDateString() : '—'}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-400 text-sm">No offer letters yet.</p>
+        )}
+      </div>
+      
       {/* Top stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 mb-12">
         <div className="border border-gray-200 p-5">
