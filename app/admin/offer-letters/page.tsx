@@ -52,15 +52,30 @@ export default async function AdminOfferLettersPage({
   // Create a map of applicant_id -> offer for quick lookup
   const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
 
-  // Filter by status
-  const filtered = filterStatus === 'all' 
-    ? applicants 
-    : applicants.filter(a => a.status === filterStatus)
+  import StatusFilter from './StatusFilter'
 
-  // Group by position
-  const grouped: Record<string, Applicant[]> = {}
-  POSITION_LIST.forEach(pos => {
-    grouped[pos] = filtered.filter(a => a.position === pos)
+// ... keep all other imports ...
+
+export default async function AdminOfferLettersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
+  const { status: filterStatus = 'all' } = await searchParams
+  // ... rest of code stays the same until the render ...
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-serif text-3xl text-chm-black">Offer Letters</h1>
+          <p className="text-sm text-gray-500 mt-1">{filtered.length} applicant{filtered.length !== 1 ? 's' : ''}</p>
+        </div>
+        
+        <StatusFilter />
+      </div>
+
+      {/* rest of the page stays the same */}
   })
 
   return (
