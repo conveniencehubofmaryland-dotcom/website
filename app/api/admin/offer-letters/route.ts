@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
   const deadlineDateFormatted = new Date(deadline_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
   try {
-    // Create offer letter record (no PDF - Cloudflare doesn't support fs)
+    // Generate unique signing token
+    const sign_token = crypto.randomUUID()
+
+    // Create offer letter record
     const { error: insertError } = await dbInsertService('offer_letters', {
       applicant_id,
       position,
@@ -35,6 +38,7 @@ export async function POST(req: NextRequest) {
       start_date,
       benefits_summary: benefits_summary || null,
       pdf_url: null,
+      sign_token: sign_token,
     })
 
     if (insertError) {
@@ -76,9 +80,9 @@ export async function POST(req: NextRequest) {
           <li>You must complete all required company paperwork before your start date</li>
         </ul>
         
-        <h4>NEXT STEPS</h4>
+<h4>NEXT STEPS</h4>
         <ol>
-          <li>Review and sign this offer letter</li>
+          <li><a href="https://conveniencehubofmaryland.com/offer/sign/${sign_token}" style="color: #d73a3a; font-weight: bold;">Review and electronically sign this offer letter</a></li>
           <li>Return signed copy by <strong>${deadlineDateFormatted}</strong></li>
           <li>Complete background check authorization</li>
           <li>Bring government ID and proof of work authorization on Day 1</li>
