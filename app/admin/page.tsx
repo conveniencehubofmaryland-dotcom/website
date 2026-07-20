@@ -6,7 +6,6 @@ import AdminLoginForm from '@/components/AdminLoginForm'
 import AdminForgotPasswordForm from '@/components/AdminForgotPasswordForm'
 
 export default function AdminPage() {
-  // ... rest of code
   const [showForgotPassword, setShowForgotPassword] = useState(false)
 
   return (
