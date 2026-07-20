@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const resendApiKey = process.env.RESEND_API_KEY
+
   console.log('[admin/forgot-password] runtime supabaseUrl present:', Boolean(supabaseUrl))
   console.log('[admin/forgot-password] runtime SUPABASE_SERVICE_ROLE_KEY present:', Boolean(serviceRoleKey))
   console.log('[admin/forgot-password] runtime RESEND_API_KEY present:', Boolean(resendApiKey))
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           email,
           type: 'recovery',
-          redirect_to: 'https://conventiencehubofmaryland.com/admin/update-password',
+          redirect_to: 'https://conveniencehubofmaryland.com/admin/update-password',
         }),
       }
     )
@@ -91,7 +92,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[admin/forgot-password] reset email sent to:', email)
-
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Password reset error:', err)
