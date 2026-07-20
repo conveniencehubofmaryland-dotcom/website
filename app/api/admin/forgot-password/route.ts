@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       {
         method: 'POST',
         headers: {
-          apikey: serviceRoleKey,
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
           Authorization: `Bearer ${serviceRoleKey}`,
           'Content-Type': 'application/json',
         },
