@@ -10,7 +10,7 @@
     "build:worker": "opennextjs-cloudflare build && cp -r .open-next/assets/. .open-next/ && node scripts/create-assets-worker.mjs"
   },
   "dependencies": {
-    "next": "15.5.18",
+    "next": "15.5.21",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.12.3",
