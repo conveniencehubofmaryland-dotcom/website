@@ -81,7 +81,6 @@ export default function AdminLoginForm() {
         >
           {status === 'submitting' ? 'Signing in…' : 'Sign In'}
         </button>
-          Forgot your password? <a href="/admin/forgot-password" className="text-chm-red hover:underline">Reset it</a>
       </form>
     </div>
   )
