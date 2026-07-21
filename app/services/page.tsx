@@ -1,10 +1,10 @@
-import { dbSelectService } from '@/lib/db'
+import { dbSelect } from '@/lib/db'
 import Link from 'next/link'
 
 export const metadata = { title: 'Services - Convenience Hub of Maryland' }
 
 export default async function ServicesPage() {
-  const services = await dbSelectService('services', {
+  const services = await dbSelect('services', {
     select: '*',
     order: 'sort_order.asc',
   })
@@ -17,12 +17,10 @@ export default async function ServicesPage() {
       <div className="space-y-12">
         {services.map((service, idx) => (
           <div key={service.id} className={`flex flex-col ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 items-center`}>
-            {/* Image/Icon */}
             <div className="flex-1 bg-gradient-to-br from-chm-black to-gray-800 rounded-lg h-80 flex items-center justify-center">
               <span className="text-8xl opacity-80">✨</span>
             </div>
 
-            {/* Content */}
             <div className="flex-1">
               <h2 className="font-serif text-4xl text-chm-black mb-3">{service.title}</h2>
               <p className="text-chm-red font-semibold text-lg mb-4">{service.subtitle}</p>
