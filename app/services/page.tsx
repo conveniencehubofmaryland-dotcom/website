@@ -3,8 +3,17 @@ import Link from 'next/link'
 
 export const metadata = { title: 'Services - Convenience Hub of Maryland' }
 
+type Service = {
+  id: string
+  title: string
+  subtitle: string
+  description: string
+  price_from: number
+  slug: string
+}
+
 export default async function ServicesPage() {
-  const services = await dbSelect('services', {
+  const services = await dbSelect<Service>('services', {
     select: '*',
     order: 'sort_order.asc',
   })
