@@ -83,7 +83,6 @@ export default function AdminLoginForm() {
         </button>
         <p className="text-center text-xs text-gray-600 mt-4">
           Forgot your password? <a href="/admin/forgot-password" className="text-chm-red hover:underline">Reset it</a>
-        </p>
       </form>
     </div>
   )
