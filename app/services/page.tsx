@@ -17,10 +17,10 @@ const serviceImages: { [key: string]: string } = {
   'cleaning-estate-care': '/service-cleaning.jpg',
   'laundry-pickup-delivery': '/service-laundry.jpg',
   'meal-prep': '/service-culinary.jpg',
-  'nanny-childcare': '👶',
-  'elder-companion-care': '/service-care.jpg',
-  'commercial-cleaning': '/commercial-hero.jpg',
-  'special-projects': '🎉',
+  'nanny-childcare': '/service-nanny.jpg',
+  'elder-companion-care': '/service-elderly.jpg',
+  'commercial-cleaning': '/commercial-cleaning.jpg',
+  'special-projects': '/service-special-projects.jpg',
 }
 
 export default async function ServicesPage() {
@@ -37,28 +37,20 @@ export default async function ServicesPage() {
       <div className="space-y-12">
         {services.map((service, idx) => {
           const imagePath = serviceImages[service.slug]
-          const isEmoji = imagePath?.includes('👶') || imagePath?.includes('🎉')
 
           return (
             <div key={service.id} className={`flex flex-col ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 items-center`}>
-              {/* Image */}
               <div className="flex-1 bg-gray-200 rounded-lg h-80 overflow-hidden">
-                {isEmoji ? (
-                  <div className="w-full h-full flex items-center justify-center text-7xl bg-gradient-to-br from-chm-black to-gray-700">
-                    {imagePath}
-                  </div>
-                ) : (
-                  <Image
-                    src={imagePath || '/leaf-hero.jpg'}
-                    alt={service.title}
-                    width={600}
-                    height={400}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+                <Image
+                  src={imagePath}
+                  alt={service.title}
+                  width={600}
+                  height={400}
+                  className="w-full h-full object-cover"
+                  priority={idx === 0}
+                />
               </div>
 
-              {/* Content */}
               <div className="flex-1">
                 <h2 className="font-serif text-4xl text-chm-black mb-3">{service.title}</h2>
                 <p className="text-chm-red font-semibold text-lg mb-4">{service.subtitle}</p>
