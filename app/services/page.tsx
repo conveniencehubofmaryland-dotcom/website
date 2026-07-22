@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import AnimatedSection from '@/components/AnimatedSection'
 import type { Service, PricingItem } from '@/lib/types'
+import Link from 'next/link'
+import CustomQuoteButton from '@/components/CustomQuoteButton'
 
 export const metadata: Metadata = {
   title: 'Services & Pricing | Cleaning, Laundry, Nanny & More — Convenience Hub of Maryland',
@@ -262,8 +264,11 @@ export default async function ServicesPage() {
                   <p className="text-gray-400 text-sm mb-2 uppercase tracking-wide">{service.subtitle}</p>
                 )}
                 {service.description && (
-                  <p className="text-gray-600 text-sm mb-8 max-w-2xl leading-relaxed">{service.description}</p>
+                 <p className="text-gray-600 text-sm mb-6 max-w-2xl leading-relaxed">{service.description}</p>
                 )}
+                <Link href="/quote" className="inline-block bg-chm-red text-white px-6 py-2.5 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors mb-8">
+                  Get a Quote
+                </Link>}
 
                 <div className="space-y-6">
                   {sections.map((sec, si) => (
@@ -277,10 +282,9 @@ export default async function ServicesPage() {
                             <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
                             <p className="font-serif text-2xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
                               {item.price === 'Custom Quote' ? (
-                                <a href={CUSTOM_QUOTE_MAIL(item.label)} className="hover:underline underline-offset-4">
-                                  Custom Quote
-                                </a>
-                              ) : (
+                                {item.price === 'Custom Quote' ? (
+                                 <CustomQuoteButton label={item.label} />
+                                  ) : (
                                 <>{item.price}{item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}</>
                               )}
                             </p>
