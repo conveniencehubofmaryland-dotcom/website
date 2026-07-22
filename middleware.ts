@@ -4,7 +4,7 @@ const PUBLIC_PATHS = [
   '/admin/login',
   '/admin/forgot-password',
   '/admin/update-password',
-  '/api/admin/login',
+  '/api/admin',
   '/api/admin/logout',
   '/api/admin/forgot-password',
   '/api/admin/update-password',
@@ -18,7 +18,7 @@ export function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    return NextResponse.redirect(new URL('/admin/login', req.url))
+    return NextResponse.redirect(new URL('/admin', req.url))
   }
   return NextResponse.next()
 }
