@@ -268,7 +268,7 @@ export default async function ServicesPage() {
                 )}
                 <Link href="/quote" className="inline-block bg-chm-red text-white px-6 py-2.5 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors mb-8">
                   Get a Quote
-                </Link>}
+                </Link>
 
                 <div className="space-y-6">
                   {sections.map((sec, si) => (
@@ -282,7 +282,6 @@ export default async function ServicesPage() {
                             <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">{item.label}</p>
                             <p className="font-serif text-2xl font-bold text-chm-red" style={{ fontFamily: 'var(--font-serif)' }}>
                               {item.price === 'Custom Quote' ? (
-                                {item.price === 'Custom Quote' ? (
                                  <CustomQuoteButton label={item.label} />
                                   ) : (
                                 <>{item.price}{item.unit && <span className="text-base font-normal text-gray-400 ml-1">{item.unit}</span>}</>
