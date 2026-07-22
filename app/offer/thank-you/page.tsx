@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from 'next/link
 
 export default function OfferThankYouPage() {
   return (
@@ -26,14 +26,9 @@ export default function OfferThankYouPage() {
           A confirmation email has been sent to your email address with all the details.
         </p>
 
-        <div className="space-y-3">
-          <Link href="/staff/training-modules" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-            Start Training Modules
-          </Link>
-          <p className="text-xs text-gray-400">
-            Questions? Call 202-579-2944<br/>Mon–Sat, 9 AM–9 PM
-          </p>
-        </div>
+        <p className="text-xs text-gray-400">
+          Questions? Call 202-579-2944<br/>Mon–Sat, 9 AM–9 PM
+        </p>
       </div>
     </div>
   )
