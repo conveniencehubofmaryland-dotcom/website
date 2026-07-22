@@ -1,163 +1,109 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-export default function StaffPortalPage() {
-  const [applicantId, setApplicantId] = useState<string | null>(null)
-  const [orientationComplete, setOrientationComplete] = useState(false)
+export default function StaffPage() {
+  const router = useRouter()
+  const [staffName, setStaffName] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function checkStatus() {
+    async function checkAuth() {
       try {
-        const id = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
-        setApplicantId(id)
-
-        if (id) {
-          const res = await fetch(`/api/staff/welcome/check?applicant_id=${id}`)
-          const data = await res.json()
-          setOrientationComplete(data.orientation_accepted || false)
+        const res = await fetch('/api/staff/check-session', { credentials: 'include' })
+        if (!res.ok) {
+          router.push('/staff/welcome')
+          return
         }
+        const data = await res.json()
+        setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
-        console.error('Error checking status:', err)
+        console.error('Auth check failed:', err)
+        router.push('/staff/welcome')
       } finally {
         setLoading(false)
       }
     }
-
-    checkStatus()
+    checkAuth()
   }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-12">
-          <div className="w-12 h-px bg-chm-red mb-6" />
-          <h1 className="font-serif text-3xl text-chm-black mb-2">Staff Portal</h1>
-          <p className="text-sm text-gray-500">Welcome to your Convenience Hub of Maryland staff dashboard</p>
+        <div className="mb-8">
+          <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-2">Welcome</p>
+          <h1 className="font-serif text-4xl md:text-5xl text-chm-black">Hello, {staffName}</h1>
+          <div className="w-8 h-px bg-chm-red mt-4" />
         </div>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Loading...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Onboarding Section */}
-            <div className="bg-white border-2 border-chm-red p-8 shadow-sm">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="font-serif text-2xl text-chm-black mb-1">Onboarding</h2>
-                  <p className="text-sm text-gray-500">Get started with CHM</p>
-                </div>
-                {orientationComplete && (
-                  <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded">
-                    Completed
-                  </span>
-                )}
-              </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 hover:bg-blue-100 transition-colors">
+          <Link href="/staff/how-it-works" className="block">
+            <p className="font-serif text-xl text-chm-black mb-2">New to CHM? Start Here</p>
+            <p className="text-sm text-gray-700">Learn how our platform works in 5 steps — onboarding, training, shifts, certifications, and support.</p>
+          </Link>
+        </div>
 
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {orientationComplete
-                    ? 'You have completed your orientation. You are ready to start your training and claim shifts.'
-                    : 'Start your onboarding journey by completing your welcome orientation and reviewing our policies.'}
-                </p>
-
-                <Link
-                  href="/staff/welcome"
-                  className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors w-full text-center"
-                >
-                  {orientationComplete ? 'Review Welcome Info' : 'Start Welcome'}
-                </Link>
+        <div className="space-y-6">
+          {/* Onboarding Card */}
+          <Link href="/staff/welcome" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-2xl text-chm-black mb-2">Onboarding</h2>
+                <p className="text-gray-600 text-sm leading-relaxed">Complete your profile, review CHM's orientation, and gain access to training modules.</p>
               </div>
+              <span className="text-2xl">📋</span>
             </div>
+          </Link>
 
-            {/* Training Section */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="font-serif text-2xl text-chm-black mb-1">Training Modules</h2>
-                  <p className="text-sm text-gray-500">Build your skills</p>
-                </div>
+          {/* Training Modules Card */}
+          <Link href="/staff/training-modules" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-2xl text-chm-black mb-2">Training Modules</h2>
+                <p className="text-gray-600 text-sm leading-relaxed">Complete required training, take the quiz, and earn your CHM certification.</p>
               </div>
-
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Complete required training modules for your position to certify and become eligible for shifts.
-                </p>
-
-                <Link
-                  href="/staff/training-modules"
-                  className={`inline-block px-6 py-3 font-semibold text-xs uppercase tracking-widest w-full text-center transition-colors ${
-                    orientationComplete
-                      ? 'bg-chm-black text-white hover:bg-gray-800'
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  }`}
-                  onClick={e => {
-                    if (!orientationComplete) {
-                      e.preventDefault()
-                    }
-                  }}
-                >
-                  {orientationComplete ? 'View Training' : 'Complete Orientation First'}
-                </Link>
-              </div>
+              <span className="text-2xl">📚</span>
             </div>
+          </Link>
 
-            {/* Available Shifts Section */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="font-serif text-2xl text-chm-black mb-1">Available Shifts</h2>
-                  <p className="text-sm text-gray-500">Claim work</p>
-                </div>
+          {/* Available Shifts Card */}
+          <Link href="/staff/available-shifts" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-2xl text-chm-black mb-2">Available Shifts</h2>
+                <p className="text-gray-600 text-sm leading-relaxed">Browse and claim shifts that work for your schedule.</p>
               </div>
-
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Browse and claim available shifts in your area once you are certified.
-                </p>
-
-                <Link
-                  href="/staff/available-shifts"
-                  className={`inline-block px-6 py-3 font-semibold text-xs uppercase tracking-widest w-full text-center transition-colors ${
-                    orientationComplete
-                      ? 'bg-chm-black text-white hover:bg-gray-800'
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  }`}
-                  onClick={e => {
-                    if (!orientationComplete) {
-                      e.preventDefault()
-                    }
-                  }}
-                >
-                  {orientationComplete ? 'View Shifts' : 'Complete Orientation First'}
-                </Link>
-              </div>
+              <span className="text-2xl">📅</span>
             </div>
+          </Link>
 
-            {/* Support Section */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <div className="mb-6">
-                <h2 className="font-serif text-2xl text-chm-black mb-1">Support</h2>
-                <p className="text-sm text-gray-500">Get help</p>
+          {/* Support Card */}
+          <Link href="/staff/support" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-2xl text-chm-black mb-2">Support</h2>
+                <p className="text-gray-600 text-sm leading-relaxed">Have questions? Submit a support ticket and we'll respond within 24 hours.</p>
               </div>
-
-              <div className="space-y-3 text-sm">
-                <p className="text-gray-600">
-                  Have questions? We are here to help!
-                </p>
-                <div>
-                  <p className="font-semibold text-chm-black mb-1">Contact Us:</p>
-                  <p className="text-gray-600">📞 202-579-2944</p>
-                  <p className="text-gray-600">Mon–Sat, 9 AM–9 PM</p>
-                </div>
-              </div>
+              <span className="text-2xl">💬</span>
             </div>
-          </div>
-        )}
+          </Link>
+        </div>
+
+        {/* Footer Note */}
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-center">
+            Questions? Visit the <Link href="/staff/how-it-works" className="text-chm-red hover:underline">"How It Works"</Link> page or submit a support ticket.
+          </p>
+        </div>
       </div>
     </div>
   )
