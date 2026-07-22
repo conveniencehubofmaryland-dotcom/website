@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import AnimatedSection from '@/components/AnimatedSection'
-import { dbSelect } from '@/lib/db'
 import type { Service, PricingItem } from '@/lib/types'
 
 export const metadata: Metadata = {
@@ -218,8 +217,7 @@ const CUSTOM_QUOTE_MAIL = (label: string) =>
   `mailto:conveniencehubofmaryland@gmail.com?subject=${encodeURIComponent(`Custom Quote Request — ${label}`)}&body=${encodeURIComponent(`Hi Convenience Hub of Maryland,\n\nI am interested in a custom quote for: ${label}\n\nPlease find my details below:\n\n- Name: \n- Phone: \n- Location (MD / VA / DC): \n- Preferred schedule or frequency: \n- Property size or special requirements: \n- Best time to reach me: \n\nThank you!`)}`
 
 export default async function ServicesPage() {
-  const dbServices = await dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order' })
-  const services = dbServices.length > 0 ? dbServices : STATIC_SERVICES
+  const services = STATIC_SERVICES
 
   return (
     <div className="bg-white">
