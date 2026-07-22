@@ -35,34 +35,34 @@ export async function POST(req: NextRequest) {
     const sign_token = crypto.randomUUID()
 
     // Create offer letter record
-    const { error: insertError } = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters`,
-      {
-        method: 'POST',
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({
-          applicant_id,
-          position,
-          salary_annual,
-          start_date,
-          benefits_summary: benefits_summary || null,
-          pdf_url: null,
-          sign_token,
-          status: 'sent',
-        }),
-      }
-    ).then(r => r.json())
+const insertRes = await fetch(
+  `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters`,
+  {
+    method: 'POST',
+    headers: {
+      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({
+      applicant_id,
+      position,
+      salary_annual,
+      start_date,
+      benefits_summary: benefits_summary || null,
+      pdf_url: null,
+      sign_token,
+      status: 'sent',
+    }),
+  }
+)
 
-    if (insertError) {
-      console.error('[offer-letters] Supabase insert failed:', insertError)
-      return NextResponse.json({ error: 'Failed to create offer letter' }, { status: 500 })
-    }
-
+if (!insertRes.ok) {
+  const errorBody = await insertRes.text()
+  console.error('[offer-letters] Supabase insert failed:', errorBody)
+  return NextResponse.json({ error: 'Failed to create offer letter' }, { status: 500 })
+}
     // Update applicant status to 'sent'
     const statusRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
