@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react'
 const PHONE_DISPLAY = '202-579-2944'
 const PHONE_TEL = '+12025792944'
 const PHONE_WHATSAPP = '12025792944'
-const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
 
 function buildMailto(label: string) {
   const subject = encodeURIComponent(`Custom Quote Request — ${label}`)
@@ -42,9 +41,6 @@ export default function CustomQuoteButton({ label }: { label: string }) {
           </a>
           <a href={`https://wa.me/${PHONE_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="block px-4 py-2 text-sm text-gray-700 hover:bg-cream">
             WhatsApp
-          </a>
-          <a href={buildMailto(label)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-cream">
-            Email
           </a>
         </div>
       )}
