@@ -48,7 +48,7 @@ export default function StaffPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 hover:bg-blue-100 transition-colors">
           <Link href="/staff/how-it-works" className="block">
             <p className="font-serif text-xl text-chm-black mb-2">New to CHM? Start Here</p>
-            <p className="text-sm text-gray-700">Learn how our platform works in 5 steps — onboarding, training, shifts, certifications, and support.</p>
+            <p className="text-sm text-gray-700">Learn how our platform works in 5 steps &mdash; onboarding, training, shifts, certifications, and support.</p>
           </Link>
         </div>
 
@@ -91,7 +91,7 @@ export default function StaffPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-2">Support</h2>
-                <p className="text-gray-600 text-sm leading-relaxed">Have questions? Submit a support ticket and we'll respond within 24 hours.</p>
+                <p className="text-gray-600 text-sm leading-relaxed\">Complete your profile, review CHM&apos;s orientation, and gain access to training modules.</p>
               </div>
               <span className="text-2xl">💬</span>
             </div>
