@@ -101,7 +101,7 @@ export default function StaffPage() {
         {/* Footer Note */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Questions? Visit the <Link href="/staff/how-it-works" className="text-chm-red hover:underline">"How It Works"</Link> page or submit a support ticket.
+            Questions? Visit the <Link href="/staff/how-it-works" className="text-chm-red hover:underline">&quot;How It Works&quot;</Link> page or submit a support ticket.
           </p>
         </div>
       </div>
