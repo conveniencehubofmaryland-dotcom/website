@@ -5,9 +5,10 @@ export const metadata = {
   description: 'Your guide to the CHM staff platform: onboarding, training, shifts, and support.',
 }
 
-export default function StaffHowItWorksPage({ searchParams }: { searchParams: { position?: string; applicant_id?: string } }) {
-  const position = searchParams.position ? decodeURIComponent(searchParams.position) : null
-  const applicantId = searchParams.applicant_id || null
+export default async function StaffHowItWorksPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const params = await searchParams
+  const position = params.position ? decodeURIComponent(params.position) : null
+  const applicantId = params.applicant_id || null
 
   if (!position || !applicantId) {
     return (
@@ -69,7 +70,7 @@ export default function StaffHowItWorksPage({ searchParams }: { searchParams: { 
             <div className="flex items-start gap-4">
               <span className="text-4xl font-serif text-chm-red min-w-fit">2</span>
               <div>
-                <h2 className="font-serif text-2xl text-chm-black mb-3">Read & Sign Orientation</h2>
+                <h2 className="font-serif text-2xl text-chm-black mb-3">Read &amp; Sign Orientation</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
                   Next, you&apos;ll read our Employee Orientation Document and Memorandum of Understanding. This covers company policies, your rights and responsibilities, confidentiality rules, and the non-solicitation agreement. You&apos;ll sign electronically to confirm you understand everything.
                 </p>
