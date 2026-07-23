@@ -1,7 +1,3 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
 
@@ -248,27 +244,69 @@ AT-WILL EMPLOYMENT
 
 This MOU does not alter at-will employment status where applicable. Either CHM or Staff may terminate employment at any time, for any lawful reason or no reason, with or without notice. However, the obligations under this MOU (non-solicitation, confidentiality, liquidated damages) survive termination indefinitely.`
 
-export default function OrientationPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const position = searchParams.get('position')
-  const applicantId = searchParams.get('applicant_id')
+export default async function OrientationPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const params = await searchParams
+  const position = params.position ? decodeURIComponent(params.position) : null
+  const applicantId = params.applicant_id || null
 
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [signature, setSignature] = useState('')
-  const [understood, setUnderstood] = useState(false)
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
-  const [positionError, setPositionError] = useState('')
+  if (!position || !applicantId) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Onboarding Link</h1>
+            <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
+            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Start Over
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-  useEffect(() => {
-    // Validate position and applicant_id exist
-    if (!position || !applicantId) {
-      setPositionError('Invalid onboarding link. Please start from the beginning.')
-    }
-  }, [position, applicantId])
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        {/* Position Badge — Locked */}
+        <div className="mb-6 bg-chm-red/10 border border-chm-red/20 rounded p-4">
+          <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
+          <p className="text-lg font-semibold text-chm-black">{position}</p>
+          <p className="text-xs text-gray-500 mt-2">This position cannot be changed. If this is incorrect, please start over.</p>
+        </div>
+
+        <div className="mb-8">
+          <div className="w-12 h-px bg-chm-red mb-6" />
+          <h1 className="font-serif text-3xl text-chm-black mb-2">Employee Orientation</h1>
+          <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
+        </div>
+
+        <div className="bg-white p-8 shadow-sm mb-8 border border-gray-200 text-sm leading-relaxed text-gray-700">
+          <div className="whitespace-pre-wrap break-words max-h-[600px] overflow-y-auto pr-4">
+            {ORIENTATION_DOCUMENT}
+          </div>
+        </div>
+
+        <OrientationForm position={position} applicantId={applicantId} />
+      </div>
+    </div>
+  )
+}
+
+function OrientationForm({ position, applicantId }: { position: string; applicantId: string }) {
+  'use client'
+  const router = require('next/router').useRouter ? require('next/router').useRouter() : null
+  const navigate = require('next/navigation').useRouter()
+  const [fullName, setFullName] = ('use client', require('react').useState(''))
+  const [email, setEmail] = require('react').useState('')
+  const [signature, setSignature] = require('react').useState('')
+  const [understood, setUnderstood] = require('react').useState(false)
+  const [agreedToTerms, setAgreedToTerms] = require('react').useState(false)
+  const [loading, setLoading] = require('react').useState(false)
+  const [errorMsg, setErrorMsg] = require('react').useState('')
+
+  const { useState } = require('react')
+  const { useRouter } = require('next/navigation')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -303,13 +341,9 @@ export default function OrientationPage() {
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Failed to save acknowledgment')
 
-      // Store position in localStorage for next step
-      localStorage.setItem('position', position!)
-      localStorage.setItem('applicant_id', applicantId!)
-
       // Redirect to thank you with position locked
-      const encodedPosition = encodeURIComponent(position!)
-      router.push(`/welcome-center/thank-you?position=${encodedPosition}&applicant_id=${applicantId}`)
+      const encodedPosition = encodeURIComponent(position)
+      navigate().push(`/welcome-center/thank-you?position=${encodedPosition}&applicant_id=${applicantId}`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
@@ -317,122 +351,83 @@ export default function OrientationPage() {
     }
   }
 
-  if (positionError) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
-            <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Onboarding Link</h1>
-            <p className="text-red-600 mb-6">{positionError}</p>
-            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-              Start Over
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Position Badge — Locked */}
-        <div className="mb-6 bg-chm-red/10 border border-chm-red/20 rounded p-4">
-          <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
-          <p className="text-lg font-semibold text-chm-black">{position}</p>
-          <p className="text-xs text-gray-500 mt-2">This position cannot be changed. If this is incorrect, please start over.</p>
-        </div>
-
-        <div className="mb-8">
-          <div className="w-12 h-px bg-chm-red mb-6" />
-          <h1 className="font-serif text-3xl text-chm-black mb-2">Employee Orientation</h1>
-          <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
-        </div>
-
-        <div className="bg-white p-8 shadow-sm mb-8 border border-gray-200 text-sm leading-relaxed text-gray-700">
-          <div className="whitespace-pre-wrap break-words max-h-[600px] overflow-y-auto pr-4">
-            {ORIENTATION_DOCUMENT}
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="bg-white p-8 shadow-sm space-y-6">
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name *</label>
-            <input
-              required
-              type="text"
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="Your full name"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email Address *</label>
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-              placeholder="your.email@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Signature (Type your full name) *</label>
-            <input
-              required
-              type="text"
-              value={signature}
-              onChange={e => setSignature(e.target.value)}
-              className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors font-script text-lg"
-              placeholder="Type your full name as your signature"
-            />
-            <p className="text-xs text-gray-400 mt-1">By typing your name, you are electronically signing this acknowledgment.</p>
-          </div>
-
-          <div className="space-y-3 border-t border-gray-200 pt-6">
-            <label className="flex items-start gap-3">
-              <input
-                required
-                type="checkbox"
-                checked={understood}
-                onChange={e => setUnderstood(e.target.checked)}
-                className="mt-1"
-              />
-              <span className="text-sm text-gray-700">I have read and fully understand the Convenience Hub of Maryland Orientation Document, including all policies, procedures, and expectations outlined above.</span>
-            </label>
-            <label className="flex items-start gap-3">
-              <input
-                required
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={e => setAgreedToTerms(e.target.checked)}
-                className="mt-1"
-              />
-              <span className="text-sm text-gray-700">I have read and fully understand the Memorandum of Understanding (MOU), including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I agree to comply with all terms.</span>
-            </label>
-          </div>
-
-          {errorMsg && (
-            <p className="text-chm-red text-sm bg-red-50 p-3 rounded">{errorMsg}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
-          >
-            {loading ? 'Processing…' : 'Accept & Continue'}
-          </button>
-
-          <p className="text-xs text-gray-400 text-center">
-            Questions? Call us at 202-579-2944 (Mon–Sat, 9 AM–9 PM)
-          </p>
-        </form>
+    <form onSubmit={handleSubmit} className="bg-white p-8 shadow-sm space-y-6">
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Full Name *</label>
+        <input
+          required
+          type="text"
+          value={fullName}
+          onChange={e => setFullName(e.target.value)}
+          className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+          placeholder="Your full name"
+        />
       </div>
-    </div>
+
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email Address *</label>
+        <input
+          required
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
+          placeholder="your.email@example.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Signature (Type your full name) *</label>
+        <input
+          required
+          type="text"
+          value={signature}
+          onChange={e => setSignature(e.target.value)}
+          className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors font-script text-lg"
+          placeholder="Type your full name as your signature"
+        />
+        <p className="text-xs text-gray-400 mt-1">By typing your name, you are electronically signing this acknowledgment.</p>
+      </div>
+
+      <div className="space-y-3 border-t border-gray-200 pt-6">
+        <label className="flex items-start gap-3">
+          <input
+            required
+            type="checkbox"
+            checked={understood}
+            onChange={e => setUnderstood(e.target.checked)}
+            className="mt-1"
+          />
+          <span className="text-sm text-gray-700">I have read and fully understand the Convenience Hub of Maryland Orientation Document, including all policies, procedures, and expectations outlined above.</span>
+        </label>
+        <label className="flex items-start gap-3">
+          <input
+            required
+            type="checkbox"
+            checked={agreedToTerms}
+            onChange={e => setAgreedToTerms(e.target.checked)}
+            className="mt-1"
+          />
+          <span className="text-sm text-gray-700">I have read and fully understand the Memorandum of Understanding (MOU), including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I agree to comply with all terms.</span>
+        </label>
+      </div>
+
+      {errorMsg && (
+        <p className="text-chm-red text-sm bg-red-50 p-3 rounded">{errorMsg}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
+      >
+        {loading ? 'Processing…' : 'Accept & Continue'}
+      </button>
+
+      <p className="text-xs text-gray-400 text-center">
+        Questions? Call us at 202-579-2944 (Mon–Sat, 9 AM–9 PM)
+      </p>
+    </form>
   )
 }
