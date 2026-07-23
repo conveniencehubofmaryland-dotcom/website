@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -44,10 +43,16 @@ export default function WelcomeCenterPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Submission failed')
 
-      // Store applicant ID for later
+      // Store applicant ID and position in localStorage
       localStorage.setItem('applicant_id', data.id)
+      localStorage.setItem('position', formData.position)
 
-      router.push(`/welcome-center/orientation/${data.id}`)
+      // Set position cookie for backend access
+      document.cookie = `chm_position=${encodeURIComponent(formData.position)}; path=/; max-age=86400`
+
+      // Redirect to how-it-works with position as query param
+      const encodedPosition = encodeURIComponent(formData.position)
+      router.push(`/staff/how-it-works?position=${encodedPosition}&applicant_id=${data.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -113,7 +118,7 @@ export default function WelcomeCenterPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">
-                Position
+                Position (Select One)
               </label>
               <select
                 name="position"
@@ -129,6 +134,7 @@ export default function WelcomeCenterPage() {
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-gray-500 mt-2">This position will be locked throughout your onboarding process and cannot be changed.</p>
             </div>
 
             <div>
