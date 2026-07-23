@@ -304,8 +304,8 @@ export default function OrientationPage() {
       if (!res.ok) throw new Error(data.error ?? 'Failed to save acknowledgment')
 
       // Store position in localStorage for next step
-      localStorage.setItem('position', position)
-      localStorage.setItem('applicant_id', applicantId)
+      localStorage.setItem('position', position!)
+      localStorage.setItem('applicant_id', applicantId!)
 
       // Redirect to thank you with position locked
       const encodedPosition = encodeURIComponent(position!)
