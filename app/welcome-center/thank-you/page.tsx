@@ -1,29 +1,19 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+export const metadata = {
+  title: 'Welcome to CHM | Next Steps',
+}
 
-export default function WelcomeCenterThankYouPage() {
-  const searchParams = useSearchParams()
-  const position = searchParams.get('position')
-  const applicantId = searchParams.get('applicant_id')
+export default async function WelcomeCenterThankYouPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const params = await searchParams
+  const position = params.position ? decodeURIComponent(params.position) : null
+  const applicantId = params.applicant_id || null
 
-  const [positionError, setPositionError] = useState('')
-
-  useEffect(() => {
-    // Validate position and applicant_id exist
-    if (!position || !applicantId) {
-      setPositionError('Invalid onboarding link. Please start from the beginning.')
-    }
-  }, [position, applicantId])
-
-  if (positionError) {
+  if (!position || !applicantId) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
             <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Link</h1>
-            <p className="text-red-600 mb-6">{positionError}</p>
+            <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
             <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
               Start Over
             </a>
@@ -81,9 +71,9 @@ export default function WelcomeCenterThankYouPage() {
           <p className="text-sm text-blue-900 mb-4">
             <strong>Next Step:</strong> Click below to start your required training modules. This is mandatory before you can work.
           </p>
-          <Link href={`/staff/training-modules?position=${encodeURIComponent(position!)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+          <a href={`/staff/training-modules?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
             Start Training Modules
-          </Link>
+          </a>
         </div>
 
         <div className="bg-gray-50 p-6 rounded border border-gray-200">
