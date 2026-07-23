@@ -5,7 +5,26 @@ export const metadata = {
   description: 'Your guide to the CHM staff platform: onboarding, training, shifts, and support.',
 }
 
-export default function StaffHowItWorksPage() {
+export default function StaffHowItWorksPage({ searchParams }: { searchParams: { position?: string; applicant_id?: string } }) {
+  const position = searchParams.position ? decodeURIComponent(searchParams.position) : null
+  const applicantId = searchParams.applicant_id || null
+
+  if (!position || !applicantId) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Onboarding Link</h1>
+            <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
+            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Start Over
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white">
       <div className="bg-cream py-10 border-b border-gray-100">
@@ -20,6 +39,13 @@ export default function StaffHowItWorksPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
+        {/* Position Badge — Locked */}
+        <div className="mb-8 bg-chm-red/10 border border-chm-red/20 rounded p-4">
+          <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
+          <p className="text-lg font-semibold text-chm-black">{position}</p>
+          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you&apos;ll need to start over.</p>
+        </div>
+
         <div className="space-y-16">
 
           {/* Step 1 */}
@@ -29,18 +55,11 @@ export default function StaffHowItWorksPage() {
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-3">Complete Your Welcome Profile</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  When you join CHM, you&apos;ll receive an offer letter with a link to sign digitally on this platform. This is your first step and only takes 5 minutes.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>What you&apos;ll do:</strong> Fill in your name, email, phone, position, and address. Sign the offer letter electronically. That&apos;s it.
+                  You&apos;ve already done this! You selected your position and filled out your basic information. Great start.
                 </p>
                 <p className="text-sm text-gray-500">
-                  <strong>Why it matters:</strong> Your profile unlocks everything else &mdash; training, shifts, and payments. Without completing this, you can&apos;t proceed.
+                  <strong>Status:</strong> ✓ Complete
                 </p>
-                <div className="mt-6 bg-chm-red/5 border border-chm-red/10 p-4 rounded">
-                  <p className="text-xs text-chm-red font-semibold uppercase mb-1">💡 Pro Tip</p>
-                  <p className="text-sm text-gray-700">Sign your offer letter right away. You&apos;re officially hired once you do!</p>
-                </div>
               </div>
             </div>
           </div>
@@ -50,23 +69,16 @@ export default function StaffHowItWorksPage() {
             <div className="flex items-start gap-4">
               <span className="text-4xl font-serif text-chm-red min-w-fit">2</span>
               <div>
-                <h2 className="font-serif text-2xl text-chm-black mb-3">Complete Required Training Modules</h2>
+                <h2 className="font-serif text-2xl text-chm-black mb-3">Read & Sign Orientation</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  After signing your offer, training modules unlock automatically. You must complete all required training before your first shift.
+                  Next, you&apos;ll read our Employee Orientation Document and Memorandum of Understanding. This covers company policies, your rights and responsibilities, confidentiality rules, and the non-solicitation agreement. You&apos;ll sign electronically to confirm you understand everything.
                 </p>
                 <p className="text-sm text-gray-500 mb-4">
-                  <strong>What you&apos;ll do:</strong> Watch training videos, read materials, and take a short quiz at the end (you need to score 80% or higher to pass). Training takes about 2-4 hours total, depending on your role.
+                  <strong>Time needed:</strong> About 30-45 minutes to read carefully.
                 </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>Training covers:</strong> CHM&apos;s values and standards, safety protocols, customer service, how to use the shift-claiming system, and role-specific skills (cleaning techniques, nanny protocols, etc.).
-                </p>
-                <p className="text-sm text-gray-500">
-                  <strong>Why it matters:</strong> We want you set up for success. This training ensures you know what to expect and how to deliver the quality our clients count on.
-                </p>
-                <div className="mt-6 bg-chm-red/5 border border-chm-red/10 p-4 rounded">
-                  <p className="text-xs text-chm-red font-semibold uppercase mb-1">💡 Pro Tip</p>
-                  <p className="text-sm text-gray-700">Take notes and don&apos;t rush the training. If you score below 80%, you can retake the quiz once. We&apos;re here to help you succeed.</p>
-                </div>
+                <Link href={`/staff/orientation?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-6 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+                  Go to Orientation
+                </Link>
               </div>
             </div>
           </div>
@@ -76,23 +88,13 @@ export default function StaffHowItWorksPage() {
             <div className="flex items-start gap-4">
               <span className="text-4xl font-serif text-chm-red min-w-fit">3</span>
               <div>
-                <h2 className="font-serif text-2xl text-chm-black mb-3">Claim Your Shifts &mdash; Only Work Shifts You Sign Up For</h2>
+                <h2 className="font-serif text-2xl text-chm-black mb-3">Complete Required Training Modules</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  Once training is done, shifts become available to claim. You&apos;ll see a list of upcoming available shifts on your dashboard. Pick the ones that work for you.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>What you&apos;ll do:</strong> Browse available shifts by date, time, and location. Click &quot;Claim Shift&quot; to book. You can claim as many or as few as you want &mdash; it&apos;s up to you.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>Important:</strong> Only work shifts you&apos;ve officially claimed through this platform. Any shifts worked outside the system won&apos;t be paid, and you won&apos;t be covered by CHM&apos;s insurance.
+                  After you sign the orientation, you&apos;ll move to training modules. These are role-specific and cover everything you need to know to do your job well. Each module includes a short quiz &mdash; you need to score 80% or higher to pass. Training typically takes 1-3 hours.
                 </p>
                 <p className="text-sm text-gray-500">
-                  <strong>Why it matters:</strong> This keeps everyone on the same page. You know exactly when and where you&apos;re working, and we know who&apos;s covering each job. No surprises.
+                  <strong>Important:</strong> You cannot work your first shift until training is complete and you&apos;ve passed all quizzes.
                 </p>
-                <div className="mt-6 bg-chm-red/5 border border-chm-red/10 p-4 rounded">
-                  <p className="text-xs text-chm-red font-semibold uppercase mb-1">💡 Pro Tip</p>
-                  <p className="text-sm text-gray-700">Check the shift calendar often. New shifts open regularly. If you see a shift you want but it&apos;s already claimed, message support &mdash; sometimes shifts open up as others drop them.</p>
-                </div>
               </div>
             </div>
           </div>
@@ -102,23 +104,13 @@ export default function StaffHowItWorksPage() {
             <div className="flex items-start gap-4">
               <span className="text-4xl font-serif text-chm-red min-w-fit">4</span>
               <div>
-                <h2 className="font-serif text-2xl text-chm-black mb-3">Track Your Certifications &amp; Keep Documents Current</h2>
+                <h2 className="font-serif text-2xl text-chm-black mb-3">HR Team Completes Your Paperwork</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  All staff at CHM must maintain current certifications (background checks, CPR, training completion). You can see your certification status anytime in your staff profile.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>What you need:</strong> For most roles, a background check and training completion. Some roles (like nanny) may require CPR. Your manager will tell you exactly what&apos;s needed for your position.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>Expiration alerts:</strong> We&apos;ll email and text you 30 days before any certification expires. No surprise lapses &mdash; we stay on top of this together.
+                  While you&apos;re working through training, our HR team will reach out (within 1-2 business days) to collect the remaining paperwork: W-4 form, I-9 verification, direct deposit setup, and any certifications you have.
                 </p>
                 <p className="text-sm text-gray-500">
-                  <strong>Why it matters:</strong> Working in people&apos;s homes means trust is everything. Current certifications (especially background checks) are non-negotiable for client safety and legal compliance.
+                  <strong>You&apos;ll hear from:</strong> conveniencehubofmaryland@gmail.com or 202-579-2944
                 </p>
-                <div className="mt-6 bg-chm-red/5 border border-chm-red/10 p-4 rounded">
-                  <p className="text-xs text-chm-red font-semibold uppercase mb-1">💡 Pro Tip</p>
-                  <p className="text-sm text-gray-700">When you get a reminder about an expiring cert, don&apos;t wait. Renew it right away. If your cert lapses, you can&apos;t work until it&apos;s current again.</p>
-                </div>
               </div>
             </div>
           </div>
@@ -128,23 +120,13 @@ export default function StaffHowItWorksPage() {
             <div className="flex items-start gap-4">
               <span className="text-4xl font-serif text-chm-red min-w-fit">5</span>
               <div>
-                <h2 className="font-serif text-2xl text-chm-black mb-3">Get Support &mdash; We&apos;re Here to Help</h2>
+                <h2 className="font-serif text-2xl text-chm-black mb-3">Claim Your First Shift</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  Questions? Issues? Bugs in the app? Don&apos;t call or text directly. Use the support system so nothing falls through the cracks.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>How to get help:</strong> Click &quot;Support&quot; in your staff dashboard. Describe your issue, and you&apos;ll get a ticket number. We respond to all support requests within 24 hours.
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  <strong>Common issues we help with:</strong> Can&apos;t claim a shift? Technical bug? Certification question? Payroll issue? Payment problem? That&apos;s what support is for.
+                  Once training is complete and your paperwork is done, you&apos;re ready! Browse available shifts on our portal and claim the ones that work for your schedule. You only work shifts you actively claim &mdash; never any surprises or off-book arrangements.
                 </p>
                 <p className="text-sm text-gray-500">
-                  <strong>Why it matters:</strong> A support ticket means your issue is documented and tracked. It&apos;s better than a text that might get missed &mdash; we promise to address it.
+                  <strong>Important:</strong> Only claim shifts through our official portal. Side deals or off-book work are strictly prohibited.
                 </p>
-                <div className="mt-6 bg-chm-red/5 border border-chm-red/10 p-4 rounded">
-                  <p className="text-xs text-chm-red font-semibold uppercase mb-1">💡 Pro Tip</p>
-                  <p className="text-sm text-gray-700">Be as specific as possible in support tickets. &quot;Can&apos;t claim shift for 3/15&quot; is better than &quot;something&apos;s broken.&quot; The more detail, the faster we solve it.</p>
-                </div>
               </div>
             </div>
           </div>
@@ -174,40 +156,27 @@ export default function StaffHowItWorksPage() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-16 pt-12 border-t border-gray-200 text-center">
-          <h2 className="font-serif text-2xl text-chm-black mb-4">Ready to Get Started?</h2>
-          <p className="text-gray-600 mb-8">If you have your offer letter, let&apos;s go through orientation together.</p>
-          <Link href="/staff/welcome" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-            Start Your Orientation
-          </Link>
+        {/* Position is Locked */}
+        <div className="mt-16 pt-12 border-t border-gray-200 text-center bg-blue-50 p-6 rounded">
+          <p className="text-sm text-blue-900 mb-4">
+            <strong>Remember:</strong> Your position ({position}) is locked throughout your entire onboarding process. This ensures you&apos;re properly trained for the role you selected. If you need to change positions, you&apos;ll need to speak with HR after onboarding is complete.
+          </p>
         </div>
 
-        {/* FAQ-style Section */}
-        <div className="mt-16 pt-12 border-t border-gray-200">
-          <h2 className="font-serif text-2xl text-chm-black mb-8">Quick Questions?</h2>
-          <div className="space-y-6">
-            <div>
-              <p className="font-semibold text-chm-black mb-2">Do I have to use the website? Can&apos;t you just text me shifts?</p>
-              <p className="text-sm text-gray-600">No &mdash; this is how we operate. It keeps things fair (first-come, first-served for shifts), organized (you always know where to look), and legal (we track everything for compliance). Everyone uses the same system.</p>
-            </div>
-            <div>
-              <p className="font-semibold text-chm-black mb-2">What if I don&apos;t pass the training quiz?</p>
-              <p className="text-sm text-gray-600">You can retake it once. If you fail twice, we&apos;ll have a conversation about whether the role is the right fit. Most people pass on the first try &mdash; take your time and use the materials.</p>
-            </div>
-            <div>
-              <p className="font-semibold text-chm-black mb-2">Can I drop a shift once I&apos;ve claimed it?</p>
-              <p className="text-sm text-gray-600">Yes, but give us at least 24 hours&apos; notice. Dropping shifts last-minute hurts clients and your teammates. If it becomes a pattern, we&apos;ll talk about it.</p>
-            </div>
-            <div>
-              <p className="font-semibold text-chm-black mb-2">What happens if my background check expires?</p>
-              <p className="text-sm text-gray-600">You&apos;ll get an alert 30 days before. Renew it immediately. Once it expires, you can&apos;t claim shifts until it&apos;s current again. We can&apos;t send you into clients&apos; homes without an active background check.</p>
-            </div>
-            <div>
-              <p className="font-semibold text-chm-black mb-2">I have a question that&apos;s not answered here. What do I do?</p>
-              <p className="text-sm text-gray-600">Use the Support feature in your staff dashboard. We respond within 24 hours.</p>
-            </div>
+        {/* Questions */}
+        <div className="mt-12 text-center">
+          <h2 className="font-serif text-2xl text-chm-black mb-4">Questions?</h2>
+          <p className="text-gray-600 mb-6">
+            Our HR team is here to help. Reach out anytime during business hours:
+          </p>
+          <div className="space-y-2 text-sm text-gray-700 mb-8">
+            <p><strong>Email:</strong> conveniencehubofmaryland@gmail.com</p>
+            <p><strong>Phone:</strong> 202-579-2944</p>
+            <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
           </div>
+          <Link href={`/staff/orientation?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+            Ready? Go to Orientation
+          </Link>
         </div>
       </div>
     </div>
