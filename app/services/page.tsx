@@ -215,8 +215,6 @@ function groupBySections(items: PricingItem[]): { name: string; items: PricingIt
   return Array.from(map.entries()).map(([name, items]) => ({ name, items }))
 }
 
-  `mailto:conveniencehubofmaryland@gmail.com?subject=${encodeURIComponent(`Custom Quote Request — ${label}`)}&body=${encodeURIComponent(`Hi Convenience Hub of Maryland,\n\nI am interested in a custom quote for: ${label}\n\nPlease find my details below:\n\n- Name: \n- Phone: \n- Location (MD / VA / DC): \n- Preferred schedule or frequency: \n- Property size or special requirements: \n- Best time to reach me: \n\nThank you!`)}`
-
 export default async function ServicesPage() {
   const services = STATIC_SERVICES
 
