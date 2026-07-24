@@ -11,20 +11,42 @@ export default function StaffPage() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('/api/staff/check-session', { credentials: 'include' })
-        if (!res.ok) {
-          router.push('/staff/welcome')
+        // Check for applicant_id in localStorage or cookie
+        let applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
+        
+        if (!applicantId) {
+          const cookies = document.cookie.split(';')
+          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+          applicantId = applCookie ? applCookie.split('=')[1] : null
+        }
+
+        if (!applicantId) {
+          router.push('/welcome-center')
           return
         }
+
+        const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
+        if (!res.ok) {
+          router.push('/welcome-center')
+          return
+        }
+
         const data = await res.json()
+        
+        if (!data.orientation_accepted) {
+          router.push('/welcome-center')
+          return
+        }
+
         setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
         console.error('Auth check failed:', err)
-        router.push('/staff/welcome')
+        router.push('/welcome-center')
       } finally {
         setLoading(false)
       }
     }
+
     checkAuth()
   }, [router])
 
