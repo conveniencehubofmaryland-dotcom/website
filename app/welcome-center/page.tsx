@@ -46,10 +46,9 @@ export default function WelcomeCenterPage() {
       // Store applicant ID and position in localStorage
       localStorage.setItem('applicant_id', data.id)
       localStorage.setItem('position', formData.position)
-
-      // Set position cookie for backend access
+      // Set cookies for persistence
       document.cookie = `chm_position=${encodeURIComponent(formData.position)}; path=/; max-age=86400`
-
+      document.cookie = `applicant_id=${data.id}; path=/; max-age=2592000`
       // Redirect to how-it-works with position as query param
       const encodedPosition = encodeURIComponent(formData.position)
       router.push(`/staff/how-it-works?position=${encodedPosition}&applicant_id=${data.id}`)
