@@ -26,7 +26,7 @@ export default function StaffPage() {
       }
     }
     checkAuth()
-  }, [])
+  }, [router])
 
   if (loading) {
     return (
