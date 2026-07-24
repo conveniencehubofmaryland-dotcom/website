@@ -2,63 +2,70 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
-export default function WelcomePage() {
+export default function StaffPage() {
   const router = useRouter()
+  const [staffName, setStaffName] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    async function checkStatus() {
+    async function checkAuth() {
       try {
-        // Get the applicant ID from localStorage
         const applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
         
         if (!applicantId) {
-          // No applicant ID stored, send to welcome center form
           router.push('/welcome-center')
           return
         }
 
-        // Check if they completed orientation
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
-        const data = await res.json()
-
-        if (data.orientation_accepted) {
-          // Already completed orientation, send to training modules
-          router.push('/staff/training-modules')
-        } else {
-          // Not completed, send to welcome center orientation
-          router.push(`/welcome-center/orientation/${applicantId}`)
+        if (!res.ok) {
+          router.push('/welcome-center')
+          return
         }
+
+        const data = await res.json()
+        
+        if (!data.orientation_accepted) {
+          router.push('/welcome-center')
+          return
+        }
+
+        setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
-        console.error('Error checking welcome status:', err)
-        setError('Failed to load. Please try again.')
+        console.error('Auth check failed:', err)
+        router.push('/welcome-center')
+      } finally {
         setLoading(false)
       }
     }
 
-    checkStatus()
+    checkAuth()
   }, [router])
 
-  if (error) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <a href="/welcome-center" className="text-chm-red font-semibold hover:underline">
-            Start over
-          </a>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="text-center">
-        <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
-        <p className="text-gray-500">Loading your welcome experience...</p>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-2">Welcome</p>
+          <h1 className="font-serif text-4xl md:text-5xl text-chm-black">Hello, {staffName}</h1>
+          <div className="w-8 h-px bg-chm-red mt-4" />
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 hover:bg-blue-100 transition-colors">
+          <Link href="/staff/training-modules" className="block">
+            <p className="font-serif text-xl text-chm-black mb-2">Continue Training</p>
+            <p className="text-sm text-gray-700">Complete your required training modules to get started.</p>
+          </Link>
+        </div>
       </div>
     </div>
   )
