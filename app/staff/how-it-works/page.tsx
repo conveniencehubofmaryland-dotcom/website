@@ -1,27 +1,12 @@
+'use client'
+
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import { useSearchParams } from 'next/navigation'
 
-export const metadata = {
-  title: 'How CHM Works for Staff | Convenience Hub of Maryland',
-  description: 'Your guide to the CHM staff platform: onboarding, training, shifts, and support.',
-}
-
-export default async function StaffHowItWorksPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
-  const params = await searchParams
-  let position = params.position ? decodeURIComponent(params.position) : null
-  let applicantId = params.applicant_id || null
-
-  // Fallback to cookies if URL params missing
-  if (!applicantId) {
-    const cookieStore = await cookies()
-    applicantId = cookieStore.get('applicant_id')?.value || null
-  }
-
-  if (!position) {
-    const cookieStore = await cookies()
-    const positionCookie = cookieStore.get('chm_position')?.value
-    position = positionCookie ? decodeURIComponent(positionCookie) : null
-  }
+export default function StaffHowItWorksPage() {
+  const searchParams = useSearchParams()
+  const position = searchParams.get('position') ? decodeURIComponent(searchParams.get('position')!) : null
+  const applicantId = searchParams.get('applicant_id') || null
 
   if (!position || !applicantId) {
     return (
@@ -51,15 +36,12 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
           </p>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
-        {/* Position Badge — Locked */}
         <div className="mb-8 bg-chm-red/10 border border-chm-red/20 rounded p-4">
           <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
           <p className="text-lg font-semibold text-chm-black">{position}</p>
-          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you&apos;ll need to start over.</p>
+          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you'll need to start over.</p>
         </div>
-
         <div className="space-y-16">
 
           {/* Step 1 */}
