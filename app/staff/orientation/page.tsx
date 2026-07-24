@@ -293,38 +293,35 @@ export default async function OrientationPage({ searchParams }: { searchParams: 
   )
 }
 
-function OrientationForm({ position, applicantId }: { position: string; applicantId: string }) {
-  'use client'
-  const router = require('next/router').useRouter ? require('next/router').useRouter() : null
-  const navigate = require('next/navigation').useRouter()
-  const [fullName, setFullName] = ('use client', require('react').useState(''))
-  const [email, setEmail] = require('react').useState('')
-  const [signature, setSignature] = require('react').useState('')
-  const [understood, setUnderstood] = require('react').useState(false)
-  const [agreedToTerms, setAgreedToTerms] = require('react').useState(false)
-  const [loading, setLoading] = require('react').useState(false)
-  const [errorMsg, setErrorMsg] = require('react').useState('')
+'use client'
 
-  const { useState } = require('react')
-  const { useRouter } = require('next/navigation')
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+function OrientationForm({ position, applicantId }: { position: string; applicantId: string }) {
+  const router = useRouter()
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [signature, setSignature] = useState('')
+  const [understood, setUnderstood] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
-
     if (!fullName.trim() || !email.trim() || !signature.trim()) {
       setErrorMsg('Please fill in all required fields.')
       setLoading(false)
       return
     }
-
     if (!understood || !agreedToTerms) {
       setErrorMsg('Please acknowledge that you have read and understand all terms.')
       setLoading(false)
       return
     }
-
     try {
       const res = await fetch('/api/welcome-center/orientation', {
         method: 'PATCH',
@@ -337,13 +334,10 @@ function OrientationForm({ position, applicantId }: { position: string; applican
           signature: signature,
         }),
       })
-
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Failed to save acknowledgment')
-
-      // Redirect to thank you with position locked
       const encodedPosition = encodeURIComponent(position)
-      navigate().push(`/welcome-center/thank-you?position=${encodedPosition}&applicant_id=${applicantId}`)
+      router.push(`/welcome-center/thank-you?position=${encodedPosition}&applicant_id=${applicantId}`)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
@@ -364,7 +358,6 @@ function OrientationForm({ position, applicantId }: { position: string; applican
           placeholder="Your full name"
         />
       </div>
-
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email Address *</label>
         <input
@@ -376,7 +369,6 @@ function OrientationForm({ position, applicantId }: { position: string; applican
           placeholder="your.email@example.com"
         />
       </div>
-
       <div>
         <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Signature (Type your full name) *</label>
         <input
@@ -389,7 +381,6 @@ function OrientationForm({ position, applicantId }: { position: string; applican
         />
         <p className="text-xs text-gray-400 mt-1">By typing your name, you are electronically signing this acknowledgment.</p>
       </div>
-
       <div className="space-y-3 border-t border-gray-200 pt-6">
         <label className="flex items-start gap-3">
           <input
@@ -412,11 +403,9 @@ function OrientationForm({ position, applicantId }: { position: string; applican
           <span className="text-sm text-gray-700">I have read and fully understand the Memorandum of Understanding (MOU), including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I agree to comply with all terms.</span>
         </label>
       </div>
-
       {errorMsg && (
         <p className="text-chm-red text-sm bg-red-50 p-3 rounded">{errorMsg}</p>
       )}
-
       <button
         type="submit"
         disabled={loading}
@@ -424,7 +413,6 @@ function OrientationForm({ position, applicantId }: { position: string; applican
       >
         {loading ? 'Processing…' : 'Accept & Continue'}
       </button>
-
       <p className="text-xs text-gray-400 text-center">
         Questions? Call us at 202-579-2944 (Mon–Sat, 9 AM–9 PM)
       </p>
