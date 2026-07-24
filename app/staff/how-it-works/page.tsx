@@ -40,7 +40,7 @@ export default function StaffHowItWorksPage() {
         <div className="mb-8 bg-chm-red/10 border border-chm-red/20 rounded p-4">
           <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
           <p className="text-lg font-semibold text-chm-black">{position}</p>
-          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you'll need to start over.</p>
+          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you&apos;ll need to start over.</p>
         </div>
         <div className="space-y-16">
 
