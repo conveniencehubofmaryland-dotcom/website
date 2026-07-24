@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 
 export const metadata = {
   title: 'How CHM Works for Staff | Convenience Hub of Maryland',
@@ -7,8 +8,20 @@ export const metadata = {
 
 export default async function StaffHowItWorksPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const params = await searchParams
-  const position = params.position ? decodeURIComponent(params.position) : null
-  const applicantId = params.applicant_id || null
+  let position = params.position ? decodeURIComponent(params.position) : null
+  let applicantId = params.applicant_id || null
+
+  // Fallback to cookies if URL params missing
+  if (!applicantId) {
+    const cookieStore = await cookies()
+    applicantId = cookieStore.get('applicant_id')?.value || null
+  }
+
+  if (!position) {
+    const cookieStore = await cookies()
+    const positionCookie = cookieStore.get('chm_position')?.value
+    position = positionCookie ? decodeURIComponent(positionCookie) : null
+  }
 
   if (!position || !applicantId) {
     return (
