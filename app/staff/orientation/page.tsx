@@ -294,9 +294,3 @@ export default async function OrientationPage({ searchParams }: { searchParams: 
     </div>
   )
 }
-
-<OrientationForm position={position} applicantId={applicantId} />
-      </div>
-    </div>
-  )
-}
