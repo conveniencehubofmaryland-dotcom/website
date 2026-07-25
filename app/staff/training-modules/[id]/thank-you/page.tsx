@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 export default function TrainingThankYouPage() {
-  const params = useParams()
-
+  
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
