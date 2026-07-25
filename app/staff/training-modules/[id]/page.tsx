@@ -4,7 +4,56 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { TrainingModule, QuizQuestion } from '@/lib/types'
 
-const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: string; weekly: string; monthly: string }>; bonuses: string[] }> = {
+const PAY_STRUCTURE: Record<string, { 
+  levels: Array<{ level: string; hourly: string; weekly: string; monthly: string }>;
+  leaveIn?: Array<{ level: string; monthly: string }>;
+  bonuses: string[] 
+}> = {
+  'Housekeeping Staff': {
+    levels: [
+      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$680–$760', monthly: '$2,945–$3,290' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$780–$900', monthly: '$3,380–$3,900' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$920–$1,060', monthly: '$3,980–$4,590' },
+      { level: 'Premium (3+ yr)', hourly: '$23.00–$25.00', weekly: '$1,080–$1,240', monthly: '$4,680–$5,370' },
+    ],
+    leaveIn: [
+      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
+      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
+      { level: 'Senior (2+ yr)', monthly: '$3,000' },
+      { level: 'Premium (3+ yr)', monthly: '$3,500' },
+    ],
+    bonuses: ['Client satisfaction', 'Reliability', 'Project completion'],
+  },
+  'Care Companion (Adult/Senior)': {
+    levels: [
+      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$760–$880', monthly: '$3,290–$3,810' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$880–$1,040', monthly: '$3,810–$4,500' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$22.00', weekly: '$1,040–$1,240', monthly: '$4,500–$5,370' },
+      { level: 'Premium (3+ yr)', hourly: '$22.00–$25.00', weekly: '$1,240–$1,480', monthly: '$5,370–$6,410' },
+    ],
+    leaveIn: [
+      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
+      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
+      { level: 'Senior (2+ yr)', monthly: '$3,000' },
+      { level: 'Premium (3+ yr)', monthly: '$3,500' },
+    ],
+    bonuses: ['Client/family satisfaction', 'Reliability',],
+  },
+  'Nanny/Childcare Specialist': {
+    levels: [
+      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
+      { level: 'Lead (3+ yr)', hourly: '$23.00–$25.00', weekly: '$920–$1,200', monthly: '$3,984–$5,196' },
+    ],
+    leaveIn: [
+      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
+      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
+      { level: 'Senior (2+ yr)', monthly: '$3,000' },
+      { level: 'Premium (3+ yr)', monthly: '$3,500' },
+    ],
+    bonuses: ['Child development milestones', 'Family satisfaction',],
+  },
   'Cleaning Specialist': {
     levels: [
       { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
@@ -18,10 +67,10 @@ const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: str
     levels: [
       { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,860–$3,120' },
       { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$21.00', weekly: '$740–$840', monthly: '$3,200–$3,640' },
-      { level: 'Senior (2+ yr)', hourly: '$21.00–$25.00', weekly: '$860–$980', monthly: '$3,730–$4,240' },
-      { level: 'Lead (3+ yr)', hourly: '$25.00–$28.00', weekly: '$1,000–$1,120', monthly: '$4,330–$4,850' },
+      { level: 'Senior (2+ yr)', hourly: '$21.00–$24.00', weekly: '$860–$980', monthly: '$3,730–$4,240' },
+      { level: 'Lead (3+ yr)', hourly: '$24.00–$28.00', weekly: '$1,000–$1,120', monthly: '$4,330–$4,850' },
     ],
-    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150'],
+    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150',],
   },
   'Culinary/Chef': {
     levels: [
@@ -30,34 +79,7 @@ const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: str
       { level: 'Senior (3+ yr)', hourly: '$26.00–$30.00', weekly: '$1,120–$1,280', monthly: '$4,850–$5,542' },
       { level: 'Executive (5+ yr)', hourly: '$30.00–$35.00', weekly: '$1,280–$1,600', monthly: '$5,542–$6,928' },
     ],
-    bonuses: ['Client reviews: $50', 'Referrals: $100', 'Event success: $100'],
-  },
-  'Housekeeping Staff': {
-    levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$680–$760', monthly: '$2,945–$3,290' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$780–$900', monthly: '$3,380–$3,900' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$920–$1,060', monthly: '$3,980–$4,590' },
-      { level: 'Premium (3+ yr)', hourly: '$23.00–$25.00', weekly: '$1,080–$1,240', monthly: '$4,680–$5,370' },
-    ],
-    bonuses: ['Client satisfaction', 'Reliability', 'Project completion'],
-  },
-  'Care Companion (Adult/Senior)': {
-    levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$760–$880', monthly: '$3,290–$3,810' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$880–$1,040', monthly: '$3,810–$4,500' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$22.00', weekly: '$1,040–$1,240', monthly: '$4,500–$5,370' },
-      { level: 'Premium (3+ yr)', hourly: '$22.00–$25.00', weekly: '$1,240–$1,480', monthly: '$5,370–$6,410' },
-    ],
-    bonuses: ['Client/family satisfaction', 'Reliability', 'Special certifications'],
-  },
-  'Nanny/Childcare Specialist': {
-    levels: [
-      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
-      { level: 'Lead (3+ yr)', hourly: '$23.00–$28.00', weekly: '$920–$1,200', monthly: '$3,984–$5,196' },
-    ],
-    bonuses: ['Child development milestones', 'Family satisfaction', 'Certifications'],
+    bonuses: ['Client reviews: $30', 'Referrals: $50', 'Event success: $50'],
   },
 }
 
