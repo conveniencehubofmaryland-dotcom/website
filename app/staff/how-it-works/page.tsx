@@ -1,11 +1,53 @@
+'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-export const metadata = {
-  title: 'How CHM Works for Staff | Convenience Hub of Maryland',
-  description: 'Your guide to the CHM staff platform: onboarding, training, shifts, and support.',
-}
+export default function StaffHowItWorksPage() {
+  const [applicantId, setApplicantId] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-export default async function StaffHowItWorksPage() {
+  useEffect(() => {
+    async function markAsRead() {
+      try {
+        let id = localStorage.getItem('applicant_id')
+        if (!id) {
+          const cookies = document.cookie.split(';')
+          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+          id = applCookie ? applCookie.split('=')[1] : null
+        }
+
+        if (!id) {
+          setError('No applicant ID found. Please start from /welcome-center')
+          setLoading(false)
+          return
+        }
+
+        setApplicantId(id)
+
+        // Mark as read
+        const res = await fetch('/api/staff/how-it-works', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicant_id: id }),
+        })
+
+        if (!res.ok) {
+          console.error('Failed to mark as read')
+        }
+      } catch (err) {
+        console.error('Error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    markAsRead()
+  }, [])
+
+  if (loading) return <div className="text-center py-20 text-gray-400">Loading...</div>
+  if (error) return <div className="text-center py-20 text-chm-red">{error}</div>
+
   return (
     <div className="bg-white">
       <div className="bg-cream py-10 border-b border-gray-100">
@@ -28,7 +70,10 @@ export default async function StaffHowItWorksPage() {
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-3">Complete Your Welcome Profile</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  Start by selecting your position and filling out your basic information.
+                  You&apos;ve already done this! You selected your position and filled out your basic information. Great start.
+                </p>
+                <p className="text-sm text-gray-500">
+                  <strong>Status:</strong> ✓ Complete
                 </p>
               </div>
             </div>
