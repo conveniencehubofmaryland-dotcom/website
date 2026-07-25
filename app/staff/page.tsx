@@ -72,7 +72,7 @@ export default function StaffPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-2">Onboarding</h2>
-                <p className="text-gray-600 text-sm leading-relaxed">Complete your profile, review CHM's orientation, and gain access to training modules.</p>
+                <p className="text-gray-600 text-sm leading-relaxed">Complete your profile, review CHM&apos;s orientation, and gain access to training modules.</p>
               </div>
               <span className="text-2xl">📋</span>
             </div>
