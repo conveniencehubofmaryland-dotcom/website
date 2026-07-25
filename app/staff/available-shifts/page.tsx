@@ -29,10 +29,47 @@ export default function AvailableShifts() {
   const [message, setMessage] = useState('')
   const [claimingShiftId, setClaimingShiftId] = useState<string | null>(null)
   const [claimForm, setClaimForm] = useState<ClaimForm>({ name: '', email: '', phone: '' })
+  const [authorized, setAuthorized] = useState(false)
 
   useEffect(() => {
-    fetchShifts()
+    checkStatus()
   }, [])
+
+  const checkStatus = async () => {
+    try {
+      let applicantId = localStorage.getItem('applicant_id')
+      if (!applicantId) {
+        const cookies = document.cookie.split(';')
+        const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+        applicantId = applCookie ? applCookie.split('=')[1] : null
+      }
+
+      if (!applicantId) {
+        setMessage('❌ No applicant ID found. Please complete onboarding first.')
+        setLoading(false)
+        return
+      }
+
+      const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.status === 'ready_to_claim_shifts') {
+          setAuthorized(true)
+          fetchShifts()
+        } else {
+          setMessage(`❌ You must complete onboarding first. Current status: ${data.status}`)
+          setLoading(false)
+        }
+      } else {
+        setMessage('❌ Unable to verify status. Please start onboarding.')
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error('Status check error:', error)
+      setMessage('❌ Error verifying access')
+      setLoading(false)
+    }
+  }
 
   const fetchShifts = async () => {
     try {
@@ -51,12 +88,10 @@ export default function AvailableShifts() {
 
   const handleClaimSubmit = async (e: React.FormEvent, shiftId: string) => {
     e.preventDefault()
-
     if (!claimForm.name || !claimForm.email || !claimForm.phone) {
       setMessage('❌ Please fill in all fields')
       return
     }
-
     setLoading(true)
     try {
       const res = await fetch('/api/shifts/claim', {
@@ -87,11 +122,37 @@ export default function AvailableShifts() {
     }
   }
 
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Access Restricted</h1>
+            <p className="text-red-600 mb-4">{message || 'You must complete the full onboarding process before claiming shifts.'}</p>
+            <p className="text-sm text-red-600 mb-6">Required steps:</p>
+            <ul className="text-sm text-red-600 space-y-2 mb-6 max-w-md mx-auto">
+              <li>✓ Complete welcome profile</li>
+              <li>✓ Read how CHM works</li>
+              <li>✓ Sign orientation</li>
+              <li>✓ Complete training modules (80%+ pass)</li>
+              <li>✓ Sign offer letter</li>
+              <li>✓ HR completes paperwork (W-4, I-9, direct deposit)</li>
+            </ul>
+            <a href="/staff" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-2 text-red-600">Available Shifts</h1>
         <p className="text-gray-600 mb-8">Browse and claim shifts below. You&apos;ll receive a confirmation email with all details.</p>
+
         {message && (
           <div className={`mb-6 p-4 rounded-lg ${message.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
             {message}
