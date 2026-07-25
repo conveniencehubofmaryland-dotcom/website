@@ -1,8 +1,11 @@
+import Link from 'next/link'
+
 export const metadata = {
-  title: 'Welcome to CHM | Next Steps',
+  title: 'Thank You | Convenience Hub of Maryland',
+  description: 'Your orientation has been signed. Next steps for your CHM onboarding.',
 }
 
-export default async function WelcomeCenterThankYouPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+export default async function ThankYouPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const params = await searchParams
   const position = params.position ? decodeURIComponent(params.position) : null
   const applicantId = params.applicant_id || null
@@ -26,71 +29,54 @@ export default async function WelcomeCenterThankYouPage({ searchParams }: { sear
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Position Badge — Confirmed */}
-        <div className="mb-6 bg-green-50 border border-green-200 rounded p-4">
-          <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Confirmed)</p>
-          <p className="text-lg font-semibold text-green-700">{position}</p>
-        </div>
-
-        <div className="mb-8 text-center">
-          <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
-          <h1 className="font-serif text-4xl text-chm-black mb-4">Welcome to CHM!</h1>
-          <p className="text-gray-600 text-lg leading-relaxed">
-            Thank you for completing your orientation. We are excited to have you join the Convenience Hub of Maryland team.
-          </p>
-        </div>
-
-        <div className="bg-white p-8 shadow-sm mb-8 border border-gray-200">
-          <h2 className="font-semibold text-chm-black text-lg mb-6">What Happens Next:</h2>
-          <ol className="space-y-4">
-            <li className="flex gap-4">
-              <span className="flex-shrink-0 w-8 h-8 bg-chm-red text-white rounded-full flex items-center justify-center font-semibold text-sm">1</span>
-              <div>
-                <p className="font-semibold text-chm-black mb-1">Complete Required Training Modules</p>
-                <p className="text-sm text-gray-600">You will now access your training modules. These are mandatory and must be completed with a score of 80% or higher before you can work your first shift.</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="flex-shrink-0 w-8 h-8 bg-chm-red text-white rounded-full flex items-center justify-center font-semibold text-sm">2</span>
-              <div>
-                <p className="font-semibold text-chm-black mb-1">Our HR Team Will Contact You</p>
-                <p className="text-sm text-gray-600">Our HR team will reach out to you within 1-2 business days to complete the rest of your onboarding process, collect necessary forms (W-4, I-9, direct deposit), and answer any questions.</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="flex-shrink-0 w-8 h-8 bg-chm-red text-white rounded-full flex items-center justify-center font-semibold text-sm">3</span>
-              <div>
-                <p className="font-semibold text-chm-black mb-1">Claim Your First Shift</p>
-                <p className="text-sm text-gray-600">Once training is complete, you can browse and claim shifts from the available shifts portal. Start whenever you&apos;re ready!</p>
-              </div>
-            </li>
-          </ol>
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded p-6 mb-8">
-          <p className="text-sm text-blue-900 mb-4">
-            <strong>Next Step:</strong> Click below to start your required training modules. This is mandatory before you can work.
-          </p>
-          <a href={`/staff/training-modules?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-            Start Training Modules
-          </a>
-        </div>
-
-        <div className="bg-gray-50 p-6 rounded border border-gray-200">
-          <h3 className="font-semibold text-chm-black mb-4">Questions or Need Help?</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Our HR team is here to support you. Reach out anytime:
-          </p>
-          <div className="space-y-2 text-sm text-gray-700">
-            <p><strong>Email:</strong> conveniencehubofmaryland@gmail.com</p>
-            <p><strong>Phone:</strong> 202-579-2944</p>
-            <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
+        <div className="bg-white p-8 shadow-sm rounded text-center">
+          <div className="w-12 h-px bg-chm-red mx-auto mb-8" />
+          
+          <div className="mb-8">
+            <div className="text-6xl mb-6">✓</div>
+            <h1 className="font-serif text-4xl text-chm-black mb-4">Thank You!</h1>
+            <p className="text-lg text-gray-600 mb-6">
+              Your orientation has been signed and your agreement acknowledged.
+            </p>
           </div>
-        </div>
 
-        <p className="text-xs text-gray-400 text-center mt-8">
-          Your position ({position}) is locked throughout the onboarding process.
-        </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-left">
+            <h2 className="font-serif text-xl text-chm-black mb-4">What Happens Next</h2>
+            <div className="space-y-4 text-sm text-gray-700">
+              <div className="flex gap-4">
+                <span className="text-chm-red font-semibold min-w-fit">1. HR Contact</span>
+                <p>Our HR team will contact you within 1-2 business days to collect remaining paperwork: W-4 form, I-9 verification, direct deposit setup, and any certifications you have.</p>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-chm-red font-semibold min-w-fit">2. Training</span>
+                <p>Complete all required training modules on your own schedule. You need to score 80% or higher on each quiz to pass. Training typically takes 1-3 hours.</p>
+              </div>
+              <div className="flex gap-4">
+                <span className="text-chm-red font-semibold min-w-fit">3. Ready to Work</span>
+                <p>Once training is complete and your paperwork is done, you can browse and claim shifts on our portal. You only work shifts you actively claim.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg mb-8 text-sm text-gray-600">
+            <p className="mb-3"><strong>Your Position (Locked):</strong></p>
+            <p className="text-lg font-semibold text-chm-black mb-4">{position}</p>
+            <p className="text-xs">This position is locked throughout your onboarding. If you need to change positions, you&apos;ll need to speak with HR after onboarding is complete.</p>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="font-serif text-xl text-chm-black mb-4">Questions?</h2>
+            <div className="space-y-2 text-sm text-gray-700 mb-6">
+              <p><strong>Email:</strong> conveniencehubofmaryland@gmail.com</p>
+              <p><strong>Phone:</strong> 202-579-2944</p>
+              <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
+            </div>
+          </div>
+
+          <Link href="/staff/training-modules" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+            Start Training Modules
+          </Link>
+        </div>
       </div>
     </div>
   )
