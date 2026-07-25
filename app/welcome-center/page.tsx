@@ -1,11 +1,14 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function WelcomeCenterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [applicantId, setApplicantId] = useState('')
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -43,20 +46,35 @@ export default function WelcomeCenterPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Submission failed')
 
-      // Store applicant ID and position in localStorage
       localStorage.setItem('applicant_id', data.id)
       localStorage.setItem('position', formData.position)
-      // Set cookies for persistence
-      document.cookie = `chm_position=${encodeURIComponent(formData.position)}; path=/; max-age=86400`
       document.cookie = `applicant_id=${data.id}; path=/; max-age=2592000`
-      // Redirect to how-it-works with position as query param
-      const encodedPosition = encodeURIComponent(formData.position)
-      router.push(`/staff/how-it-works?position=${encodedPosition}&applicant_id=${data.id}`)
+      document.cookie = `chm_position=${encodeURIComponent(formData.position)}; path=/; max-age=86400`
+
+      setApplicantId(data.id)
+      setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white p-8 shadow-sm rounded text-center">
+            <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
+            <h1 className="font-serif text-3xl text-chm-black mb-4">Welcome to CHM!</h1>
+            <p className="text-gray-600 mb-6">Your profile has been created successfully. You&apos;re ready to move forward with your onboarding.</p>
+            <Link href={`/staff/orientation?position=${encodeURIComponent(formData.position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Continue to Orientation
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -161,7 +179,7 @@ export default function WelcomeCenterPage() {
               disabled={loading}
               className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
             >
-              {loading ? 'Processing...' : 'Continue to Orientation'}
+              {loading ? 'Processing...' : 'Continue'}
             </button>
           </form>
         </div>
