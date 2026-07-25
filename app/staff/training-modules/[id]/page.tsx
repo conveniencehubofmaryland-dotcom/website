@@ -242,6 +242,20 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
                   </div>
                 </div>
 
+                {payStructure.leaveIn && (
+                  <div className="mb-8 pt-6 border-t border-gray-300">
+                    <h3 className="text-lg font-semibold text-chm-black mb-4">Leave-In Staff (Monthly Rate)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {payStructure.leaveIn.map((item, idx) => (
+                        <div key={idx} className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 p-4 rounded">
+                          <p className="text-xs uppercase tracking-widest text-purple-600 font-semibold mb-2">{item.level}</p>
+                          <p className="text-2xl font-bold text-purple-700">{item.monthly}/month</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white border border-gray-200 p-6 rounded">
                   <h3 className="text-lg font-semibold text-chm-black mb-4">Performance Bonuses</h3>
                   <div className="space-y-2">
