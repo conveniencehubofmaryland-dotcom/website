@@ -1,10 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function WelcomeCenterPage() {
-  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [applicantId, setApplicantId] = useState('')
@@ -24,6 +25,38 @@ export default function WelcomeCenterPage() {
     'Care Companion (Adult/Senior)',
     'Housekeeping Staff',
   ]
+
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        let id = localStorage.getItem('applicant_id')
+        if (!id) {
+          const cookies = document.cookie.split(';')
+          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+          id = applCookie ? applCookie.split('=')[1] : null
+        }
+
+        if (!id) {
+          setLoading(false)
+          return
+        }
+
+        const res = await fetch(`/api/staff/welcome/check?applicant_id=${id}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.status === 'how_it_works_read') {
+            setApplicantId(id)
+          }
+        }
+      } catch (err) {
+        console.error('Status check error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkStatus()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -57,6 +90,32 @@ export default function WelcomeCenterPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center text-gray-400">Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!applicantId && !submitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Access Restricted</h1>
+            <p className="text-red-600 mb-6">You must complete the &quot;How CHM Works&quot; guide before accessing this page.</p>
+            <Link href="/staff/how-it-works" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Go to How It Works
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (submitted) {
