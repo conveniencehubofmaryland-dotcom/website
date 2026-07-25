@@ -5,27 +5,7 @@ export const metadata = {
   description: 'Your guide to the CHM staff platform: onboarding, training, shifts, and support.',
 }
 
-export default async function StaffHowItWorksPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
-  const params = await searchParams
-  const position = params.position ? decodeURIComponent(params.position) : null
-  const applicantId = params.applicant_id || null
-
-  if (!position || !applicantId) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
-            <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Onboarding Link</h1>
-            <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
-            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-              Start Over
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
+export default async function StaffHowItWorksPage() {
   return (
     <div className="bg-white">
       <div className="bg-cream py-10 border-b border-gray-100">
@@ -40,12 +20,6 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
       </div>
 
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
-        <div className="mb-8 bg-chm-red/10 border border-chm-red/20 rounded p-4">
-          <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
-          <p className="text-lg font-semibold text-chm-black">{position}</p>
-          <p className="text-xs text-gray-500 mt-2">This position cannot be changed during onboarding. If this is incorrect, you&apos;ll need to start over.</p>
-        </div>
-
         <div className="space-y-16">
 
           <div className="border-l-4 border-chm-red pl-8">
@@ -54,10 +28,7 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-3">Complete Your Welcome Profile</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  You&apos;ve already done this! You selected your position and filled out your basic information. Great start.
-                </p>
-                <p className="text-sm text-gray-500">
-                  <strong>Status:</strong> ✓ Complete
+                  Start by selecting your position and filling out your basic information.
                 </p>
               </div>
             </div>
@@ -74,9 +45,6 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
                 <p className="text-sm text-gray-500 mb-4">
                   <strong>Time needed:</strong> About 30-45 minutes to read carefully.
                 </p>
-                <Link href={`/staff/orientation?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-6 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-                  Go to Orientation
-                </Link>
               </div>
             </div>
           </div>
@@ -150,12 +118,6 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
           </div>
         </div>
 
-        <div className="mt-16 pt-12 border-t border-gray-200 text-center bg-blue-50 p-6 rounded">
-          <p className="text-sm text-blue-900 mb-4">
-            <strong>Remember:</strong> Your position ({position}) is locked throughout your entire onboarding process. This ensures you&apos;re properly trained for the role you selected. If you need to change positions, you&apos;ll need to speak with HR after onboarding is complete.
-          </p>
-        </div>
-
         <div className="mt-12 text-center">
           <h2 className="font-serif text-2xl text-chm-black mb-4">Questions?</h2>
           <p className="text-gray-600 mb-6">
@@ -166,8 +128,8 @@ export default async function StaffHowItWorksPage({ searchParams }: { searchPara
             <p><strong>Phone:</strong> 202-579-2944</p>
             <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
           </div>
-          <Link href={`/staff/orientation?position=${encodeURIComponent(position)}&applicant_id=${applicantId}`} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-            Ready? Go to Orientation
+          <Link href="/welcome-center" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+            Get Started
           </Link>
         </div>
       </div>
