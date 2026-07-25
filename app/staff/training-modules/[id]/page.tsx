@@ -1,9 +1,65 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { TrainingModule, QuizQuestion } from '@/lib/types'
+
+const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: string; weekly: string; monthly: string }>; bonuses: string[] }> = {
+  'Cleaning Specialist': {
+    levels: [
+      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.50', weekly: '$740–$820', monthly: '$3,204–$3,551' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.50', weekly: '$800–$940', monthly: '$3,464–$4,070' },
+      { level: 'Lead (3+ yr)', hourly: '$23.00–$28.00', weekly: '$920–$1,120', monthly: '$3,984–$4,850' },
+    ],
+    bonuses: ['5-star reviews (4+ monthly): $50–$100/month', 'Perfect attendance (quarterly): $150–$200', 'Referral: $50–$100 per client', 'Tenure: $100–$300 anniversary bonus'],
+  },
+  'Laundry Handler': {
+    levels: [
+      { level: 'Entry (0–6 mo)', hourly: '$16.50–$18.00', weekly: '$660–$720', monthly: '$2,860–$3,120' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.50–$21.00', weekly: '$740–$840', monthly: '$3,200–$3,640' },
+      { level: 'Senior (2+ yr)', hourly: '$21.50–$24.50', weekly: '$860–$980', monthly: '$3,730–$4,240' },
+      { level: 'Lead (3+ yr)', hourly: '$25.00–$28.00', weekly: '$1,000–$1,120', monthly: '$4,330–$4,850' },
+    ],
+    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150', 'Certifications: $200–$300'],
+  },
+  'Culinary/Chef': {
+    levels: [
+      { level: 'Entry (0–1 yr)', hourly: '$20.00–$24.00', weekly: '$800–$960', monthly: '$3,464–$4,157' },
+      { level: 'Standard (1–3 yr)', hourly: '$24.00–$28.00', weekly: '$960–$1,120', monthly: '$4,157–$4,850' },
+      { level: 'Senior (3+ yr)', hourly: '$28.00–$32.00', weekly: '$1,120–$1,280', monthly: '$4,850–$5,542' },
+      { level: 'Executive (5+ yr)', hourly: '$32.00–$40.00', weekly: '$1,280–$1,600', monthly: '$5,542–$6,928' },
+    ],
+    bonuses: ['Client reviews: $100', 'Referrals: $200', 'Event success: $300'],
+  },
+  'Housekeeping Staff': {
+    levels: [
+      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$680–$760', monthly: '$2,945–$3,290' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$780–$900', monthly: '$3,380–$3,900' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$920–$1,060', monthly: '$3,980–$4,590' },
+      { level: 'Premium (3+ yr)', hourly: '$23.00–$25.00', weekly: '$1,080–$1,240', monthly: '$4,680–$5,370' },
+    ],
+    bonuses: ['Client satisfaction', 'Reliability', 'Project completion'],
+  },
+  'Care Companion (Adult/Senior)': {
+    levels: [
+      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$760–$880', monthly: '$3,290–$3,810' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$880–$1,040', monthly: '$3,810–$4,500' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$22.00', weekly: '$1,040–$1,240', monthly: '$4,500–$5,370' },
+      { level: 'Premium (3+ yr)', hourly: '$22.00–$25.00', weekly: '$1,240–$1,480', monthly: '$5,370–$6,410' },
+    ],
+    bonuses: ['Client/family satisfaction', 'Reliability', 'Special certifications'],
+  },
+  'Nanny/Childcare Specialist': {
+    levels: [
+      { level: 'Entry Level (0–6 mo)', hourly: '$16.50–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.50–$20.50', weekly: '$740–$820', monthly: '$3,204–$3,551' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.50', weekly: '$800–$940', monthly: '$3,464–$4,070' },
+      { level: 'Lead (3+ yr)', hourly: '$23.00–$28.00', weekly: '$920–$1,200', monthly: '$3,984–$5,196' },
+    ],
+    bonuses: ['Child development milestones', 'Family satisfaction', 'Certifications'],
+  },
+}
 
 export default function TrainingModuleDetailPage({ params, searchParams }: {
   params: Promise<{ id: string }>
@@ -54,16 +110,13 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 
   async function handleQuizSubmit() {
     if (!module) return
-
     const questions = module.quiz_questions || []
     let correctCount = 0
-
     questions.forEach((q: QuizQuestion) => {
       if (answers[q.id] === q.correct_answer) {
         correctCount++
       }
     })
-
     const calculatedScore = Math.round((correctCount / questions.length) * 100)
     setScore(calculatedScore)
     const passed = calculatedScore >= 80
@@ -88,6 +141,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
           status: passed ? 'completed' : 'failed',
         }),
       })
+
       if (!res.ok) {
         console.error('Progress save failed:', await res.text())
         setSaveError('There was a problem saving your result. Please contact your manager.')
@@ -95,7 +149,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
         return
       }
 
-      // If passed, redirect to thank-you page
       if (passed) {
         setTimeout(() => {
           router.push(`/staff/training-modules/${moduleId}/thank-you`)
@@ -116,10 +169,10 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 
   const questions = module.quiz_questions || []
   const passed = score >= 80
+  const payStructure = PAY_STRUCTURE[module.position]
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Header */}
       <div className="bg-cream py-8 border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <Link href="/staff/training-modules" className="text-xs text-gray-400 hover:text-chm-red uppercase tracking-widest mb-4 inline-block">
@@ -135,7 +188,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12">
         {!showQuiz && !submitted && (
           <div>
-            {/* Module Content */}
             <div className="prose max-w-none mb-12">
               <div className="bg-gray-50 border border-gray-200 p-8 rounded">
                 <h2 className="text-2xl font-semibold text-chm-black mb-4">Module Content</h2>
@@ -145,7 +197,49 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
               </div>
             </div>
 
-            {/* Start Quiz Button */}
+            {payStructure && (
+              <div className="mb-12 bg-gradient-to-br from-chm-red/5 to-chm-red/10 border border-chm-red/20 rounded-lg p-8">
+                <div className="mb-8">
+                  <h2 className="font-serif text-3xl text-chm-black mb-2">Compensation Structure</h2>
+                  <p className="text-gray-600 text-sm">Your position: <span className="font-semibold text-chm-black">{module.position}</span></p>
+                </div>
+
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-chm-black mb-4">Hourly Rates by Experience Level</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {payStructure.levels.map((level, idx) => (
+                      <div key={idx} className="bg-white border border-gray-200 p-4 rounded">
+                        <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">{level.level}</p>
+                        <p className="text-2xl font-bold text-chm-red mb-3">{level.hourly}/hr</p>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          <p>Weekly: {level.weekly}</p>
+                          <p>Monthly: {level.monthly}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-6 rounded">
+                  <h3 className="text-lg font-semibold text-chm-black mb-4">Performance Bonuses</h3>
+                  <div className="space-y-2">
+                    {payStructure.bonuses.map((bonus, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <span className="text-chm-red font-bold">✓</span>
+                        <span className="text-gray-700">{bonus}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+                  <p className="text-sm text-blue-900">
+                    <strong>Mileage Reimbursement:</strong> CHM reimburses $0.56 per mile for travel between claimed shifts and service-related mileage.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => setShowQuiz(true)}
               className="bg-chm-red text-white px-10 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
