@@ -11,7 +11,6 @@ export default function StaffPage() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        // Check for applicant_id in localStorage or cookie
         let applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
         
         if (!applicantId) {
@@ -32,12 +31,6 @@ export default function StaffPage() {
         }
 
         const data = await res.json()
-        
-        if (!data.orientation_accepted) {
-          router.push('/welcome-center')
-          return
-        }
-
         setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
         console.error('Auth check failed:', err)
@@ -75,7 +68,6 @@ export default function StaffPage() {
         </div>
 
         <div className="space-y-6">
-          {/* Onboarding Card */}
           <Link href="/staff/welcome" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
             <div className="flex items-start justify-between">
               <div>
@@ -86,7 +78,6 @@ export default function StaffPage() {
             </div>
           </Link>
 
-          {/* Training Modules Card */}
           <Link href="/staff/training-modules" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
             <div className="flex items-start justify-between">
               <div>
@@ -97,7 +88,6 @@ export default function StaffPage() {
             </div>
           </Link>
 
-          {/* Available Shifts Card */}
           <Link href="/staff/available-shifts" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
             <div className="flex items-start justify-between">
               <div>
@@ -108,22 +98,20 @@ export default function StaffPage() {
             </div>
           </Link>
 
-          {/* Support Card */}
           <Link href="/staff/support" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-2">Support</h2>
-                <p className="text-gray-600 text-sm leading-relaxed\">Complete your profile, review CHM&apos;s orientation, and gain access to training modules.</p>
+                <p className="text-gray-600 text-sm leading-relaxed">Need help? Contact our HR team for assistance with any questions.</p>
               </div>
               <span className="text-2xl">💬</span>
             </div>
           </Link>
         </div>
 
-        {/* Footer Note */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Questions? Visit the <Link href="/staff/how-it-works" className="text-chm-red hover:underline">&quot;How It Works&quot;</Link> page or submit a support ticket.
+            Questions? Visit the <Link href="/staff/how-it-works" className="text-chm-red hover:underline">How It Works</Link> page or submit a support ticket.
           </p>
         </div>
       </div>
