@@ -25,6 +25,7 @@ export async function PATCH(req: NextRequest) {
           orientation_accepted: true,
           orientation_accepted_at: now,
           full_signature: signature,
+          status: 'orientation_signed',
           updated_at: now,
         }),
       }
@@ -36,7 +37,6 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save acknowledgment' }, { status: 500 })
     }
 
-    // Send confirmation email
     const confirmationHtml = `
       <p>Dear ${full_name},</p>
       <p>Thank you for completing the Convenience Hub of Maryland Orientation and Memorandum of Understanding.</p>
