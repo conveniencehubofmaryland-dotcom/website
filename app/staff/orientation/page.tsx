@@ -30,7 +30,7 @@ CHM is a comprehensive concierge and home management company. You may be assigne
   2. Laundry Pickup & Delivery – Drop-off, pickup, delivery, or recurring service plans
   3. Meal Prep – Weekly meal preparation plans tailored to client needs
   4. Nanny & Childcare – Full-time, hourly, or specialized childcare services
-  5. Elder & Companion Care – Companion care, hourly support, medication reminders, and day programs
+  5. Elder & Companion Care – Companion care, hourly support, companionship, and day programs
   6. Commercial Cleaning – Custom cleaning solutions for businesses
   7. Special Project / Event Support – Custom concierge services for projects and events
 
@@ -56,10 +56,61 @@ Pay Schedule & Compensation
   • Your pay rate is based on your position, experience level, and certifications
   • Overtime must be pre-approved by your supervisor
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. STAFF TRANSPORTATION POLICY & OPERATIONAL GUIDELINES
+
+Commitment to Exceptional Service
+
+At Convenience Hub of Maryland, our commitment to exceptional client service relies heavily on the punctuality, reliability, and readiness of our professional team. Because our staff members frequently claim multiple shifts in a single day across different locations to maximize their working hours and daily earnings, dependable personal transportation is an absolute operational requirement.
+
+1. MANDATORY TRANSPORTATION REQUIREMENT
+
+Reliable Personal Vehicle
+All active staff members must own, lease, or have consistent, unobstructed access to a reliable personal motor vehicle. Public transit or rideshare apps alone are generally insufficient due to the multi-location scheduling demands of our service portfolio.
+
+Valid Documentation
+Staff must maintain a valid driver's license, current vehicle registration, and active auto insurance policy meeting state minimum requirements at all times.
+
+Vehicle Readiness
+Vehicles must be regularly serviced, fuel-efficient, and maintained in a clean, dependable operating condition to prevent unexpected mechanical breakdowns.
+
+2. MANAGING MULTI-SHIFT DAYS & DIFFERENT LOCATIONS
+
+Optimizing Daily Hours
+To make the most of your schedule and secure strong working hours each day, staff are permitted and encouraged to claim multiple shifts. However, the logistics of managing multiple locations throughout the day require careful planning and reliable transportation.
+
+Geographic Variances
+Because claimed shifts are often located in different neighborhoods, cities, or regions—spanning Maryland, Virginia, and the D.C. metro area—transit time between back-to-back appointments must be carefully accounted for. You may be scheduled to work a morning shift in one suburb and an afternoon shift in another area entirely.
+
+Buffer and Travel Planning
+Staff are solely responsible for mapping out transit routes between locations ahead of time, factoring in peak traffic patterns, weather variables, and parking logistics to ensure seamless arrivals. This is not negotiable. Poor planning is your responsibility, not CHM's.
+
+3. PUNCTUALITY & ATTENDANCE EXPECTATIONS
+
+On-Time Arrival
+Staff are required to arrive at every claimed shift location promptly at the scheduled start time. Being late disrupts client expectations and compromises subsequent shifts. Each client expects punctuality and professionalism.
+
+Zero Tolerance for Transit Delays
+Relying on unreliable transportation or failing to plan for inter-shift travel distance will not be accepted as a valid excuse for tardiness or missed shifts. If you claim a shift, you must be able to meet that commitment.
+
+Immediate Communication
+In the rare event of an unavoidable transit emergency (such as a sudden vehicular accident or severe roadside hazard), staff must immediately notify management and affected clients with as much advance notice as possible.
+
+4. PROFESSIONAL PREPAREDNESS
+
+Equipment and Supplies
+Your vehicle serves as your mobile workspace base. You must ensure there is adequate trunk or interior space to securely store cleaning supplies, equipment, uniforms, or shift materials required for multiple back-to-back jobs.
+
+Weather Readiness
+During inclement weather conditions (heavy rain, snow, or ice), staff with reliable vehicles are still expected to exercise proper winter driving precautions and maintain standard schedule commitments unless official travel bans are enacted by local authorities.
+
+Mileage Reimbursement
+CHM reimburses mileage at the rate of $0.56 per mile for travel between claimed shifts and for service-related mileage. Keep detailed records of all work-related driving for reimbursement.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-3. POLICIES & CONDUCT
+4. POLICIES & CONDUCT
 
 Professionalism & Respect
   • Treat clients, families, and co-workers with dignity and respect at all times
@@ -107,7 +158,7 @@ Violation of this no-solicitation policy is a material breach and may result in 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-4. TRAINING & DEVELOPMENT
+5. TRAINING & DEVELOPMENT
 
 Required Orientation & Training
 Before your first shift, you must complete:
@@ -130,7 +181,7 @@ Ongoing Development
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-5. FIRST DAY DETAILS
+6. FIRST DAY DETAILS
 
 Documents You Must Bring
   • Valid government-issued photo ID
@@ -153,7 +204,7 @@ Important First-Week Tasks
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-6. CONTACT INFORMATION & SUPPORT
+7. CONTACT INFORMATION & SUPPORT
 
 HR & Administration
   Email: conveniencehubofmaryland@gmail.com
@@ -169,7 +220,7 @@ Emergency Support
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-7. MEMORANDUM OF UNDERSTANDING
+8. MEMORANDUM OF UNDERSTANDING
    CLIENT NON-SOLICITATION & CONFIDENTIALITY AGREEMENT
 
 Purpose
