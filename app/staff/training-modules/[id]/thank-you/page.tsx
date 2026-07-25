@@ -31,14 +31,6 @@ export default function TrainingThankYouPage() {
               className="inline-block bg-chm-red text-white px-8 py-4 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors"
             >
               View All Modules
-            </Link>
-            <div className="pt-3">
-              <Link
-                href="/staff/available-shifts"
-                className="text-chm-red font-semibold text-sm hover:underline"
-              >
-                Browse Available Shifts →
-              </Link>
             </div>
           </div>
 
