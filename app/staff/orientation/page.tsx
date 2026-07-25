@@ -1,4 +1,5 @@
 import OrientationForm from '@/components/OrientationForm'
+import { redirect } from 'next/navigation'
 
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
@@ -30,7 +31,7 @@ CHM is a comprehensive concierge and home management company. You may be assigne
   2. Laundry Pickup & Delivery – Drop-off, pickup, delivery, or recurring service plans
   3. Meal Prep – Weekly meal preparation plans tailored to client needs
   4. Nanny & Childcare – Full-time, hourly, or specialized childcare services
-  5. Elder & Companion Care – Companion care, hourly support, companionship, and day programs
+  5. Elder & Companion Care – Companion care, hourly support, medication reminders, and day programs
   6. Commercial Cleaning – Custom cleaning solutions for businesses
   7. Special Project / Event Support – Custom concierge services for projects and events
 
@@ -56,9 +57,58 @@ Pay Schedule & Compensation
   • Your pay rate is based on your position, experience level, and certifications
   • Overtime must be pre-approved by your supervisor
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-3. STAFF TRANSPORTATION POLICY & OPERATIONAL GUIDELINES
+3. POLICIES & CONDUCT
+
+Professionalism & Respect
+  • Treat clients, families, and co-workers with dignity and respect at all times
+  • Provide excellent customer service – you represent CHM in every interaction
+  • Maintain professional boundaries with clients
+
+Zero Tolerance Policy
+CHM maintains a zero-tolerance policy for:
+  • Discrimination or harassment of any kind
+  • Violence, threats, or abusive language
+  • Theft or unauthorized use of client/company property
+  • Neglect or abuse of clients
+  • Substance abuse or being under the influence at work
+
+Dress Code & Professional Appearance
+  • Field staff: Clean, professional attire (scrubs or CHM-approved uniform) and closed-toe shoes
+  • Office staff: Business casual attire
+  • Wear your CHM badge/ID visibly at all times
+  • Maintain good personal hygiene
+
+Client Confidentiality (HIPAA Compliance)
+This is CRITICAL. You will have access to private client information.
+
+You must NEVER:
+  • Share client photos, names, addresses, or personal information on social media
+  • Discuss clients outside of professional work settings
+  • Post about your work or clients on personal social media accounts
+  • Share client information via personal devices
+  • Leave client information unsecured
+
+Consequences: Violation of confidentiality is grounds for immediate termination and potential legal action.
+
+Phone & Device Use
+  • Personal phone use is not permitted during client care time except for emergencies
+  • Do not photograph clients or share any images without explicit permission
+  • All work-related communication should go through the CHM app
+
+NO SOLICITATION POLICY
+Staff shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract. This is strictly prohibited and includes private arrangements, side deals, or work under different entity names.
+
+Engaging in private dealings with CHM clients for services that CHM offers is forbidden for the duration of employment AND for 24 months after separation from CHM.
+
+Violation of this no-solicitation policy is a material breach and may result in legal action and liquidated damages.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STAFF TRANSPORTATION POLICY & OPERATIONAL GUIDELINES
 
 Commitment to Exceptional Service
 
@@ -108,57 +158,10 @@ During inclement weather conditions (heavy rain, snow, or ice), staff with relia
 Mileage Reimbursement
 CHM reimburses mileage at the rate of $0.56 per mile for travel between claimed shifts and for service-related mileage. Keep detailed records of all work-related driving for reimbursement.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-4. POLICIES & CONDUCT
-
-Professionalism & Respect
-  • Treat clients, families, and co-workers with dignity and respect at all times
-  • Provide excellent customer service – you represent CHM in every interaction
-  • Maintain professional boundaries with clients
-
-Zero Tolerance Policy
-CHM maintains a zero-tolerance policy for:
-  • Discrimination or harassment of any kind
-  • Violence, threats, or abusive language
-  • Theft or unauthorized use of client/company property
-  • Neglect or abuse of clients
-  • Substance abuse or being under the influence at work
-
-Dress Code & Professional Appearance
-  • Field staff: Clean, professional attire (scrubs or CHM-approved uniform) and closed-toe shoes
-  • Office staff: Business casual attire
-  • Wear your CHM badge/ID visibly at all times
-  • Maintain good personal hygiene
-
-Client Confidentiality (HIPAA Compliance)
-This is CRITICAL. You will have access to private client information.
-
-You must NEVER:
-  • Share client photos, names, addresses, or personal information on social media
-  • Discuss clients outside of professional work settings
-  • Post about your work or clients on personal social media accounts
-  • Share client information via personal devices
-  • Leave client information unsecured
-
-Consequences: Violation of confidentiality is grounds for immediate termination and potential legal action.
-
-Phone & Device Use
-  • Personal phone use is not permitted during client care time except for emergencies
-  • Do not photograph clients or share any images without explicit permission
-  • All work-related communication should go through the CHM app
-
-NO SOLICITATION POLICY
-Staff shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract. This is strictly prohibited and includes private arrangements, side deals, or work under different entity names.
-
-Engaging in private dealings with CHM clients for services that CHM offers is forbidden for the duration of employment AND for 24 months after separation from CHM.
-
-Violation of this no-solicitation policy is a material breach and may result in legal action and liquidated damages.
-
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-5. TRAINING & DEVELOPMENT
+4. TRAINING & DEVELOPMENT
 
 Required Orientation & Training
 Before your first shift, you must complete:
@@ -181,7 +184,7 @@ Ongoing Development
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-6. FIRST DAY DETAILS
+5. FIRST DAY DETAILS
 
 Documents You Must Bring
   • Valid government-issued photo ID
@@ -204,7 +207,7 @@ Important First-Week Tasks
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-7. CONTACT INFORMATION & SUPPORT
+6. CONTACT INFORMATION & SUPPORT
 
 HR & Administration
   Email: conveniencehubofmaryland@gmail.com
@@ -220,7 +223,7 @@ Emergency Support
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-8. MEMORANDUM OF UNDERSTANDING
+7. MEMORANDUM OF UNDERSTANDING
    CLIENT NON-SOLICITATION & CONFIDENTIALITY AGREEMENT
 
 Purpose
@@ -292,6 +295,29 @@ AT-WILL EMPLOYMENT
 
 This MOU does not alter at-will employment status where applicable. Either CHM or Staff may terminate employment at any time, for any lawful reason or no reason, with or without notice. However, the obligations under this MOU (non-solicitation, confidentiality, liquidated damages) survive termination indefinitely.`
 
+async function checkStatusAndFetch(applicantId: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=status`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      if (data.length > 0 && data[0].status !== 'profile_submitted') {
+        return false
+      }
+    }
+  } catch (err) {
+    console.error('Status check error:', err)
+  }
+  return true
+}
+
 export default async function OrientationPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const params = await searchParams
   const position = params.position ? decodeURIComponent(params.position) : null
@@ -306,6 +332,23 @@ export default async function OrientationPage({ searchParams }: { searchParams: 
             <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
             <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
               Start Over
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const isValid = await checkStatusAndFetch(applicantId)
+  if (!isValid) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Access Restricted</h1>
+            <p className="text-red-600 mb-6">You must complete the welcome profile before accessing orientation.</p>
+            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Back to Welcome Center
             </a>
           </div>
         </div>
