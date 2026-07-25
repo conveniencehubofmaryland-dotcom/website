@@ -8,29 +8,29 @@ const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: str
   'Cleaning Specialist': {
     levels: [
       { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.50', weekly: '$740–$820', monthly: '$3,204–$3,551' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.50', weekly: '$800–$940', monthly: '$3,464–$4,070' },
-      { level: 'Lead (3+ yr)', hourly: '$23.00–$28.00', weekly: '$920–$1,120', monthly: '$3,984–$4,850' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
+      { level: 'Lead (3+ yr)', hourly: '$23.00–$25.00', weekly: '$920–$1,120', monthly: '$3,984–$4,850' },
     ],
     bonuses: ['5-star reviews (4+ monthly): $50–$100/month', 'Perfect attendance (quarterly): $150–$200', 'Referral: $50–$100 per client', 'Tenure: $100–$300 anniversary bonus'],
   },
   'Laundry Handler': {
     levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.50–$18.00', weekly: '$660–$720', monthly: '$2,860–$3,120' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.50–$21.00', weekly: '$740–$840', monthly: '$3,200–$3,640' },
-      { level: 'Senior (2+ yr)', hourly: '$21.50–$24.50', weekly: '$860–$980', monthly: '$3,730–$4,240' },
+      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,860–$3,120' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$21.00', weekly: '$740–$840', monthly: '$3,200–$3,640' },
+      { level: 'Senior (2+ yr)', hourly: '$21.00–$25.00', weekly: '$860–$980', monthly: '$3,730–$4,240' },
       { level: 'Lead (3+ yr)', hourly: '$25.00–$28.00', weekly: '$1,000–$1,120', monthly: '$4,330–$4,850' },
     ],
-    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150', 'Certifications: $200–$300'],
+    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150'],
   },
   'Culinary/Chef': {
     levels: [
-      { level: 'Entry (0–1 yr)', hourly: '$20.00–$24.00', weekly: '$800–$960', monthly: '$3,464–$4,157' },
-      { level: 'Standard (1–3 yr)', hourly: '$24.00–$28.00', weekly: '$960–$1,120', monthly: '$4,157–$4,850' },
-      { level: 'Senior (3+ yr)', hourly: '$28.00–$32.00', weekly: '$1,120–$1,280', monthly: '$4,850–$5,542' },
-      { level: 'Executive (5+ yr)', hourly: '$32.00–$40.00', weekly: '$1,280–$1,600', monthly: '$5,542–$6,928' },
+      { level: 'Entry (0–1 yr)', hourly: '$20.00–$23.00', weekly: '$800–$960', monthly: '$3,464–$4,157' },
+      { level: 'Standard (1–3 yr)', hourly: '$23.00–$26.00', weekly: '$960–$1,120', monthly: '$4,157–$4,850' },
+      { level: 'Senior (3+ yr)', hourly: '$26.00–$30.00', weekly: '$1,120–$1,280', monthly: '$4,850–$5,542' },
+      { level: 'Executive (5+ yr)', hourly: '$30.00–$35.00', weekly: '$1,280–$1,600', monthly: '$5,542–$6,928' },
     ],
-    bonuses: ['Client reviews: $100', 'Referrals: $200', 'Event success: $300'],
+    bonuses: ['Client reviews: $50', 'Referrals: $100', 'Event success: $100'],
   },
   'Housekeeping Staff': {
     levels: [
@@ -52,9 +52,9 @@ const PAY_STRUCTURE: Record<string, { levels: Array<{ level: string; hourly: str
   },
   'Nanny/Childcare Specialist': {
     levels: [
-      { level: 'Entry Level (0–6 mo)', hourly: '$16.50–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.50–$20.50', weekly: '$740–$820', monthly: '$3,204–$3,551' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.50', weekly: '$800–$940', monthly: '$3,464–$4,070' },
+      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
+      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
+      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
       { level: 'Lead (3+ yr)', hourly: '$23.00–$28.00', weekly: '$920–$1,200', monthly: '$3,984–$5,196' },
     ],
     bonuses: ['Child development milestones', 'Family satisfaction', 'Certifications'],
