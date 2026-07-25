@@ -11,10 +11,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Generate UUID for the applicant
     const applicant_id = crypto.randomUUID()
 
-    // Insert using dbInsertService (uses service role key with full permissions)
     const { error: insertError } = await dbInsertService('offer_letter_applicants', {
       id: applicant_id,
       full_name,
@@ -22,7 +20,7 @@ export async function POST(req: NextRequest) {
       phone,
       position,
       address: address || null,
-      status: 'draft',
+      status: 'profile_submitted',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -32,7 +30,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create applicant record' }, { status: 500 })
     }
 
-    // Send emails
     const applicantEmailHtml = `
       <p>Dear ${full_name},</p>
       <p>Thank you for your interest in joining Convenience Hub of Maryland!</p>
@@ -59,7 +56,6 @@ export async function POST(req: NextRequest) {
     await sendAdminEmail('New Application Received', adminEmailHtml)
 
     console.log('[welcome-center] Applicant created:', applicant_id)
-
     return NextResponse.json({ success: true, id: applicant_id })
   } catch (err) {
     console.error('[welcome-center] Unexpected error:', err)
