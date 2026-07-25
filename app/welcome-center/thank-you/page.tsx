@@ -1,5 +1,28 @@
 import Link from 'next/link'
 
+async function checkStatus(applicantId: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=status`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      if (data.length > 0 && data[0].status === 'orientation_signed') {
+        return true
+      }
+    }
+  } catch (err) {
+    console.error('Status check error:', err)
+  }
+  return false
+}
+
 export const metadata = {
   title: 'Thank You | Convenience Hub of Maryland',
   description: 'Your orientation has been signed. Next steps for your CHM onboarding.',
@@ -26,6 +49,23 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
     )
   }
 
+  const isValid = await checkStatus(applicantId)
+  if (!isValid) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
+            <h1 className="font-serif text-2xl text-red-700 mb-4">Access Restricted</h1>
+            <p className="text-red-600 mb-6">You must complete and sign the orientation first.</p>
+            <a href="/staff/orientation" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Back to Orientation
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
@@ -35,7 +75,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
           <div className="mb-8">
             <div className="text-6xl mb-6">✓</div>
             <h1 className="font-serif text-4xl text-chm-black mb-4">Thank You!</h1>
-            <p className="text-lg text-gray-600 mb-6">
+            <p className="text-lg text-gray-600">
               Your orientation has been signed and your agreement acknowledged.
             </p>
           </div>
