@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 
 export default function TrainingThankYouPage() {
   const params = useParams()
-  const moduleId = params.id as string
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
