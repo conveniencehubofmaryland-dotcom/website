@@ -53,11 +53,11 @@ export default function AvailableShifts() {
       const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
       if (res.ok) {
         const data = await res.json()
-        if (data.status === 'ready_to_claim_shifts') {
+        if (data.onboarding_status === 'ready_to_claim_shifts') {
           setAuthorized(true)
           fetchShifts()
         } else {
-          setMessage(`❌ You must complete onboarding first. Current status: ${data.status}`)
+          setMessage(`❌ You must complete onboarding first. Current status: ${data.onboarding_status}`)
           setLoading(false)
         }
       } else {
