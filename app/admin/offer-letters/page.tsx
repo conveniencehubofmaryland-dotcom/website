@@ -60,8 +60,11 @@ export default async function AdminOfferLettersPage({
 
   const filtered = filterStatus === 'all' 
     ? applicants 
+    : filterStatus === 'new'
+    ? applicants.filter(a => a.onboarding_status === 'new')
+    : filterStatus === 'ready'
+    ? applicants.filter(a => a.onboarding_status === 'ready_to_claim_shifts')
     : applicants.filter(a => a.status === filterStatus)
-
   console.log('[offer-letters] filtered:', filtered.length)
 
   // Group by position
