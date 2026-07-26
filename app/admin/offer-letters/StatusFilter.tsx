@@ -3,9 +3,17 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-type FilterStatus = 'all' | 'draft' | 'sent' | 'signed' | 'expired'
+type FilterStatus = 'all' | 'new' | 'ready' | 'sent' | 'signed'
 
-const STATUS_FILTER_LABELS: FilterStatus[] = ['all', 'draft', 'sent', 'signed', 'expired']
+const STATUS_FILTER_LABELS: FilterStatus[] = ['all', 'new', 'ready', 'sent', 'signed']
+
+const STATUS_LABELS: Record<FilterStatus, string> = {
+  all: 'All',
+  new: 'New',
+  ready: 'Ready',
+  sent: 'Sent',
+  signed: 'Signed',
+}
 
 export default function StatusFilter() {
   const searchParams = useSearchParams()
@@ -27,7 +35,7 @@ export default function StatusFilter() {
                 : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
             }`}
           >
-            {s}
+            {STATUS_LABELS[s]}
           </Link>
         )
       })}
