@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { sendUserEmail } from '@/lib/email'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
@@ -19,7 +20,30 @@ export async function PATCH(req: NextRequest) {
 
     const now = new Date().toISOString()
 
-    const res = await fetch(
+    // Fetch applicant details first
+    const fetchRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}&select=full_name,email,position`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    )
+
+    if (!fetchRes.ok) {
+      return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
+    }
+
+    const applicantData = await fetchRes.json()
+    if (!applicantData || applicantData.length === 0) {
+      return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
+    }
+
+    const applicant = applicantData[0]
+
+    // Update status
+    const updateRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
       {
         method: 'PATCH',
@@ -35,13 +59,36 @@ export async function PATCH(req: NextRequest) {
       }
     )
 
-    if (!res.ok) {
-      const error = await res.text()
+    if (!updateRes.ok) {
+      const error = await updateRes.text()
       console.error('[mark-ready] Error:', error)
       return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 })
     }
 
-    console.log('[mark-ready] Applicant marked ready:', applicant_id)
+    // Send email to applicant
+    const emailHtml = `
+      <p>Dear ${applicant.full_name},</p>
+      <p>Great news! Your onboarding is complete and you are now ready to claim shifts with Convenience Hub of Maryland.</p>
+      <p><strong>Your Position:</strong> ${applicant.position}</p>
+      <p><strong>Next Step:</strong> Browse and claim shifts that work with your schedule:</p>
+      <p><a href="https://conveniencehubofmaryland.com/staff/available-shifts" style="display: inline-block; background-color: #c41e3a; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-radius: 4px;">Claim Your First Shift</a></p>
+      <p>Remember:</p>
+      <ul>
+        <li>You only work shifts you actively claim through the portal</li>
+        <li>Shift confirmations will be sent via email</li>
+        <li>Check the portal regularly for new shift opportunities</li>
+      </ul>
+      <p>Welcome to the team! If you have any questions, contact us at 202-579-2944 (Mon–Sat, 9 AM–9 PM).</p>
+      <p>Convenience Hub of Maryland<br/>202-579-2944</p>
+    `
+
+    await sendUserEmail(
+      applicant.email,
+      'Ready to Claim Shifts – Your CHM Journey Begins!',
+      emailHtml
+    )
+
+    console.log('[mark-ready] Applicant marked ready and email sent:', applicant_id)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[mark-ready] Exception:', err)
