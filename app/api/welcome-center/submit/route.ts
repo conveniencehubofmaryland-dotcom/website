@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
       phone,
       position,
       address: address || null,
-      status: 'profile_submitted',
+      status: 'draft',
+      onboarding_status: 'profile_submitted',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
