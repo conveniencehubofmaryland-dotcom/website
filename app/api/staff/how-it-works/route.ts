@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          status: 'how_it_works_read',
+          onboarding_status: 'how_it_works_read',
           updated_at: now,
         }),
       }
