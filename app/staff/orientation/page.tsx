@@ -1,5 +1,4 @@
 import OrientationForm from '@/components/OrientationForm'
-import { redirect } from 'next/navigation'
 
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
@@ -298,7 +297,7 @@ This MOU does not alter at-will employment status where applicable. Either CHM o
 async function checkStatusAndFetch(applicantId: string) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=status`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=onboarding_status`,
       {
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -308,7 +307,7 @@ async function checkStatusAndFetch(applicantId: string) {
     )
     if (res.ok) {
       const data = await res.json()
-      if (data.length > 0 && data[0].status !== 'profile_submitted') {
+      if (data.length > 0 && data[0].onboarding_status !== 'profile_submitted') {
         return false
       }
     }
