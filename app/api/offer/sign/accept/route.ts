@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       <p><strong>Next Steps:</strong></p>
       <ul>
         <li>Complete all required training modules: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
-        <li>Prepare required documents for your first day (ID, proof of work authorization)</li>
+        <li>Submit all necessary documents to HR: W-4 form, I-9 verification, direct deposit setup, and any certifications</li>
         <li>Claim your first shift: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
       </ul>
       <p>We are excited to have you on the team!</p>
