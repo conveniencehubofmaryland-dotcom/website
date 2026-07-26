@@ -50,8 +50,8 @@ export default function TrainingThankYouPage() {
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
             <p className="text-gray-700 text-sm leading-relaxed">
-  Your certification has been saved to your profile. You are now eligible to work in this role. Continue building your skills by completing additional training modules to advance your career with Convenience Hub of Maryland.
-</p>
+              Your certification has been saved to your profile. You are now eligible to work in this role. Continue building your skills by completing additional training modules to advance your career with Convenience Hub of Maryland.
+            </p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
@@ -67,11 +67,10 @@ export default function TrainingThankYouPage() {
               </div>
               <div className="flex gap-3">
                 <span className="text-chm-red font-bold min-w-fit">3.</span>
-                <p className="text-sm text-gray-700"><strong>Ready to Claim Shifts</strong> — Once you've signed the offer and HR completes your paperwork, you'll be able to browse and claim shifts on the platform.</p>
+                <p className="text-sm text-gray-700"><strong>Ready to Claim Shifts</strong> — Once you&apos;ve signed the offer and HR completes your paperwork, you&apos;ll be able to browse and claim shifts on the platform.</p>
               </div>
             </div>
           </div>
-
           <div className="space-y-3 mb-8">
             <Link
               href="/staff/training-modules"
