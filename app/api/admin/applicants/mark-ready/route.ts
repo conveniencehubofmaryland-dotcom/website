@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { dbPatchAuth } from '@/lib/db'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
@@ -20,14 +19,24 @@ export async function PATCH(req: NextRequest) {
 
     const now = new Date().toISOString()
 
-    const { error } = await dbPatchAuth(
-      'offer_letter_applicants',
-      { onboarding_status: 'ready_to_claim_shifts', updated_at: now },
-      token,
-      { id: applicant_id }
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          onboarding_status: 'ready_to_claim_shifts',
+          updated_at: now,
+        }),
+      }
     )
 
-    if (error) {
+    if (!res.ok) {
+      const error = await res.text()
       console.error('[mark-ready] Error:', error)
       return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 })
     }
