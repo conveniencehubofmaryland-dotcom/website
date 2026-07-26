@@ -3,6 +3,7 @@ import { dbSelectAuth } from '@/lib/db'
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
+import ApplicantReadyButton from '@/components/ApplicantReadyButton'
 import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
 import ApplicantNotesButton from '@/components/ApplicantNotesButton'
 import StatusFilter from './StatusFilter'
@@ -16,6 +17,7 @@ type Applicant = {
   position: string
   address: string | null
   status: 'draft' | 'sent' | 'signed' | 'expired'
+  onboarding_status: string
   notes: string | null
   created_at: string
 }
@@ -55,9 +57,11 @@ export default async function AdminOfferLettersPage({
   // Filter by status
   console.log('[offer-letters] filterStatus:', filterStatus)
   console.log('[offer-letters] applicants:', applicants.length)
+
   const filtered = filterStatus === 'all' 
     ? applicants 
     : applicants.filter(a => a.status === filterStatus)
+
   console.log('[offer-letters] filtered:', filtered.length)
 
   // Group by position
@@ -104,7 +108,7 @@ export default async function AdminOfferLettersPage({
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200 bg-gray-50">
-                      {['Name', 'Email', 'Phone', 'Status', 'Notes', 'Applied', 'Action', 'Delete'].map(h => (
+                      {['Name', 'Email', 'Phone', 'Status', 'Ready', 'Notes', 'Applied', 'Action', 'Delete'].map(h => (
                         <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                           {h}
                         </th>
@@ -123,6 +127,9 @@ export default async function AdminOfferLettersPage({
                           <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
                           <td className="py-3 px-4">
                             <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
+                          </td>
+                          <td className="py-3 px-4">
+                            <ApplicantReadyButton applicantId={applicant.id} onboarding_status={applicant.onboarding_status} />
                           </td>
                           <td className="py-3 px-4">
                             <ApplicantNotesButton applicantId={applicant.id} initialNotes={applicant.notes} />
