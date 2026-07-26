@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function StaffHowItWorksPage() {
-  const [applicantId, setApplicantId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -23,7 +22,7 @@ export default function StaffHowItWorksPage() {
           return
         }
 
-        setApplicantId(id)
+        // applicantId stored but not used on this page
 
         // Mark as read
         const res = await fetch('/api/staff/how-it-works', {
