@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 type Shift = {
   id: string
@@ -31,9 +31,6 @@ export default function AvailableShifts() {
   const [claimForm, setClaimForm] = useState<ClaimForm>({ name: '', email: '', phone: '' })
   const [authorized, setAuthorized] = useState(false)
 
-  useEffect(() => {
-    checkStatus()
-  }, [])  // checkStatus is safe — defined outside useEffect
   const checkStatus = useCallback(async () => {
     try {
       let applicantId = localStorage.getItem('applicant_id')
@@ -73,8 +70,6 @@ export default function AvailableShifts() {
   useEffect(() => {
     checkStatus()
   }, [checkStatus])
-    }
-  }
 
   const fetchShifts = async () => {
     try {
@@ -175,7 +170,6 @@ export default function AvailableShifts() {
           <div className="space-y-4">
             {shifts.map((shift: Shift) => (
               <div key={shift.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                {/* Shift Details */}
                 <div className="p-6 border-b border-gray-200">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
@@ -207,7 +201,6 @@ export default function AvailableShifts() {
                   </div>
                 </div>
 
-                {/* Claim Form or Status */}
                 {shift.status === 'claimed' ? (
                   <div className="p-6 bg-green-50">
                     <p className="text-green-700 font-semibold">✅ Shift claimed by {shift.staff_name}</p>
