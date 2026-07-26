@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     const offer = data[0]
     const applicant = offer.offer_letter_applicants
 
-    // Update applicant status to 'offer_signed'
+    // Update applicant onboarding_status to 'offer_signed'
     const appStatusRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant.id}`,
       {
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'offer_signed', updated_at: now }),
+        body: JSON.stringify({ onboarding_status: 'offer_signed', updated_at: now }),
       }
     )
 
