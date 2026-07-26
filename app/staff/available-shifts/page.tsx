@@ -33,9 +33,8 @@ export default function AvailableShifts() {
 
   useEffect(() => {
     checkStatus()
-  }, [])
-
-  const checkStatus = async () => {
+  }, [])  // checkStatus is safe — defined outside useEffect
+  const checkStatus = useCallback(async () => {
     try {
       let applicantId = localStorage.getItem('applicant_id')
       if (!applicantId) {
@@ -68,6 +67,12 @@ export default function AvailableShifts() {
       console.error('Status check error:', error)
       setMessage('❌ Error verifying access')
       setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    checkStatus()
+  }, [checkStatus])
     }
   }
 
