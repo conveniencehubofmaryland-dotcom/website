@@ -50,8 +50,8 @@ export default function TrainingThankYouPage() {
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
             <p className="text-gray-700 text-sm leading-relaxed">
-              Your certification has been saved to your profile. You are now eligible to work in this role. Continue building your skills by completing additional training modules to advance your career with Convenience Hub of Maryland.
-            </p>
+  Your certification has been saved to your profile. You are now eligible to work in this role. Continue building your skills by completing additional training modules to advance your career with Convenience Hub of Maryland.
+</p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
