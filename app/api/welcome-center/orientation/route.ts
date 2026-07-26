@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest) {
           orientation_accepted: true,
           orientation_accepted_at: now,
           full_signature: signature,
-          status: 'orientation_signed',
+          onboarding_status: 'orientation_signed',
           updated_at: now,
         }),
       }
