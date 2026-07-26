@@ -3,7 +3,7 @@ import Link from 'next/link'
 async function checkStatus(applicantId: string) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=status`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=onboarding_status`,
       {
         headers: {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -13,7 +13,7 @@ async function checkStatus(applicantId: string) {
     )
     if (res.ok) {
       const data = await res.json()
-      if (data.length > 0 && data[0].status === 'orientation_signed') {
+      if (data.length > 0 && data[0].onboarding_status === 'orientation_signed') {
         return true
       }
     }
