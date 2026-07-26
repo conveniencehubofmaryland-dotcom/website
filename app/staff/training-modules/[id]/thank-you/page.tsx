@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function TrainingThankYouPage() {
-  const [applicantId, setApplicantId] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -17,7 +16,6 @@ export default function TrainingThankYouPage() {
         }
 
         if (id) {
-          setApplicantId(id)
           // Note: Training completion doesn't change status yet
           // Offer signing will set status to 'offer_signed'
           // HR paperwork completion will set to 'ready_to_claim_shifts'
