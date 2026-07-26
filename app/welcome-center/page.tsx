@@ -44,7 +44,7 @@ export default function WelcomeCenterPage() {
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${id}`)
         if (res.ok) {
           const data = await res.json()
-          if (data.status === 'how_it_works_read') {
+          if (data.onboarding_status === 'how_it_works_read') {
             setApplicantId(id)
           }
         }
