@@ -1,10 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 
 export default function StaffHowItWorksPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [buttonLoading, setButtonLoading] = useState(false)
 
   useEffect(() => {
     async function markAsRead() {
@@ -21,8 +21,6 @@ export default function StaffHowItWorksPage() {
           setLoading(false)
           return
         }
-
-        // applicantId stored but not used on this page
 
         // Mark as read
         const res = await fetch('/api/staff/how-it-works', {
@@ -43,6 +41,42 @@ export default function StaffHowItWorksPage() {
 
     markAsRead()
   }, [])
+
+  const handleGetStarted = async () => {
+    setButtonLoading(true)
+    setError('')
+    try {
+      let id = localStorage.getItem('applicant_id')
+      if (!id) {
+        const cookies = document.cookie.split(';')
+        const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+        id = applCookie ? applCookie.split('=')[1] : null
+      }
+
+      if (!id) {
+        setError('No applicant ID found')
+        setButtonLoading(false)
+        return
+      }
+
+      const res = await fetch('/api/staff/how-it-works', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicant_id: id }),
+      })
+
+      if (res.ok) {
+        window.location.href = '/welcome-center'
+      } else {
+        setError('Failed to save progress. Please try again.')
+        setButtonLoading(false)
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      setError('Error saving progress')
+      setButtonLoading(false)
+    }
+  }
 
   if (loading) return <div className="text-center py-20 text-gray-400">Loading...</div>
   if (error) return <div className="text-center py-20 text-chm-red">{error}</div>
@@ -172,30 +206,12 @@ export default function StaffHowItWorksPage() {
             <p><strong>Phone:</strong> 202-579-2944</p>
             <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
           </div>
-         <button
-            onClick={async () => {
-              setLoading(true)
-              try {
-                const res = await fetch('/api/staff/how-it-works', {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ applicant_id: applicantId }),
-                })
-                if (res.ok) {
-                  window.location.href = '/welcome-center'
-                } else {
-                  setError('Failed to save progress. Please try again.')
-                }
-              } catch (err) {
-                setError('Error saving progress')
-              } finally {
-                setLoading(false)
-              }
-            }}
-            disabled={loading || !applicantId}
+          <button
+            onClick={handleGetStarted}
+            disabled={buttonLoading}
             className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
           >
-            {loading ? 'Processing...' : 'Get Started'}
+            {buttonLoading ? 'Processing...' : 'Get Started'}
           </button>
         </div>
       </div>
