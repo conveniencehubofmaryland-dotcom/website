@@ -26,18 +26,35 @@ export default function WelcomeCenterPage() {
 
   useEffect(() => {
     async function checkStatus() {
-      try {
-        let id = localStorage.getItem('applicant_id')
-        if (!id) {
-          const cookies = document.cookie.split(';')
-          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-          id = applCookie ? applCookie.split('=')[1] : null
-        }
+  try {
+    let id = localStorage.getItem('applicant_id')
+    if (!id) {
+      const cookies = document.cookie.split(';')
+      const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+      id = applCookie ? applCookie.split('=')[1] : null
+    }
 
-        if (!id) {
-          setLoading(false)
-          return
-        }
+    // If no applicant_id, allow them to create new profile
+    if (!id) {
+      setLoading(false)
+      return
+    }
+
+    // If applicant_id exists, check their status
+    const res = await fetch(`/api/staff/welcome/check?applicant_id=${id}`)
+    if (res.ok) {
+      const data = await res.json()
+      // Allow if: how_it_works_read OR if they haven't started yet (new)
+      if (data.onboarding_status === 'how_it_works_read' || data.onboarding_status === 'new') {
+        setApplicantId(id)
+      }
+    }
+  } catch (err) {
+    console.error('Status check error:', err)
+  } finally {
+    setLoading(false)
+  }
+}
 
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${id}`)
         if (res.ok) {
