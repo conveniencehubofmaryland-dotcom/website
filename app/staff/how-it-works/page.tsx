@@ -172,9 +172,31 @@ export default function StaffHowItWorksPage() {
             <p><strong>Phone:</strong> 202-579-2944</p>
             <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
           </div>
-          <Link href="/welcome-center" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-            Get Started
-          </Link>
+         <button
+            onClick={async () => {
+              setLoading(true)
+              try {
+                const res = await fetch('/api/staff/how-it-works', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ applicant_id: applicantId }),
+                })
+                if (res.ok) {
+                  window.location.href = '/welcome-center'
+                } else {
+                  setError('Failed to save progress. Please try again.')
+                }
+              } catch (err) {
+                setError('Error saving progress')
+              } finally {
+                setLoading(false)
+              }
+            }}
+            disabled={loading || !applicantId}
+            className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60"
+          >
+            {loading ? 'Processing...' : 'Get Started'}
+          </button>
         </div>
       </div>
     </div>
