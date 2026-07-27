@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
+import Link from 'next/link'
 import StaffRecordsTable from './StaffRecordsTable'
 import { DeleteButton } from './DeleteButton'
 
@@ -68,20 +69,6 @@ export default async function AdminAnalyticsPage() {
       passRate: attempts.length > 0 ? Math.round((modCompleted / attempts.length) * 100) : 0,
     }
   })
-
-  const positionMap = new Map<string, { attempts: number; completed: number }>()
-  progress.forEach(p => {
-    const pos = p.position || 'Unspecified'
-    const existing = positionMap.get(pos) || { attempts: 0, completed: 0 }
-    existing.attempts += 1
-    if (p.status === 'completed') existing.completed += 1
-    positionMap.set(pos, existing)
-  })
-  const positionStats = Array.from(positionMap.entries()).map(([position, stats]) => ({
-    position,
-    ...stats,
-    passRate: stats.attempts > 0 ? Math.round((stats.completed / stats.attempts) * 100) : 0,
-  }))
 
   const merged = progress
     .map(p => {
@@ -258,40 +245,17 @@ export default async function AdminAnalyticsPage() {
           )}
         </div>
 
-        {/* By Position */}
-        <div className="mb-12 pb-12 border-b border-gray-200">
-          <h3 className="font-serif text-xl text-chm-black mb-4">By Position</h3>
-          {positionStats.length === 0 ? (
-            <p className="text-gray-400 text-sm">No position data yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-gray-200 bg-gray-50">
-                    <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Position</th>
-                    <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Attempts</th>
-                    <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Completed</th>
-                    <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold">Pass Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {positionStats.map((p, i) => (
-                    <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-semibold text-chm-black">{p.position}</td>
-                      <td className="py-3 px-4 text-gray-600">{p.attempts}</td>
-                      <td className="py-3 px-4 text-gray-600">{p.completed}</td>
-                      <td className="py-3 px-4 font-semibold text-chm-red">{p.passRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
         {/* All Staff Records */}
         <div>
-          <h3 className="font-serif text-xl text-chm-black mb-4">All Staff Records</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-serif text-xl text-chm-black">All Staff Records</h3>
+            <Link
+              href="/admin/signed-documents"
+              className="bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors"
+            >
+              View Signed Documents
+            </Link>
+          </div>
           <StaffRecordsTable records={merged} deleteButton={DeleteButton} />
         </div>
       </div>
