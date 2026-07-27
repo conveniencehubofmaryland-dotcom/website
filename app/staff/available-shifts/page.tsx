@@ -23,6 +23,24 @@ type ClaimForm = {
   phone: string
 }
 
+// Ensure applicant_id persists on mobile
+function getApplicantIdFromStorage(): string | null {
+  if (typeof window === 'undefined') return null
+  
+  let id = localStorage.getItem('applicant_id')
+  if (id) return id
+  
+  const cookies = document.cookie.split(';')
+  const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
+  id = applCookie ? decodeURIComponent(applCookie.split('=')[1]) : null
+  
+  if (id) {
+    localStorage.setItem('applicant_id', id)
+  }
+  
+  return id
+}
+
 export default function AvailableShifts() {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,12 +51,7 @@ export default function AvailableShifts() {
 
   const checkStatus = useCallback(async () => {
     try {
-      let applicantId = localStorage.getItem('applicant_id')
-      if (!applicantId) {
-        const cookies = document.cookie.split(';')
-        const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-        applicantId = applCookie ? applCookie.split('=')[1] : null
-      }
+      const applicantId = getApplicantIdFromStorage()
 
       if (!applicantId) {
         setMessage('❌ No applicant ID found. Please complete onboarding first.')
