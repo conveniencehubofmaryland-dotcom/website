@@ -72,15 +72,15 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 })
     }
 
-    // Send email with token link
-    const claimLink = `https://conveniencehubofmaryland.com/staff/available-shifts?token=${claimToken}`
+    // Send email with claim shift link
+    const claimLink = `https://conveniencehubofmaryland.com/staff/claim-shifts-login`
 
     const emailHtml = `
       <p>Dear ${applicant.full_name},</p>
       <p>Great news! Your onboarding is complete and you are now ready to claim shifts with Convenience Hub of Maryland.</p>
       <p><strong>Your Position:</strong> ${applicant.position}</p>
-      <p><strong>Next Step:</strong> Browse and claim shifts that work with your schedule:</p>
-      <p><a href="${claimLink}" style="display: inline-block; background-color: #c41e3a; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-radius: 4px;">Claim Your First Shift</a></p>
+      <p><strong>Next Step:</strong> Sign in to browse and claim shifts:</p>
+      <p><a href="${claimLink}" style="display: inline-block; background-color: #c41e3a; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-radius: 4px;">Sign In to Claim Shifts</a></p>
       <p>Remember:</p>
       <ul>
         <li>You only work shifts you actively claim through the portal</li>
