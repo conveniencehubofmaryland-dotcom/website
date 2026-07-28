@@ -62,8 +62,10 @@ export default function AvailableShifts() {
           if (res.ok) {
             const data = await res.json()
             applicantId = data.applicant_id
-            localStorage.setItem('applicant_id', applicantId)
-            localStorage.setItem('claim_shift_token', urlToken)
+            if (applicantId) {
+              localStorage.setItem('applicant_id', applicantId)
+              localStorage.setItem('claim_shift_token', urlToken)
+            }
           }
         } catch (err) {
           console.error('Token verification error:', err)
