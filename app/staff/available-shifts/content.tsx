@@ -28,17 +28,21 @@ function getApplicantIdFromStorage(): string | null {
   if (typeof window === 'undefined') return null
   
   let id = localStorage.getItem('applicant_id')
+  console.log('[available-shifts] localStorage.applicant_id:', id)
+  
   if (id) return id
   
   const cookies = document.cookie.split(';')
   const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-  id = applCookie ? decodeURIComponent(applCookie.split('=')[1]) : null
-  
-  if (id) {
+  if (applCookie) {
+    id = decodeURIComponent(applCookie.split('=')[1])
+    console.log('[available-shifts] cookie.applicant_id:', id)
     localStorage.setItem('applicant_id', id)
+    return id
   }
   
-  return id
+  console.log('[available-shifts] No applicant_id found in storage or cookies')
+  return null
 }
 
 export default function AvailableShiftsContent() {
@@ -53,52 +57,79 @@ export default function AvailableShiftsContent() {
   useEffect(() => {
     checkStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }, [])
 
   const checkStatus = async () => {
     try {
+      console.log('[available-shifts] === CHECK STATUS START ===')
+      
       const urlToken = searchParams.get('token')
+      console.log('[available-shifts] URL token:', urlToken ? 'present' : 'missing')
+      
       let applicantId = getApplicantIdFromStorage()
+      console.log('[available-shifts] applicantId from storage:', applicantId)
 
       // If no applicant_id but token exists, verify token
       if (!applicantId && urlToken) {
+        console.log('[available-shifts] Token present, verifying...')
         try {
-          const res = await fetch(`/api/staff/claim-shift/verify-token?token=${urlToken}`)
+          const verifyUrl = `/api/staff/claim-shift/verify-token?token=${urlToken}`
+          console.log('[available-shifts] Calling:', verifyUrl)
+          
+          const res = await fetch(verifyUrl)
+          console.log('[available-shifts] Verify response status:', res.status)
+          
           if (res.ok) {
             const data = await res.json()
+            console.log('[available-shifts] Verify response data:', data)
+            
             applicantId = data.applicant_id
             if (applicantId) {
+              console.log('[available-shifts] Storing applicant_id:', applicantId)
               localStorage.setItem('applicant_id', applicantId)
               localStorage.setItem('claim_shift_token', urlToken)
+              console.log('[available-shifts] Storage updated successfully')
             }
+          } else {
+            const errText = await res.text()
+            console.error('[available-shifts] Verify failed:', res.status, errText)
           }
         } catch (err) {
-          console.error('Token verification error:', err)
+          console.error('[available-shifts] Token verification error:', err)
         }
       }
 
       if (!applicantId) {
+        console.log('[available-shifts] No applicant_id - showing access denied')
         setMessage('❌ No applicant ID found. Please use the link sent to your email or complete onboarding first.')
         setLoading(false)
         return
       }
 
+      console.log('[available-shifts] Checking onboarding status for:', applicantId)
       const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
+      console.log('[available-shifts] Status check response:', res.status)
+      
       if (res.ok) {
         const data = await res.json()
+        console.log('[available-shifts] Status check data:', data.onboarding_status)
+        
         if (data.onboarding_status === 'ready_to_claim_shifts') {
+          console.log('[available-shifts] Authorization granted')
           setAuthorized(true)
           fetchShifts()
         } else {
+          console.log('[available-shifts] Unauthorized status:', data.onboarding_status)
           setMessage(`❌ You must complete onboarding first. Current status: ${data.onboarding_status}`)
           setLoading(false)
         }
       } else {
+        console.error('[available-shifts] Status check failed:', res.status)
         setMessage('❌ Unable to verify status. Please check your email for the claim shift link.')
         setLoading(false)
       }
     } catch (error) {
-      console.error('Status check error:', error)
+      console.error('[available-shifts] Status check exception:', error)
       setMessage('❌ Error verifying access')
       setLoading(false)
     }
