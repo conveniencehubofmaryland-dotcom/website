@@ -12,14 +12,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SignedDocumentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
-  const token = cookieStore.get('chm_admin')?.value ?? ''
+  const hasAuth = !!cookieStore.get('chm_admin')?.value
 
-  if (!token) {
+  if (!hasAuth) {
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-red-600 text-lg">Admin authentication required.</p>
-        <Link href="/admin/login" className="text-chm-red hover:underline mt-4 inline-block">
-          Back to Login
+        <p className="text-red-600 text-lg">Authentication required.</p>
+        <Link href="/admin" className="text-chm-red hover:underline mt-4 inline-block">
+          Back to Admin
         </Link>
       </div>
     )
@@ -28,10 +28,10 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-chm-black">Signed Document Record</h1>
+        <h1 className="font-serif text-3xl text-chm-black">Signed Document</h1>
         <Link
           href="/admin/signed-documents"
-          className="bg-gray-200 text-gray-700 px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-gray-300 transition-colors"
+          className="bg-gray-200 text-gray-700 px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-gray-300"
         >
           Back
         </Link>
