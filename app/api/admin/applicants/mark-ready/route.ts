@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { sendUserEmail } from '@/lib/email'
+import crypto from 'crypto'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
@@ -42,7 +43,11 @@ export async function PATCH(req: NextRequest) {
 
     const applicant = applicantData[0]
 
-    // Update status
+    // Generate secure token (valid for 30 days)
+    const claimToken = crypto.randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    // Update status + token
     const updateRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
       {
@@ -54,6 +59,8 @@ export async function PATCH(req: NextRequest) {
         },
         body: JSON.stringify({
           onboarding_status: 'ready_to_claim_shifts',
+          claim_shift_token: claimToken,
+          claim_shift_token_expires_at: expiresAt,
           updated_at: now,
         }),
       }
@@ -65,13 +72,15 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 })
     }
 
-    // Send email to applicant
+    // Send email with token link
+    const claimLink = `https://conveniencehubofmaryland.com/staff/available-shifts?token=${claimToken}`
+
     const emailHtml = `
       <p>Dear ${applicant.full_name},</p>
       <p>Great news! Your onboarding is complete and you are now ready to claim shifts with Convenience Hub of Maryland.</p>
       <p><strong>Your Position:</strong> ${applicant.position}</p>
       <p><strong>Next Step:</strong> Browse and claim shifts that work with your schedule:</p>
-      <p><a href="https://conveniencehubofmaryland.com/staff/available-shifts" style="display: inline-block; background-color: #c41e3a; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-radius: 4px;">Claim Your First Shift</a></p>
+      <p><a href="${claimLink}" style="display: inline-block; background-color: #c41e3a; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-radius: 4px;">Claim Your First Shift</a></p>
       <p>Remember:</p>
       <ul>
         <li>You only work shifts you actively claim through the portal</li>
