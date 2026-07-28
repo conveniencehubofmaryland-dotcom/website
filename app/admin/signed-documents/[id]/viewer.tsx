@@ -16,34 +16,62 @@ type Applicant = {
 export default function DocumentViewer({ docId }: { docId: string }) {
   const [applicant, setApplicant] = useState<Applicant | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const loadDocument = async () => {
       try {
+        console.log('[viewer] Starting load for docId:', docId)
         const res = await fetch(`/api/admin/signed-documents/${docId}`)
-        if (res.ok) {
-          const data = await res.json()
+        console.log('[viewer] API response status:', res.status)
+
+        if (!res.ok) {
+          const errText = await res.text()
+          console.error('[viewer] API error:', res.status, errText)
+          setError('Failed to load document')
+          setLoading(false)
+          return
+        }
+
+        const data = await res.json()
+        console.log('[viewer] Data received:', {
+          id: data.id,
+          full_name: data.full_name,
+          email: data.email,
+          phone: data.phone,
+          position: data.position,
+          orientation_accepted_at: data.orientation_accepted_at,
+          has_signature: !!data.full_signature,
+        })
+
+        if (data && data.full_name) {
           setApplicant(data)
+          setError('')
+        } else {
+          console.error('[viewer] Invalid data received')
+          setError('Document data incomplete')
         }
       } catch (err) {
-        console.error('Error:', err)
+        console.error('[viewer] Exception:', err)
+        setError('Error loading document')
       } finally {
         setLoading(false)
       }
     }
+
     loadDocument()
   }, [docId])
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>
+    return <div className="text-center py-12 text-gray-500">Loading document...</div>
   }
 
-  if (!applicant) {
+  if (error || !applicant) {
     return (
-      <div className="text-center">
-        <p className="text-red-600">Document not found.</p>
-        <Link href="/admin/signed-documents" className="text-chm-red hover:underline mt-4 inline-block">
-          Back
+      <div className="text-center py-8">
+        <p className="text-red-600 mb-4">{error || 'Document not found or not signed.'}</p>
+        <Link href="/admin/signed-documents" className="text-chm-red hover:underline">
+          Back to Signed Documents
         </Link>
       </div>
     )
@@ -86,19 +114,25 @@ I specifically acknowledge:
 `}
       </div>
 
-      {applicant.full_signature && (
+      {applicant.full_signature ? (
         <div className="mt-16 pt-8 border-t-2 border-gray-300">
           <h3 className="font-bold text-sm mb-4">EMPLOYEE SIGNATURE</h3>
           <div className="mb-6">
             <img
               src={applicant.full_signature}
-              alt="Signature"
+              alt={`Signature of ${applicant.full_name}`}
               style={{ maxWidth: '300px', maxHeight: '120px' }}
+              onError={() => console.error('[viewer] Signature image failed to load')}
+              onLoad={() => console.log('[viewer] Signature image loaded successfully')}
             />
           </div>
           <p className="text-xs text-gray-600"><strong>Signed:</strong> {signedDate}</p>
           <p className="text-xs text-gray-600 mt-2"><strong>By:</strong> {applicant.full_name}</p>
           <p className="text-xs text-gray-600 mt-2"><strong>Position:</strong> {applicant.position}</p>
+        </div>
+      ) : (
+        <div className="mt-16 pt-8 border-t-2 border-gray-300">
+          <p className="text-sm text-gray-500">No signature image found</p>
         </div>
       )}
 
