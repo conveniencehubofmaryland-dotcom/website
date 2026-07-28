@@ -150,12 +150,7 @@ export default async function SignedDocumentsPage() {
                       })}
                     </td>
                     <td className="py-3 px-4">
-                      
-                        href={downloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-chm-red hover:underline font-semibold text-xs"
-                      >
+                      <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="text-chm-red hover:underline font-semibold text-xs">
                         Download PDF
                       </a>
                     </td>
