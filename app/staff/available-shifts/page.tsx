@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 type Shift = {
@@ -50,7 +50,7 @@ export default function AvailableShifts() {
   const [authorized, setAuthorized] = useState(false)
   const searchParams = useSearchParams()
 
-  const checkStatus = useCallback(async () => {
+  const checkStatus = async () => {
     try {
       const urlToken = searchParams.get('token')
       let applicantId = getApplicantIdFromStorage()
@@ -95,11 +95,11 @@ export default function AvailableShifts() {
       setMessage('❌ Error verifying access')
       setLoading(false)
     }
-  }, [searchParams])
+  }
 
   useEffect(() => {
     checkStatus()
-  }, [checkStatus])
+  }, [searchParams])
 
   const fetchShifts = async () => {
     try {
