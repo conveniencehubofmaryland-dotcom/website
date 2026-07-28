@@ -18,7 +18,7 @@ export default function DocumentViewer({ docId }: { docId: string }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadDocument = async () => {
       try {
         const res = await fetch(`/api/admin/signed-documents/${docId}`)
         if (res.ok) {
@@ -31,7 +31,7 @@ export default function DocumentViewer({ docId }: { docId: string }) {
         setLoading(false)
       }
     }
-    fetch()
+    loadDocument()
   }, [docId])
 
   if (loading) {
