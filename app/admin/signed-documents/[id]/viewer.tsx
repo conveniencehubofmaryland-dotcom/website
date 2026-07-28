@@ -16,44 +16,34 @@ type Applicant = {
 export default function DocumentViewer({ docId }: { docId: string }) {
   const [applicant, setApplicant] = useState<Applicant | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchDocument = async () => {
+    const fetch = async () => {
       try {
-        console.log('[viewer] Fetching document:', docId)
         const res = await fetch(`/api/admin/signed-documents/${docId}`)
-        
-        console.log('[viewer] Response status:', res.status)
-
-        if (!res.ok) {
-          throw new Error('Document not found')
+        if (res.ok) {
+          const data = await res.json()
+          setApplicant(data)
         }
-
-        const data = await res.json()
-        console.log('[viewer] Document loaded:', data.full_name)
-        setApplicant(data)
       } catch (err) {
-        console.error('[viewer] Error:', err)
-        setError('Failed to load document')
+        console.error('Error:', err)
       } finally {
         setLoading(false)
       }
     }
-
-    fetchDocument()
+    fetch()
   }, [docId])
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading document...</div>
+    return <div className="text-center py-12 text-gray-500">Loading...</div>
   }
 
-  if (error || !applicant) {
+  if (!applicant) {
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-red-600 text-lg">Document not found or not signed.</p>
+      <div className="text-center">
+        <p className="text-red-600">Document not found.</p>
         <Link href="/admin/signed-documents" className="text-chm-red hover:underline mt-4 inline-block">
-          Back to Signed Documents
+          Back
         </Link>
       </div>
     )
