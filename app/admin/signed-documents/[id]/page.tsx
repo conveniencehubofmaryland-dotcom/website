@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 type Applicant = {
   id: string
@@ -13,8 +14,11 @@ type Applicant = {
   full_signature: string | null
 }
 
-export const metadata = {
-  title: 'Signed Document | CHM Admin',
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  return {
+    title: `Document - ${id} | CHM Admin`,
+  }
 }
 
 export default async function SignedDocumentPage({ params }: { params: Promise<{ id: string }> }) {
