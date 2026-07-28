@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 type Shift = {
   id: string
@@ -24,27 +24,6 @@ type ClaimForm = {
   phone: string
 }
 
-function getApplicantIdFromStorage(): string | null {
-  if (typeof window === 'undefined') return null
-  
-  let id = localStorage.getItem('applicant_id')
-  console.log('[available-shifts] localStorage.applicant_id:', id)
-  
-  if (id) return id
-  
-  const cookies = document.cookie.split(';')
-  const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-  if (applCookie) {
-    id = decodeURIComponent(applCookie.split('=')[1])
-    console.log('[available-shifts] cookie.applicant_id:', id)
-    localStorage.setItem('applicant_id', id)
-    return id
-  }
-  
-  console.log('[available-shifts] No applicant_id found in storage or cookies')
-  return null
-}
-
 export default function AvailableShiftsContent() {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,84 +31,45 @@ export default function AvailableShiftsContent() {
   const [claimingShiftId, setClaimingShiftId] = useState<string | null>(null)
   const [claimForm, setClaimForm] = useState<ClaimForm>({ name: '', email: '', phone: '' })
   const [authorized, setAuthorized] = useState(false)
-  const searchParams = useSearchParams()
 
   useEffect(() => {
-    checkStatus()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    checkAuthorization()
   }, [])
 
-  const checkStatus = async () => {
+  const checkAuthorization = async () => {
     try {
-      console.log('[available-shifts] === CHECK STATUS START ===')
-      
-      const urlToken = searchParams.get('token')
-      console.log('[available-shifts] URL token:', urlToken ? 'present' : 'missing')
-      
-      let applicantId = getApplicantIdFromStorage()
-      console.log('[available-shifts] applicantId from storage:', applicantId)
+      console.log('[available-shifts] Checking authorization...')
+      const token = localStorage.getItem('staff_session_token')
+      const email = localStorage.getItem('staff_email')
 
-      // If no applicant_id but token exists, verify token
-      if (!applicantId && urlToken) {
-        console.log('[available-shifts] Token present, verifying...')
-        try {
-          const verifyUrl = `/api/staff/claim-shift/verify-token?token=${urlToken}`
-          console.log('[available-shifts] Calling:', verifyUrl)
-          
-          const res = await fetch(verifyUrl)
-          console.log('[available-shifts] Verify response status:', res.status)
-          
-          if (res.ok) {
-            const data = await res.json()
-            console.log('[available-shifts] Verify response data:', data)
-            
-            applicantId = data.applicant_id
-            if (applicantId) {
-              console.log('[available-shifts] Storing applicant_id:', applicantId)
-              localStorage.setItem('applicant_id', applicantId)
-              localStorage.setItem('claim_shift_token', urlToken)
-              console.log('[available-shifts] Storage updated successfully')
-            }
-          } else {
-            const errText = await res.text()
-            console.error('[available-shifts] Verify failed:', res.status, errText)
-          }
-        } catch (err) {
-          console.error('[available-shifts] Token verification error:', err)
-        }
-      }
+      console.log('[available-shifts] Token:', token ? 'present' : 'missing')
+      console.log('[available-shifts] Email:', email)
 
-      if (!applicantId) {
-        console.log('[available-shifts] No applicant_id - showing access denied')
-        setMessage('❌ No applicant ID found. Please use the link sent to your email or complete onboarding first.')
+      if (!token || !email) {
+        console.log('[available-shifts] No session found, redirecting to login')
+        setMessage('❌ Please sign in to claim shifts.')
         setLoading(false)
         return
       }
 
-      console.log('[available-shifts] Checking onboarding status for:', applicantId)
-      const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
-      console.log('[available-shifts] Status check response:', res.status)
-      
+      // Verify token with server
+      const res = await fetch(`/api/staff/login/check?token=${token}`)
+      console.log('[available-shifts] Token check status:', res.status)
+
       if (res.ok) {
         const data = await res.json()
-        console.log('[available-shifts] Status check data:', data.onboarding_status)
-        
-        if (data.onboarding_status === 'ready_to_claim_shifts') {
-          console.log('[available-shifts] Authorization granted')
-          setAuthorized(true)
-          fetchShifts()
-        } else {
-          console.log('[available-shifts] Unauthorized status:', data.onboarding_status)
-          setMessage(`❌ You must complete onboarding first. Current status: ${data.onboarding_status}`)
-          setLoading(false)
-        }
+        console.log('[available-shifts] Authorization granted for:', data.email)
+        setAuthorized(true)
+        fetchShifts()
       } else {
-        console.error('[available-shifts] Status check failed:', res.status)
-        setMessage('❌ Unable to verify status. Please check your email for the claim shift link.')
+        console.log('[available-shifts] Token invalid or expired')
+        localStorage.removeItem('staff_session_token')
+        localStorage.removeItem('staff_email')
+        setMessage('❌ Session expired. Please sign in again.')
         setLoading(false)
       }
     } catch (error) {
-      console.error('[available-shifts] Status check exception:', error)
+      console.error('[available-shifts] Error:', error)
       setMessage('❌ Error verifying access')
       setLoading(false)
     }
@@ -186,24 +126,21 @@ export default function AvailableShiftsContent() {
     }
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('staff_session_token')
+    localStorage.removeItem('staff_email')
+    window.location.href = '/staff/claim-shifts-login'
+  }
+
   if (!authorized) {
     return (
       <div className="min-h-screen bg-gray-50 p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
             <h1 className="font-serif text-2xl text-red-700 mb-4">Access Restricted</h1>
-            <p className="text-red-600 mb-4">{message || 'You must complete the full onboarding process before claiming shifts.'}</p>
-            <p className="text-sm text-red-600 mb-6">Required steps:</p>
-            <ul className="text-sm text-red-600 space-y-2 mb-6 max-w-md mx-auto">
-              <li>✓ Complete welcome profile</li>
-              <li>✓ Read how CHM works</li>
-              <li>✓ Sign orientation</li>
-              <li>✓ Complete training modules (80%+ pass)</li>
-              <li>✓ Sign offer letter</li>
-              <li>✓ HR marks you Ready to Claim Shifts</li>
-            </ul>
-            <a href="/staff" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-              Back to Dashboard
+            <p className="text-red-600 mb-6">{message || 'You must sign in to claim shifts.'}</p>
+            <a href="/staff/claim-shifts-login" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              Sign In
             </a>
           </div>
         </div>
@@ -214,8 +151,18 @@ export default function AvailableShiftsContent() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2 text-red-600">Available Shifts</h1>
-        <p className="text-gray-600 mb-8">Browse and claim shifts below. You&apos;ll receive a confirmation email with all details.</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-red-600">Available Shifts</h1>
+            <p className="text-gray-600 mt-2">Browse and claim shifts below.</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-gray-300 text-gray-700 px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-gray-400 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
 
         {message && (
           <div className={`mb-6 p-4 rounded-lg ${message.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
