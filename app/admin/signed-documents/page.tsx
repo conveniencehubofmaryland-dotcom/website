@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
-import Link from 'next/link'
 
 type SignedApplicant = {
   id: string
@@ -11,13 +10,14 @@ type SignedApplicant = {
   type: 'orientation'
 }
 
-type SignedOfferLetter = {
+type OfferLetterRow = {
   id: string
   applicant_id: string
-  full_name: string
   position: string
   signed_at: string
-  type: 'offer_letter'
+  offer_letter_applicants: {
+    full_name: string
+  } | null
 }
 
 export const metadata = {
@@ -38,7 +38,7 @@ export default async function SignedDocumentsPage() {
     }
   )
 
-  const offerLetters = await dbSelectAuth<any>(
+  const offerLetters = await dbSelectAuth<OfferLetterRow>(
     'offer_letters',
     token,
     {
