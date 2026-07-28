@@ -23,7 +23,10 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
     const cookieStore = await cookies()
     const token = cookieStore.get('chm_admin')?.value ?? ''
 
+    console.log('[signed-doc] Loading document:', id)
+
     if (!token) {
+      console.log('[signed-doc] No admin token')
       return (
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <p className="text-red-600 text-lg">Admin authentication required.</p>
@@ -41,11 +44,13 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
         token,
         { select: '*' }
       )
-    } catch (err) {
-      console.error('Database error:', err)
+      console.log('[signed-doc] Fetched applicants:', applicants.length)
+    } catch (dbErr) {
+      console.error('[signed-doc] Database fetch error:', dbErr)
       return (
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <p className="text-red-600 text-lg">Database connection error.</p>
+          <p className="text-gray-600 text-sm mt-2">Please check admin logs.</p>
           <Link href="/admin/signed-documents" className="text-chm-red hover:underline mt-4 inline-block">
             Back to Documents
           </Link>
@@ -54,6 +59,7 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
     }
 
     const applicant = applicants.find(a => a.id === id)
+    console.log('[signed-doc] Found applicant:', applicant?.full_name)
 
     if (!applicant || !applicant.orientation_accepted_at) {
       return (
@@ -112,84 +118,16 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
 {`CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. COMPANY INFORMATION
-
-Welcome to the CHM Team
-
-Welcome to Convenience Hub of Maryland! We're thrilled to have you join our growing team of professionals dedicated to making everyday life more convenient, comfortable, and caring for the clients and families we serve across Maryland, Virginia, and Washington D.C.
-
-Our Mission
-To provide reliable, compassionate, and convenient support services that enhance the quality of life for our clients across Maryland, Virginia, and Washington D.C.
-
-Our Vision
-To be the most trusted comprehensive concierge and home management company in the Mid-Atlantic region.
-
-Our Core Values
-  • C – Compassion: We lead with care in every interaction with clients, families, and colleagues.
-  • H – Honesty: We do what's right, even when no one is watching. Integrity guides our decisions.
-  • M – Mindfulness: We are attentive, respectful, and dependable in every task we undertake.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-2. EMPLOYMENT BASICS
-
-Timekeeping & Attendance
-  • Be punctual. Arrive at least 15 minutes before your scheduled shift
-  • If you will be late or unable to make a shift, notify your supervisor at least 2 hours in advance
-
-Pay Schedule & Compensation
-  • You are paid every week (typically Fridays) for work completed in the prior week
-  • Your pay rate is based on your position, experience level, and certifications
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-3. POLICIES & CONDUCT
-
-Professionalism & Respect
-  • Treat clients, families, and co-workers with dignity and respect
-
-Zero Tolerance Policy
-CHM maintains a zero-tolerance policy for discrimination, harassment, violence, or substance abuse.
-
-Client Confidentiality
-You will have access to private client information. You must NEVER share client information on social media or with unauthorized parties.
-
-NO SOLICITATION POLICY
-Staff shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract for the duration of employment AND for 24 months after separation.
-
-Violation may result in legal action and liquidated damages.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-MEMORANDUM OF UNDERSTANDING
-CLIENT NON-SOLICITATION & CONFIDENTIALITY AGREEMENT
-
-NON-SOLICITATION & OUTSIDE WORK PROHIBITION
-
-Staff shall not, directly or indirectly:
-  1. Solicit, accept, or perform work for any CHM client outside of an official CHM contract
-  2. Engage in private dealings with any CHM client for services that CHM offers, for 24 months after separation
-  3. Share CHM client contact details with any third party for personal gain
-
-BREACH REMEDIES & CONSEQUENCES
-
-Violation of the non-solicitation agreement is a material breach.
-
-1. PAY LIQUIDATED DAMAGES OF $30,000.00 TO CHM
-2. FACE LEGAL ACTION FOR injunctive relief and recovery of damages
-3. AUTOMATIC TERMINATION
-
-CONFIDENTIALITY
-
-Staff shall keep all CHM information strictly confidential indefinitely.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 EMPLOYEE ACKNOWLEDGMENT
 
-By signing below, I acknowledge that I have read, understood, and agree to comply with all terms outlined in this Orientation Document and Memorandum of Understanding.
+By signing this document, I acknowledge that I have read, understood, and agree to comply with all terms outlined in this Orientation Document and Memorandum of Understanding.
+
+I specifically acknowledge:
+- I have received and reviewed the complete orientation document
+- I understand the non-solicitation policy and $30,000 liquidated damages clause
+- I understand the confidentiality requirements
+- I understand the transportation requirements for shift scheduling
+- I agree to comply with all CHM policies and procedures
 `}
           </div>
 
@@ -227,11 +165,11 @@ By signing below, I acknowledge that I have read, understood, and agree to compl
       </div>
     )
   } catch (error) {
-    console.error('Signed document page error:', error)
+    console.error('[signed-doc] Exception:', error)
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
         <p className="text-red-600 text-lg">An unexpected error occurred.</p>
-        <p className="text-gray-600 text-sm mt-2">Please try again or contact support.</p>
+        <p className="text-gray-600 text-sm mt-2">Error details have been logged.</p>
         <Link href="/admin/signed-documents" className="text-chm-red hover:underline mt-4 inline-block">
           Back to Documents
         </Link>
