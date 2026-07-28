@@ -119,52 +119,49 @@ export default async function SignedDocumentsPage() {
               </tr>
             </thead>
             <tbody>
-              {allDocuments.map(doc => (
-                <tr key={`${doc.type}-${doc.id}`} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <p className="font-semibold text-chm-black">{doc.full_name}</p>
-                  </td>
-                  <td className="py-3 px-4 text-gray-600">{doc.position}</td>
-                  <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
-                  <td className="py-3 px-4">
-                    <span className={`text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded ${
-                      doc.type === 'orientation' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-green-100 text-green-700'
-                    }`}>
-                      {doc.type === 'orientation' ? 'Orientation' : 'Offer Letter'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-xs text-gray-500">
-                    {new Date(doc.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </td>
-                  <td className="py-3 px-4">
-                    {doc.type === 'orientation' ? (
-                      <Link
-                        href={`/admin/signed-documents/${doc.id}`}
-                        className="text-chm-red hover:underline font-semibold text-xs"
-                      >
-                        View
-                      </Link>
-                    ) : (
+              {allDocuments.map(doc => {
+                const downloadUrl = doc.type === 'orientation' 
+                  ? `/api/admin/signed-documents/download/${doc.id}`
+                  : `/api/admin/offer-letters/download/${doc.id}`
+                
+                return (
+                  <tr key={`${doc.type}-${doc.id}`} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-3 px-4">
+                      <p className="font-semibold text-chm-black">{doc.full_name}</p>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">{doc.position}</td>
+                    <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
+                    <td className="py-3 px-4">
+                      <span className={`text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded ${
+                        doc.type === 'orientation' 
+                          ? 'bg-blue-100 text-blue-700' 
+                          : 'bg-green-100 text-green-700'
+                      }`}>
+                        {doc.type === 'orientation' ? 'Orientation' : 'Offer Letter'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-xs text-gray-500">
+                      {new Date(doc.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </td>
+                    <td className="py-3 px-4">
                       
-                        href={`/api/admin/offer-letters/download/${doc.id}`}
+                        href={downloadUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-chm-red hover:underline font-semibold text-xs"
                       >
                         Download PDF
                       </a>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
