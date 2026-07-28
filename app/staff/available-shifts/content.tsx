@@ -33,6 +33,7 @@ export default function AvailableShiftsContent() {
 
   useEffect(() => {
     checkAuthorization()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAuthorization = async () => {
