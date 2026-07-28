@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -46,7 +45,7 @@ export default function LoginPage() {
           <div className="bg-white p-8 shadow-sm rounded text-center">
             <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
             <h1 className="font-serif text-2xl text-chm-black mb-4">Check Your Email</h1>
-            <p className="text-gray-600 mb-6">We've sent a 6-digit verification code to:</p>
+            <p className="text-gray-600 mb-6">We&apos;ve sent a 6-digit verification code to:</p>
             <p className="font-semibold text-gray-900 mb-6">{email}</p>
             <p className="text-sm text-gray-500">Redirecting to verification page...</p>
           </div>
