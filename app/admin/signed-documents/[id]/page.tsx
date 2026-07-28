@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import DocumentViewer from './viewer'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -36,15 +37,9 @@ export default async function SignedDocumentPage({ params }: { params: Promise<{
         </Link>
       </div>
 
-      <div className="bg-white p-12 shadow-sm" style={{ fontFamily: 'Georgia, serif' }} id="document-content">
-        <DocumentContent docId={id} />
+      <div className="bg-white p-12 shadow-sm" style={{ fontFamily: 'Georgia, serif' }}>
+        <DocumentViewer docId={id} />
       </div>
     </div>
-  )
-}
-
-function DocumentContent({ docId }: { docId: string }) {
-  return (
-    <div>Loading document...</div>
   )
 }
