@@ -2,6 +2,7 @@
 'use client'
 
 import { useState } from 'react'
+import { bundles } from '@/lib/bundles'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
@@ -208,7 +209,7 @@ export default function QuoteForm() {
     )
   }
 
-  // ---------- STEP 1: CATEGORY ----------
+  // ---------- STEP 1: CATEGORY OR BUNDLE ----------
   if (step === 1) {
     const options: { id: Category; title: string; desc: string }[] = [
       { id: 'cleaning', title: 'Cleaning & Estate Care', desc: 'Standard, deep, or move-in/move-out cleaning' },
@@ -219,9 +220,106 @@ export default function QuoteForm() {
       { id: 'commercial', title: 'Commercial Cleaning', desc: "We'll send you a custom quote" },
       { id: 'special', title: 'Special Project / Event', desc: "We'll send you a custom quote" },
     ]
+
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-4xl space-y-12">
         <ProgressBar current={1} />
+
+        {/* Bundle Section */}
+        <div className="space-y-6">
+          <div>
+            <p className={labelClass}>💡 Save Up to 20% with Our Popular Bundles</p>
+            <p className="text-sm text-gray-600 mb-4">Start with a curated bundle or customize with individual services below.</p>
+          </div>
+
+          {/* Residential Bundles */}
+          <div>
+            <h3 className="font-semibold text-chm-black mb-3 text-sm uppercase tracking-widest">Residential</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {bundles.filter(b => b.category === 'residential').map(bundle => (
+                <button
+                  key={bundle.id}
+                  type="button"
+                  onClick={() => {
+                    setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice })
+                    setCategory('')
+                    setStep(3)
+                  }}
+                  className="text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-3 transition-colors group"
+                >
+                  <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors text-sm">{bundle.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 2).join(' + ')}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm font-bold text-chm-red">${bundle.bundlePrice}/mo</span>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1">Save {bundle.savingsPercent}%</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Family & Senior Care */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {['family', 'senior'].map(cat => {
+              const bundle = bundles.find(b => b.category === cat)
+              if (!bundle) return null
+              return (
+                <div key={cat}>
+                  <h3 className="font-semibold text-chm-black mb-3 text-sm uppercase tracking-widest">{cat === 'family' ? 'Family with Children' : 'Senior Care'}</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice })
+                      setCategory('')
+                      setStep(3)
+                    }}
+                    className="w-full text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-4 transition-colors group"
+                  >
+                    <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors">{bundle.name}</p>
+                    <p className="text-xs text-gray-500 mt-2">{bundle.services.join(' • ')}</p>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-sm font-bold text-chm-red">${bundle.bundlePrice}/mo</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1">Save {bundle.savingsPercent}%</span>
+                    </div>
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Commercial Bundles */}
+          <div>
+            <h3 className="font-semibold text-chm-black mb-3 text-sm uppercase tracking-widest">Commercial</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {bundles.filter(b => b.category === 'commercial').map(bundle => (
+                <button
+                  key={bundle.id}
+                  type="button"
+                  onClick={() => {
+                    setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice || 0 })
+                    setCategory('')
+                    setStep(3)
+                  }}
+                  className="text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-3 transition-colors group"
+                >
+                  <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors text-sm">{bundle.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 1).join(', ')}...</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm font-bold text-chm-red">
+                      {bundle.bundlePrice > 0 ? `$${bundle.bundlePrice}/mo` : 'Custom Quote'}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 pt-8">
+            <p className="text-sm text-gray-600 mb-4">Prefer to customize? Choose individual services below:</p>
+          </div>
+        </div>
+
+        {/* Individual Services */}
         <div className="space-y-4">
           <p className={labelClass}>What service are you interested in?</p>
           {options.map(o => (
@@ -761,29 +859,51 @@ export default function QuoteForm() {
 
   // ---------- STEP 3: REVIEW ----------
   if (step === 3) {
-    const lines = summarizeSelections(category, sel)
+    const isBundle = sel.bundleId
+    const lines = isBundle ? [] : summarizeSelections(category, sel)
+    
     return (
       <div className="max-w-2xl">
         <ProgressBar current={3} />
         <div className="space-y-6">
           <div className="border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-semibold text-chm-black">{CATEGORY_TITLES[category] || 'Your Request'}</p>
-              <button type="button" onClick={() => setStep(2)} className="text-xs text-chm-red hover:underline uppercase tracking-widest">
-                Edit
+              <p className="font-semibold text-chm-black">
+                {isBundle ? sel.bundleName : CATEGORY_TITLES[category] || 'Your Request'}
+              </p>
+              <button type="button" onClick={() => setStep(1)} className="text-xs text-chm-red hover:underline uppercase tracking-widest">
+                Change
               </button>
             </div>
-            <ul className="space-y-2 text-sm text-gray-600">
-              {lines.map((l, i) => <li key={i}>• {l}</li>)}
-            </ul>
+
+            {isBundle ? (
+              <div className="space-y-4">
+                <div className="bg-cream p-4 rounded">
+                  <p className="text-sm text-gray-600 mb-3">Bundle includes:</p>
+                  <ul className="space-y-1">
+                    {bundles.find(b => b.id === sel.bundleId)?.services.map((svc, i) => (
+                      <li key={i} className="text-sm text-gray-700">✓ {svc}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="bg-green-50 border border-green-200 p-4 rounded">
+                  <p className="text-xs text-green-600 uppercase tracking-widest font-semibold mb-1">Savings Included</p>
+                  <p className="text-2xl font-bold text-green-700">${sel.bundlePrice}/month</p>
+                </div>
+              </div>
+            ) : (
+              <ul className="space-y-2 text-sm text-gray-600">
+                {lines.map((l, i) => <li key={i}>• {l}</li>)}
+              </ul>
+            )}
           </div>
 
           <p className="text-xs text-gray-400">
-            Everything look right? Continue to get your {(category === 'commercial' || category === 'special') ? 'custom quote request' : 'instant estimate'}.
+            Everything look right? Continue to get your {isBundle ? 'bundle quote' : (category === 'commercial' || category === 'special') ? 'custom quote request' : 'instant estimate'}.
           </p>
 
           <div className="flex gap-4 pt-2">
-            <button type="button" onClick={() => setStep(2)} className={backBtnClass}>Back</button>
+            <button type="button" onClick={() => setStep(1)} className={backBtnClass}>Back</button>
             <button type="button" onClick={() => setStep(4)} className={btnClass}>Looks Good, Continue</button>
           </div>
         </div>
