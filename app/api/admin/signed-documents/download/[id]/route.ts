@@ -61,7 +61,7 @@ export async function GET(
             <h2>EMPLOYEE INFORMATION</h2>
             <p><strong>Name:</strong> ${applicant.full_name}</p>
             <p><strong>Position:</strong> ${applicant.position}</p>
-            <p><strong>Email:</strong> ${applicant.email}</p>
+            <p><strong>Email:</strong> <span style="color: #000; text-decoration: none;">${String(applicant.email || 'N/A').replace(/[\[\]]/g, '')}</span></p>
             <p><strong>Phone:</strong> ${applicant.phone}</p>
             <p><strong>Address:</strong> ${applicant.address || 'Not provided'}</p>
             <p><strong>Date Signed:</strong> ${signedDate}</p>
