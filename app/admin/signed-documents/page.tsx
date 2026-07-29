@@ -17,6 +17,7 @@ type OfferLetterRow = {
   signed_at: string
   offer_letter_applicants: {
     full_name: string
+    email: string
   } | null
 }
 
@@ -42,7 +43,7 @@ export default async function SignedDocumentsPage() {
     'offer_letters',
     token,
     {
-      select: 'id,applicant_id,position,signed_at,offer_letter_applicants(full_name)',
+      select: 'id,applicant_id,position,signed_at,offer_letter_applicants(full_name,email)',
       order: 'signed_at.desc',
     }
   )
@@ -62,6 +63,7 @@ export default async function SignedDocumentsPage() {
       id: o.id,
       applicant_id: o.applicant_id,
       full_name: o.offer_letter_applicants?.full_name || 'Unknown',
+      email: o.offer_letter_applicants?.email || '',
       position: o.position,
       signed_at: o.signed_at,
       type: 'offer_letter' as const,
@@ -128,7 +130,7 @@ export default async function SignedDocumentsPage() {
                   <tr key={`${doc.type}-${doc.id}`} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <p className="font-semibold text-chm-black">{doc.full_name}</p>
-                    </td>
+                    <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
                     <td className="py-3 px-4 text-gray-600">{doc.position}</td>
                     <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
                     <td className="py-3 px-4">
