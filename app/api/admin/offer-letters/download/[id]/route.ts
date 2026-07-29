@@ -83,7 +83,7 @@ export async function GET(
               </tr>
               <tr>
                 <td><strong>Email:</strong></td>
-                <td>${applicant?.email || 'N/A'}</td>
+                <td><span style="color: #000; text-decoration: none;">${String(applicant?.email || 'N/A').replace(/[\[\]]/g, '')}</span></td>
               </tr>
               <tr>
                 <td><strong>Phone:</strong></td>
