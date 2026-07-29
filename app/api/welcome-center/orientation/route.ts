@@ -3,7 +3,7 @@ import { sendUserEmail } from '@/lib/email'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
-  const { applicant_id, full_name, email, signature } = body
+  const { applicant_id, full_name, email, signature, signature_name } = body
 
   if (!applicant_id || !full_name || !email || !signature) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -11,7 +11,6 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const now = new Date().toISOString()
-
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
       {
@@ -25,6 +24,7 @@ export async function PATCH(req: NextRequest) {
           orientation_accepted: true,
           orientation_accepted_at: now,
           full_signature: signature,
+          signature_name: signature_name || null,
           onboarding_status: 'orientation_signed',
           updated_at: now,
         }),
