@@ -82,7 +82,10 @@ export async function GET(
 
           <div class="signature-section">
             <h2>EMPLOYEE SIGNATURE</h2>
-            ${applicant.full_signature ? `<img src="${applicant.full_signature}" alt="Signature">` : '<p>No signature available</p>'}
+            ${applicant.full_signature ? `<img src="${applicant.full_signature}" alt="Signature" style="margin-bottom: 20px;">` : '<p>No signature available</p>'}
+            <p style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px;">
+              <strong>Signature Name:</strong> ${applicant.signature_name || applicant.full_name}
+            </p>
             <p><strong>Signed:</strong> ${signedDate}</p>
             <p><strong>By:</strong> ${applicant.full_name}</p>
             <p><strong>Position:</strong> ${applicant.position}</p>
