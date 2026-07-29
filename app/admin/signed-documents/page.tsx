@@ -130,7 +130,7 @@ export default async function SignedDocumentsPage() {
                   <tr key={`${doc.type}-${doc.id}`} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <p className="font-semibold text-chm-black">{doc.full_name}</p>
-                    <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
+                    </td>
                     <td className="py-3 px-4 text-gray-600">{doc.position}</td>
                     <td className="py-3 px-4 text-gray-600">{doc.email || 'N/A'}</td>
                     <td className="py-3 px-4">
