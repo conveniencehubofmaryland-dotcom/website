@@ -306,9 +306,9 @@ export default function QuoteForm() {
                     className="text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-3 transition-colors group"
                   >
                     <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors text-sm">{bundle.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 2).join(' + ')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 2).map(s => s.name).join(' + ')}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm font-bold text-chm-red">${bundle.bundlePrice}/mo</span>
+                      <span className="text-sm font-bold text-chm-red">${bundle.price}/mo</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-1">Save {bundle.savingsPercent}%</span>
                     </div>
                   </button>
@@ -334,9 +334,9 @@ export default function QuoteForm() {
                       className="w-full text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-4 transition-colors group"
                     >
                       <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors">{bundle.name}</p>
-                      <p className="text-xs text-gray-500 mt-2">{bundle.services.join(' • ')}</p>
+                      <p className="text-xs text-gray-500 mt-2">{bundle.services.map(s => s.name).join(' • ')}</p>
                       <div className="flex items-center justify-between mt-3">
-                        <span className="text-sm font-bold text-chm-red">${bundle.bundlePrice}/mo</span>
+                        <span className="text-sm font-bold text-chm-red">${bundle.price}/mo</span>
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1">Save {bundle.savingsPercent}%</span>
                       </div>
                     </button>
@@ -361,10 +361,10 @@ export default function QuoteForm() {
                     className="text-left border-2 border-gray-200 hover:border-chm-red hover:bg-cream px-4 py-3 transition-colors group"
                   >
                     <p className="font-semibold text-chm-black group-hover:text-chm-red transition-colors text-sm">{bundle.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 1).join(', ')}...</p>
+                    <p className="text-xs text-gray-500 mt-1">{bundle.services.slice(0, 1).map(s => s.name).join(', ')}...</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm font-bold text-chm-red">
-                        {bundle.bundlePrice > 0 ? `$${bundle.bundlePrice}/mo` : 'Custom Quote'}
+                        {bundle.price > 0 ? `$${bundle.price}/mo` : 'Custom Quote'}
                       </span>
                     </div>
                   </button>
