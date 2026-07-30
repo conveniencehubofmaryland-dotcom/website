@@ -105,6 +105,35 @@ export default function ManageShifts() {
     }
   }
 
+  const handleMarkNoShow = async (shiftId: string, applicantId: string) => {
+  if (!confirm('Mark this shift as a no-show? This will be logged.')) return
+
+  try {
+    const res = await fetch('/api/admin/shifts/mark-noshow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        applicant_id: applicantId,
+        shift_id: shiftId,
+        notes: '',
+      }),
+    })
+
+    const data = await res.json()
+
+    if (res.ok) {
+      alert(`✓ No-show recorded\n${data.applicant_name} now has ${data.no_show_count} no-shows\n${data.warning || ''}`)
+      // Refresh shifts list
+      window.location.reload()
+    } else {
+      alert(`Error: ${data.error}`)
+    }
+  } catch (err) {
+    alert('Failed to mark no-show')
+    console.error(err)
+  }
+}
+  
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this shift?')) return
 
@@ -292,6 +321,13 @@ export default function ManageShifts() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
+                        <button
+                        onClick={() => handleMarkNoShow(shift.id, applicant_id)}
+                        className="text-xs px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded transition-colors font-semibold"
+                        title="Mark as no-show - will increment no-show counter"
+                      >
+                          Mark No-Show
+                      </button>
                         <button 
                           onClick={() => handleDelete(shift.id)}
                           className="text-red-600 hover:text-red-800 font-semibold"
