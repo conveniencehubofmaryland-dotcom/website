@@ -62,9 +62,10 @@ export default function SupportPage() {
               <details className="bg-cream p-4 rounded-lg cursor-pointer group">
                 <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
                   When do I get paid?
-                </summary>
+                 </summary>
                 <div className="text-sm text-gray-600 mt-3">
                   You&apos;re paid weekly, typically on Fridays, for work completed in the prior week. Payment is direct deposit to the account you provided during onboarding.
+                </div>
               </details>
 
               <details className="bg-cream p-4 rounded-lg cursor-pointer group">
