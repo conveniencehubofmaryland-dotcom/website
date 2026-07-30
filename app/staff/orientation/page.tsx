@@ -3,7 +3,6 @@ import OrientationForm from '@/components/OrientationForm'
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
 New Employee Orientation Document & Memorandum of Understanding
 
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 1. COMPANY INFORMATION
@@ -363,16 +362,19 @@ export default async function OrientationPage({ searchParams }: { searchParams: 
           <p className="text-lg font-semibold text-chm-black">{position}</p>
           <p className="text-xs text-gray-500 mt-2">This position cannot be changed. If this is incorrect, please start over.</p>
         </div>
+
         <div className="mb-8">
           <div className="w-12 h-px bg-chm-red mb-6" />
           <h1 className="font-serif text-3xl text-chm-black mb-2">Employee Orientation</h1>
           <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
         </div>
+
         <div className="bg-white p-12 shadow-sm mb-8 border border-gray-200">
           <div className="whitespace-pre-wrap break-words max-h-[600px] overflow-y-auto pr-4 text-sm leading-relaxed text-gray-700 font-sans">
             {ORIENTATION_DOCUMENT}
           </div>
         </div>
+
         <OrientationForm position={position} applicantId={applicantId} />
       </div>
     </div>
