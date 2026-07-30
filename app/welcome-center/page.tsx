@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 const POSITIONS = [
   'Cleaning Specialist',
@@ -20,7 +20,6 @@ const SEX_OPTIONS = [
 ]
 
 export default function WelcomeCenterPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const invite_token = searchParams.get('invite')
 
@@ -41,7 +40,7 @@ export default function WelcomeCenterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
-    
+
     if (type === 'checkbox') {
       setFormData(prev => ({
         ...prev,
@@ -113,7 +112,7 @@ export default function WelcomeCenterPage() {
             </p>
             <div className="bg-cream p-6 rounded-lg mb-8">
               <p className="text-sm text-gray-700 mb-4">
-                Check your email for next steps. You'll receive:
+                Check your email for next steps. You&apos;ll receive:
               </p>
               <ul className="text-left space-y-2 text-sm text-gray-700">
                 <li>✓ Orientation document to review and sign</li>
@@ -202,7 +201,9 @@ export default function WelcomeCenterPage() {
             >
               <option value="">Select…</option>
               {SEX_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </div>
@@ -236,7 +237,9 @@ export default function WelcomeCenterPage() {
             >
               <option value="">Select…</option>
               {POSITIONS.map(pos => (
-                <option key={pos} value={pos}>{pos}</option>
+                <option key={pos} value={pos}>
+                  {pos}
+                </option>
               ))}
             </select>
           </div>
