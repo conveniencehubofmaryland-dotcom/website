@@ -1,105 +1,180 @@
-export type Bundle = {
-  id: string
+export interface BundleService {
   name: string
-  category: 'residential' | 'family' | 'senior' | 'commercial'
-  services: string[]
-  regularPrice: number
-  bundlePrice: number
-  savingsPercent: number
-  description?: string
+  frequency?: string
 }
 
-export const bundles: Bundle[] = [
-  // Residential Bundles
+export interface Bundle {
+  id: string
+  category: 'residential' | 'family' | 'senior' | 'commercial'
+  name: string
+  price: number
+  savingsPercent: number
+  services: BundleService[]
+  description: string
+  highlighted?: boolean
+}
+
+export const BUNDLES: Bundle[] = [
+  // Residential
   {
-    id: 'essentials',
-    name: 'The Essentials Bundle',
+    id: 'res-starter',
     category: 'residential',
-    services: ['Weekly Standard Cleaning', 'Bi-Weekly Laundry'],
-    regularPrice: 1500,
-    bundlePrice: 1200,
+    name: 'Starter',
+    price: 800,
+    savingsPercent: 15,
+    description: 'Perfect for basic cleaning maintenance',
+    services: [
+      { name: 'Weekly Standard Cleaning', frequency: 'Weekly' },
+    ],
+  },
+  {
+    id: 'res-essentials',
+    category: 'residential',
+    name: 'Essentials',
+    price: 1200,
     savingsPercent: 20,
-    description: 'Perfect for busy professionals'
+    description: 'Cleaning + laundry for busy professionals',
+    highlighted: true,
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Bi-Weekly Laundry Pickup & Delivery', frequency: 'Bi-Weekly' },
+    ],
   },
   {
-    id: 'comfort',
-    name: 'The Comfort Bundle',
+    id: 'res-professional',
     category: 'residential',
-    services: ['Bi-Weekly Cleaning', 'Weekly Meal Prep', 'Monthly Organization'],
-    regularPrice: 3000,
-    bundlePrice: 2700,
-    savingsPercent: 10,
-    description: 'Balanced comfort and care'
+    name: 'Professional',
+    price: 2100,
+    savingsPercent: 18,
+    description: 'Comprehensive home management solution',
+    services: [
+      { name: 'Bi-Weekly Cleaning', frequency: 'Bi-Weekly' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Monthly Laundry Organization', frequency: 'Monthly' },
+    ],
   },
   {
-    id: 'luxury',
-    name: 'The Luxury Bundle',
+    id: 'res-complete',
     category: 'residential',
-    services: ['Weekly Cleaning', 'Bi-Weekly Laundry', '3x/Week Meal Prep', 'Bi-Weekly Nanny', 'Monthly Organization'],
-    regularPrice: 6000,
-    bundlePrice: 5400,
-    savingsPercent: 10,
-    description: 'Complete luxury home management'
+    name: 'Complete Living',
+    price: 3600,
+    savingsPercent: 22,
+    description: 'Full-service luxury home care package',
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Bi-Weekly Laundry Pickup & Delivery', frequency: 'Bi-Weekly' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Monthly Organization & Decluttering', frequency: 'Monthly' },
+    ],
   },
-  // Family Care Bundle
+
+  // Family with Children
   {
-    id: 'family-care',
-    name: 'Family Care Bundle',
+    id: 'fam-essentials',
     category: 'family',
-    services: ['Weekly Cleaning', 'Bi-Weekly Childcare (16 hrs)', 'Weekly Meal Prep', 'Monthly Organization'],
-    regularPrice: 4500,
-    bundlePrice: 4050,
-    savingsPercent: 10,
-    description: 'Everything you need for growing families'
+    name: 'Family Essentials',
+    price: 2400,
+    savingsPercent: 16,
+    description: 'Home + childcare support for growing families',
+    services: [
+      { name: 'Bi-Weekly Cleaning', frequency: 'Bi-Weekly' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Bi-Weekly Childcare', frequency: '8 hours/week' },
+    ],
   },
-  // Senior Care Bundle
   {
-    id: 'senior-care',
-    name: 'Senior Care Bundle',
+    id: 'fam-care',
+    category: 'family',
+    name: 'Family Care',
+    price: 4050,
+    savingsPercent: 10,
+    description: 'Comprehensive family support with full childcare',
+    highlighted: true,
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Bi-Weekly Childcare', frequency: '16 hours/week' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Monthly Organization', frequency: 'Monthly' },
+    ],
+  },
+
+  // Senior Care
+  {
+    id: 'senior-companion',
     category: 'senior',
-    services: ['Weekly Cleaning', '20 hrs/week Companion Care', 'Weekly Meal Prep', 'Monthly Organization'],
-    regularPrice: 5000,
-    bundlePrice: 4500,
-    savingsPercent: 10,
-    description: 'Compassionate care for elderly parents'
+    name: 'Senior Companion',
+    price: 2700,
+    savingsPercent: 14,
+    description: 'Home care with companion support',
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Companion Care', frequency: '10 hours/week' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+    ],
   },
-  // Commercial Bundles
   {
-    id: 'small-office',
+    id: 'senior-premium',
+    category: 'senior',
+    name: 'Senior Care Premium',
+    price: 4500,
+    savingsPercent: 10,
+    description: 'Premium senior living support package',
+    highlighted: true,
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Companion Care', frequency: '20 hours/week' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Monthly Organization & Medication Management', frequency: 'Monthly' },
+    ],
+  },
+
+  // Commercial
+  {
+    id: 'com-small',
+    category: 'commercial',
     name: 'Small Office Complete',
-    category: 'commercial',
-    services: ['3x/week Janitorial', 'Weekly Window Cleaning', 'Monthly Floor Maintenance'],
-    regularPrice: 3000,
-    bundlePrice: 2700,
-    savingsPercent: 10,
-    description: 'Perfect for startup offices'
-  },
-  {
-    id: 'medium-office',
-    name: 'Medium Office Premium',
-    category: 'commercial',
-    services: ['5x/week Janitorial', '2x/week Windows', '2x/month Deep Clean', 'Monthly Floor Maintenance'],
-    regularPrice: 5000,
-    bundlePrice: 4500,
-    savingsPercent: 10,
-    description: 'Comprehensive office management'
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise Comprehensive',
-    category: 'commercial',
-    services: ['Daily Janitorial', 'Weekly Specialized Services', 'Monthly Floor Care', 'Quarterly Deep Clean'],
-    regularPrice: 0, // Custom quote
-    bundlePrice: 0,
+    price: 2700,
     savingsPercent: 0,
-    description: 'Custom enterprise solutions'
+    description: 'Professional cleaning for small offices',
+    services: [
+      { name: 'Janitorial Service', frequency: '3x per week' },
+      { name: 'Restroom & Kitchen Sanitization', frequency: '3x per week' },
+    ],
+  },
+  {
+    id: 'com-medium',
+    category: 'commercial',
+    name: 'Medium Office Premium',
+    price: 4500,
+    savingsPercent: 0,
+    description: 'Comprehensive service for growing offices',
+    services: [
+      { name: 'Janitorial Service', frequency: '5x per week' },
+      { name: 'Restroom & Kitchen Sanitization', frequency: '5x per week' },
+      { name: 'Floor Maintenance & Waxing', frequency: 'Monthly' },
+    ],
+  },
+  {
+    id: 'com-enterprise',
+    category: 'commercial',
+    name: 'Enterprise Comprehensive',
+    price: 0,
+    savingsPercent: 0,
+    description: 'Custom enterprise solutions (call for pricing)',
+    services: [
+      { name: 'Daily Janitorial Service' },
+      { name: 'Deep Cleaning & Maintenance' },
+      { name: 'Custom Services & Special Projects' },
+      { name: 'Dedicated Account Manager' },
+    ],
   },
 ]
 
-export function getBundlesByCategory(category: Bundle['category']): Bundle[] {
-  return bundles.filter(b => b.category === category)
+export const getBundlesByCategory = (category: Bundle['category']) => {
+  return BUNDLES.filter(b => b.category === category)
 }
 
-export function getBundlesByService(service: string): Bundle[] {
-  return bundles.filter(b => b.services.some(s => s.toLowerCase().includes(service.toLowerCase())))
+export const formatPrice = (price: number) => {
+  if (price === 0) return 'Custom Quote'
+  return `$${price.toLocaleString()}/mo`
 }
