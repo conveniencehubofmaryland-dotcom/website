@@ -5,7 +5,7 @@ export default function SupportPage() {
         <div className="mb-8">
           <div className="w-12 h-px bg-chm-red mb-6" />
           <h1 className="font-serif text-4xl text-chm-black mb-2">Support</h1>
-          <p className="text-gray-600">We're here to help. Get answers to common questions or contact our team.</p>
+          <p className="text-gray-600">We&apos;re here to help. Get answers to common questions or contact our team.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -55,7 +55,7 @@ export default function SupportPage() {
                   How do I claim a shift?
                 </summary>
                 <div className="text-sm text-gray-600 mt-3">
-                  Visit the <strong>Available Shifts</strong> section, browse open shifts, and click <strong>Claim Shift</strong>. You'll receive a confirmation email with all details.
+                  Visit the <strong>Available Shifts</strong> section, browse open shifts, and click <strong>Claim Shift</strong>. You&apos;ll receive a confirmation email with all details.
                 </div>
               </details>
 
@@ -64,8 +64,7 @@ export default function SupportPage() {
                   When do I get paid?
                 </summary>
                 <div className="text-sm text-gray-600 mt-3">
-                  You're paid weekly, typically on Fridays, for work completed in the prior week. Payment is direct deposit to the account you provided during onboarding.
-                </div>
+                  You&apos;re paid weekly, typically on Fridays, for work completed in the prior week. Payment is direct deposit to the account you provided during onboarding.
               </details>
 
               <details className="bg-cream p-4 rounded-lg cursor-pointer group">
@@ -79,7 +78,7 @@ export default function SupportPage() {
 
               <details className="bg-cream p-4 rounded-lg cursor-pointer group">
                 <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  What if I can't make a claimed shift?
+                  What if I can&apos;t make a claimed shift?
                 </summary>
                 <div className="text-sm text-gray-600 mt-3">
                   Notify HR as soon as possible. Repeated no-shows may affect your access to shifts. We understand emergencies happen—communicate with us.
