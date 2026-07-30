@@ -50,51 +50,51 @@ export default function SupportPage() {
             </div>
 
             <div className="space-y-4">
-              <details className="bg-cream p-4 rounded-lg cursor-pointer group">
-                <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  How do I claim a shift?
-                </summary>
-                <div className="text-sm text-gray-600 mt-3">
-                  Visit the <strong>Available Shifts</strong> section, browse open shifts, and click <strong>Claim Shift</strong>. You&apos;ll receive a confirmation email with all details.
-                </div>
-              </details>
+  <details className="bg-cream p-4 rounded-lg cursor-pointer group">
+    <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
+      How do I claim a shift?
+    </summary>
+    <div className="text-sm text-gray-600 mt-3">
+      Visit the <strong>Available Shifts</strong> section, browse open shifts, and click <strong>Claim Shift</strong>. You&apos;ll receive a confirmation email with all details.
+    </div>
+  </details>
 
-              <details className="bg-cream p-4 rounded-lg cursor-pointer group">
-                <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  When do I get paid?
-                 </summary>
-                <div className="text-sm text-gray-600 mt-3">
-                  You&apos;re paid weekly, typically on Fridays, for work completed in the prior week. Payment is direct deposit to the account you provided during onboarding.
-                </div>
-              </details>
+  <details className="bg-cream p-4 rounded-lg cursor-pointer group">
+    <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
+      When do I get paid?
+    </summary>
+    <div className="text-sm text-gray-600 mt-3">
+      You&apos;re paid weekly, typically on Fridays, for work completed in the prior week. Payment is direct deposit to the account you provided during onboarding.
+    </div>
+  </details>
 
-              <details className="bg-cream p-4 rounded-lg cursor-pointer group">
-                <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  How do I cancel or reschedule a shift?
-                </summary>
-                <div className="text-sm text-gray-600 mt-3">
-                  Contact HR at least 2 hours before your shift start time. Call <strong>202-579-2944</strong> or email <strong>conveniencehubofmaryland@gmail.com</strong> with your shift details.
-                </div>
-              </details>
+  <details className="bg-cream p-4 rounded-lg cursor-pointer group">
+    <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
+      How do I cancel or reschedule a shift?
+    </summary>
+    <div className="text-sm text-gray-600 mt-3">
+      Contact HR at least 2 hours before your shift start time. Call <strong>202-579-2944</strong> or email <strong>conveniencehubofmaryland@gmail.com</strong> with your shift details.
+    </div>
+  </details>
 
-              <details className="bg-cream p-4 rounded-lg cursor-pointer group">
-                <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  What if I can&apos;t make a claimed shift?
-                </summary>
-                <div className="text-sm text-gray-600 mt-3">
-                  Notify HR as soon as possible. Repeated no-shows may affect your access to shifts. We understand emergencies happen—communicate with us.
-                </div>
-              </details>
+  <details className="bg-cream p-4 rounded-lg cursor-pointer group">
+    <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
+      What if I can&apos;t make a claimed shift?
+    </summary>
+    <div className="text-sm text-gray-600 mt-3">
+      Notify HR as soon as possible. Repeated no-shows may affect your access to shifts. We understand emergencies happen—communicate with us.
+    </div>
+  </details>
 
-              <details className="bg-cream p-4 rounded-lg cursor-pointer group">
-                <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
-                  How do I reset my password?
-                </summary>
-                <div className="text-sm text-gray-600 mt-3">
-                  Use the <strong>Forgot Password</strong> link on the login page, or contact HR for assistance resetting your account access.
-                </div>
-              </details>
-            </div>
+  <details className="bg-cream p-4 rounded-lg cursor-pointer group">
+    <summary className="font-semibold text-chm-black text-sm select-none hover:text-chm-red transition-colors">
+      How do I reset my password?
+    </summary>
+    <div className="text-sm text-gray-600 mt-3">
+      Use the <strong>Forgot Password</strong> link on the login page, or contact HR for assistance resetting your account access.
+    </div>
+  </details>
+</div>
           </div>
         </div>
 
