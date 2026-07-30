@@ -299,7 +299,7 @@ export default function QuoteForm() {
                     key={bundle.id}
                     type="button"
                     onClick={() => {
-                      setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice })
+                      setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.price })
                       setCategory('')
                       setStep(3)
                     }}
@@ -327,7 +327,7 @@ export default function QuoteForm() {
                     <button
                       type="button"
                       onClick={() => {
-                        setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice })
+                        setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.price })
                         setCategory('')
                         setStep(3)
                       }}
@@ -354,7 +354,7 @@ export default function QuoteForm() {
                     key={bundle.id}
                     type="button"
                     onClick={() => {
-                      setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.bundlePrice || 0 })
+                      setSel({ bundleId: bundle.id, bundleName: bundle.name, bundlePrice: bundle.price || 0 })
                       setCategory('')
                       setStep(3)
                     }}
@@ -928,8 +928,11 @@ export default function QuoteForm() {
                 <div className="bg-cream p-4 rounded">
                   <p className="text-sm text-gray-600 mb-3">Bundle includes:</p>
                   <ul className="space-y-1">
-                    {BUNDLES.find(b => b.id === sel.bundleId)?.services.map((svc, i) => (
-                      <li key={i} className="text-sm text-gray-700">✓ {svc}</li>
+                    {BUNDLES.find(b => b.id === sel.bundleId)?.services.map((service, i) => (
+                      <li key={i} className="text-sm text-gray-700 flex items-start">
+                        <span className="text-chm-red mr-2">✓</span>
+                        <span>{service.name}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
