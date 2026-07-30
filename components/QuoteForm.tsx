@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { bundles, BUNDLES } from '@/lib/bundles'
+import { BUNDLES } from '@/lib/bundles'
 import BundleModal from './BundleModal'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
@@ -294,7 +294,7 @@ export default function QuoteForm() {
             <div>
               <h3 className="font-semibold text-chm-black mb-3 text-sm uppercase tracking-widest">Residential</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {bundles.filter(b => b.category === 'residential').map(bundle => (
+                {BUNDLES.filter(b => b.category === 'residential').map(bundle => (
                   <button
                     key={bundle.id}
                     type="button"
@@ -319,7 +319,7 @@ export default function QuoteForm() {
             {/* Family & Senior Care */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {['family', 'senior'].map(cat => {
-                const bundle = bundles.find(b => b.category === cat)
+                const bundle = BUNDLES.find(b => b.category === cat)
                 if (!bundle) return null
                 return (
                   <div key={cat}>
@@ -349,7 +349,7 @@ export default function QuoteForm() {
             <div>
               <h3 className="font-semibold text-chm-black mb-3 text-sm uppercase tracking-widest">Commercial</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {bundles.filter(b => b.category === 'commercial').map(bundle => (
+                {BUNDLES.filter(b => b.category === 'commercial').map(bundle => (
                   <button
                     key={bundle.id}
                     type="button"
@@ -928,7 +928,7 @@ export default function QuoteForm() {
                 <div className="bg-cream p-4 rounded">
                   <p className="text-sm text-gray-600 mb-3">Bundle includes:</p>
                   <ul className="space-y-1">
-                    {bundles.find(b => b.id === sel.bundleId)?.services.map((svc, i) => (
+                    {BUNDLES.find(b => b.id === sel.bundleId)?.services.map((svc, i) => (
                       <li key={i} className="text-sm text-gray-700">✓ {svc}</li>
                     ))}
                   </ul>
