@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { bundles, BUNDLES, formatPrice } from '@/lib/bundles'
+import { bundles, BUNDLES } from '@/lib/bundles'
 import BundleModal from './BundleModal'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
