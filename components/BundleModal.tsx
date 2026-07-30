@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BUNDLES, formatPrice } from '@/lib/bundles'
+import { BUNDLES } from '@/lib/bundles'
 
 interface BundleModalProps {
   onSelectBundle: (bundleId: string) => void
