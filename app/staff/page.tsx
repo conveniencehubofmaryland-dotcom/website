@@ -1,11 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-'use client'
 import { useState, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import SignaturePad from 'signature_pad'
 
 export default function OrientationPage() {
