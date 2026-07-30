@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
-    const { applicant_id, full_name, email, phone } = await req.json()
+    const { applicant_id, full_name, email } = await req.json()
 
     if (!applicant_id || !email || !full_name) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
           <div style="padding: 30px;">
             <p>Hi ${full_name},</p>
             
-            <p>We're excited to have you join the Convenience Hub of Maryland team! 🌟</p>
+            <p>We&apos;re excited to have you join the Convenience Hub of Maryland team! 🌟</p>
             
             <p>To get started with your onboarding, please click the button below:</p>
 
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666;">
-            <p>This link will expire in 30 days. If you don't recognize this email, please contact HR immediately.</p>
+            <p>This link will expire in 30 days. If you don&apos;t recognize this email, please contact HR immediately.</p>
           </div>
         </div>
       `,
