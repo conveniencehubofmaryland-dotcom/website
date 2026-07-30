@@ -15,7 +15,7 @@ export interface Bundle {
 }
 
 export const BUNDLES: Bundle[] = [
-  // Residential
+  // Residential (6 bundles)
   {
     id: 'res-starter',
     category: 'residential',
@@ -33,11 +33,25 @@ export const BUNDLES: Bundle[] = [
     name: 'Essentials',
     price: 1200,
     savingsPercent: 20,
-    description: 'Cleaning + laundry for busy professionals',
+    description: 'Weekly Cleaning + Bi-Weekly Laundry',
     highlighted: true,
     services: [
       { name: 'Weekly Cleaning', frequency: 'Weekly' },
       { name: 'Bi-Weekly Laundry Pickup & Delivery', frequency: 'Bi-Weekly' },
+    ],
+  },
+  {
+    id: 'res-comfort',
+    category: 'residential',
+    name: 'Comfort',
+    price: 2700,
+    savingsPercent: 10,
+    description: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization',
+    highlighted: true,
+    services: [
+      { name: 'Bi-Weekly Cleaning', frequency: 'Bi-Weekly' },
+      { name: 'Weekly Meal Prep', frequency: 'Weekly' },
+      { name: 'Monthly Organization', frequency: 'Monthly' },
     ],
   },
   {
@@ -51,6 +65,22 @@ export const BUNDLES: Bundle[] = [
       { name: 'Bi-Weekly Cleaning', frequency: 'Bi-Weekly' },
       { name: 'Weekly Meal Prep', frequency: 'Weekly' },
       { name: 'Monthly Laundry Organization', frequency: 'Monthly' },
+    ],
+  },
+  {
+    id: 'res-luxury',
+    category: 'residential',
+    name: 'Luxury',
+    price: 5400,
+    savingsPercent: 10,
+    description: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization',
+    highlighted: true,
+    services: [
+      { name: 'Weekly Cleaning', frequency: 'Weekly' },
+      { name: 'Bi-Weekly Laundry Pickup & Delivery', frequency: 'Bi-Weekly' },
+      { name: 'Meal Prep', frequency: '3x per week' },
+      { name: 'Bi-Weekly Nanny & Childcare', frequency: 'Bi-Weekly' },
+      { name: 'Monthly Organization & Decluttering', frequency: 'Monthly' },
     ],
   },
   {
@@ -68,7 +98,7 @@ export const BUNDLES: Bundle[] = [
     ],
   },
 
-  // Family with Children
+  // Family with Children (2 bundles)
   {
     id: 'fam-essentials',
     category: 'family',
@@ -79,7 +109,7 @@ export const BUNDLES: Bundle[] = [
     services: [
       { name: 'Bi-Weekly Cleaning', frequency: 'Bi-Weekly' },
       { name: 'Weekly Meal Prep', frequency: 'Weekly' },
-      { name: 'Bi-Weekly Childcare', frequency: '8 hours/week' },
+      { name: 'Childcare', frequency: '8 hours/week' },
     ],
   },
   {
@@ -92,13 +122,13 @@ export const BUNDLES: Bundle[] = [
     highlighted: true,
     services: [
       { name: 'Weekly Cleaning', frequency: 'Weekly' },
-      { name: 'Bi-Weekly Childcare', frequency: '16 hours/week' },
+      { name: 'Childcare', frequency: '16 hours/week' },
       { name: 'Weekly Meal Prep', frequency: 'Weekly' },
       { name: 'Monthly Organization', frequency: 'Monthly' },
     ],
   },
 
-  // Senior Care
+  // Senior Care (2 bundles)
   {
     id: 'senior-companion',
     category: 'senior',
@@ -113,9 +143,9 @@ export const BUNDLES: Bundle[] = [
     ],
   },
   {
-    id: 'senior-premium',
+    id: 'senior-care',
     category: 'senior',
-    name: 'Senior Care Premium',
+    name: 'Senior Care',
     price: 4500,
     savingsPercent: 10,
     description: 'Premium senior living support package',
@@ -128,17 +158,18 @@ export const BUNDLES: Bundle[] = [
     ],
   },
 
-  // Commercial
+  // Commercial (3 bundles)
   {
     id: 'com-small',
     category: 'commercial',
     name: 'Small Office Complete',
     price: 2700,
-    savingsPercent: 0,
+    savingsPercent: 10,
     description: 'Professional cleaning for small offices',
     services: [
       { name: 'Janitorial Service', frequency: '3x per week' },
-      { name: 'Restroom & Kitchen Sanitization', frequency: '3x per week' },
+      { name: 'Weekly Window Cleaning', frequency: 'Weekly' },
+      { name: 'Monthly Floor Maintenance', frequency: 'Monthly' },
     ],
   },
   {
@@ -146,12 +177,13 @@ export const BUNDLES: Bundle[] = [
     category: 'commercial',
     name: 'Medium Office Premium',
     price: 4500,
-    savingsPercent: 0,
+    savingsPercent: 10,
     description: 'Comprehensive service for growing offices',
     services: [
       { name: 'Janitorial Service', frequency: '5x per week' },
-      { name: 'Restroom & Kitchen Sanitization', frequency: '5x per week' },
-      { name: 'Floor Maintenance & Waxing', frequency: 'Monthly' },
+      { name: 'Window Cleaning', frequency: '2x per week' },
+      { name: 'Deep Clean & Floor Maintenance', frequency: '2x per month' },
+      { name: 'Monthly Floor Care', frequency: 'Monthly' },
     ],
   },
   {
@@ -159,12 +191,13 @@ export const BUNDLES: Bundle[] = [
     category: 'commercial',
     name: 'Enterprise Comprehensive',
     price: 0,
-    savingsPercent: 0,
+    savingsPercent: 10,
     description: 'Custom enterprise solutions (call for pricing)',
     services: [
       { name: 'Daily Janitorial Service' },
-      { name: 'Deep Cleaning & Maintenance' },
-      { name: 'Custom Services & Special Projects' },
+      { name: 'Weekly Specialized Services' },
+      { name: 'Monthly Floor Care' },
+      { name: 'Quarterly Deep Clean' },
       { name: 'Dedicated Account Manager' },
     ],
   },
