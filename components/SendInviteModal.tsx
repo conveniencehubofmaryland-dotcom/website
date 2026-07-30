@@ -76,7 +76,7 @@ export default function SendInviteModal({
             Onboarding link has been sent to <strong>{formData.email}</strong>
           </p>
           <p className="text-sm text-gray-500">
-            They'll receive an email with instructions to start the onboarding process.
+            They&apos;ll receive an email with instructions to start the onboarding process.
           </p>
         </div>
       </div>
