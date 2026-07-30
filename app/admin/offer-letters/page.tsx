@@ -5,6 +5,7 @@ import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 import ApplicantReadyButton from '@/components/ApplicantReadyButton'
 import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
+import SendInviteModal from '@/components/SendInviteModal'
 import ApplicantNotesButton from '@/components/ApplicantNotesButton'
 import StatusFilter from './StatusFilter'
 import { DeleteButton } from '@/components/DeleteButton'
@@ -41,6 +42,8 @@ export default async function AdminOfferLettersPage({
   const { status: filterStatus = 'all' } = await searchParams
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [selectedApplicant, setSelectedApplicant] = useState<any>(null)
 
   const applicants = await dbSelectAuth<Applicant>('offer_letter_applicants', token, {
     select: '*',
@@ -50,6 +53,11 @@ export default async function AdminOfferLettersPage({
   const offers = await dbSelectAuth<OfferLetter>('offer_letters', token, {
     select: '*',
   })
+
+  const openInviteModal = (applicant: any) => {
+  setSelectedApplicant(applicant)
+  setShowInviteModal(true)
+}
 
   // Create a map of applicant_id -> offer for quick lookup
   const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
@@ -150,6 +158,13 @@ export default async function AdminOfferLettersPage({
                                 position={applicant.position}
                               />
                             )}
+                            <button
+                              onClick={() => openInviteModal(applicant)}
+                              className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded font-semibold transition-colors"
+                              title="Send onboarding invite link"
+                            >
+                              Send Invite
+                            </button>
                           </td>
                           <td className="py-3 px-4">
                             <DeleteButton 
@@ -168,7 +183,23 @@ export default async function AdminOfferLettersPage({
           )
         })}
       </div>
-
+      
+{showInviteModal && selectedApplicant && (
+  <SendInviteModal
+    applicantId={selectedApplicant.id}
+    applicantName={selectedApplicant.full_name}
+    applicantEmail={selectedApplicant.email}
+    onClose={() => {
+      setShowInviteModal(false)
+      setSelectedApplicant(null)
+    }}
+    onSuccess={() => {
+      // Refresh applicants list
+      window.location.reload()
+    }}
+  />
+)}
+      
       {filtered.length === 0 && (
         <div className="text-center py-16 text-gray-400">
           <p className="text-sm">No applicants found.</p>
