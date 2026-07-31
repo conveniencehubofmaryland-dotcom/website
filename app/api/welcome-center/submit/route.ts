@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
+// Use ANON key for API routes (SERVICE_ROLE_KEY may not be available)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
@@ -141,9 +142,9 @@ export async function POST(req: NextRequest) {
             
             <p>Thank you for completing your welcome profile! ✓</p>
             
-            <p><strong>What's next?</strong></p>
+            <p><strong>What&apos;s next?</strong></p>
             <ol>
-              <li>You'll receive an email with your orientation document to review and sign</li>
+              <li>You&apos;ll receive an email with your orientation document to review and sign</li>
               <li>Complete the required training modules</li>
               <li>Start claiming shifts in the portal</li>
             </ol>
