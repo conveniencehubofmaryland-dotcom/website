@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -59,7 +61,6 @@ export default function WelcomeCenterPage() {
     setError('')
     setLoading(true)
 
-    // Validate all fields
     if (
       !formData.full_name ||
       !formData.email ||
@@ -139,7 +140,6 @@ export default function WelcomeCenterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 space-y-6">
-          {/* Full Name */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Full Name *
@@ -155,7 +155,6 @@ export default function WelcomeCenterPage() {
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Email *
@@ -171,7 +170,6 @@ export default function WelcomeCenterPage() {
             />
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Phone *
@@ -187,7 +185,6 @@ export default function WelcomeCenterPage() {
             />
           </div>
 
-          {/* Sex/Gender */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Sex / Gender *
@@ -208,7 +205,6 @@ export default function WelcomeCenterPage() {
             </select>
           </div>
 
-          {/* Date of Birth */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Date of Birth *
@@ -223,7 +219,6 @@ export default function WelcomeCenterPage() {
             />
           </div>
 
-          {/* Position */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Position Applied For *
@@ -244,7 +239,6 @@ export default function WelcomeCenterPage() {
             </select>
           </div>
 
-          {/* Years of Experience */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Years of Experience *
@@ -262,7 +256,6 @@ export default function WelcomeCenterPage() {
             />
           </div>
 
-          {/* 1099 Acknowledgement */}
           <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
