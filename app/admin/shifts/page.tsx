@@ -16,6 +16,7 @@ type Shift = {
   staff_name?: string
   staff_email?: string
   staff_phone?: string
+  applicant_id?: string
 }
 
 type JobPosting = {
@@ -55,17 +56,17 @@ export default function ManageShifts() {
   }, [])
 
   const fetchRoles = useCallback(async () => {
-  // Hardcoded roles - no API call needed
-  const roleList = [
-    { id: '1', title: 'Cleaning Specialist' },
-    { id: '2', title: 'Laundry Handler' },
-    { id: '3', title: 'Culinary & Housekeeping Staff' },
-    { id: '4', title: 'Nanny / Childcare Staff' },
-    { id: '5', title: 'Care Companion (Adult)' },
-    { id: '6', title: 'Commercial Cleaner' },
-  ]
-  setRoles(roleList)
-}, [])
+    // Hardcoded roles - no API call needed
+    const roleList = [
+      { id: '1', title: 'Cleaning Specialist' },
+      { id: '2', title: 'Laundry Handler' },
+      { id: '3', title: 'Culinary & Housekeeping Staff' },
+      { id: '4', title: 'Nanny / Childcare Staff' },
+      { id: '5', title: 'Care Companion (Adult)' },
+      { id: '6', title: 'Commercial Cleaner' },
+    ]
+    setRoles(roleList)
+  }, [])
 
   useEffect(() => {
     fetchShifts()
@@ -106,34 +107,33 @@ export default function ManageShifts() {
   }
 
   const handleMarkNoShow = async (shiftId: string, applicantId: string) => {
-  if (!confirm('Mark this shift as a no-show? This will be logged.')) return
+    if (!confirm('Mark this shift as a no-show? This will be logged.')) return
 
-  try {
-    const res = await fetch('/api/admin/shifts/mark-noshow', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        applicant_id: applicantId,
-        shift_id: shiftId,
-        notes: '',
-      }),
-    })
+    try {
+      const res = await fetch('/api/admin/shifts/mark-noshow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicant_id: applicantId,
+          shift_id: shiftId,
+          notes: '',
+        }),
+      })
 
-    const data = await res.json()
+      const data = await res.json()
 
-    if (res.ok) {
-      alert(`✓ No-show recorded\n${data.applicant_name} now has ${data.no_show_count} no-shows\n${data.warning || ''}`)
-      // Refresh shifts list
-      window.location.reload()
-    } else {
-      alert(`Error: ${data.error}`)
+      if (res.ok) {
+        alert(`✓ No-show recorded\n${data.applicant_name} now has ${data.no_show_count} no-shows\n${data.warning || ''}`)
+        fetchShifts()
+      } else {
+        alert(`Error: ${data.error}`)
+      }
+    } catch (err) {
+      alert('Failed to mark no-show')
+      console.error(err)
     }
-  } catch (err) {
-    alert('Failed to mark no-show')
-    console.error(err)
   }
-}
-  
+
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this shift?')) return
 
@@ -159,7 +159,9 @@ export default function ManageShifts() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/admin" className="text-red-600 hover:underline mb-6 inline-block">← Back to Admin</Link>
+        <Link href="/admin" className="text-red-600 hover:underline mb-6 inline-block">
+          ← Back to Admin
+        </Link>
         <h1 className="text-4xl font-bold mb-2 text-red-600">Manage Shifts</h1>
         <p className="text-gray-600 mb-8">Create and manage staff shifts here</p>
 
@@ -176,43 +178,43 @@ export default function ManageShifts() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
-                <input 
-                  type="date" 
-                  required 
-                  value={formData.date} 
-                  onChange={(e) => setFormData({...formData, date: e.target.value })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+                <input
+                  type="date"
+                  required
+                  value={formData.date}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Start Time *</label>
-                <input 
-                  type="time" 
-                  required 
-                  value={formData.start_time} 
-                  onChange={(e) => setFormData({...formData, start_time: e.target.value })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+                <input
+                  type="time"
+                  required
+                  value={formData.start_time}
+                  onChange={e => setFormData({ ...formData, start_time: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">End Time *</label>
-                <input 
-                  type="time" 
-                  required 
-                  value={formData.end_time} 
-                  onChange={(e) => setFormData({...formData, end_time: e.target.value })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+                <input
+                  type="time"
+                  required
+                  value={formData.end_time}
+                  onChange={e => setFormData({ ...formData, end_time: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Location *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="E.g., Downtown DC" 
-                  value={formData.location} 
-                  onChange={(e) => setFormData({...formData, location: e.target.value })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+                <input
+                  type="text"
+                  required
+                  placeholder="E.g., Downtown DC"
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
               </div>
             </div>
@@ -220,37 +222,39 @@ export default function ManageShifts() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Role *</label>
-                <select 
-                  required 
-                  value={formData.role} 
-                  onChange={(e) => setFormData({...formData, role: e.target.value })}
+                <select
+                  required
+                  value={formData.role}
+                  onChange={e => setFormData({ ...formData, role: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 bg-white"
                 >
                   <option value="">Select a role...</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.title}>{role.title}</option>
+                  {roles.map(role => (
+                    <option key={role.id} value={role.title}>
+                      {role.title}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Pay Rate ($)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.01"
-                  placeholder="E.g., 25.00" 
-                  value={formData.pay_rate} 
-                  onChange={(e) => setFormData({...formData, pay_rate: e.target.value })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+                  placeholder="E.g., 25.00"
+                  value={formData.pay_rate}
+                  onChange={e => setFormData({ ...formData, pay_rate: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
-              <textarea 
-                placeholder="Describe the job responsibilities and requirements..." 
-                value={formData.job_description} 
-                onChange={(e) => setFormData({...formData, job_description: e.target.value })} 
+              <textarea
+                placeholder="Describe the job responsibilities and requirements..."
+                value={formData.job_description}
+                onChange={e => setFormData({ ...formData, job_description: e.target.value })}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
               />
@@ -258,21 +262,21 @@ export default function ManageShifts() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
-              <input 
-                type="text" 
-                placeholder="Optional notes about the shift" 
-                value={formData.notes} 
-                onChange={(e) => setFormData({...formData, notes: e.target.value })} 
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
+              <input
+                type="text"
+                placeholder="Optional notes about the shift"
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
               />
             </div>
 
-            <button 
-              type="submit" 
-              disabled={loading} 
+            <button
+              type="submit"
+              disabled={loading}
               className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 transition-colors"
             >
-              {loading? 'Creating...' : 'Create Shift'}
+              {loading ? 'Creating...' : 'Create Shift'}
             </button>
           </form>
         </div>
@@ -280,7 +284,7 @@ export default function ManageShifts() {
         {/* Shifts Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <h2 className="text-2xl font-bold p-6 border-b border-gray-200">All Shifts</h2>
-          
+
           {shifts.length === 0 ? (
             <p className="text-gray-600 p-6 text-center">No shifts yet. Create one above to get started.</p>
           ) : (
@@ -301,36 +305,46 @@ export default function ManageShifts() {
                 </thead>
                 <tbody>
                   {shifts.map((shift, idx) => (
-                    <tr key={shift.id} className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                    <tr
+                      key={shift.id}
+                      className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                    >
                       <td className="px-6 py-4 text-sm text-gray-900 font-medium">{shift.date}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{shift.start_time}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{shift.end_time}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{shift.location}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{shift.role}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 font-semibold text-green-600">${shift.pay_rate || 'TBD'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" title={shift.job_description}>
+                      <td className="px-6 py-4 text-sm text-gray-700 font-semibold text-green-600">
+                        ${shift.pay_rate || 'TBD'}
+                      </td>
+                      <td
+                        className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate"
+                        title={shift.job_description}
+                      >
                         {shift.job_description ? shift.job_description.substring(0, 30) + '...' : '—'}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          shift.status === 'claimed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            shift.status === 'claimed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
                           {shift.status === 'claimed' ? 'Claimed' : 'Available'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 text-sm space-y-1">
+                        {shift.status === 'claimed' && shift.applicant_id ? (
+                          <button
+                            onClick={() => handleMarkNoShow(shift.id, shift.applicant_id!)}
+                            className="block text-xs px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded transition-colors font-semibold w-full text-center"
+                            title="Mark as no-show - will increment no-show counter"
+                          >
+                            Mark No-Show
+                          </button>
+                        ) : null}
                         <button
-                        onClick={() => handleMarkNoShow(shift.id, applicant_id)}
-                        className="text-xs px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded transition-colors font-semibold"
-                        title="Mark as no-show - will increment no-show counter"
-                      >
-                          Mark No-Show
-                      </button>
-                        <button 
                           onClick={() => handleDelete(shift.id)}
-                          className="text-red-600 hover:text-red-800 font-semibold"
+                          className="block text-xs px-3 py-1 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors font-semibold w-full text-center"
                         >
                           Delete
                         </button>
@@ -348,23 +362,27 @@ export default function ManageShifts() {
           <div className="bg-white rounded-lg shadow p-6 mt-8">
             <h2 className="text-2xl font-bold mb-6">Staff Who Claimed Shifts</h2>
             <div className="space-y-4">
-              {shifts.filter(s => s.status === 'claimed').map((shift) => (
-                <div key={shift.id} className="border border-green-200 bg-green-50 rounded-lg p-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Shift Details</p>
-                      <p className="font-semibold">{shift.date} • {shift.start_time}-{shift.end_time} • {shift.role}</p>
-                      <p className="text-sm text-gray-600">{shift.location}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Staff Details</p>
-                      <p className="font-semibold">{shift.staff_name}</p>
-                      <p className="text-sm text-gray-700">📧 {shift.staff_email}</p>
-                      <p className="text-sm text-gray-700">📱 {shift.staff_phone}</p>
+              {shifts
+                .filter(s => s.status === 'claimed')
+                .map(shift => (
+                  <div key={shift.id} className="border border-green-200 bg-green-50 rounded-lg p-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Shift Details</p>
+                        <p className="font-semibold">
+                          {shift.date} • {shift.start_time}-{shift.end_time} • {shift.role}
+                        </p>
+                        <p className="text-sm text-gray-600">{shift.location}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Staff Details</p>
+                        <p className="font-semibold">{shift.staff_name}</p>
+                        <p className="text-sm text-gray-700">📧 {shift.staff_email}</p>
+                        <p className="text-sm text-gray-700">📱 {shift.staff_phone}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
