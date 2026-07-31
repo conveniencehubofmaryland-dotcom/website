@@ -1,13 +1,6 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
-import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
-import OfferLetterClient from '@/components/OfferLetterClient'
-import ApplicantStatusButton from '@/components/ApplicantStatusButton'
-import ApplicantReadyButton from '@/components/ApplicantReadyButton'
-import ViewOfferLetterModal from '@/components/ViewOfferLetterModal'
-import ApplicantNotesButton from '@/components/ApplicantNotesButton'
-import StatusFilter from './StatusFilter'
-import { DeleteButton } from '@/components/DeleteButton'
+import { POSITION_LIST } from '@/lib/pay-structure'
 import OfferLettersClient from '@/components/OfferLettersClient'
 
 type Applicant = {
