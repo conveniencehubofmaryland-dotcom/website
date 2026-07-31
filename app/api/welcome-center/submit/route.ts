@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
-// Use ANON key for API routes (SERVICE_ROLE_KEY may not be available)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -12,6 +11,9 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json()
+    console.log('[submit] Received body:', { ...body, acknowledged_1099: body.acknowledged_1099 })
+
     const {
       full_name,
       email,
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       years_of_experience,
       acknowledged_1099,
       invite_token,
-    } = await req.json()
+    } = body
 
     // Validate all required fields
     if (
@@ -36,6 +38,7 @@ export async function POST(req: NextRequest) {
       years_of_experience === undefined ||
       !acknowledged_1099
     ) {
+      console.log('[submit] Validation failed - missing fields')
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -45,6 +48,7 @@ export async function POST(req: NextRequest) {
     // Validate date of birth is in past
     const dob = new Date(date_of_birth)
     if (dob > new Date()) {
+      console.log('[submit] DOB is in future')
       return NextResponse.json(
         { error: 'Date of birth must be in the past' },
         { status: 400 }
@@ -53,16 +57,18 @@ export async function POST(req: NextRequest) {
 
     // Validate years of experience
     if (years_of_experience < 0 || years_of_experience > 80) {
+      console.log('[submit] Invalid years of experience:', years_of_experience)
       return NextResponse.json(
         { error: 'Years of experience must be between 0 and 80' },
         { status: 400 }
       )
     }
 
-    // If invite_token provided, update existing applicant
-    let applicant_id
+    let applicant_id: string
 
     if (invite_token) {
+      console.log('[submit] Processing with invite token:', invite_token)
+
       const { data: invite, error: inviteError } = await supabase
         .from('staff_invites')
         .select('applicant_id')
@@ -70,7 +76,16 @@ export async function POST(req: NextRequest) {
         .eq('status', 'pending')
         .single()
 
-      if (inviteError || !invite) {
+      if (inviteError) {
+        console.error('[submit] Invite lookup error:', inviteError)
+        return NextResponse.json(
+          { error: 'Invalid or expired invite token' },
+          { status: 400 }
+        )
+      }
+
+      if (!invite) {
+        console.log('[submit] No invite found for token:', invite_token)
         return NextResponse.json(
           { error: 'Invalid or expired invite token' },
           { status: 400 }
@@ -78,6 +93,7 @@ export async function POST(req: NextRequest) {
       }
 
       applicant_id = invite.applicant_id
+      console.log('[submit] Found applicant:', applicant_id)
 
       // Update existing applicant
       const { error: updateError } = await supabase
@@ -96,15 +112,26 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', applicant_id)
 
-      if (updateError) throw updateError
+      if (updateError) {
+        console.error('[submit] Update error:', updateError)
+        throw updateError
+      }
 
       // Mark invite as accepted
-      await supabase
+      const { error: acceptError } = await supabase
         .from('staff_invites')
         .update({ status: 'accepted', accepted_at: new Date().toISOString() })
         .eq('invite_token', invite_token)
+
+      if (acceptError) {
+        console.error('[submit] Accept invite error:', acceptError)
+      }
+
+      console.log('[submit] Applicant updated successfully')
     } else {
-      // Create new applicant (from direct form submission)
+      console.log('[submit] Creating new applicant')
+
+      // Create new applicant
       const { data: newApplicant, error: insertError } = await supabase
         .from('offer_letter_applicants')
         .insert({
@@ -122,12 +149,23 @@ export async function POST(req: NextRequest) {
         .select()
         .single()
 
-      if (insertError) throw insertError
+      if (insertError) {
+        console.error('[submit] Insert error:', insertError)
+        throw insertError
+      }
+
+      if (!newApplicant) {
+        console.error('[submit] No applicant returned from insert')
+        throw new Error('Failed to create applicant')
+      }
+
       applicant_id = newApplicant.id
+      console.log('[submit] New applicant created:', applicant_id)
     }
 
     // Send confirmation email to applicant
-    await resend.emails.send({
+    console.log('[submit] Sending email to:', email)
+    const emailRes = await resend.emails.send({
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
       subject: '✓ Welcome Profile Submitted - Next Steps',
@@ -170,8 +208,15 @@ export async function POST(req: NextRequest) {
       `,
     })
 
+    if (emailRes.error) {
+      console.error('[submit] Email send error:', emailRes.error)
+    } else {
+      console.log('[submit] Email sent successfully to:', email)
+    }
+
     // Send notification to admin
-    await resend.emails.send({
+    console.log('[submit] Sending admin notification')
+    const adminRes = await resend.emails.send({
       from: 'CHM Admin <admin@conveniencehubofmaryland.com>',
       to: 'conveniencehubofmaryland@gmail.com',
       subject: `📋 New Profile Submission: ${full_name}`,
@@ -191,15 +236,23 @@ export async function POST(req: NextRequest) {
       `,
     })
 
+    if (adminRes.error) {
+      console.error('[submit] Admin email error:', adminRes.error)
+    } else {
+      console.log('[submit] Admin notification sent')
+    }
+
+    console.log('[submit] Success - applicant:', applicant_id)
     return NextResponse.json({
       success: true,
       applicant_id,
       message: 'Profile submitted successfully',
     })
   } catch (err) {
-    console.error('[welcome-center] Error:', err)
+    console.error('[submit] Fatal error:', err)
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to submit profile' },
+      { error: `Server error: ${errorMessage}` },
       { status: 500 }
     )
   }
