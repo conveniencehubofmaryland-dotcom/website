@@ -262,12 +262,7 @@ export default async function OrientationPage({
           <div className="bg-red-50 border border-red-200 rounded p-8 text-center">
             <h1 className="font-serif text-2xl text-red-700 mb-4">Invalid Onboarding Link</h1>
             <p className="text-red-600 mb-6">Please start your onboarding from the beginning.</p>
-            
-              href="/welcome-center"
-              className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors rounded"
-            >
-              Start Over
-            </a>
+            <a href="/welcome-center" className="inline-block bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors rounded">Start Over</a>
           </div>
         </div>
       </div>
@@ -277,7 +272,6 @@ export default async function OrientationPage({
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Position Badge — Locked */}
         <div className="mb-6 bg-chm-red/10 border border-chm-red/20 rounded p-4">
           <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-1">Your Position (Locked)</p>
           <p className="text-lg font-semibold text-chm-black">{position}</p>
