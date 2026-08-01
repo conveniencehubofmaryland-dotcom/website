@@ -5,17 +5,17 @@ import crypto from 'crypto'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
-    const { applicant_id, full_name, email } = await req.json()
+    const { full_name, email, phone } = await req.json()
 
-    if (!applicant_id || !email || !full_name) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    if (!full_name || !email) {
+      return NextResponse.json({ error: 'Full Name and Email are required' }, { status: 400 })
     }
 
     // Generate unique invite token
@@ -23,22 +23,19 @@ export async function POST(req: NextRequest) {
     const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
 
     // Create invite record
-    const { error: insertError } = await supabase
-      .from('staff_invites')
-      .insert({
-        applicant_id,
-        invite_token,
-        email,
-        expires_at: expires_at.toISOString(),
-        status: 'pending',
-      })
+    const { error: insertError } = await supabase.from('staff_invites').insert({
+      invite_token,
+      email,
+      status: 'pending',
+      expires_at: expires_at.toISOString(),
+    })
 
     if (insertError) throw insertError
 
-    // Build onboarding link
-    const onboarding_link = `https://conveniencehubofmaryland.com/welcome-center?invite=${invite_token}`
+    // Build onboarding button link
+    const onboarding_link = `https://conventiencehubofmaryland.com/staff?invite_token=${invite_token}`
 
-    // Send email via Resend
+    // Send email with clickable button
     const { error: emailError } = await resend.emails.send({
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
@@ -57,29 +54,18 @@ export async function POST(req: NextRequest) {
             <p>To get started with your onboarding, please click the button below:</p>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${onboarding_link}" 
-                 style="display: inline-block; background-color: #c41e3a; color: white; padding: 15px 40px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">
+              <a href="${onboarding_link}" style="display: inline-block; background-color: #c41e3a; color: white; padding: 15px 40px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">
                 Start Your Onboarding
               </a>
             </div>
 
             <p style="color: #666; font-size: 14px;">
-              Or copy this link into your browser:<br>
-              <code style="background-color: #f0f0f0; padding: 5px 10px; border-radius: 3px;">${onboarding_link}</code>
+              This link will expire in 30 days. If you have any questions, please contact our HR team.
             </p>
 
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
-            <p><strong>Next Steps:</strong></p>
-            <ol>
-              <li>Complete your welcome profile</li>
-              <li>Review our orientation document</li>
-              <li>Complete required training modules</li>
-              <li>Start claiming shifts!</li>
-            </ol>
-
             <p><strong>Contact Info:</strong><br>
-            Questions? Reach out to our HR team:<br>
             📧 conveniencehubofmaryland@gmail.com<br>
             📱 202-579-2944<br>
             Monday–Saturday, 9 AM–9 PM</p>
@@ -89,7 +75,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666;">
-            <p>This link will expire in 30 days. If you don&apos;t recognize this email, please contact HR immediately.</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
       `,
@@ -97,7 +83,6 @@ export async function POST(req: NextRequest) {
 
     if (emailError) {
       console.error('[send-invite] Email error:', emailError)
-      // Don't fail if email fails - invite was created
     }
 
     return NextResponse.json({
