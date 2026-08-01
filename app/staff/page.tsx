@@ -1,50 +1,41 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { redirect } from 'next/navigation'
-
-export default async function StaffPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ invite_token?: string }>
-}) {
-  const params = await searchParams
-  const inviteToken = params.invite_token
-
-  // If invite token present, redirect to welcome center with token
-  if (inviteToken) {
-    redirect(`/welcome-center?invite=${inviteToken}`)
-  }
 
 export default function StaffPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('invite_token')
+  
   const [staffName, setStaffName] = useState<string>('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // If invite token present, redirect to welcome center with it
+    if (inviteToken) {
+      router.push(`/welcome-center?invite=${inviteToken}`)
+      return
+    }
+
     async function checkAuth() {
       try {
         let applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
-
         if (!applicantId) {
           const cookies = document.cookie.split(';')
           const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
           applicantId = applCookie ? applCookie.split('=')[1] : null
         }
-
         if (!applicantId) {
           router.push('/welcome-center')
           return
         }
-
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
         if (!res.ok) {
           router.push('/welcome-center')
           return
         }
-
         const data = await res.json()
         setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
@@ -54,9 +45,8 @@ export default function StaffPage() {
         setLoading(false)
       }
     }
-
     checkAuth()
-  }, [router])
+  }, [router, inviteToken])
 
   if (loading) {
     return (
