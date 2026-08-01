@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 const POSITIONS = [
   'Cleaning Specialist',
@@ -20,6 +20,7 @@ const SEX_OPTIONS = [
 ]
 
 export default function WelcomeCenterForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const invite_token = searchParams.get('invite')
 
@@ -37,6 +38,7 @@ export default function WelcomeCenterForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [applicantId, setApplicantId] = useState<string>('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -91,11 +93,20 @@ export default function WelcomeCenterForm() {
         throw new Error(data.error || 'Failed to submit profile')
       }
 
+      setApplicantId(data.applicant_id)
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleContinueToOrientation = () => {
+    if (applicantId) {
+      router.push(
+        `/staff/orientation?applicant_id=${applicantId}&position=${encodeURIComponent(formData.position)}`
+      )
     }
   }
 
@@ -113,13 +124,19 @@ export default function WelcomeCenterForm() {
               <p className="text-sm text-gray-700 mb-4">
                 Check your email for next steps. You&apos;ll receive:
               </p>
-              <ul className="text-left space-y-2 text-sm text-gray-700">
+              <ul className="text-left space-y-2 text-sm text-gray-700 mb-8">
                 <li>✓ Orientation document to review and sign</li>
                 <li>✓ Link to required training modules</li>
                 <li>✓ Instructions to claim your first shift</li>
               </ul>
+              <button
+                onClick={handleContinueToOrientation}
+                className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 transition-colors rounded"
+              >
+                Continue to Orientation →
+              </button>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 mt-6">
               Questions? Contact HR at 202-579-2944 or conveniencehubofmaryland@gmail.com
             </p>
           </div>
