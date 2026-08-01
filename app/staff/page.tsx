@@ -3,6 +3,20 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { redirect } from 'next/navigation'
+
+export default async function StaffPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite_token?: string }>
+}) {
+  const params = await searchParams
+  const inviteToken = params.invite_token
+
+  // If invite token present, redirect to welcome center with token
+  if (inviteToken) {
+    redirect(`/welcome-center?invite=${inviteToken}`)
+  }
 
 export default function StaffPage() {
   const router = useRouter()
