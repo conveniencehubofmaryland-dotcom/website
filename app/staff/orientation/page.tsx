@@ -57,6 +57,16 @@ Pay Schedule & Compensation
 - Your pay rate is based on your position, experience level, and certifications
 - Overtime must be pre-approved by your supervisor
 
+YOUR POSITION & RESPONSIBILITIES
+
+As a member of CHM staff, you are responsible for:
+
+- Providing quality service in accordance with CHM standards
+- Maintaining client confidentiality and discretion
+- Being reliable, punctual, and professional
+- Following all safety and health protocols
+- Communicating promptly with management about any issues
+
 3. POLICIES & CONDUCT
 
 Professionalism & Respect
