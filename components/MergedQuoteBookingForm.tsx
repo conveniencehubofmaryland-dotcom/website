@@ -339,7 +339,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
           <div className="max-w-md mx-auto text-left border border-gray-200 p-6 mt-6">
             <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">What you selected</p>
             <p className="font-semibold text-chm-black mb-4">
-              {isBundle ? sel.bundleName : CATEGORY_TITLES[category] || 'Your Request'}
+              {isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}
             </p>
 
             {!isBundle && lines.length > 0 && (
@@ -1059,7 +1059,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
           <div className="border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <p className="font-semibold text-chm-black">
-                {isBundle ? sel.bundleName : CATEGORY_TITLES[category] || 'Your Request'}
+                {isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}
               </p>
               <button type="button" onClick={() => setStep(1)} className="text-xs text-chm-red hover:underline uppercase tracking-widest">
                 Change
