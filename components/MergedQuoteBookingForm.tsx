@@ -674,7 +674,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Home Size *</label>
-                    <select required value={sel.homeSize || ''} onChange={e => set('homeSize', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.homeSize || '')} onChange={e => set('homeSize', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="studio">Studio</option>
                       <option value="1br">1 Bedroom</option>
@@ -686,7 +686,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>How Often? *</label>
-                    <select required value={sel.frequency || ''} onChange={e => set('frequency', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.frequency || '')} onChange={e => set('frequency', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="onetime">One-Time Only</option>
                       <option value="monthly">Monthly</option>
@@ -707,7 +707,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Property Size *</label>
-                    <select required value={sel.moveSize || ''} onChange={e => set('moveSize', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.moveSize || '')} onChange={e => set('moveSize', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="1br">1 Bedroom Apartment</option>
                       <option value="3br">3 Bedroom House</option>
@@ -717,7 +717,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Current Condition *</label>
-                    <select required value={sel.moveCondition || ''} onChange={e => set('moveCondition', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.moveCondition || '')} onChange={e => set('moveCondition', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="good">Good (regular upkeep)</option>
                       <option value="poor">Poor (needs deep clean)</option>
@@ -729,7 +729,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Pets in the Home</label>
-                    <select value={sel.pets || '0'} onChange={e => set('pets', e.target.value)} className={inputClass}>
+                    <select value={String(sel.pets || '0')} onChange={e => set('pets', e.target.value)} className={inputClass}>
                       <option value="0">No pets</option>
                       <option value="1">1 Pet</option>
                       <option value="2">2 Pets</option>
@@ -783,7 +783,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Fabric Category *</label>
-                    <select required value={sel.category || ''} onChange={e => set('category', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.category || '')} onChange={e => set('category', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="colors">Colors — $3.99/lb</option>
                       <option value="mixed">Mixed Load — $4.99/lb</option>
@@ -795,11 +795,11 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
-                    <input required type="number" min={10} value={sel.weight || ''} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 20" />
+                    <input required type="number" min={10} value={String(sel.weight || '')} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 20" />
                   </div>
                   <div>
                     <label className={labelClass}>Premium Add-On</label>
-                    <select value={sel.premiumOption || 'none'} onChange={e => set('premiumOption', e.target.value)} className={inputClass}>
+                    <select value={String(sel.premiumOption || 'none')} onChange={e => set('premiumOption', e.target.value)} className={inputClass}>
                       <option value="none">None</option>
                       <option value="ironhang">Iron & Hang (+$2.00/lb)</option>
                       <option value="expressiron">Express Iron & Press (+$4.00/lb, 2–3 day)</option>
@@ -811,13 +811,13 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               {sel.planType === 'foldingOnly' && (
                 <div>
                   <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
-                  <input required type="number" min={10} value={sel.weight || ''} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 15" />
+                  <input required type="number" min={10} value={String(sel.weight || '')} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 15" />
                 </div>
               )}
               {sel.planType === 'recurring' && (
                 <div>
                   <label className={labelClass}>Choose a Plan *</label>
-                  <select required value={sel.recurringPlan || ''} onChange={e => set('recurringPlan', e.target.value)} className={inputClass}>
+                  <select required value={String(sel.recurringPlan || '')} onChange={e => set('recurringPlan', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
                     <option value="light">Light Load — up to 40 lbs/mo ($140)</option>
                     <option value="standard">Standard Load — up to 80 lbs/mo ($250)</option>
@@ -852,7 +852,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               {sel.mode === 'monthly' && (
                 <div>
                   <label className={labelClass}>Choose a Plan *</label>
-                  <select required value={sel.planTier || ''} onChange={e => set('planTier', e.target.value)} className={inputClass}>
+                  <select required value={String(sel.planTier || '')} onChange={e => set('planTier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
                     <option value="starter">Starter — 10 servings/week (~$350/mo)</option>
                     <option value="standard">Standard — 20 servings/week (~$675/mo)</option>
@@ -865,7 +865,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Service Type *</label>
-                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="personalchef">Personal Chef / Meal Prep — $90/hr</option>
                       <option value="eventcatering">Special Event Catering Prep — $87.50/hr</option>
@@ -874,7 +874,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Number of Hours *</label>
-                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 3" />
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 3" />
                   </div>
                 </>
               )}
@@ -910,7 +910,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Service Type *</label>
-                    <select required value={sel.grocerySubtype || ''} onChange={e => set('grocerySubtype', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.grocerySubtype || '')} onChange={e => set('grocerySubtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="basic">Basic Grocery Shopping — $40/visit</option>
                       <option value="premium">Premium Sourcing (Specialty/Organic) — $62.50/visit</option>
@@ -918,7 +918,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Number of Visits *</label>
-                    <input required type="number" min={1} value={sel.groceryVisits || ''} onChange={e => set('groceryVisits', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                    <input required type="number" min={1} value={String(sel.groceryVisits || '')} onChange={e => set('groceryVisits', e.target.value)} className={inputClass} placeholder="e.g. 4" />
                   </div>
                   <p className="text-xs text-gray-400">Mileage and receipt reimbursement calculated separately at time of service.</p>
                 </>
@@ -948,7 +948,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               {sel.mode === 'monthly' && category === 'nanny' && (
                 <div>
                   <label className={labelClass}>Nanny Tier *</label>
-                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
                     <option value="parttime">Part-Time — 15-20 hrs/week (~$2,400-3,200/mo)</option>
                     <option value="standard">Standard — 30-35 hrs/week (~$4,800-6,300/mo)</option>
@@ -959,7 +959,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               {sel.mode === 'monthly' && category === 'eldercare' && (
                 <div>
                   <label className={labelClass}>Companion Care Tier *</label>
-                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
                     <option value="light">Light — 8-10 hrs/week (~$800-1,000/mo)</option>
                     <option value="standard">Standard — 20-25 hrs/week (~$2,000-2,750/mo)</option>
@@ -971,7 +971,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               {sel.mode === 'dayprogram' && category === 'eldercare' && (
                 <div>
                   <label className={labelClass}>Program Type *</label>
-                  <select required value={sel.tier || ''} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
                     <option value="social">Social Activities — ~$60-80/day</option>
                     <option value="wellness">Wellness & Activity — ~$80-120/day</option>
@@ -983,7 +983,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Service Type *</label>
-                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="babysitting">Standard Babysitting — $35-45/hr</option>
                       <option value="overnight">Overnight Care — $30-40/hr</option>
@@ -993,7 +993,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Number of Hours *</label>
-                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
                   </div>
                   <label className="flex items-center gap-3 text-sm">
                     <input type="checkbox" checked={!!sel.weekend} onChange={e => set('weekend', e.target.checked)} className="w-4 h-4 accent-chm-red" />
@@ -1009,7 +1009,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                 <>
                   <div>
                     <label className={labelClass}>Service Type *</label>
-                    <select required value={sel.subtype || ''} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
                       <option value="companion">Care Companion — $30-40/hr</option>
                       <option value="personalcare">Personal Care Assistant — $30-40/hr</option>
@@ -1020,7 +1020,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <div>
                     <label className={labelClass}>Number of Hours *</label>
-                    <input required type="number" min={2} value={sel.hours || ''} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
                   </div>
                 </>
               )}
@@ -1031,7 +1031,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
           {(category === 'commercial' || category === 'special') && (
             <div>
               <label className={labelClass}>Tell us more about what you need *</label>
-              <textarea required rows={5} value={sel.details || ''} onChange={e => set('details', e.target.value)} className={inputClass}
+              <textarea required rows={5} value={String(sel.details || '')} onChange={e => set('details', e.target.value)} className={inputClass}
                 placeholder={category === 'commercial'
                   ? "Property size (sq ft), office type, cleaning frequency needed, any specialized requirements (medical, restaurant, gym, etc.)"
                   : "Project type, timeline, event date, scope of work, special requirements, etc."} />
