@@ -1,50 +1,36 @@
-import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import MergedQuoteBookingForm from '@/components/MergedQuoteBookingForm'
 
-export const metadata: Metadata = {
-  title: 'Get Quote & Book Service',
-  description:
-    'Get an instant price estimate and book cleaning, laundry, culinary, nanny, or care services. Convenience Hub of Maryland — Maryland, Virginia & D.C.',
+export const metadata = {
+  title: 'Quote & Book | Convenience Hub of Maryland',
+  description: 'Get an instant quote and book your service with Convenience Hub.',
 }
 
-const SERVICES = [
-  { id: 'cleaning', title: 'Professional Cleaning & Estate Care', price_from: 'From $100/visit' },
-  { id: 'culinary', title: 'Culinary, Housekeeping & Household Management', price_from: 'From $50/hr' },
-  { id: 'laundry', title: 'Premium Laundry Pickup & Delivery', price_from: 'From $3.99/lb' },
-  { id: 'care', title: 'Premium Nanny & Care Services', price_from: 'Custom Quote' },
-  { id: 'commercial', title: 'Commercial Operations & Special Projects', price_from: 'Custom Quote' },
-]
-
-type SearchParams = { [key: string]: string | string[] | undefined }
-
-export default async function BookNowPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams
+export default function BookPage() {
   const initial = {
-    name: typeof params.name === 'string' ? params.name : '',
-    email: typeof params.email === 'string' ? params.email : '',
-    phone: typeof params.phone === 'string' ? params.phone : '',
-    serviceId: typeof params.service === 'string' ? params.service : '',
+    name: '',
+    email: '',
+    phone: '',
+    serviceId: '',
   }
 
   return (
-    <div className="bg-white">
-      {/* Header */}
-      <div className="bg-cream py-10 border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8">
-          <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Get Started</p>
-          <h1 className="font-serif text-5xl md:text-6xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
-            Get Quote & Book
-          </h1>
-          <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
-          <p className="text-gray-400 max-w-xl text-sm leading-relaxed font-light">
-            Get an instant estimate and book your service. We&apos;ll confirm your booking within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).
-          </p>
+    <main className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto">
+            <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
+            <h1 className="font-serif text-4xl md:text-5xl text-chm-black mb-4">Get Your Quote</h1>
+            <p className="text-gray-600 text-lg">Select a service, tell us more, and get an instant estimate. Book with confidence.</p>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
+          <Suspense fallback={<div className="text-center py-12"><p className="text-gray-600">Loading form...</p></div>}>
+            <MergedQuoteBookingForm initial={initial} />
+          </Suspense>
         </div>
       </div>
-
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
-        <MergedQuoteBookingForm services={SERVICES} initial={initial} />
-      </div>
-    </div>
+    </main>
   )
 }
