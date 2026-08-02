@@ -28,7 +28,6 @@ export default async function AdminSchedulePage({
 
   return (
     <div className="space-y-12">
-      {/* ===== APPOINTMENTS SECTION ===== */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
@@ -37,21 +36,24 @@ export default async function AdminSchedulePage({
               <p className="text-sm text-amber-600 mt-1">{pendingCount} awaiting confirmation</p>
             )}
           </div>
-          {/* Status filter */}
           <div className="flex gap-2 flex-wrap">
-            {STATUS_FILTER_LABELS.map(s => (
-              
-                key={s}
-                href={s === 'all' ? '/admin/schedule' : `/admin/schedule?status=${s}`}
-                className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
-                  filterStatus === s
-                    ? 'bg-chm-black text-white border-chm-black'
-                    : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
-                }`}
-              >
-                {s}
-              </a>
-            ))}
+            {STATUS_FILTER_LABELS.map(s => {
+              const href = s === 'all' ? '/admin/schedule' : `/admin/schedule?status=${s}`
+              const isActive = filterStatus === s
+              return (
+                <a
+                  key={s}
+                  href={href}
+                  className={`text-xs px-3 py-1.5 border uppercase tracking-wide font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-chm-black text-white border-chm-black'
+                      : 'text-gray-500 border-gray-200 hover:border-chm-black hover:text-chm-black'
+                  }`}
+                >
+                  {s}
+                </a>
+              )
+            })}
           </div>
         </div>
 
@@ -64,11 +66,13 @@ export default async function AdminSchedulePage({
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-gray-200 bg-gray-50">
-                  {['Customer', 'Date & Time', 'Service', 'Contact', 'Address', 'Notes', 'Status'].map(h => (
-                    <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
-                      {h}
-                    </th>
-                  ))}
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Customer</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Date &amp; Time</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Service</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Contact</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Address</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Notes</th>
+                  <th className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -116,7 +120,6 @@ export default async function AdminSchedulePage({
         )}
       </div>
 
-      {/* ===== SHIFTS SECTION ===== */}
       <div className="border-t-2 border-gray-200 pt-12">
         <ShiftsSection />
       </div>
