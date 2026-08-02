@@ -12,18 +12,17 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
-    const { full_name, email } = await req.json()
-
-    if (!full_name || !email) {
-      return NextResponse.json({ error: 'Full Name and Email are required' }, { status: 400 })
+    const { full_name, email, applicant_id } = await req.json()
+    if (!full_name || !email || !applicant_id) {
+      return NextResponse.json({ error: 'Full Name, Email, and Applicant ID are required' }, { status: 400 })
     }
-
     // Generate unique invite token
     const invite_token = crypto.randomBytes(32).toString('hex')
     const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
 
     // Create invite record
     const { error: insertError } = await supabase.from('staff_invites').insert({
+      applicant_id,
       invite_token,
       email,
       status: 'pending',
