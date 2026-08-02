@@ -3,11 +3,10 @@
 import { useState } from 'react'
 
 interface SendInviteCardProps {
-  applicant_id: string
   onSuccess?: () => void
 }
 
-export default function SendInviteCard({ applicant_id, onSuccess }: SendInviteCardProps) {
+export default function SendInviteCard({ onSuccess }: SendInviteCardProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -37,10 +36,7 @@ export default function SendInviteCard({ applicant_id, onSuccess }: SendInviteCa
       const res = await fetch('/api/admin/offer-letters/send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          applicant_id,
-        }),
+        body: JSON.stringify(formData),
       })
       const data = await res.json()
       if (!res.ok) {
