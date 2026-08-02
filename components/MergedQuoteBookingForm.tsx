@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { BUNDLES } from '@/lib/bundles'
 import BundleModal from './BundleModal'
-import BookingCalendar from './BookingCalendar'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
@@ -130,12 +129,6 @@ async function fileToBase64(file: File): Promise<string> {
   })
 }
 
-interface Service {
-  id: string
-  title: string
-  price_from: string
-}
-
 interface MergedFormProps {
   initial?: { name: string; email: string; phone: string; serviceId: string }
 }
@@ -250,6 +243,14 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     setStatus('submitting')
     setErrorMsg('')
 
+    // Validate all required fields
+    if (!bookingForm.customer_name?.trim() || !bookingForm.phone?.trim() || !bookingForm.address?.trim() || !bookingForm.state || !bookingForm.appointment_date || !bookingForm.time_slot || !bookingForm.email?.trim()) {
+      setErrorMsg('Please fill in all required fields')
+      setStatus('idle')
+      return
+    }
+
+    // Check for Sunday
     if (new Date(bookingForm.appointment_date + 'T12:00:00').getDay() === 0) {
       setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
       setStatus('idle')
@@ -267,10 +268,26 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
         invoice_type = invoiceFile.type
       }
 
+      const payload = {
+        customer_name: bookingForm.customer_name.trim(),
+        phone: bookingForm.phone.trim(),
+        email: bookingForm.email.trim(),
+        address: bookingForm.address.trim(),
+        state: bookingForm.state,
+        service_id: sel.serviceId || category,
+        appointment_date: bookingForm.appointment_date,
+        time_slot: bookingForm.time_slot,
+        notes: bookingForm.notes?.trim() || null,
+        service_title: String(sel.bundleName || CATEGORY_TITLES[category] || ''),
+        invoice_base64,
+        invoice_filename,
+        invoice_type,
+      }
+
       const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...bookingForm, invoice_base64, invoice_filename, invoice_type }),
+        body: JSON.stringify(payload),
       })
 
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
@@ -407,7 +424,7 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     )
   }
 
-  // ===== BOOKING DETAILS STEP =====
+  // ===== BOOKING DETAILS STEP (FIXED WITH NATIVE DATE INPUT) =====
   if (quoteStep === 'booking') {
     return (
       <div className="max-w-3xl">
@@ -436,9 +453,9 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
                   required
                   type="tel"
                   value={bookingForm.phone}
-                  onChange={e => setBooking('phone', e.target.value)}
+                  onChange={e => setBooking('phone', formatPhone(e.target.value))}
                   className={inputClass}
-                  placeholder="202-555-0100"
+                  placeholder="(202) 555-0100"
                 />
               </div>
             </div>
@@ -492,20 +509,21 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
               <label className={labelClass}>
                 Preferred Date * <span className="text-gray-400 normal-case tracking-normal">(Mon–Sat only)</span>
               </label>
-              <BookingCalendar
+              <input
+                required
+                type="date"
                 value={bookingForm.appointment_date}
-                onChange={val => {
+                onChange={e => {
                   setErrorMsg('')
-                  setBooking('appointment_date', val)
-                  if (bookingForm.time_slot && isSlotDisabled(bookingForm.time_slot, val, SERVICE_MAP[category] || '')) {
+                  setBooking('appointment_date', e.target.value)
+                  if (bookingForm.time_slot && isSlotDisabled(bookingForm.time_slot, e.target.value, SERVICE_MAP[category] || '')) {
                     setBooking('time_slot', '')
                   }
                 }}
                 min={minDate}
                 max={maxDate}
-                onSundayAttempt={() => setErrorMsg('We are closed on Sundays — please pick a Monday–Saturday date.')}
+                className={inputClass}
               />
-              <input required type="text" value={bookingForm.appointment_date} readOnly tabIndex={-1} className="sr-only" aria-hidden="true" />
             </div>
             <div>
               <label className={labelClass}>Preferred Time *</label>
