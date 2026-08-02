@@ -3,10 +3,11 @@
 import { useState } from 'react'
 
 interface SendInviteCardProps {
+  applicant_id: string
   onSuccess?: () => void
 }
 
-export default function SendInviteCard({ onSuccess }: SendInviteCardProps) {
+export default function SendInviteCard({ applicant_id, onSuccess }: SendInviteCardProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -36,18 +37,17 @@ export default function SendInviteCard({ onSuccess }: SendInviteCardProps) {
       const res = await fetch('/api/admin/offer-letters/send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          applicant_id,
+        }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
         throw new Error(data.error || 'Failed to send invite')
       }
-
       setSuccess(true)
       setFormData({ full_name: '', email: '', phone: '' })
-
       setTimeout(() => {
         setSuccess(false)
         if (onSuccess) onSuccess()
