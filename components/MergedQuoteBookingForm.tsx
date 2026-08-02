@@ -8,6 +8,7 @@ import BookingCalendar from './BookingCalendar'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
+type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
 
 const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
 
@@ -78,7 +79,7 @@ function formatPhone(value: string) {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
 }
 
-function summarizeSelections(category: Category, sel: Record<string, any>): string[] {
+function summarizeSelections(category: Category, sel: SelectionRecord): string[] {
   const lines: string[] = []
   
   if (category === 'cleaning') {
@@ -147,12 +148,10 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
     ? new Date(Date.now() + 86400000).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
     : _etToday
 
-  const initialService = initial?.serviceId ? services.find(s => s.id === initial.serviceId) : undefined
-
   // Quote state
   const [step, setStep] = useState(1)
   const [category, setCategory] = useState<Category>('')
-  const [sel, setSel] = useState<Record<string, any>>({})
+  const [sel, setSel] = useState<SelectionRecord>({})
   const [contact, setContact] = useState({ name: initial?.name || '', email: initial?.email || '', phone: initial?.phone || '' })
   const [honeypot, setHoneypot] = useState('')
   const [showBundleModal, setShowBundleModal] = useState(false)
@@ -183,7 +182,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
   const minDate = _defaultDate
   const maxDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  function set(field: string, value: unknown) {
+  function set(field: string, value: string | number | boolean | string[]) {
     setSel(s => ({ ...s, [field]: value }))
   }
 
@@ -193,7 +192,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
 
   function toggleAddon(val: string) {
     setSel(s => {
-      const current: string[] = s.addOns || []
+      const current: string[] = (s.addOns as string[]) || []
       return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
     })
   }
@@ -326,7 +325,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
     )
   }
 
-  // ===== QUOTE PREVIEW SCREEN (After step 4) =====
+  // ===== QUOTE PREVIEW SCREEN =====
   if (quoteStep === 'quote') {
     const isBundle = sel.bundleId
     const lines = isBundle ? [] : summarizeSelections(category, sel)
@@ -392,7 +391,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               </button>
               <button
                 type="button"
-                onClick={() => { setQuoteStep(null); setStep(1); setCategory(''); setSel({}); }}
+                onClick={() => { setQuoteStep(null); setStep(1); setCategory(''); setSel({}) }}
                 className="w-full border-2 border-gray-200 text-gray-600 px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red transition-colors"
               >
                 Back to Quote
@@ -409,7 +408,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
     )
   }
 
-  // ===== BOOKING DETAILS STEP (After quote preview) =====
+  // ===== BOOKING DETAILS STEP =====
   if (quoteStep === 'booking') {
     return (
       <div className="max-w-3xl">
@@ -587,8 +586,8 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
       { id: 'mealprep', title: 'Meal Prep', desc: 'Weekly meal preparation plans' },
       { id: 'nanny', title: 'Nanny & Childcare', desc: 'Full-time, hourly, or specialized childcare' },
       { id: 'eldercare', title: 'Elder & Companion Care', desc: 'Companion care, hourly support, or day programs' },
-      { id: 'commercial', title: 'Commercial Cleaning', desc: "We'll send you a custom quote" },
-      { id: 'special', title: 'Special Project / Event', desc: "We'll send you a custom quote" },
+      { id: 'commercial', title: 'Commercial Cleaning', desc: 'We\'ll send you a custom quote' },
+      { id: 'special', title: 'Special Project / Event', desc: 'We\'ll send you a custom quote' },
     ]
 
     return (
@@ -750,7 +749,7 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                         { v: 'disinfect', l: 'Disinfection Upgrade' },
                       ].map(a => (
                         <label key={a.v} className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" checked={(sel.addOns || []).includes(a.v)} onChange={() => toggleAddon(a.v)} className="w-4 h-4 accent-chm-red" />
+                          <input type="checkbox" checked={(sel.addOns as string[] || []).includes(a.v)} onChange={() => toggleAddon(a.v)} className="w-4 h-4 accent-chm-red" />
                           {a.l}
                         </label>
                       ))}
@@ -827,37 +826,6 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </select>
                 </div>
               )}
-              {sel.planType && (
-                <div>
-                  <p className={labelClass}>Specialty Add-Ons (optional)</p>
-                  <div className="space-y-2">
-                    {[
-                      { key: 'stainRemoval', label: 'Stain Removal Treatment', price: '$15/item' },
-                      { key: 'allergenFree', label: 'Allergen-Free Wash Cycle', price: '+$15/load' },
-                      { key: 'hypoallergenic', label: 'Hypoallergenic Detergent', price: '+$10/load' },
-                      { key: 'comforter', label: 'Comforter / Duvet Cleaning', price: '$40 each' },
-                      { key: 'beddingSet', label: 'Bedding Set (full + pillowcases)', price: '$50/set' },
-                      { key: 'curtainPanels', label: 'Curtain Panels', price: '$3.50/panel' },
-                      { key: 'tablecloths', label: 'Tablecloths', price: '$20 each' },
-                    ].map(a => (
-                      <div key={a.key} className="flex items-center justify-between gap-3 border border-gray-100 px-4 py-2">
-                        <span className="text-sm text-gray-700">{a.label} <span className="text-gray-400 text-xs">({a.price})</span></span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={(sel.addOnQty || {})[a.key] || ''}
-                          onChange={e => {
-                            const qty = e.target.value
-                            setSel(s => ({ ...s, addOnQty: { ...(s.addOnQty || {}), [a.key]: qty } }))
-                          }}
-                          className="w-16 border border-gray-200 px-2 py-1 text-sm text-center"
-                          placeholder="0"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </>
           )}
 
@@ -925,10 +893,10 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                         <input
                           type="number"
                           min={0}
-                          value={(sel.specialtyQty || {})[a.key] || ''}
+                          value={((sel.specialtyQty as Record<string, string>) || {})[a.key] || ''}
                           onChange={e => {
                             const qty = e.target.value
-                            setSel(s => ({ ...s, specialtyQty: { ...(s.specialtyQty || {}), [a.key]: qty } }))
+                            setSel(s => ({ ...s, specialtyQty: { ...(s.specialtyQty as Record<string, string> || {}), [a.key]: qty } }))
                           }}
                           className="w-16 border border-gray-200 px-2 py-1 text-sm text-center"
                           placeholder="0"
@@ -954,28 +922,6 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                   <p className="text-xs text-gray-400">Mileage and receipt reimbursement calculated separately at time of service.</p>
                 </>
-              )}
-              {(sel.mode === 'monthly' || sel.mode === 'specialty') && sel.mode && (
-                <div>
-                  <p className={labelClass}>Dietary Modifications (optional)</p>
-                  <div className="space-y-2">
-                    {[
-                      { v: 'glutenfree', l: 'Gluten-Free (+17.5%)' },
-                      { v: 'vegan', l: 'Vegan/Vegetarian (+10%)' },
-                      { v: 'keto', l: 'Keto/Low-Carb (+17.5%)' },
-                    ].map(d => (
-                      <label key={d.v} className="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" checked={(sel.dietary || []).includes(d.v)}
-                          onChange={() => setSel(cur => {
-                            const list: string[] = cur.dietary || []
-                            return { ...cur, dietary: list.includes(d.v) ? list.filter((x: string) => x !== d.v) : [...list, d.v] }
-                          })} className="w-4 h-4 accent-chm-red" />
-                        {d.l}
-                      </label>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">Need an allergen-free or medical diet plan? Select "Nanny, Elder Care, Commercial & Special Projects" on the previous step for a custom quote instead.</p>
-                </div>
               )}
             </>
           )}
@@ -1078,55 +1024,6 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
                   </div>
                 </>
               )}
-              {category === 'nanny' && sel.mode && (
-                <>
-                  <div>
-                    <label className={labelClass}>Additional Children <span className="text-gray-400 normal-case">(beyond first child)</span></label>
-                    <input type="number" min={0} value={sel.extraChildren || ''} onChange={e => set('extraChildren', e.target.value)} className={inputClass} placeholder="0" />
-                  </div>
-                  <div>
-                    <p className={labelClass}>Specialized Care (optional)</p>
-                    <div className="space-y-2">
-                      {[
-                        { v: 'infant', l: 'Infant Care Specialist (+$4/hr)' },
-                        { v: 'specialneeds', l: 'Special Needs Care (+$6.50/hr)' },
-                        { v: 'bilingual', l: 'Bilingual Nanny (+$5/hr)' },
-                      ].map(s => (
-                        <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" checked={(sel.specialized || []).includes(s.v)}
-                            onChange={() => setSel(cur => {
-                              const list: string[] = cur.specialized || []
-                              return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] }
-                            })} className="w-4 h-4 accent-chm-red" />
-                          {s.l}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-              {category === 'eldercare' && (sel.mode === 'monthly' || sel.mode === 'hourly') && (
-                <div>
-                  <p className={labelClass}>Specialized Care (optional)</p>
-                  <div className="space-y-2">
-                    {[
-                      { v: 'dementia', l: "Dementia/Alzheimer's Care (+$6/hr)" },
-                      { v: 'postsurgical', l: 'Post-Surgical Recovery Support (+$7.50/hr)' },
-                      { v: 'mobility', l: 'Mobility & Physical Assistance (+$4.50/hr)' },
-                      { v: 'medication', l: 'Medication Management (+$3/hr)' },
-                    ].map(s => (
-                      <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" checked={(sel.specialized || []).includes(s.v)}
-                          onChange={() => setSel(cur => {
-                            const list: string[] = cur.specialized || []
-                            return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] }
-                          })} className="w-4 h-4 accent-chm-red" />
-                        {s.l}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
             </>
           )}
 
@@ -1136,8 +1033,8 @@ export default function MergedQuoteBookingForm({ services, initial }: MergedForm
               <label className={labelClass}>Tell us more about what you need *</label>
               <textarea required rows={5} value={sel.details || ''} onChange={e => set('details', e.target.value)} className={inputClass}
                 placeholder={category === 'commercial'
-                  ? 'Property size (sq ft), office type, cleaning frequency needed, any specialized requirements (medical, restaurant, gym, etc.)'
-                  : 'Project type, timeline, event date, scope of work, special requirements, etc.'} />
+                  ? "Property size (sq ft), office type, cleaning frequency needed, any specialized requirements (medical, restaurant, gym, etc.)"
+                  : "Project type, timeline, event date, scope of work, special requirements, etc."} />
             </div>
           )}
 
