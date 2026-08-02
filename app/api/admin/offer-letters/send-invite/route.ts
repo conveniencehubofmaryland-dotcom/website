@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (insertError) throw insertError
 
     // Build onboarding button link
-    const onboarding_link = `https://conventiencehubofmaryland.com/staff?invite_token=${invite_token}`
+    const onboarding_link = `https://conveniencehubofmaryland.com/staff?invite_token=${invite_token}``
 
     // Send email with clickable button
     const { error: emailError } = await resend.emails.send({
