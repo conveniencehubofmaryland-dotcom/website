@@ -137,11 +137,10 @@ interface Service {
 }
 
 interface MergedFormProps {
-  services: Service[]
   initial?: { name: string; email: string; phone: string; serviceId: string }
 }
 
-export default function MergedQuoteBookingForm({ services, initial }: MergedFormProps) {
+export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
   const _etToday = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   const _etDow = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
   const _defaultDate = _etDow === 'Sun'
