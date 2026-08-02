@@ -46,11 +46,6 @@ export default function OfferLettersClient({
   filtered,
   offerMap,
 }: OfferLettersClientProps) {
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-  const handleInviteSent = () => {
-    setRefreshTrigger(prev => prev + 1)
-  }
 
   return (
     <div>
@@ -66,7 +61,7 @@ export default function OfferLettersClient({
       </div>
 
       {/* SEPARATE INVITE SECTION - AT TOP */}
-      <SendInviteCard onSuccess={handleInviteSent} />
+      <SendInviteCard />
 
       <div className="space-y-10">
         {POSITION_LIST.map(position => {
