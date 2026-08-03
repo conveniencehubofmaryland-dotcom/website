@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { id } = params
 
   if (!id) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 })
