@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
-import StaffRecordsTableClient from '@/app/components/StaffRecordsTableClient'
+import StaffRecordsTableClient from '@/components/StaffRecordsTableClient'
 
 interface StaffRecord {
   id: string
