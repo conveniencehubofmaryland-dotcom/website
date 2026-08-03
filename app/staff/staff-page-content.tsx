@@ -28,6 +28,10 @@ export default function StaffPageContent() {
           }
           const data = await res.json()
           setStaffName(data.staffName || 'New Team Member')
+          // Store applicant_id for later use in onboarding flow
+          if (data.applicant_id && typeof window !== 'undefined') {
+            localStorage.setItem('applicant_id', data.applicant_id)
+          }
           setLoading(false)
           return
         }
