@@ -33,9 +33,7 @@ export async function POST(req: NextRequest) {
     const applicant = applicants[0]
 
     // Check if onboarding is complete
-    // Accept both 'orientation_completed' and 'ready_to_claim_shifts' as valid states
-    if (applicant.onboarding_status !== 'orientation_completed' && 
-        applicant.onboarding_status !== 'ready_to_claim_shifts') {
+    if (applicant.onboarding_status !== 'ready_to_claim_shifts') {
       return NextResponse.json(
         { error: 'Onboarding not complete. Please wait for HR approval.' },
         { status: 403 }
