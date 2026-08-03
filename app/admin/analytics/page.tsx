@@ -245,19 +245,6 @@ export default async function AdminAnalyticsPage() {
           )}
         </div>
 
-        {/* All Staff Records */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-serif text-xl text-chm-black">All Staff Records</h3>
-            <Link
-              href="/admin/signed-documents"
-              className="bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors"
-            >
-              View Signed Documents
-            </Link>
-          </div>
-          <StaffRecordsTable records={merged} deleteButton={DeleteButton} />
-        </div>
       </div>
     </div>
   )
