@@ -13,19 +13,26 @@ export default function StaffPageContent() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // If invite token present, store it and redirect to onboarding
-    if (inviteToken) {
-      // Store token in localStorage for later use
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('invite_token', inviteToken)
-      }
-      // Redirect directly to staff welcome/orientation
-      router.push(`/staff/welcome?invite_token=${inviteToken}`)
-      return
-    }
-
     async function checkAuth() {
       try {
+        // If invite token present, look up the applicant
+        if (inviteToken) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('invite_token', inviteToken)
+          }
+          const res = await fetch(`/api/staff/welcome/check?invite_token=${inviteToken}`)
+          if (!res.ok) {
+            setStaffName('New Team Member')
+            setLoading(false)
+            return
+          }
+          const data = await res.json()
+          setStaffName(data.staffName || 'New Team Member')
+          setLoading(false)
+          return
+        }
+
+        // Normal auth check (no invite token)
         let applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
         if (!applicantId) {
           const cookies = document.cookie.split(';')
@@ -45,7 +52,9 @@ export default function StaffPageContent() {
         setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
         console.error('Auth check failed:', err)
-        router.push('/welcome-center')
+        if (!inviteToken) {
+          router.push('/welcome-center')
+        }
       } finally {
         setLoading(false)
       }
