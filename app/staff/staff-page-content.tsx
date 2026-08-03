@@ -13,9 +13,14 @@ export default function StaffPageContent() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // If invite token present, redirect to welcome center with it
+    // If invite token present, store it and redirect to onboarding
     if (inviteToken) {
-      router.push(`/welcome-center?invite=${inviteToken}`)
+      // Store token in localStorage for later use
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('invite_token', inviteToken)
+      }
+      // Redirect directly to staff welcome/orientation
+      router.push(`/staff/welcome?invite_token=${inviteToken}`)
       return
     }
 
@@ -45,6 +50,7 @@ export default function StaffPageContent() {
         setLoading(false)
       }
     }
+    
     checkAuth()
   }, [router, inviteToken])
 
