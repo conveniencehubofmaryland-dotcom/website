@@ -268,13 +268,17 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
         invoice_type = invoiceFile.type
       }
 
+      // For bundles, use bundleId as service_id; for regular services, use serviceId or category
+      const isBundle = sel.bundleId !== undefined
+      const serviceId = isBundle ? String(sel.bundleId) : (sel.serviceId || category)
+      
       const payload = {
         customer_name: bookingForm.customer_name.trim(),
         phone: bookingForm.phone.trim(),
         email: bookingForm.email.trim(),
         address: bookingForm.address.trim(),
         state: bookingForm.state,
-        service_id: sel.serviceId || category,
+        service_id: serviceId,
         appointment_date: bookingForm.appointment_date,
         time_slot: bookingForm.time_slot,
         notes: bookingForm.notes?.trim() || null,
