@@ -496,10 +496,15 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     </div>
   )
 }
-          <p className="text-gray-500 text-sm max-w-sm mx-auto">
-            Since this service is customized, our team will follow up with a personalized quote shortly.
-          </p>
+          ) : (
+          <div className="max-w-md mx-auto text-center border border-gray-200 p-6 mt-6">
+            <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">What you selected</p>
+            <p className="font-semibold text-chm-black mb-6">{isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}</p>
+            <p className="text-sm text-gray-600">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>
+          </div>
         )}
+
+        <div className="border-t border-gray-200 mt-6 pt-6 space-y-3 max-w-md mx-auto">
       </div>
     )
   }
