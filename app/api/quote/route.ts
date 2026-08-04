@@ -446,14 +446,14 @@ export async function POST(req: NextRequest) {
 <p style="font-size:12px;color:#999;margin-top:10px">This is an estimate. Final pricing confirmed after a brief assessment.</p>`
       : `<p style="font-size:14px;color:#333">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>`
 
-    const bookLink = bookNowUrl(category, name.trim(), email.trim(), phone.trim())
     const bookNowBlock = total !== null
-      ? `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
-<p style="font-size:13px;color:#333;margin:0 0 12px">Already paid your deposit? Click below to confirm your appointment details.</p>
-<a href="${bookLink}" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">Book Now →</a>
+  ? `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
+<a href="https://conveniencehubofmaryland.com/book" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">View Your Quote →</a>
+<p style="font-size:12px;color:#999;margin-top:10px">Click <strong>"Book Now with This Quote"</strong> to proceed with booking details.</p>
 </div>`
-      : `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
-<a href="${bookLink}" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">Book Now →</a>
+  : `<div style="background:#f8f6f2;padding:20px;text-align:center;margin-top:20px">
+<a href="https://conveniencehubofmaryland.com/book" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px">View Quote Request →</a>
+<p style="font-size:12px;color:#999;margin-top:10px">Our team will send you a personalized quote shortly.</p>
 </div>`
 
     if (apiKey) {
