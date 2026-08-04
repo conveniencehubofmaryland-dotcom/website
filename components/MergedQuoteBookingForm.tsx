@@ -217,7 +217,7 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     const res = await fetch('/api/quote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...contact, category: serviceCategory, selections: sel, honeypot }),
+      body: JSON.stringify({ ...contact, category: sel.bundleId ? `bundle-${sel.bundleId}` : category, selections: sel, honeypot }),
     })
 
     const data = await res.json().catch(() => ({}))
