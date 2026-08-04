@@ -205,39 +205,42 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
   }
 
   async function handleQuoteSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setStatus('submitting')
-    setErrorMsg('')
+  e.preventDefault()
+  setStatus('submitting')
+  setErrorMsg('')
 
-    try {
-      const res = await fetch('/api/quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...contact, category, selections: sel, honeypot }),
-      })
+  try {
+    // For bundles, use bundleId; for regular services, use category
+    const isBundle = sel.bundleId !== undefined
+    const serviceCategory = isBundle ? `bundle-${sel.bundleId}` : category
 
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+    const res = await fetch('/api/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...contact, category: serviceCategory, selections: sel, honeypot }),
+    })
 
-      const fallbackLink = `/book?name=${encodeURIComponent(contact.name)}&email=${encodeURIComponent(contact.email)}&phone=${encodeURIComponent(contact.phone)}&service=${SERVICE_MAP[category] || ''}`
-      
-      setResult({
-        subtotal: data.subtotal ?? null,
-        tax: data.tax ?? null,
-        total: data.total ?? null,
-        deposit: data.deposit ?? null,
-        breakdown: data.breakdown ?? [],
-        bookLink: data.bookLink || fallbackLink,
-      })
-      
-      setQuoteStep('quote')
-      setStatus('idle')
-    } catch (err) {
-      setStatus('error')
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
-    }
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+
+    const fallbackLink = `/book?name=${encodeURIComponent(contact.name)}&email=${encodeURIComponent(contact.email)}&phone=${encodeURIComponent(contact.phone)}&service=${SERVICE_MAP[serviceCategory] || ''}`
+    
+    setResult({
+      subtotal: data.subtotal ?? null,
+      tax: data.tax ?? null,
+      total: data.total ?? null,
+      deposit: data.deposit ?? null,
+      breakdown: data.breakdown ?? [],
+      bookLink: data.bookLink || fallbackLink,
+    })
+    
+    setQuoteStep('quote')
+    setStatus('idle')
+  } catch (err) {
+    setStatus('error')
+    setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
   }
-
+}
   async function handleBookingSubmit(e: React.FormEvent) {
     e.preventDefault()
     setStatus('submitting')
