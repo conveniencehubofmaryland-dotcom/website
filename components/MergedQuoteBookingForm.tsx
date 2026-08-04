@@ -238,51 +238,63 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     }
   }
 
-  async function handleQuoteSubmit(e: React.FormEvent) {
-  e.preventDefault()
-  setStatus('submitting')
-  setErrorMsg('')
-  
-  // Validate contact info only (name, phone, email)
-  if (!contact.name?.trim() || !contact.phone?.trim() || !contact.email?.trim()) {
-    setErrorMsg('Please fill in all required fields')
-    setStatus('idle')
-    return
-  }
-
-  try {
-    const payload = {
-      name: contact.name.trim(),
-      email: contact.email.trim(),
-      phone: contact.phone.trim(),
-      category: category,
-      selections: selections,
-      honeypot: honeypot,
+  async function handleBookingSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setStatus('submitting')
+    setErrorMsg('')
+    // Validate all required fields
+    if (!bookingForm.customer_name?.trim() || !bookingForm.phone?.trim() || !bookingForm.address?.trim() || !bookingForm.state || !bookingForm.appointment_date || !bookingForm.time_slot || !bookingForm.email?.trim()) {
+      setErrorMsg('Please fill in all required fields')
+      setStatus('idle')
+      return
     }
-
-    const res = await fetch('/api/quote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error ?? 'Failed to get quote')
-    
-    setResult({
-      total: data.total,
-      subtotal: data.subtotal,
-      tax: data.tax,
-      deposit: data.deposit,
-      breakdown: data.breakdown,
-    })
-    setQuoteStep('quote')
-    setStatus('success')
-  } catch (err) {
-    setStatus('error')
-    setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
+    // Check for Sunday
+    if (new Date(bookingForm.appointment_date + 'T12:00:00').getDay() === 0) {
+      setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
+      setStatus('idle')
+      return
+    }
+    try {
+      let invoice_base64: string | null = null
+      let invoice_filename: string | null = null
+      let invoice_type: string | null = null
+      if (invoiceFile) {
+        invoice_base64 = await fileToBase64(invoiceFile)
+        invoice_filename = invoiceFile.name
+        invoice_type = invoiceFile.type
+      }
+      // For bundles, use bundleId as service_id; for regular services, use serviceId or category
+      const isBundle = sel.bundleId !== undefined
+      const serviceId = isBundle ? String(sel.bundleId) : (sel.serviceId || category)
+      
+      const payload = {
+        customer_name: bookingForm.customer_name.trim(),
+        phone: bookingForm.phone.trim(),
+        email: bookingForm.email.trim(),
+        address: bookingForm.address.trim(),
+        state: bookingForm.state,
+        service_id: serviceId,
+        appointment_date: bookingForm.appointment_date,
+        time_slot: bookingForm.time_slot,
+        notes: bookingForm.notes?.trim() || null,
+        service_title: String(sel.bundleName || CATEGORY_TITLES[category] || ''),
+        invoice_base64,
+        invoice_filename,
+        invoice_type,
+      }
+      const res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
+      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
+    }
   }
-}
 
   const inputClass = "w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors bg-white"
   const labelClass = "block text-xs uppercase tracking-widest text-gray-500 mb-2"
