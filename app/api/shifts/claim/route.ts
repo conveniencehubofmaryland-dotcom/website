@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // 1. Fetch shift details
+    // 1. Fetch shift details with appointment relationship
     const shiftRes = await fetch(
-      `${supabaseUrl}/rest/v1/shifts?id=eq.${encodeURIComponent(shiftId)}`,
+      `${supabaseUrl}/rest/v1/shifts?id=eq.${encodeURIComponent(shiftId)}&select=*,appointments(customer_name,phone,email,address,state,notes)`,
       {
         headers: {
           apikey: supabaseKey,
@@ -31,18 +31,16 @@ export async function POST(request: NextRequest) {
         },
       }
     )
-
     if (!shiftRes.ok) {
       console.error('[shifts] Error fetching shift:', shiftRes.status)
       return NextResponse.json({ error: 'Shift not found' }, { status: 404 })
     }
-
     const shifts = await shiftRes.json()
     if (!shifts || shifts.length === 0) {
       return NextResponse.json({ error: 'Shift not found' }, { status: 404 })
     }
-
     const shift = shifts[0]
+    const appointment = shift.appointments?.[0] || {}
 
     // 2. Update shift with staff details using service role
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -108,24 +106,20 @@ export async function POST(request: NextRequest) {
                 
                 <table style="border-collapse: collapse; font-size: 14px; width: 100%; margin: 20px 0;">
                   <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 10px 0; color: #888; width: 140px;">Date</td>
-                    <td style="color: #222; font-weight: 600;">${shiftDate}</td>
+                    <td style="padding: 10px 0; color: #888;">Customer Name</td>
+                    <td style="color: #222; font-weight: 600;">${appointment.customer_name || 'N/A'}</td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 10px 0; color: #888;">Start Time</td>
-                    <td style="color: #222; font-weight: 600;">${shift.start_time}</td>
+                    <td style="padding: 10px 0; color: #888;">Customer Phone</td>
+                    <td style="color: #222; font-weight: 600;"><a href="tel:${appointment.phone}" style="color: #E8192C;">${appointment.phone || 'N/A'}</a></td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 10px 0; color: #888;">End Time</td>
-                    <td style="color: #222; font-weight: 600;">${shift.end_time}</td>
+                    <td style="padding: 10px 0; color: #888;">Customer Email</td>
+                    <td style="color: #222; font-weight: 600;">${appointment.email || 'N/A'}</td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 10px 0; color: #888;">Location</td>
-                    <td style="color: #222; font-weight: 600;">${shift.location}</td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 10px 0; color: #888;">Role</td>
-                    <td style="color: #222; font-weight: 600;">${shift.role}</td>
+                    <td style="padding: 10px 0; color: #888;">Special Notes</td>
+                    <td style="color: #222; white-space: pre-wrap;">${appointment.notes || 'None'}</td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f0f0f0;">
                     <td style="padding: 10px 0; color: #888;">Pay Rate</td>
