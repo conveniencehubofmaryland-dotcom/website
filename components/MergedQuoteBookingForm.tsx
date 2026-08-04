@@ -400,7 +400,9 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
 
         {/* CUSTOM SERVICE MESSAGE - only show if no pricing */}
         {result.total === null && (
-          <p style="font-size:14px;color:#333;margin-top:20px">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded">
+            <p className="text-sm text-gray-600">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>
+          </div>
         )}
 
         {/* BOOK NOW BUTTON - ALWAYS SHOW */}
