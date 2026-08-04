@@ -342,46 +342,46 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
 
   // ===== QUOTE PREVIEW SCREEN =====
   if (quoteStep === 'quote') {
-    const isBundle = sel.bundleId
-    const lines = isBundle ? [] : summarizeSelections(category, sel)
+  const isBundle = sel.bundleId
+  const lines = isBundle ? [] : summarizeSelections(category, sel)
 
-    return (
-      <div className="text-center py-12">
-        <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
-        <p className="font-serif text-2xl text-chm-black mb-3">Your Estimate</p>
+  return (
+    <div className="text-center py-12">
+      <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
+      <p className="font-serif text-2xl text-chm-black mb-3">Your Estimate</p>
 
-        {result.total != null ? (
-          <div className="max-w-md mx-auto text-left border border-gray-200 p-6 mt-6">
-            <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">What you selected</p>
-            <p className="font-semibold text-chm-black mb-4">
-              {isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}
-            </p>
+      <div className="max-w-md mx-auto text-left border border-gray-200 p-6 mt-6">
+        <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">What you selected</p>
+        <p className="font-semibold text-chm-black mb-4">
+          {isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}
+        </p>
 
-            {!isBundle && lines.length > 0 && (
-              <ul className="space-y-1 mb-6 text-sm text-gray-600">
-                {lines.map((l, i) => <li key={i}>• {l}</li>)}
-              </ul>
-            )}
+        {!isBundle && lines.length > 0 && (
+          <ul className="space-y-1 mb-6 text-sm text-gray-600">
+            {lines.map((l, i) => <li key={i}>• {l}</li>)}
+          </ul>
+        )}
 
-            <div className="border-t border-gray-200 pt-4">
-              <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">Price Breakdown</p>
-              {result.breakdown.map((item, i) => (
-                <div key={i} className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>{item.label}</span>
-                  <span className={item.amount < 0 ? 'text-green-600' : ''}>
-                    {item.amount < 0 ? '-' : ''}${Math.abs(item.amount).toFixed(2)}
-                  </span>
-                </div>
-              ))}
-              <div className="flex justify-between text-sm text-gray-500 mt-3 pt-3 border-t border-gray-100">
-                <span>Subtotal</span><span>${result.subtotal?.toFixed(2)}</span>
+        {/* PRICING - only show if available */}
+        {result.total != null && (
+          <div className="border-t border-gray-200 pt-4">
+            <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">Price Breakdown</p>
+            {result.breakdown.map((item, i) => (
+              <div key={i} className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>{item.label}</span>
+                <span className={item.amount < 0 ? 'text-green-600' : ''}>
+                  {item.amount < 0 ? '-' : ''}${Math.abs(item.amount).toFixed(2)}
+                </span>
               </div>
-              <div className="flex justify-between text-sm text-gray-500 mb-3">
-                <span>Tax (6%)</span><span>${result.tax?.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold text-chm-black border-t border-gray-200 pt-3">
-                <span>Estimated Total</span><span className="text-chm-red">${result.total?.toFixed(2)}</span>
-              </div>
+            ))}
+            <div className="flex justify-between text-sm text-gray-500 mt-3 pt-3 border-t border-gray-100">
+              <span>Subtotal</span><span>${result.subtotal?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-500 mb-3">
+              <span>Tax (6%)</span><span>${result.tax?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-lg font-bold text-chm-black border-t border-gray-200 pt-3">
+              <span>Estimated Total</span><span className="text-chm-red">${result.total?.toFixed(2)}</span>
             </div>
 
             <div className="bg-cream mt-6 p-5 text-center">
@@ -395,26 +395,36 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
                 Enter <strong>${result.deposit?.toFixed(2)}</strong> on the Clover page.
               </p>
             </div>
-
-            <div className="border-t border-gray-200 mt-6 pt-6 space-y-3">
-              <button
-                type="button"
-                onClick={() => setQuoteStep('booking')}
-                className="w-full bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors"
-              >
-                Book Now with This Quote →
-              </button>
-              <button
-                type="button"
-                onClick={() => { setQuoteStep(null); setStep(1); setCategory(''); setSel({}) }}
-                className="w-full border-2 border-gray-200 text-gray-600 px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red transition-colors"
-              >
-                Back to Quote
-              </button>
-              <p className="text-xs text-gray-400">This is an estimate. Final pricing confirmed after assessment.</p>
-            </div>
           </div>
-        ) : (
+        )}
+
+        {/* CUSTOM SERVICE MESSAGE - only show if no pricing */}
+        {result.total === null && (
+          <p style="font-size:14px;color:#333;margin-top:20px">Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.</p>
+        )}
+
+        {/* BOOK NOW BUTTON - ALWAYS SHOW */}
+        <div className="border-t border-gray-200 mt-6 pt-6 space-y-3">
+          <button
+            type="button"
+            onClick={() => setQuoteStep('booking')}
+            className="w-full bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors"
+          >
+            Book Now with This Quote →
+          </button>
+          <button
+            type="button"
+            onClick={() => { setQuoteStep(null); setStep(1); setCategory(''); setSel({}) }}
+            className="w-full border-2 border-gray-200 text-gray-600 px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red transition-colors"
+          >
+            Back to Quote
+          </button>
+          <p className="text-xs text-gray-400">This is an estimate. Final pricing confirmed after assessment.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
           <p className="text-gray-500 text-sm max-w-sm mx-auto">
             Since this service is customized, our team will follow up with a personalized quote shortly.
           </p>
