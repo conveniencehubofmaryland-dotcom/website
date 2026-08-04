@@ -402,7 +402,7 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
             <p className="font-semibold text-chm-black mb-6">
               {isBundle ? String(sel.bundleName) : CATEGORY_TITLES[category] || 'Your Request'}
             </p>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600">
               Thanks for your interest! Since this service is customized, our team will review your details and follow up with a personalized quote shortly.
             </p>
           </div>
@@ -428,6 +428,7 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
       </div>
     )
   }
+
 
 
         {/* PRICING - only show if available */}
