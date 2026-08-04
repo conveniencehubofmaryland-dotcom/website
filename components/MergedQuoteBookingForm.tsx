@@ -243,8 +243,8 @@ export default function MergedQuoteBookingForm({ initial }: MergedFormProps) {
     setStatus('submitting')
     setErrorMsg('')
 
-    // Validate all required fields
-    if (!bookingForm.customer_name?.trim() || !bookingForm.phone?.trim() || !bookingForm.address?.trim() || !bookingForm.state || !bookingForm.appointment_date || !bookingForm.time_slot || !bookingForm.email?.trim()) {
+    // Validate contact info (name, phone, email only - no booking fields needed here)
+    if (!bookingForm.customer_name?.trim() || !bookingForm.phone?.trim() || !bookingForm.email?.trim()) {
       setErrorMsg('Please fill in all required fields')
       setStatus('idle')
       return
