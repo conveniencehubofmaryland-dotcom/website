@@ -498,7 +498,7 @@ ${bookNowBlock}
       }
     }
 
-    return NextResponse.json({ success: true, subtotal, tax, total, deposit, breakdown, bookLink })
+    return NextResponse.json({ success: true, subtotal, tax, total, deposit, breakdown })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[quote] error:', msg)
