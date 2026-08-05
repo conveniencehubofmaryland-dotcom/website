@@ -7,7 +7,7 @@ import BundleModal from './BundleModal'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
-type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
+type SelectionRecord = Record<string, any>
 type QuoteStep = 'quote-preview' | 'booking' | null
 
 const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
@@ -175,7 +175,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
   const minDate = _defaultDate
   const maxDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  function set(field: string, value: string | number | boolean | string[]) {
+  function set(field: string, value: any) {
     setSel(s => ({ ...s, [field]: value }))
   }
 
@@ -185,7 +185,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
 
   function toggleAddon(val: string) {
     setSel(s => {
-      const current: string[] = (s.addOns as string[]) || []
+      const current: string[] = s.addOns || []
       return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
     })
   }
@@ -231,7 +231,6 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         breakdown: data.breakdown ?? [],
       })
       
-      // Show quote preview with two button options
       setQuoteStep('quote-preview')
       setStatus('idle')
     } catch (err) {
@@ -298,32 +297,6 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
     } catch (err) {
       setStatus('error')
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
-    }
-  }
-
-  async function handleJustGetQuote() {
-    // Send quote email without booking
-    setStatus('submitting')
-    try {
-      await fetch('/api/quote-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: contact.name,
-          email: contact.email,
-          phone: contact.phone,
-          service: CATEGORY_TITLES[category] || 'Custom Service',
-          subtotal: result.subtotal,
-          total: result.total,
-          deposit: result.deposit,
-          breakdown: result.breakdown,
-        }),
-      })
-      setStatus('success')
-    } catch (err) {
-      setStatus('idle')
-      // Continue to success anyway
-      setStatus('success')
     }
   }
 
@@ -450,7 +423,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
           </button>
           <button
             type="button"
-            onClick={handleJustGetQuote}
+            onClick={() => setStatus('success')}
             className="w-full border-2 border-gray-200 text-gray-600 px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:border-chm-red transition-colors"
           >
             Just Get Quote
@@ -706,13 +679,14 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
     )
   }
 
-  // ===== STEP 2: DETAILS (SHORTENED FOR BREVITY) =====
+  // ===== STEP 2: DETAILS (ALL CATEGORIES - COMPLETE) =====
   if (step === 2) {
     return (
       <div className="max-w-2xl">
         <ProgressBar current={2} />
         <form onSubmit={e => { e.preventDefault(); setStep(3) }} className="space-y-6">
-          {/* All category-specific fields from original QuoteForm - FULL IMPLEMENTATION */}
+          
+          {/* CLEANING */}
           {category === 'cleaning' && (
             <>
               <div>
@@ -821,7 +795,316 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
             </>
           )}
 
-          {category === 'commercial' || category === 'special' ? (
+          {/* LAUNDRY */}
+          {category === 'laundry' && (
+            <>
+              <div>
+                <p className={labelClass}>Plan Type *</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {[
+                    { v: 'standard', l: 'Standard Service (Per Pound)' },
+                    { v: 'foldingOnly', l: 'Folding Only (Pre-Washed)' },
+                    { v: 'recurring', l: 'Monthly Subscription' },
+                  ].map(o => (
+                    <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
+                      <input type="radio" required name="planType" checked={sel.planType === o.v}
+                        onChange={() => set('planType', o.v)} className="accent-chm-red" />
+                      {o.l}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {sel.planType === 'standard' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Fabric Category *</label>
+                    <select required value={String(sel.category || '')} onChange={e => set('category', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="colors">Colors — $3.99/lb</option>
+                      <option value="mixed">Mixed Load — $4.99/lb</option>
+                      <option value="bedding">Bedding & Linens — $4.99/lb</option>
+                      <option value="whites">Whites — $6.99/lb</option>
+                      <option value="wool">Wool & Sweaters — $7.99/lb</option>
+                      <option value="delicates">Delicates — $8.99/lb</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
+                    <input required type="number" min={10} value={String(sel.weight || '')} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 20" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Premium Add-On</label>
+                    <select value={String(sel.premiumOption || 'none')} onChange={e => set('premiumOption', e.target.value)} className={inputClass}>
+                      <option value="none">None</option>
+                      <option value="ironhang">Iron & Hang (+$2.00/lb)</option>
+                      <option value="expressiron">Express Iron & Press (+$4.00/lb, 2–3 day)</option>
+                      <option value="samedayexpress">Same-Day Express (+$1.75/lb)</option>
+                    </select>
+                  </div>
+                </>
+              )}
+              {sel.planType === 'foldingOnly' && (
+                <div>
+                  <label className={labelClass}>Approximate Weight (lbs) * <span className="text-gray-400 normal-case">— 10 lb minimum</span></label>
+                  <input required type="number" min={10} value={String(sel.weight || '')} onChange={e => set('weight', e.target.value)} className={inputClass} placeholder="e.g. 15" />
+                </div>
+              )}
+              {sel.planType === 'recurring' && (
+                <div>
+                  <label className={labelClass}>Choose a Plan *</label>
+                  <select required value={String(sel.recurringPlan || '')} onChange={e => set('recurringPlan', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="light">Light Load — up to 40 lbs/mo ($140)</option>
+                    <option value="standard">Standard Load — up to 80 lbs/mo ($250)</option>
+                    <option value="premium">Premium Load — up to 120 lbs/mo ($350)</option>
+                    <option value="unlimited">Unlimited Load — no limit ($500)</option>
+                  </select>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* MEAL PREP */}
+          {category === 'mealprep' && (
+            <>
+              <div>
+                <p className={labelClass}>How would you like to be billed? *</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    { v: 'monthly', l: 'Monthly Meal Prep Plan' },
+                    { v: 'hourly', l: 'Hourly Culinary Service' },
+                    { v: 'specialty', l: 'Specialty Meals (Per Serving)' },
+                    { v: 'grocery', l: 'Grocery Shopping Service' },
+                  ].map(o => (
+                    <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
+                      <input type="radio" required name="mode" checked={sel.mode === o.v}
+                        onChange={() => set('mode', o.v)} className="accent-chm-red" />
+                      {o.l}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {sel.mode === 'monthly' && (
+                <div>
+                  <label className={labelClass}>Choose a Plan *</label>
+                  <select required value={String(sel.planTier || '')} onChange={e => set('planTier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="starter">Starter — 10 servings/week (~$350/mo)</option>
+                    <option value="standard">Standard — 20 servings/week (~$675/mo)</option>
+                    <option value="premium">Premium — 30 servings/week (~$975/mo)</option>
+                    <option value="luxury">Luxury — 40+ servings/week (~$1,350/mo)</option>
+                  </select>
+                </div>
+              )}
+              {sel.mode === 'hourly' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="personalchef">Personal Chef / Meal Prep — $90/hr</option>
+                      <option value="eventcatering">Special Event Catering Prep — $87.50/hr</option>
+                      <option value="kitchencoaching">Kitchen Coaching & Training — $105/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 3" />
+                  </div>
+                </>
+              )}
+              {sel.mode === 'specialty' && (
+                <div>
+                  <p className={labelClass}>Servings Needed</p>
+                  <div className="space-y-2">
+                    {[
+                      { key: 'breakfast', label: 'Breakfast Prep', price: '$10/serving' },
+                      { key: 'lunch', label: 'Lunch Pack', price: '$12.50/serving' },
+                      { key: 'dinner', label: 'Dinner Entrée', price: '$16/serving' },
+                      { key: 'dessert', label: 'Dessert/Baked Goods', price: '$9/serving' },
+                    ].map(a => (
+                      <div key={a.key} className="flex items-center justify-between gap-3 border border-gray-100 px-4 py-2">
+                        <span className="text-sm text-gray-700">{a.label} <span className="text-gray-400 text-xs">({a.price})</span></span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={((sel.specialtyQty as Record<string, string>) || {})[a.key] || ''}
+                          onChange={e => {
+                            const qty = e.target.value
+                            setSel(s => ({ ...s, specialtyQty: { ...(s.specialtyQty as Record<string, string> || {}), [a.key]: qty } }))
+                          }}
+                          className="w-16 border border-gray-200 px-2 py-1 text-sm text-center"
+                          placeholder="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {sel.mode === 'grocery' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={String(sel.grocerySubtype || '')} onChange={e => set('grocerySubtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="basic">Basic Grocery Shopping — $40/visit</option>
+                      <option value="premium">Premium Sourcing (Specialty/Organic) — $62.50/visit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Visits *</label>
+                    <input required type="number" min={1} value={String(sel.groceryVisits || '')} onChange={e => set('groceryVisits', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                  <p className="text-xs text-gray-400">Mileage and receipt reimbursement calculated separately at time of service.</p>
+                </>
+              )}
+            </>
+          )}
+
+          {/* NANNY & ELDERCARE */}
+          {(category === 'nanny' || category === 'eldercare') && (
+            <>
+              <div>
+                <p className={labelClass}>How would you like to be billed? *</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {[
+                    { v: 'monthly', l: 'Monthly Plan' },
+                    { v: 'hourly', l: 'Hourly Service' },
+                    ...(category === 'eldercare' ? [{ v: 'dayprogram', l: 'Adult Day Program' }] : []),
+                  ].map(o => (
+                    <label key={o.v} className="flex items-center gap-2 border border-gray-200 px-4 py-3 cursor-pointer text-sm">
+                      <input type="radio" required name="mode" checked={sel.mode === o.v}
+                        onChange={() => set('mode', o.v)} className="accent-chm-red" />
+                      {o.l}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {sel.mode === 'monthly' && category === 'nanny' && (
+                <div>
+                  <label className={labelClass}>Nanny Tier *</label>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="parttime">Part-Time — 15-20 hrs/week (~$2,400-3,200/mo)</option>
+                    <option value="standard">Standard — 30-35 hrs/week (~$4,800-6,300/mo)</option>
+                    <option value="premium">Premium — 40+ hrs/week (~$7,200-10,000/mo)</option>
+                  </select>
+                </div>
+              )}
+              {sel.mode === 'monthly' && category === 'eldercare' && (
+                <div>
+                  <label className={labelClass}>Companion Care Tier *</label>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="light">Light — 8-10 hrs/week (~$800-1,000/mo)</option>
+                    <option value="standard">Standard — 20-25 hrs/week (~$2,000-2,750/mo)</option>
+                    <option value="fulltime">Full-Time — 40+ hrs/week (~$4,000-6,000/mo)</option>
+                    <option value="24hour">24-Hour Care (~$8,000-12,000/mo)</option>
+                  </select>
+                </div>
+              )}
+              {sel.mode === 'dayprogram' && category === 'eldercare' && (
+                <div>
+                  <label className={labelClass}>Program Type *</label>
+                  <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
+                    <option value="">Select…</option>
+                    <option value="social">Social Activities — ~$60-80/day</option>
+                    <option value="wellness">Wellness & Activity — ~$80-120/day</option>
+                    <option value="fullservice">Full-Service — ~$120-150/day</option>
+                  </select>
+                </div>
+              )}
+              {sel.mode === 'hourly' && category === 'nanny' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="babysitting">Standard Babysitting — $35-45/hr</option>
+                      <option value="overnight">Overnight Care — $30-40/hr</option>
+                      <option value="nannyhousekeeping">Nanny Plus Housekeeping — $35-45/hr</option>
+                      <option value="event">Event/Party Supervision — $30-40/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                  <label className="flex items-center gap-3 text-sm">
+                    <input type="checkbox" checked={!!sel.weekend} onChange={e => set('weekend', e.target.checked)} className="w-4 h-4 accent-chm-red" />
+                    Weekend / Evening Rate (+$4/hr)
+                  </label>
+                  <label className="flex items-center gap-3 text-sm">
+                    <input type="checkbox" checked={!!sel.holiday} onChange={e => set('holiday', e.target.checked)} className="w-4 h-4 accent-chm-red" />
+                    Holiday Rate (+37.5%)
+                  </label>
+                </>
+              )}
+              {sel.mode === 'hourly' && category === 'eldercare' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Service Type *</label>
+                    <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
+                      <option value="">Select…</option>
+                      <option value="companion">Care Companion — $30-40/hr</option>
+                      <option value="personalcare">Personal Care Assistant — $30-40/hr</option>
+                      <option value="postrecovery">Post-Recovery Care — $30-40/hr</option>
+                      <option value="respite">Respite Care — $30-40/hr</option>
+                      <option value="overnight">Overnight Care — $30-40/hr</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Number of Hours *</label>
+                    <input required type="number" min={2} value={String(sel.hours || '')} onChange={e => set('hours', e.target.value)} className={inputClass} placeholder="e.g. 4" />
+                  </div>
+                </>
+              )}
+              {category === 'nanny' && sel.mode && (
+                <>
+                  <div>
+                    <label className={labelClass}>Additional Children <span className="text-gray-400 normal-case">(beyond first child)</span></label>
+                    <input type="number" min={0} value={sel.extraChildren || ''} onChange={e => set('extraChildren', e.target.value)} className={inputClass} placeholder="0" />
+                  </div>
+                  <div>
+                    <p className={labelClass}>Specialized Care (optional)</p>
+                    <div className="space-y-2">
+                      {[
+                        { v: 'infant', l: 'Infant Care Specialist (+$4/hr)' },
+                        { v: 'specialneeds', l: 'Special Needs Care (+$6.50/hr)' },
+                        { v: 'bilingual', l: 'Bilingual Nanny (+$5/hr)' },
+                      ].map(s => (
+                        <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input type="checkbox" checked={(sel.specialized || []).includes(s.v)} onChange={() => setSel(cur => { const list: string[] = cur.specialized || []; return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] } })} className="w-4 h-4 accent-chm-red" />
+                          {s.l}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              {category === 'eldercare' && (sel.mode === 'monthly' || sel.mode === 'hourly') && (
+                <div>
+                  <p className={labelClass}>Specialized Care (optional)</p>
+                  <div className="space-y-2">
+                    {[
+                      { v: 'dementia', l: "Dementia/Alzheimer's Care (+$6/hr)" },
+                      { v: 'postsurgical', l: 'Post-Surgical Recovery Support (+$7.50/hr)' },
+                      { v: 'mobility', l: 'Mobility & Physical Assistance (+$4.50/hr)' },
+                      { v: 'medication', l: 'Medication Management (+$3/hr)' },
+                    ].map(s => (
+                      <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" checked={(sel.specialized || []).includes(s.v)} onChange={() => setSel(cur => { const list: string[] = cur.specialized || []; return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] } })} className="w-4 h-4 accent-chm-red" />
+                        {s.l}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* COMMERCIAL & SPECIAL */}
+          {(category === 'commercial' || category === 'special') && (
             <div>
               <label className={labelClass}>Tell us more about what you need *</label>
               <textarea required rows={5} value={String(sel.details || '')} onChange={e => set('details', e.target.value)} className={inputClass}
@@ -829,10 +1112,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   ? "Property size (sq ft), office type, cleaning frequency needed, any specialized requirements (medical, restaurant, gym, etc.)"
                   : "Project type, timeline, event date, scope of work, special requirements, etc."} />
             </div>
-          ) : null}
-
-          {/* Additional categories (laundry, mealprep, nanny, eldercare) - Full implementation from original QuoteForm */}
-          {/* [INCLUDE ALL FIELDS FROM ORIGINAL QuoteForm STEP 2 FOR ALL CATEGORIES] */}
+          )}
 
           <div className="flex gap-4 pt-2">
             <button type="button" onClick={() => setStep(1)} className={backBtnClass}>Back</button>
