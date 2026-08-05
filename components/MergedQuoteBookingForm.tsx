@@ -1063,7 +1063,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                 <>
                   <div>
                     <label className={labelClass}>Additional Children <span className="text-gray-400 normal-case">(beyond first child)</span></label>
-                    <input type="number" min={0} value={sel.extraChildren || ''} onChange={e => set('extraChildren', e.target.value)} className={inputClass} placeholder="0" />
+                    <input type="number" min={0} value={String(sel.extraChildren || '')} onChange={e => set('extraChildren', e.target.value)} className={inputClass} placeholder="0" />
                   </div>
                   <div>
                     <p className={labelClass}>Specialized Care (optional)</p>
