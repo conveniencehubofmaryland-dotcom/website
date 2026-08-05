@@ -7,7 +7,7 @@ import BundleModal from './BundleModal'
 
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
-type SelectionRecord = Record<string, any>
+type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
 type QuoteStep = 'quote-preview' | 'booking' | null
 
 const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
@@ -175,7 +175,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
   const minDate = _defaultDate
   const maxDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  function set(field: string, value: any) {
+  function set(field: string, value: string | number | boolean | string[]) {
     setSel(s => ({ ...s, [field]: value }))
   }
 
