@@ -1074,7 +1074,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                         { v: 'bilingual', l: 'Bilingual Nanny (+$5/hr)' },
                       ].map(s => (
                         <label key={s.v} className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" checked={(sel.specialized || []).includes(s.v)} onChange={() => setSel(cur => { const list: string[] = cur.specialized || []; return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] } })} className="w-4 h-4 accent-chm-red" />
+                          <input type="checkbox" checked={((sel.specialized as string[]) || []).includes(s.v)} onChange={() => setSel(cur => { const list: string[] = cur.specialized || []; return { ...cur, specialized: list.includes(s.v) ? list.filter((x: string) => x !== s.v) : [...list, s.v] } })} className="w-4 h-4 accent-chm-red" />
                           {s.l}
                         </label>
                       ))}
