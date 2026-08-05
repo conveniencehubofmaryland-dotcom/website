@@ -1,7 +1,5 @@
 import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
-import Link from 'next/link'
-import StaffRecordsTable from './StaffRecordsTable'
 import { DeleteButton } from './DeleteButton'
 
 type Progress = {
