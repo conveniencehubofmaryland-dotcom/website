@@ -184,11 +184,11 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
   }
 
   function toggleAddon(val: string) {
-    setSel(s => {
-      const current: string[] = s.addOns || []
-      return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
-    })
-  }
+  setSel(s => {
+    const current: string[] = (s.addOns as string[]) || []
+    return { ...s, addOns: current.includes(val) ? current.filter(x => x !== val) : [...current, val] }
+  })
+}
 
   const handleBundleSelect = (bundleId: string) => {
     const selectedBundle = BUNDLES.find(b => b.id === bundleId)
