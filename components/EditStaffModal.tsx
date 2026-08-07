@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 
 interface StaffRecord {
@@ -16,6 +15,7 @@ interface StaffRecord {
   created_at: string
   no_show_count: number
   notes?: string | null
+  own_car?: boolean
 }
 
 const POSITIONS = [
@@ -54,6 +54,8 @@ export default function EditStaffModal({ record, onClose, onSuccess }: EditStaff
     acknowledged_1099: record.acknowledged_1099,
     onboarding_status: record.onboarding_status,
     notes: record.notes || '',
+    no_show_count: record.no_show_count,
+    own_car: record.own_car || false,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -61,6 +63,27 @@ export default function EditStaffModal({ record, onClose, onSuccess }: EditStaff
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }))
+  }
+
+  const handleNoShowIncrement = () => {
+    setFormData(prev => ({
+      ...prev,
+      no_show_count: Math.max(0, prev.no_show_count + 1),
+    }))
+  }
+
+  const handleNoShowDecrement = () => {
+    setFormData(prev => ({
+      ...prev,
+      no_show_count: Math.max(0, prev.no_show_count - 1),
+    }))
+  }
+
+  const handleOwnCarChange = (value: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      own_car: value,
     }))
   }
 
@@ -241,6 +264,62 @@ export default function EditStaffModal({ record, onClose, onSuccess }: EditStaff
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+                No-Shows
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleNoShowDecrement}
+                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded font-semibold text-sm"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  value={formData.no_show_count}
+                  readOnly
+                  className="w-16 border border-gray-200 px-4 py-2 text-sm text-center focus:outline-none rounded"
+                />
+                <button
+                  type="button"
+                  onClick={handleNoShowIncrement}
+                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded font-semibold text-sm"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+              Own a Reliable Vehicle? *
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="own_car"
+                  checked={formData.own_car === true}
+                  onChange={() => handleOwnCarChange(true)}
+                  className="w-4 h-4 accent-chm-red"
+                />
+                <span className="text-sm text-gray-600">Yes</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="own_car"
+                  checked={formData.own_car === false}
+                  onChange={() => handleOwnCarChange(false)}
+                  className="w-4 h-4 accent-chm-red"
+                />
+                <span className="text-sm text-gray-600">No</span>
+              </label>
             </div>
           </div>
 
