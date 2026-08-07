@@ -1,10 +1,7 @@
 'use client'
-import { useEffect, useState } from 'react'
 import StaffRecordsTableClient from '@/components/StaffRecordsTableClient'
 
 export default function StaffRecordsPage() {
-  const [activeTab, setActiveTab] = useState<'records' | 'documents'>('records')
-
   return (
     <div className="space-y-8">
       <div>
