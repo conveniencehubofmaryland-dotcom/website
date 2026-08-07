@@ -67,7 +67,7 @@ export async function GET() {
     }
 
     // Combine all documents
-    const allDocuments = []
+    const allDocuments: any[] = []
 
     // Add orientations
     orientations?.forEach(o => {
