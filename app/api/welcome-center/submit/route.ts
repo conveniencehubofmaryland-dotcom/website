@@ -10,20 +10,22 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    console.log('[submit] Received body:', { ...body, acknowledged_1099: body.acknowledged_1099 })
+    const formData = await req.formData()
+    console.log('[submit] Received FormData')
 
-    const {
-      full_name,
-      email,
-      phone,
-      sex,
-      date_of_birth,
-      position,
-      years_of_experience,
-      acknowledged_1099,
-      invite_token,
-    } = body
+    const full_name = formData.get('full_name') as string
+    const email = formData.get('email') as string
+    const phone = formData.get('phone') as string
+    const sex = formData.get('sex') as string
+    const date_of_birth = formData.get('date_of_birth') as string
+    const position = formData.get('position') as string
+    const years_of_experience = formData.get('years_of_experience') as string
+    const acknowledged_1099 = formData.get('acknowledged_1099') === 'true'
+    const own_car = formData.get('own_car') === 'yes'
+    const backgroundCheckFile = formData.get('backgroundCheck') as File | null
+    const invite_token = formData.get('invite_token') as string | null
+
+    console.log('[submit] Received body:', { full_name, email, phone, sex, date_of_birth, position, years_of_experience, acknowledged_1099, own_car, hasBackgroundCheck: !!backgroundCheckFile })
 
     // Validate all required fields
     if (
@@ -33,8 +35,7 @@ export async function POST(req: NextRequest) {
       !sex ||
       !date_of_birth ||
       !position ||
-      years_of_experience === null ||
-      years_of_experience === undefined ||
+      years_of_experience === '' ||
       !acknowledged_1099
     ) {
       console.log('[submit] Validation failed - missing fields')
@@ -55,12 +56,46 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate years of experience
-    if (years_of_experience < 0 || years_of_experience > 80) {
-      console.log('[submit] Invalid years of experience:', years_of_experience)
+    const yearsExp = parseInt(years_of_experience)
+    if (yearsExp < 0 || yearsExp > 80) {
+      console.log('[submit] Invalid years of experience:', yearsExp)
       return NextResponse.json(
         { error: 'Years of experience must be between 0 and 80' },
         { status: 400 }
       )
+    }
+
+    // Upload background check file if provided
+    let background_check_url: string | null = null
+    if (backgroundCheckFile && backgroundCheckFile.size > 0) {
+      try {
+        const fileExt = backgroundCheckFile.name.split('.').pop()
+        const fileName = `${email.replace(/[^a-z0-9]/gi, '_')}_background_check_${Date.now()}.${fileExt}`
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('application-documents')
+          .upload(fileName, backgroundCheckFile, {
+            contentType: backgroundCheckFile.type,
+            upsert: false,
+          })
+
+        if (uploadError) {
+          console.error('[submit] File upload error:', uploadError)
+          return NextResponse.json(
+            { error: 'Failed to upload background check' },
+            { status: 500 }
+          )
+        }
+
+        background_check_url = uploadData?.path || null
+        console.log('[submit] Background check uploaded:', background_check_url)
+      } catch (uploadErr) {
+        console.error('[submit] Upload exception:', uploadErr)
+        return NextResponse.json(
+          { error: 'Failed to upload background check' },
+          { status: 500 }
+        )
+      }
     }
 
     let applicant_id: string
@@ -104,8 +139,10 @@ export async function POST(req: NextRequest) {
           sex,
           date_of_birth,
           position,
-          years_of_experience,
+          years_of_experience: yearsExp,
           acknowledged_1099,
+          own_car,
+          background_check_url,
           onboarding_status: 'profile_submitted',
           invited_at: new Date().toISOString(),
         })
@@ -140,8 +177,10 @@ export async function POST(req: NextRequest) {
           sex,
           date_of_birth,
           position,
-          years_of_experience,
+          years_of_experience: yearsExp,
           acknowledged_1099,
+          own_car,
+          background_check_url,
           onboarding_status: 'profile_submitted',
           created_at: new Date().toISOString(),
         })
@@ -192,7 +231,9 @@ export async function POST(req: NextRequest) {
               Email: ${email}<br>
               Phone: ${phone}<br>
               Position: ${position}<br>
-              Years of Experience: ${years_of_experience}
+              Years of Experience: ${yearsExp}<br>
+              Own a Vehicle: ${own_car ? 'Yes' : 'No'}<br>
+              ${backgroundCheckFile ? 'Background Check: Uploaded' : 'Background Check: Not provided'}
             </p>
 
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
@@ -228,8 +269,10 @@ export async function POST(req: NextRequest) {
           <p><strong>Sex:</strong> ${sex}</p>
           <p><strong>Date of Birth:</strong> ${date_of_birth}</p>
           <p><strong>Position:</strong> ${position}</p>
-          <p><strong>Years of Experience:</strong> ${years_of_experience}</p>
+          <p><strong>Years of Experience:</strong> ${yearsExp}</p>
           <p><strong>Acknowledged 1099:</strong> ${acknowledged_1099 ? 'Yes' : 'No'}</p>
+          <p><strong>Own a Vehicle:</strong> ${own_car ? 'Yes' : 'No'}</p>
+          ${background_check_url ? '<p><strong>Background Check:</strong> Document uploaded</p>' : '<p><strong>Background Check:</strong> Not provided</p>'}
           <p><a href="https://conveniencehubofmaryland.com/admin/staff-records">View in Staff Records →</a></p>
         </div>
       `,
