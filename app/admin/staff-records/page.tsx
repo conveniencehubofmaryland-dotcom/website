@@ -1,31 +1,10 @@
-import { cookies } from 'next/headers'
-import { dbSelectAuth } from '@/lib/db'
+'use client'
+import { useState } from 'react'
 import StaffRecordsTableClient from '@/components/StaffRecordsTableClient'
+import StaffDocumentsTab from '@/components/StaffDocumentsTab'
 
-interface StaffRecord {
-  id: string
-  full_name: string
-  email: string
-  phone: string
-  sex: string
-  date_of_birth: string
-  position: string
-  years_of_experience: number
-  acknowledged_1099: boolean
-  onboarding_status: string
-  created_at: string
-  no_show_count: number
-  notes?: string | null
-  own_car?: boolean
-  background_check_url?: string | null
-}
-
-export default async function StaffRecordsPage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('chm_admin')?.value ?? ''
-  const records = await dbSelectAuth<StaffRecord>('offer_letter_applicants', token, {
-    order: 'created_at.desc'
-  })
+export default function StaffRecordsPage() {
+  const [activeTab, setActiveTab] = useState<'records' | 'documents'>('records')
 
   return (
     <div className="space-y-8">
@@ -34,7 +13,36 @@ export default async function StaffRecordsPage() {
         <h1 className="font-serif text-4xl text-chm-black mb-2">Staff Records</h1>
         <p className="text-gray-600">Manage all onboarded candidates and their information</p>
       </div>
-      <StaffRecordsTableClient initialRecords={records} />
+
+      {/* Tab Navigation */}
+      <div className="flex gap-4 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('records')}
+          className={`px-4 py-3 font-semibold transition ${
+            activeTab === 'records'
+              ? 'text-chm-red border-b-2 border-chm-red'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Staff Records
+        </button>
+        <button
+          onClick={() => setActiveTab('documents')}
+          className={`px-4 py-3 font-semibold transition ${
+            activeTab === 'documents'
+              ? 'text-chm-red border-b-2 border-chm-red'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Documents & Info
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="bg-white rounded-lg shadow-md p-8">
+        {activeTab === 'records' && <StaffRecordsTableClient />}
+        {activeTab === 'documents' && <StaffDocumentsTab records={[]} />}
+      </div>
     </div>
   )
 }
