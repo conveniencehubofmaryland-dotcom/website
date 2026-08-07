@@ -67,7 +67,19 @@ export async function GET() {
     }
 
     // Combine all documents
-    const allDocuments: any[] = []
+    interface Document {
+  id: string
+  staffName: string
+  staffEmail: string
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check'
+  documentName: string
+  dateSigned: string | null
+  documentUrl: string | null
+  status: string
+  ownCar: boolean | null
+}
+
+const allDocuments: Document[] = []
 
     // Add orientations
     orientations?.forEach(o => {
