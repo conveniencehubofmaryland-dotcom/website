@@ -123,7 +123,7 @@ const allDocuments: Document[] = []
           staffName: staff.name,
           staffEmail: staff.email,
           documentType: 'certification' as const,
-          documentName: `${c.training_modules?.title || 'Training'} Certification`,
+          documentName: `${c.training_modules?.[0]?.title || 'Training'} Certification`,
           dateSigned: c.completed_at,
           documentUrl: null,
           status: 'completed',
