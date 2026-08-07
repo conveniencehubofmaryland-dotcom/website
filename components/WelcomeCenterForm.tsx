@@ -1,8 +1,6 @@
 'use client'
-
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-
 const POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
@@ -11,19 +9,16 @@ const POSITIONS = [
   'Care Companion (Adult/Senior)',
   'Housekeeping Staff',
 ]
-
 const SEX_OPTIONS = [
   'Male',
   'Female',
   'Non-binary',
   'Prefer not to say',
 ]
-
 export default function WelcomeCenterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const invite_token = searchParams.get('invite')
-
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -33,16 +28,15 @@ export default function WelcomeCenterForm() {
     position: '',
     years_of_experience: '',
     acknowledged_1099: false,
+    own_car: 'no',
+    backgroundCheckFile: null as File | null,
   })
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [applicantId, setApplicantId] = useState<string>('')
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
-
     if (type === 'checkbox') {
       setFormData(prev => ({
         ...prev,
@@ -56,11 +50,25 @@ export default function WelcomeCenterForm() {
     }
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setFormData(prev => ({
+      ...prev,
+      backgroundCheckFile: file,
+    }))
+  }
+
+  const handleRadioChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      own_car: value,
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     if (
       !formData.full_name ||
       !formData.email ||
@@ -75,24 +83,32 @@ export default function WelcomeCenterForm() {
       setLoading(false)
       return
     }
-
     try {
+      const fd = new FormData()
+      fd.append('full_name', formData.full_name)
+      fd.append('email', formData.email)
+      fd.append('phone', formData.phone)
+      fd.append('sex', formData.sex)
+      fd.append('date_of_birth', formData.date_of_birth)
+      fd.append('position', formData.position)
+      fd.append('years_of_experience', formData.years_of_experience)
+      fd.append('acknowledged_1099', String(formData.acknowledged_1099))
+      fd.append('own_car', formData.own_car)
+      if (formData.backgroundCheckFile) {
+        fd.append('backgroundCheck', formData.backgroundCheckFile)
+      }
+      if (invite_token) {
+        fd.append('invite_token', invite_token)
+      }
+
       const res = await fetch('/api/welcome-center/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          years_of_experience: parseInt(formData.years_of_experience),
-          invite_token,
-        }),
+        body: fd,
       })
-
       const data = await res.json()
-
       if (!res.ok) {
         throw new Error(data.error || 'Failed to submit profile')
       }
-
       setApplicantId(data.applicant_id)
       setSubmitted(true)
     } catch (err) {
@@ -101,7 +117,6 @@ export default function WelcomeCenterForm() {
       setLoading(false)
     }
   }
-
   const handleContinueToOrientation = () => {
     if (applicantId) {
       router.push(
@@ -109,7 +124,6 @@ export default function WelcomeCenterForm() {
       )
     }
   }
-
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -144,7 +158,6 @@ export default function WelcomeCenterForm() {
       </div>
     )
   }
-
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
@@ -153,7 +166,6 @@ export default function WelcomeCenterForm() {
           <h1 className="font-serif text-4xl text-chm-black mb-3">Welcome to CHM</h1>
           <p className="text-gray-600">Complete your profile to get started with your onboarding.</p>
         </div>
-
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 space-y-6">
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
@@ -169,7 +181,6 @@ export default function WelcomeCenterForm() {
               placeholder="Jane Smith"
             />
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Email *
@@ -184,7 +195,6 @@ export default function WelcomeCenterForm() {
               placeholder="jane@example.com"
             />
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Phone *
@@ -199,7 +209,6 @@ export default function WelcomeCenterForm() {
               placeholder="(202) 555-0100"
             />
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Sex / Gender *
@@ -219,7 +228,6 @@ export default function WelcomeCenterForm() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Date of Birth *
@@ -233,7 +241,6 @@ export default function WelcomeCenterForm() {
               className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red rounded"
             />
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Position Applied For *
@@ -253,7 +260,6 @@ export default function WelcomeCenterForm() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Years of Experience *
@@ -269,6 +275,57 @@ export default function WelcomeCenterForm() {
               className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red rounded"
               placeholder="e.g. 5"
             />
+          </div>
+
+          {/* NEW: Do you own a reliable vehicle? */}
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">
+              Do you own a reliable vehicle? *
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="own_car"
+                  value="yes"
+                  checked={formData.own_car === 'yes'}
+                  onChange={() => handleRadioChange('yes')}
+                  className="w-4 h-4 accent-chm-red"
+                />
+                <span className="text-sm text-gray-700">Yes, I own a reliable vehicle</span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="own_car"
+                  value="no"
+                  checked={formData.own_car === 'no'}
+                  onChange={() => handleRadioChange('no')}
+                  className="w-4 h-4 accent-chm-red"
+                />
+                <span className="text-sm text-gray-700">No, I do not own a vehicle</span>
+              </label>
+            </div>
+          </div>
+
+          {/* NEW: Background Check Upload */}
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+              Background Check Document (PDF, JPG, or PNG)
+            </label>
+            <p className="text-xs text-gray-500 mb-2">Maximum file size: 10 MB (optional)</p>
+            <input
+              type="file"
+              name="backgroundCheck"
+              onChange={handleFileChange}
+              accept=".pdf,.jpg,.jpeg,.png"
+              className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
+            />
+            {formData.backgroundCheckFile && (
+              <p className="text-xs text-green-600 mt-2">
+                ✓ {formData.backgroundCheckFile.name} selected
+              </p>
+            )}
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
@@ -291,13 +348,11 @@ export default function WelcomeCenterForm() {
               </div>
             </label>
           </div>
-
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm rounded">
               {error}
             </div>
           )}
-
           <button
             type="submit"
             disabled={loading}
@@ -305,9 +360,8 @@ export default function WelcomeCenterForm() {
           >
             {loading ? 'Submitting...' : 'Submit Profile'}
           </button>
-
           <p className="text-xs text-gray-400 text-center">
-            All fields are required. Please review your information before submitting.
+            All fields marked with * are required. Please review your information before submitting.
           </p>
         </form>
       </div>
