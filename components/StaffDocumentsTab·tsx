@@ -1,0 +1,253 @@
+'use client'
+import { useState, useEffect } from 'react'
+import DocumentEditModal from '@/components/DocumentEditModal'
+
+interface StaffDocument {
+  id: string
+  staffId: string
+  staffName: string
+  staffEmail: string
+  documentType: 'background_check' | 'training_cert' | 'orientation' | 'offer_letter' | 'direct_deposit'
+  documentName: string
+  documentUrl: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  notes: string | null
+}
+
+interface StaffRecord {
+  id: string
+  full_name: string
+  email: string
+}
+
+interface StaffDocumentsTabProps {
+  records: StaffRecord[]
+}
+
+export default function StaffDocumentsTab({ records }: StaffDocumentsTabProps) {
+  const [documents, setDocuments] = useState<StaffDocument[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string>('all')
+
+  useEffect(() => {
+    fetchDocuments()
+  }, [])
+
+  const fetchDocuments = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/staff-documents')
+      if (!res.ok) throw new Error('Failed to fetch documents')
+      const data = await res.json()
+      setDocuments(data)
+    } catch (err) {
+      console.error('Error fetching documents:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (documentId: string) => {
+    if (!confirm('Delete this document?')) return
+    try {
+      const res = await fetch(`/api/admin/staff-documents/${documentId}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error('Failed to delete document')
+      setDocuments(prev => prev.filter(d => d.id !== documentId))
+    } catch (err) {
+      console.error('Error deleting document:', err)
+      alert('Failed to delete document')
+    }
+  }
+
+  const handleShare = async (email: string, documentUrl: string, documentName: string) => {
+    if (!documentUrl) {
+      alert('No file to share')
+      return
+    }
+    try {
+      const res = await fetch('/api/admin/staff-documents/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, documentUrl, documentName }),
+      })
+      if (!res.ok) throw new Error('Failed to share document')
+      alert('Document link sent to staff member')
+    } catch (err) {
+      console.error('Error sharing document:', err)
+      alert('Failed to share document')
+    }
+  }
+
+  const handleEdit = (document: StaffDocument) => {
+    setSelectedDocument(document)
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">✓ Approved</span>
+      case 'rejected':
+        return <span className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold">✗ Rejected</span>
+      default:
+        return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">⏳ Pending</span>
+    }
+  }
+
+  const getDocumentTypeLabel = (type: string) => {
+    switch (type) {
+      case 'background_check':
+        return 'Background Check'
+      case 'training_cert':
+        return 'Training Certificate'
+      case 'orientation':
+        return 'Orientation/MOU'
+      case 'offer_letter':
+        return 'Offer Letter'
+      case 'direct_deposit':
+        return 'Direct Deposit Form'
+      default:
+        return type
+    }
+  }
+
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.staffEmail.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesType = filterType === 'all' || doc.documentType === filterType
+    return matchesSearch && matchesType
+  })
+
+  return (
+    <>
+      <div className="space-y-4">
+        {/* Filters */}
+        <div className="flex gap-4 flex-wrap">
+          <input
+            type="text"
+            placeholder="Search by name or email…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 min-w-[200px] border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded"
+          />
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded"
+          >
+            <option value="all">All Document Types</option>
+            <option value="background_check">Background Checks</option>
+            <option value="training_cert">Training Certificates</option>
+            <option value="orientation">Orientation/MOU</option>
+            <option value="offer_letter">Offer Letters</option>
+            <option value="direct_deposit">Direct Deposit Forms</option>
+          </select>
+        </div>
+
+        {/* Table */}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <p className="text-gray-600">Loading documents…</p>
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <div className="text-center py-8 text-gray-600">
+            No documents found
+          </div>
+        ) : (
+          <div className="overflow-x-auto border border-gray-200 rounded">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Staff Name</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Document Type</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">File</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDocuments.map((doc) => (
+                  <tr key={doc.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <div>
+                        <p className="font-medium text-gray-900">{doc.staffName}</p>
+                        <p className="text-xs text-gray-500">{doc.staffEmail}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-gray-700">{getDocumentTypeLabel(doc.documentType)}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {getStatusBadge(doc.status)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {doc.documentUrl ? (
+                        <a
+                          href={doc.documentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-chm-red hover:underline text-xs font-semibold"
+                        >
+                          View File
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No file</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2 flex-wrap">
+                        {doc.documentUrl && (
+                          <>
+                            <button
+                              onClick={() => handleShare(doc.staffEmail, doc.documentUrl, doc.documentName)}
+                              className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition"
+                            >
+                              Share
+                            </button>
+                            <button
+                              onClick={() => window.open(doc.documentUrl, '_blank')}
+                              className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition"
+                            >
+                              Print
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => handleEdit(doc)}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(doc.id)}
+                          className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {selectedDocument && (
+        <DocumentEditModal
+          document={selectedDocument}
+          onClose={() => setSelectedDocument(null)}
+          onSuccess={(updated) => {
+            setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
+            setSelectedDocument(null)
+          }}
+        />
+      )}
+    </>
+  )
+}
