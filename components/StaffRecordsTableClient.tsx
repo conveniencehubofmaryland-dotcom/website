@@ -291,6 +291,20 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                   <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
                     Actions
                   </th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Own Car</th>
+
+                  // In table rows:
+                <td className="px-4 py-3">
+                  {record.own_car ? (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
+                    ✓ Yes
+                  </span>
+               ) : (
+                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
+                    ✗ No
+                   </span>
+                 )}
+                </td>  
                 </tr>
               </thead>
               <tbody>
