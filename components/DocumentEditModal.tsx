@@ -9,8 +9,8 @@ interface StaffDocument {
   documentType: 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'direct_deposit'
   documentName: string
   documentUrl: string | null
-  status: 'pending' | 'approved' | 'rejected'
-  notes: string | null
+  status: string
+  notes?: string | null
 }
 
 interface DocumentEditModalProps {
@@ -24,12 +24,12 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
   const [error, setError] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [formData, setFormData] = useState({
-    status: document.status as 'pending' | 'approved' | 'rejected',
+    status: document.status || 'pending',
     notes: document.notes || '',
   })
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, status: e.target.value as 'pending' | 'approved' | 'rejected' }))
+    setFormData(prev => ({ ...prev, status: e.target.value }))
   }
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
