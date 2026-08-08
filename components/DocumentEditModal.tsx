@@ -29,7 +29,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
   })
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, status: e.target.value as any }))
+    setFormData(prev => ({ ...prev, status: e.target.value as 'pending' | 'approved' | 'rejected' }))
   }
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
