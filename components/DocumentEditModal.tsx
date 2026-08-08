@@ -6,13 +6,12 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'direct_deposit'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit'
   documentName: string
+  dateSigned: string | null
   documentUrl: string | null
   status: string
-  notes?: string | null
-  dateSigned?: string | null
-  ownCar?: boolean | null
+  ownCar: boolean | null
 }
 
 interface DocumentEditModalProps {
@@ -46,83 +45,64 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
+    setError('')
 
     try {
-      const formDataObj = new FormData()
-      formDataObj.append('id', document.id)
-      formDataObj.append('status', formData.status)
-      formDataObj.append('notes', formData.notes)
+      const formDataToSend = new FormData()
+      formDataToSend.append('status', formData.status)
+      formDataToSend.append('notes', formData.notes)
       if (file) {
-        formDataObj.append('document', file)
+        formDataToSend.append('document', file)
       }
 
       const res = await fetch(`/api/admin/staff-documents/${document.id}`, {
         method: 'PUT',
-        body: formDataObj,
+        body: formDataToSend,
       })
 
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Failed to update document')
+        throw new Error('Failed to update document')
       }
 
-      const updatedDocument = await res.json()
-      onSuccess(updatedDocument)
+      const updated = await res.json()
+      onSuccess(updated)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
 
-  const handlePrint = () => {
-    if (document.documentUrl) {
-      window.open(document.documentUrl, '_blank')
-    }
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-serif text-chm-black">Edit {document.documentName}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
-          >
-            ×
-          </button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-2xl w-full p-6 space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-chm-black mb-1">Edit Document</h2>
+          <p className="text-sm text-gray-600">{document.documentName} • {document.staffName}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="bg-gray-50 p-4 rounded space-y-2 text-sm">
-            <p><strong>Staff:</strong> {document.staffName} ({document.staffEmail})</p>
-            <p><strong>Document Type:</strong> {document.documentName}</p>
-            {document.documentUrl && (
-              <p><strong>Current File:</strong> <a href={document.documentUrl} target="_blank" rel="noopener noreferrer" className="text-chm-red hover:underline">View Document</a></p>
-            )}
+        {error && (
+          <div className="p-3 bg-red-100 text-red-700 rounded text-sm">
+            {error}
           </div>
+        )}
 
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
-              Status *
+              Status
             </label>
             <select
               value={formData.status}
               onChange={handleStatusChange}
               className="w-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded"
             >
-              <option value="pending">Pending Review</option>
+              <option value="pending">Pending</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
+              <option value="signed">Signed</option>
+              <option value="completed">Completed</option>
             </select>
           </div>
 
@@ -133,46 +113,45 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
             <textarea
               value={formData.notes}
               onChange={handleNotesChange}
-              rows={4}
-              placeholder="Add notes about this document (e.g., reason for rejection, requested changes)"
-              className="w-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded"
+              placeholder="Add any notes about this document…"
+              className="w-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded h-24"
             />
           </div>
 
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
-              Re-upload Document (Optional)
+              Replace Document (Optional)
             </label>
             <input
               type="file"
               onChange={handleFileChange}
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="w-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:border-chm-red rounded"
+              className="w-full border border-gray-200 px-4 py-2 text-sm rounded"
             />
-            {file && <p className="text-xs text-green-600 mt-1">✓ {file.name}</p>}
+            {file && <p className="text-sm text-green-600 mt-1">✓ {file.name}</p>}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 justify-end pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-700 px-4 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-gray-50 transition-colors rounded"
+              className="px-4 py-2 border border-gray-200 text-gray-700 rounded font-semibold text-sm hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             {document.documentUrl && (
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="flex-1 border border-gray-200 text-chm-red px-4 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-50 transition-colors rounded"
+              <a
+                href={document.documentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-purple-100 text-purple-700 rounded font-semibold text-sm hover:bg-purple-200 transition-colors"
               >
                 Print
-              </button>
+              </a>
             )}
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-chm-red text-white px-4 py-3 font-semibold text-sm uppercase tracking-widest hover:bg-red-700 disabled:opacity-50 transition-colors rounded"
+              className="px-4 py-2 bg-chm-red text-white rounded font-semibold text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
             >
               {loading ? 'Saving…' : 'Save Changes'}
             </button>
