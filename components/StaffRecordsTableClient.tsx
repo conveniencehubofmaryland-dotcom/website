@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
+import DocumentEditModal from './DocumentEditModal'
 
 interface StaffRecord {
   id: string
@@ -26,7 +27,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit'
+  documentType: 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'direct_deposit'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -54,6 +55,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   const [activeTab, setActiveTab] = useState<'records' | 'documents'>('records')
   const [documents, setDocuments] = useState<StaffDocument[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(null)
   const [docsSearchTerm, setDocsSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
 
@@ -154,6 +156,10 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
+  const handleEditDocument = (doc: StaffDocument) => {
+    setSelectedDocument(doc)
+  }
+
   const exportCSV = () => {
     const headers = [
       'Full Name',
@@ -223,7 +229,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
       case 'training_cert':
         return 'Training Certificate'
       case 'certification':
-        return 'Training Certificate'
+        return 'Certification'
       case 'orientation':
         return 'Orientation/MOU'
       case 'offer_letter':
@@ -404,7 +410,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
             >
               <option value="all">All Document Types</option>
               <option value="background_check">Background Checks</option>
-              <option value="certification">Training Certificates</option>
+              <option value="certification">Certifications</option>
               <option value="orientation">Orientation/MOU</option>
               <option value="offer_letter">Offer Letters</option>
               <option value="direct_deposit">Direct Deposit Forms</option>
@@ -451,9 +457,10 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                             <>
                               <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
                               <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
-                              <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                             </>
                           )}
+                          <button onClick={() => handleEditDocument(doc)} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition">Edit</button>
+                          <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -467,6 +474,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
 
       {showCreateModal && <CreateStaffModal onClose={() => setShowCreateModal(false)} onSuccess={handleCreateSuccess} />}
       {showEditModal && editingRecord && <EditStaffModal record={editingRecord} onClose={() => { setShowEditModal(false); setEditingRecord(null) }} onSuccess={handleEditSuccess} />}
+      {selectedDocument && <DocumentEditModal document={selectedDocument} onClose={() => setSelectedDocument(null)} onSuccess={(updated) => { setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d)); setSelectedDocument(null) }} />}
     </div>
   )
 }
