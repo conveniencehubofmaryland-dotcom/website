@@ -14,7 +14,7 @@ export default function StaffRecordsPage() {
         <p className="text-gray-600">Manage all onboarded candidates and their information</p>
       </div>
 
-      <StaffRecordsTableClient />
+      <StaffRecordsTableClient initialRecords={[]} />
     </div>
   )
 }
