@@ -6,7 +6,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'background_check' | 'training_cert' | 'orientation' | 'offer_letter' | 'direct_deposit'
+  documentType: 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'direct_deposit'
   documentName: string
   documentUrl: string | null
   status: 'pending' | 'approved' | 'rejected'
