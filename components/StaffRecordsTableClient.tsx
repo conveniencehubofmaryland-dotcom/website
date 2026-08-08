@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
+
 interface StaffRecord {
   id: string
   full_name: string
@@ -19,6 +20,7 @@ interface StaffRecord {
   own_car?: boolean
   background_check_url?: string | null
 }
+
 const POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
@@ -27,6 +29,7 @@ const POSITIONS = [
   'Care Companion (Adult/Senior)',
   'Housekeeping Staff',
 ]
+
 export default function StaffRecordsTableClient({ initialRecords }: { initialRecords: StaffRecord[] }) {
   const [records, setRecords] = useState<StaffRecord[]>(initialRecords)
   const [searchTerm, setSearchTerm] = useState('')
@@ -289,22 +292,11 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                     Joined
                   </th>
                   <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
+                    Own Car
+                  </th>
+                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
                     Actions
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Own Car</th>
-
-                  // In table rows:
-                <td className="px-4 py-3">
-                  {record.own_car ? (
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                    ✓ Yes
-                  </span>
-               ) : (
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
-                    ✗ No
-                   </span>
-                 )}
-                </td>  
                 </tr>
               </thead>
               <tbody>
@@ -362,6 +354,17 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {new Date(record.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          record.own_car
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {record.own_car ? '✓ Yes' : '✗ No'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex gap-2">
