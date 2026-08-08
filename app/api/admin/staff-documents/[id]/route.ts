@@ -6,15 +6,15 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const params = await props.params
     const documentId = params.id
     const formData = await req.formData()
     const status = formData.get('status') as string
     const notes = formData.get('notes') as string
     const file = formData.get('document') as File | null
 
-    // Get current document
     const { data: currentDoc } = await supabase
       .from('staff_documents')
       .select('*')
@@ -30,16 +30,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     let documentUrl = currentDoc.document_url
 
-    // If new file uploaded, delete old one and upload new
     if (file) {
-      // Delete old file if exists
       if (currentDoc.document_url) {
         await supabase.storage
           .from('application-documents')
           .remove([currentDoc.document_url])
       }
 
-      // Upload new file
       const buffer = await file.arrayBuffer()
       const ext = file.name.split('.').pop()
       const fileName = `${currentDoc.staff_id}_${currentDoc.document_type}_${Date.now()}.${ext}`
@@ -54,7 +51,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       documentUrl = fileName
     }
 
-    // Update document
     const { data: updatedDoc, error: updateError } = await supabase
       .from('staff_documents')
       .update({
@@ -69,7 +65,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     if (updateError) throw updateError
 
-    // Fetch staff info
     const { data: staffData } = await supabase
       .from('offer_letter_applicants')
       .select('full_name, email')
@@ -105,11 +100,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const params = await props.params
     const documentId = params.id
 
-    // Get document to find file to delete
     const { data: doc } = await supabase
       .from('staff_documents')
       .select('document_url')
@@ -123,14 +118,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       )
     }
 
-    // Delete file from storage
     if (doc.document_url) {
       await supabase.storage
         .from('application-documents')
         .remove([doc.document_url])
     }
 
-    // Delete record
     const { error: deleteError } = await supabase
       .from('staff_documents')
       .delete()
