@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
+import StaffDocumentsTab from './StaffDocumentsTab'
 
 interface StaffRecord {
   id: string
@@ -126,50 +127,6 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     a.click()
   }
 
-  const handleShareBackgroundCheck = async (email: string, url: string) => {
-    if (!url) return
-    try {
-      const res = await fetch('/api/admin/staff-documents/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          documentUrl: url,
-          documentName: 'Background Check',
-        }),
-      })
-      if (res.ok) {
-        alert(`Background check link sent to ${email}`)
-      } else {
-        alert('Failed to share document')
-      }
-    } catch (err) {
-      console.error('Share error:', err)
-      alert('Error sharing document')
-    }
-  }
-
-  const handleDeleteBackgroundCheck = async (recordId: string) => {
-    if (!confirm('Delete this background check?')) return
-    try {
-      const res = await fetch('/api/admin/staff-documents', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: recordId, type: 'background_check' }),
-      })
-      if (res.ok) {
-        setRecords(records.map(r => 
-          r.id === recordId ? { ...r, background_check_url: null } : r
-        ))
-      } else {
-        alert('Failed to delete document')
-      }
-    } catch (err) {
-      console.error('Delete error:', err)
-      alert('Error deleting document')
-    }
-  }
-
   return (
     <div className="space-y-8">
       {/* Tab Navigation */}
@@ -198,10 +155,9 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
         </div>
       </div>
 
-      {/* RECORDS TAB */}
+      {/* STAFF RECORDS TAB */}
       {activeTab === 'records' && (
         <>
-          {/* Filters */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -253,7 +209,6 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
             </p>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -398,132 +353,16 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
 
       {/* DOCUMENTS & INFO TAB */}
       {activeTab === 'documents' && (
-        <>
-          {/* Filters */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
-                  Search by Name or Email
-                </label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  placeholder="Jane Smith or jane@example.com"
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red rounded"
-                />
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={exportCSV}
-                  className="w-full bg-gray-200 text-gray-800 px-4 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-gray-300 transition-colors rounded"
-                >
-                  Export CSV
-                </button>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600">
-              Showing {filteredRecords.length} of {records.length} records
-            </p>
-          </div>
-
-          {/* Documents Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100 border-b border-gray-200">
-                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
-                    Name
-                  </th>
-                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
-                    Email
-                  </th>
-                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
-                    Own Car
-                  </th>
-                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
-                    Background Check
-                  </th>
-                  <th className="text-left px-6 py-4 text-xs uppercase tracking-widest text-gray-600 font-semibold">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map(record => (
-                  <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-chm-black">{record.full_name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{record.email}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          record.own_car
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {record.own_car ? '✓ Yes' : '✗ No'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      {record.background_check_url ? (
-                        <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700">
-                          ✓ Uploaded
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 text-xs">Not provided</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-2">
-                        {record.background_check_url && (
-                          <>
-                            <a
-                              href={record.background_check_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition-colors"
-                            >
-                              View
-                            </a>
-                            <button
-                              onClick={() => handleShareBackgroundCheck(record.email, record.background_check_url!)}
-                              className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition-colors"
-                            >
-                              Share
-                            </button>
-                            <button
-                              onClick={() => handleDeleteBackgroundCheck(record.id)}
-                              className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition-colors"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredRecords.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No staff records found</p>
-            </div>
-          )}
-        </>
+        <StaffDocumentsTab records={records} />
       )}
 
-      {/* Modals */}
       {showCreateModal && (
         <CreateStaffModal
           onClose={() => setShowCreateModal(false)}
           onSuccess={handleCreateSuccess}
         />
       )}
+
       {showEditModal && editingRecord && (
         <EditStaffModal
           record={editingRecord}
