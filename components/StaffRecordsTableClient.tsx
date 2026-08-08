@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
-import DocumentEditModal from './DocumentEditModal'
 
 interface StaffRecord {
   id: string
@@ -55,7 +54,6 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   const [activeTab, setActiveTab] = useState<'records' | 'documents'>('records')
   const [documents, setDocuments] = useState<StaffDocument[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
-  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(null)
   const [docsSearchTerm, setDocsSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
 
@@ -453,9 +451,9 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                             <>
                               <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
                               <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
+                              <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                             </>
                           )}
-                          <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -469,7 +467,6 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
 
       {showCreateModal && <CreateStaffModal onClose={() => setShowCreateModal(false)} onSuccess={handleCreateSuccess} />}
       {showEditModal && editingRecord && <EditStaffModal record={editingRecord} onClose={() => { setShowEditModal(false); setEditingRecord(null) }} onSuccess={handleEditSuccess} />}
-      {selectedDocument && <DocumentEditModal document={selectedDocument} onClose={() => setSelectedDocument(null)} onSuccess={(updated) => { setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d)); setSelectedDocument(null) }} />}
     </div>
   )
 }
