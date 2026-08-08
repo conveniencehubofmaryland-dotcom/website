@@ -448,12 +448,12 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                       <td className="px-4 py-3">
                         <div className="flex gap-2 flex-wrap">
                           {doc.documentUrl && (
-                            <>
-                              <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
-                              <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
-                              <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
-                            </>
+                            <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
                           )}
+                          {doc.documentUrl && (
+                            <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
+                          )}
+                          <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                         </div>
                       </td>
                     </tr>
