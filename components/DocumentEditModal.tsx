@@ -24,7 +24,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
   const [error, setError] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [formData, setFormData] = useState({
-    status: document.status,
+    status: document.status as 'pending' | 'approved' | 'rejected',
     notes: document.notes || '',
   })
 
