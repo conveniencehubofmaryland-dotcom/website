@@ -209,12 +209,13 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
       'orientation': 'Orientation Document',
       'offer_letter': 'Offer Letter (Copy)',
     }
+    const documentType = (row.document_type as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter') || 'direct_deposit'
     return {
       id: row.id,
       staffId: row.staff_id,
       staffName: person?.full_name || 'Unknown',
       staffEmail: person?.email || '',
-      documentType: (row.document_type as any) || 'direct_deposit',
+      documentType,
       documentName: docTypeMap[row.document_type] || row.document_type,
       dateSigned: row.uploaded_at,
       documentUrl: row.document_url,
@@ -386,9 +387,9 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH: Share document (send email)
-export async function PATCH(req: NextRequest) {
+export async function PATCH(request: NextRequest) {
   try {
-    const { documentId, staffEmail, staffName, documentName } = await req.json()
+    const { documentId, staffEmail, staffName, documentName } = await request.json()
 
     if (!documentId || !staffEmail) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
