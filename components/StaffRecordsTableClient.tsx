@@ -456,8 +456,15 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                           {doc.documentUrl && (
                             <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
                           )}
+                          <button onClick={() => {
+                            if (doc.documentType === 'orientation') {
+                              window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
+                            } else if (doc.documentUrl) {
+                              window.open(doc.documentUrl, '_blank')
+                            }
+                          }} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">View</button>
                           {doc.documentUrl && (
-                            <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
+                            <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Print</button>
                           )}
                           <button onClick={() => handleEditDocument(doc)} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition">Edit</button>
                           <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
