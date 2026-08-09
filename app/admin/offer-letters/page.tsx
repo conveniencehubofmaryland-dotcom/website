@@ -69,11 +69,15 @@ export default async function AdminOfferLettersPage({
     grouped[pos] = filtered.filter(a => a.position === pos)
   })
 
+  // NEW: Capture pending position applicants
+  const pendingPositionApplicants = filtered.filter(a => a.position === 'Pending')
+
   return (
     <OfferLettersClient
       grouped={grouped}
       filtered={filtered}
       offerMap={offerMap}
+      pendingApplicants={pendingPositionApplicants}
     />
   )
 }
