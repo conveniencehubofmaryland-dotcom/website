@@ -45,10 +45,8 @@ export default async function AdminOfferLettersPage({
     select: '*',
   })
 
-  // Create a map of applicant_id -> offer for quick lookup
   const offerMap = new Map(offers.map(o => [o.applicant_id, o]))
 
-  // Filter by status
   console.log('[offer-letters] filterStatus:', filterStatus)
   console.log('[offer-letters] applicants:', applicants.length)
 
@@ -63,13 +61,11 @@ export default async function AdminOfferLettersPage({
 
   console.log('[offer-letters] filtered:', filtered.length)
 
-  // Group by position
   const grouped: Record<string, Applicant[]> = {}
   POSITION_LIST.forEach(pos => {
     grouped[pos] = filtered.filter(a => a.position === pos)
   })
 
-  // NEW: Capture pending position applicants
   const pendingPositionApplicants = filtered.filter(a => a.position === 'Pending')
 
   return (
