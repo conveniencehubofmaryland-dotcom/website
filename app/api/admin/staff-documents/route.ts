@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-interface Document {
+interface StaffDocument {
   id: string
   staffId: string
   staffName: string
@@ -17,345 +17,402 @@ interface Document {
   documentUrl: string | null
   status: string
   ownCar: boolean | null
+  notes?: string | null
 }
 
-export async function GET() {
+// CORRECTED: Fetch from offer_letter_applicants.orientation_accepted_at (not orientation_signed_at)
+async function fetchOrientations(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email, orientation_accepted, orientation_accepted_at')
+    .eq('orientation_accepted', true)
+
+  if (error) {
+    console.error('Error fetching orientations:', error)
+    return []
+  }
+
+  return (data || []).map(row => ({
+    id: row.id,
+    staffId: row.id,
+    staffName: row.full_name,
+    staffEmail: row.email,
+    documentType: 'orientation' as const,
+    documentName: 'Orientation & MOU',
+    dateSigned: row.orientation_accepted_at,
+    documentUrl: null,
+    status: 'signed',
+    ownCar: null,
+  }))
+}
+
+// Fetch offer letters from offer_letters table
+async function fetchOfferLetters(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('offer_letters')
+    .select('id, applicant_id, created_at, signed_at')
+    .not('signed_at', 'is', null)
+
+  if (error) {
+    console.error('Error fetching offer letters:', error)
+    return []
+  }
+
+  const applicantIds = (data || []).map(o => o.applicant_id)
+  if (applicantIds.length === 0) return []
+
+  const { data: applicants, error: appError } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email')
+    .in('id', applicantIds)
+
+  if (appError) {
+    console.error('Error fetching applicant info:', appError)
+    return []
+  }
+
+  const applicantMap = new Map(applicants.map(a => [a.id, a]))
+
+  return (data || []).map(row => {
+    const applicant = applicantMap.get(row.applicant_id)
+    return {
+      id: row.id,
+      staffId: row.applicant_id,
+      staffName: applicant?.full_name || 'Unknown',
+      staffEmail: applicant?.email || '',
+      documentType: 'offer_letter' as const,
+      documentName: 'Offer Letter',
+      dateSigned: row.signed_at,
+      documentUrl: null,
+      status: 'signed',
+      ownCar: null,
+    }
+  })
+}
+
+// Fetch certifications from staff_module_progress table
+async function fetchCertifications(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('staff_module_progress')
+    .select('id, staff_id, completed_at, module_id')
+    .not('completed_at', 'is', null)
+
+  if (error) {
+    console.error('Error fetching certifications:', error)
+    return []
+  }
+
+  const staffIds = (data || []).map(p => p.staff_id)
+  if (staffIds.length === 0) return []
+
+  const { data: staff, error: staffError } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email')
+    .in('id', staffIds)
+
+  if (staffError) {
+    console.error('Error fetching staff info:', staffError)
+    return []
+  }
+
+  const staffMap = new Map(staff.map(s => [s.id, s]))
+
+  const moduleIds = (data || []).map(p => p.module_id)
+  const { data: modules, error: moduleError } = await supabase
+    .from('training_modules')
+    .select('id, title')
+    .in('id', moduleIds)
+
+  if (moduleError) {
+    console.error('Error fetching module titles:', moduleError)
+  }
+
+  const moduleMap = new Map(modules.map(m => [m.id, m.title]))
+
+  return (data || []).map(row => {
+    const person = staffMap.get(row.staff_id)
+    const moduleName = moduleMap.get(row.module_id) || 'Training Module'
+    return {
+      id: row.id,
+      staffId: row.staff_id,
+      staffName: person?.full_name || 'Unknown',
+      staffEmail: person?.email || '',
+      documentType: 'certification' as const,
+      documentName: `Certification: ${moduleName}`,
+      dateSigned: row.completed_at,
+      documentUrl: null,
+      status: 'completed',
+      ownCar: null,
+    }
+  })
+}
+
+// Fetch background checks from offer_letter_applicants.background_check_url
+async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email, background_check_url, background_check_status')
+    .not('background_check_url', 'is', null)
+
+  if (error) {
+    console.error('Error fetching background checks:', error)
+    return []
+  }
+
+  return (data || []).map(row => ({
+    id: row.id,
+    staffId: row.id,
+    staffName: row.full_name,
+    staffEmail: row.email,
+    documentType: 'background_check' as const,
+    documentName: 'Background Check',
+    dateSigned: null,
+    documentUrl: row.background_check_url,
+    status: row.background_check_status || 'uploaded',
+    ownCar: null,
+  }))
+}
+
+// Fetch other documents from staff_documents table
+async function fetchStaffDocuments(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('staff_documents')
+    .select('id, staff_id, document_type, document_url, status, notes, uploaded_at')
+
+  if (error) {
+    console.error('Error fetching staff documents:', error)
+    return []
+  }
+
+  const staffIds = (data || []).map(d => d.staff_id)
+  if (staffIds.length === 0) return []
+
+  const { data: staff, error: staffError } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email')
+    .in('id', staffIds)
+
+  if (staffError) {
+    console.error('Error fetching staff info:', staffError)
+    return []
+  }
+
+  const staffMap = new Map(staff.map(s => [s.id, s]))
+
+  return (data || []).map(row => {
+    const person = staffMap.get(row.staff_id)
+    const docTypeMap: Record<string, string> = {
+      'direct_deposit': 'Direct Deposit Form',
+      'background_check': 'Background Check (Additional)',
+      'training_cert': 'Training Certificate',
+      'certification': 'Certification',
+      'orientation': 'Orientation Document',
+      'offer_letter': 'Offer Letter (Copy)',
+    }
+    return {
+      id: row.id,
+      staffId: row.staff_id,
+      staffName: person?.full_name || 'Unknown',
+      staffEmail: person?.email || '',
+      documentType: (row.document_type as any) || 'direct_deposit',
+      documentName: docTypeMap[row.document_type] || row.document_type,
+      dateSigned: row.uploaded_at,
+      documentUrl: row.document_url,
+      status: row.status,
+      ownCar: null,
+      notes: row.notes,
+    }
+  })
+}
+
+// GET: Fetch all documents from all sources
+export async function GET(req: NextRequest) {
   try {
-    const allDocuments: Document[] = []
+    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs] = await Promise.all([
+      fetchOrientations(),
+      fetchOfferLetters(),
+      fetchCertifications(),
+      fetchBackgroundChecks(),
+      fetchStaffDocuments(),
+    ])
 
-    // ===== OLD SOURCES (Orientations, Offer Letters, Certifications, Background Checks) =====
-
-    // Fetch orientations (signed)
-    const { data: orientations } = await supabase
-      .from('offer_letter_applicants')
-      .select('id, full_name, email, orientation_signed_at, own_car, background_check_url')
-      .not('orientation_signed_at', 'is', null)
-
-    // Fetch offer letters (signed)
-    const { data: offerLetters } = await supabase
-      .from('offer_letters')
-      .select('id, signed_at, applicant_id')
-      .not('signed_at', 'is', null)
-
-    // Get applicant info for offer letters
-    const applicantIds = offerLetters?.map(ol => ol.applicant_id) || []
-    const applicantMap: Record<number, { full_name: string; email: string; own_car: boolean; background_check_url: string | null }> = {}
-
-    if (applicantIds.length > 0) {
-      const { data: applicants } = await supabase
-        .from('offer_letter_applicants')
-        .select('id, full_name, email, own_car, background_check_url')
-        .in('id', applicantIds)
-
-      applicants?.forEach(app => {
-        applicantMap[app.id] = {
-          full_name: app.full_name,
-          email: app.email,
-          own_car: app.own_car,
-          background_check_url: app.background_check_url,
-        }
-      })
-    }
-
-    // Fetch training certifications (completed)
-    const { data: certifications } = await supabase
-      .from('staff_module_progress')
-      .select('id, staff_id, module_id, completed_at, training_modules(title)')
-      .not('completed_at', 'is', null)
-
-    // Get staff info for certifications
-    const staffIds = certifications?.map(c => c.staff_id) || []
-    const staffMap: Record<string, { name: string; email: string; own_car: boolean; background_check_url: string | null }> = {}
-
-    if (staffIds.length > 0) {
-      const { data: staffRecords } = await supabase
-        .from('offer_letter_applicants')
-        .select('id, full_name, email, own_car, background_check_url')
-        .in('id', staffIds)
-
-      staffRecords?.forEach(staff => {
-        staffMap[staff.id] = {
-          name: staff.full_name,
-          email: staff.email,
-          own_car: staff.own_car,
-          background_check_url: staff.background_check_url,
-        }
-      })
-    }
-
-    // Add orientations from old source
-    orientations?.forEach(o => {
-      allDocuments.push({
-        id: `orientation-${o.id}`,
-        staffId: o.id,
-        staffName: o.full_name,
-        staffEmail: o.email,
-        documentType: 'orientation',
-        documentName: 'Orientation/MOU',
-        dateSigned: o.orientation_signed_at,
-        documentUrl: null,
-        status: 'signed',
-        ownCar: o.own_car,
-      })
-    })
-
-    // Add offer letters from old source
-    offerLetters?.forEach(ol => {
-      const applicant = applicantMap[ol.applicant_id]
-      if (applicant) {
-        allDocuments.push({
-          id: `offer-${ol.id}`,
-          staffId: String(ol.applicant_id),
-          staffName: applicant.full_name,
-          staffEmail: applicant.email,
-          documentType: 'offer_letter',
-          documentName: 'Offer Letter',
-          dateSigned: ol.signed_at,
-          documentUrl: null,
-          status: 'signed',
-          ownCar: applicant.own_car,
-        })
-      }
-    })
-
-    // Add training certifications from old source
-    certifications?.forEach(c => {
-      const staff = staffMap[c.staff_id]
-      if (staff) {
-        allDocuments.push({
-          id: `cert-${c.id}`,
-          staffId: c.staff_id,
-          staffName: staff.name,
-          staffEmail: staff.email,
-          documentType: 'certification',
-          documentName: `${c.training_modules?.[0]?.title || 'Training'} Certification`,
-          dateSigned: c.completed_at,
-          documentUrl: null,
-          status: 'completed',
-          ownCar: staff.own_car,
-        })
-      }
-    })
-
-    // Add background checks from old source (offer_letter_applicants.background_check_url)
-    const uniqueApplicants = [
-      ...new Map(
-        orientations?.map(o => [o.id, { id: o.id, name: o.full_name, email: o.email, own_car: o.own_car, url: o.background_check_url }]) || []
-      ).values(),
-      ...Object.entries(applicantMap)
-        .filter(([, a]) => a.background_check_url)
-        .map(([id, a]) => ({ id: parseInt(id), name: a.full_name, email: a.email, own_car: a.own_car, url: a.background_check_url })),
+    const allDocuments = [
+      ...orientations,
+      ...offerLetters,
+      ...certifications,
+      ...backgroundChecks,
+      ...staffDocs,
     ]
 
-    uniqueApplicants.forEach((applicant, idx) => {
-      if (applicant.url) {
-        allDocuments.push({
-          id: `bg-${idx}`,
-          staffId: String(applicant.id),
-          staffName: applicant.name,
-          staffEmail: applicant.email,
-          documentType: 'background_check',
-          documentName: 'Background Check',
-          dateSigned: null,
-          documentUrl: applicant.url,
-          status: 'pending',
-          ownCar: applicant.own_car,
-        })
-      }
-    })
-
-    // ===== NEW SOURCE (staff_documents table) =====
-
-    const { data: staffDocs } = await supabase
-      .from('staff_documents')
-      .select('*')
-      .order('uploaded_at', { ascending: false })
-
-    const { data: staffInfo } = await supabase
-      .from('offer_letter_applicants')
-      .select('id, full_name, email, own_car')
-
-    const staffInfoMap: Record<string, { full_name: string; email: string; own_car: boolean }> = {}
-    staffInfo?.forEach(s => {
-      staffInfoMap[s.id] = { full_name: s.full_name, email: s.email, own_car: s.own_car }
-    })
-
-    staffDocs?.forEach(doc => {
-      const staff = staffInfoMap[doc.staff_id]
-      if (staff) {
-        allDocuments.push({
-          id: doc.id,
-          staffId: doc.staff_id,
-          staffName: staff.full_name,
-          staffEmail: staff.email,
-          documentType: doc.document_type === 'training_cert' ? 'certification' : doc.document_type,
-          documentName: doc.document_type === 'background_check'
-            ? 'Background Check'
-            : doc.document_type === 'training_cert'
-            ? 'Training Certificate'
-            : doc.document_type === 'orientation'
-            ? 'Orientation/MOU'
-            : doc.document_type === 'offer_letter'
-            ? 'Offer Letter'
-            : 'Direct Deposit Form',
-          dateSigned: null,
-          documentUrl: doc.document_url,
-          status: doc.status || 'pending',
-          ownCar: staff.own_car,
-        })
-      }
-    })
-
     return NextResponse.json(allDocuments)
-  } catch (err) {
-    console.error('Error fetching documents:', err)
-    return NextResponse.json(
-      { error: 'Failed to fetch documents' },
-      { status: 500 }
-    )
+  } catch (error) {
+    console.error('Error in GET /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 })
   }
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData()
-    const staffId = formData.get('staffId') as string
-    const documentType = formData.get('documentType') as string
-    const file = formData.get('document') as File
-    const status = (formData.get('status') as string) || 'pending'
-    const notes = (formData.get('notes') as string) || null
-
-    if (!staffId || !documentType) {
-      return NextResponse.json(
-        { error: 'Missing required fields: staffId, documentType' },
-        { status: 400 }
-      )
-    }
-
-    let documentUrl: string | null = null
-
-    if (file) {
-      const buffer = await file.arrayBuffer()
-      const ext = file.name.split('.').pop()
-      const fileName = `${staffId}_${documentType}_${Date.now()}.${ext}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('application-documents')
-        .upload(fileName, buffer, {
-          contentType: file.type,
-        })
-
-      if (uploadError) throw uploadError
-      documentUrl = fileName
-    }
-
-    const { data: newDoc, error: insertError } = await supabase
-      .from('staff_documents')
-      .insert({
-        staff_id: staffId,
-        document_type: documentType,
-        document_url: documentUrl,
-        status,
-        notes,
-      })
-      .select()
-      .single()
-
-    if (insertError) throw insertError
-
-    const { data: staffData } = await supabase
-      .from('offer_letter_applicants')
-      .select('full_name, email, own_car')
-      .eq('id', staffId)
-      .single()
-
-    return NextResponse.json({
-      id: newDoc.id,
-      staffId: newDoc.staff_id,
-      staffName: staffData?.full_name || 'Unknown',
-      staffEmail: staffData?.email || 'unknown@example.com',
-      documentType: newDoc.document_type,
-      documentName: newDoc.document_type === 'background_check'
-        ? 'Background Check'
-        : newDoc.document_type === 'training_cert'
-        ? 'Training Certificate'
-        : newDoc.document_type === 'orientation'
-        ? 'Orientation/MOU'
-        : newDoc.document_type === 'offer_letter'
-        ? 'Offer Letter'
-        : 'Direct Deposit Form',
-      documentUrl: newDoc.document_url,
-      status: newDoc.status,
-      notes: newDoc.notes,
-      ownCar: staffData?.own_car,
-    })
-  } catch (err) {
-    console.error('[staff-docs-post] Error:', err)
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json(
-      { error: `Failed to create document: ${errorMessage}` },
-      { status: 500 }
-    )
-  }
-}
-
+// DELETE: Remove document from appropriate source
 export async function DELETE(req: NextRequest) {
   try {
-    const { id, type } = await req.json()
+    const { documentId, documentType, staffId } = await req.json()
 
-    if (type === 'orientation') {
-      const applicantId = parseInt(id.replace('orientation-', ''))
-      const { error } = await supabase
-        .from('offer_letter_applicants')
-        .update({ orientation_signed_at: null })
-        .eq('id', applicantId)
-      if (error) throw error
-    } else if (type === 'offer_letter') {
-      const offerId = parseInt(id.replace('offer-', ''))
-      const { error } = await supabase
-        .from('offer_letters')
-        .delete()
-        .eq('id', offerId)
-      if (error) throw error
-    } else if (type === 'certification') {
-      const certId = id.replace('cert-', '')
-      const { error } = await supabase
-        .from('staff_module_progress')
-        .delete()
-        .eq('id', certId)
-      if (error) throw error
-    } else if (type === 'background_check') {
-      const { error: deleteError } = await supabase.storage
-        .from('application-documents')
-        .remove([id])
-      if (deleteError) throw deleteError
-    } else {
-      // NEW: Delete from staff_documents table
-      const { data: doc } = await supabase
-        .from('staff_documents')
-        .select('document_url')
-        .eq('id', id)
-        .single()
+    if (!documentId || !documentType) {
+      return NextResponse.json({ error: 'Missing documentId or documentType' }, { status: 400 })
+    }
 
-      if (doc?.document_url) {
-        await supabase.storage
-          .from('application-documents')
-          .remove([doc.document_url])
+    switch (documentType) {
+      case 'orientation': {
+        // Update offer_letter_applicants to clear orientation
+        const { error } = await supabase
+          .from('offer_letter_applicants')
+          .update({ orientation_accepted: false, orientation_accepted_at: null })
+          .eq('id', staffId)
+
+        if (error) throw error
+        break
       }
 
-      const { error } = await supabase
-        .from('staff_documents')
-        .delete()
-        .eq('id', id)
-      if (error) throw error
+      case 'offer_letter': {
+        // Delete from offer_letters table
+        const { error } = await supabase
+          .from('offer_letters')
+          .delete()
+          .eq('id', documentId)
+
+        if (error) throw error
+        break
+      }
+
+      case 'certification': {
+        // Delete from staff_module_progress table
+        const { error } = await supabase
+          .from('staff_module_progress')
+          .delete()
+          .eq('id', documentId)
+
+        if (error) throw error
+        break
+      }
+
+      case 'background_check': {
+        // Delete file from storage and clear URL
+        if (documentId) {
+          await supabase.storage.from('application-documents').remove([documentId])
+        }
+
+        const { error } = await supabase
+          .from('offer_letter_applicants')
+          .update({ background_check_url: null, background_check_status: null })
+          .eq('id', staffId)
+
+        if (error) throw error
+        break
+      }
+
+      default: {
+        // Delete from staff_documents table
+        const { error: docError } = await supabase
+          .from('staff_documents')
+          .delete()
+          .eq('id', documentId)
+
+        if (docError) throw docError
+
+        // Also delete from storage if URL exists
+        if (documentId) {
+          await supabase.storage.from('application-documents').remove([documentId])
+        }
+        break
+      }
     }
 
     return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('Error deleting document:', err)
-    return NextResponse.json(
-      { error: 'Failed to delete document' },
-      { status: 500 }
-    )
+  } catch (error) {
+    console.error('Error in DELETE /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to delete document' }, { status: 500 })
+  }
+}
+
+// POST: Upload new document to staff_documents
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData()
+    const file = formData.get('file') as File
+    const staffId = formData.get('staffId') as string
+    const documentType = formData.get('documentType') as string
+    const notes = formData.get('notes') as string
+
+    if (!file || !staffId || !documentType) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Upload file to storage
+    const timestamp = Date.now()
+    const filePath = `${staffId}/${timestamp}-${file.name}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('application-documents')
+      .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('application-documents')
+      .getPublicUrl(filePath)
+
+    // Insert into staff_documents
+    const { data, error: dbError } = await supabase
+      .from('staff_documents')
+      .insert([
+        {
+          staff_id: staffId,
+          document_type: documentType,
+          document_url: urlData.publicUrl,
+          status: 'uploaded',
+          notes,
+          uploaded_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+
+    if (dbError) throw dbError
+
+    return NextResponse.json(data[0])
+  } catch (error) {
+    console.error('Error in POST /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to upload document' }, { status: 500 })
+  }
+}
+
+// PATCH: Share document (send email)
+export async function PATCH(req: NextRequest) {
+  try {
+    const { documentId, staffEmail, staffName, documentName } = await req.json()
+
+    if (!documentId || !staffEmail) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Call share route via internal API
+    const shareResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/admin/staff-documents/share`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        documentId,
+        staffEmail,
+        staffName,
+        documentName,
+      }),
+    })
+
+    if (!shareResponse.ok) {
+      throw new Error('Failed to send email')
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error in PATCH /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to share document' }, { status: 500 })
   }
 }
