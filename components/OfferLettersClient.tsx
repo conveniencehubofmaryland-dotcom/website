@@ -1,5 +1,4 @@
 'use client'
-
 import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
@@ -38,14 +37,15 @@ interface OfferLettersClientProps {
   grouped: Record<string, Applicant[]>
   filtered: Applicant[]
   offerMap: Map<string, OfferLetter>
+  pendingApplicants?: Applicant[]
 }
 
 export default function OfferLettersClient({
   grouped,
   filtered,
   offerMap,
+  pendingApplicants = [],
 }: OfferLettersClientProps) {
-
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -55,7 +55,6 @@ export default function OfferLettersClient({
             {filtered.length} applicant{filtered.length !== 1 ? 's' : ''}
           </p>
         </div>
-
         <StatusFilter />
       </div>
 
@@ -63,6 +62,78 @@ export default function OfferLettersClient({
       <SendInviteCard />
 
       <div className="space-y-10">
+        {/* NEW: PENDING POSITION SECTION - APPEARS FIRST */}
+        {pendingApplicants.length > 0 && (
+          <div>
+            <h2 className="font-semibold text-lg text-chm-black mb-4 pb-2 border-b border-gray-200">
+              ⏳ Pending Position (Awaiting Selection)
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              These applicants have started the onboarding process but haven't selected their position yet.
+            </p>
+            <div className="overflow-x-auto -mx-4 sm:mx-0 mb-8">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-gray-200 bg-gray-50">
+                    {['Name', 'Email', 'Phone', 'Status', 'Ready', 'Notes', 'Applied', 'Action', 'Delete'].map(h => (
+                      <th
+                        key={h}
+                        className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingApplicants.map(applicant => {
+                    const offer = offerMap.get(applicant.id)
+                    return (
+                      <tr key={applicant.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <p className="font-semibold text-chm-black">{applicant.full_name}</p>
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">{applicant.email}</td>
+                        <td className="py-3 px-4 text-gray-600">{applicant.phone}</td>
+                        <td className="py-3 px-4">
+                          <ApplicantStatusButton applicantId={applicant.id} initialStatus={applicant.status} />
+                        </td>
+                        <td className="py-3 px-4">
+                          <ApplicantReadyButton
+                            applicantId={applicant.id}
+                            onboarding_status={applicant.onboarding_status}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <ApplicantNotesButton applicantId={applicant.id} initialNotes={applicant.notes} />
+                        </td>
+                        <td className="py-3 px-4 text-xs text-gray-500">
+                          {new Date(applicant.created_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-xs text-gray-500">Awaiting position</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <DeleteButton
+                            table="offer_letter_applicants"
+                            id={applicant.id}
+                            name={applicant.full_name}
+                          />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* EXISTING: POSITION-GROUPED SECTIONS */}
         {POSITION_LIST.map(position => {
           const positionApplicants = grouped[position]
           if (!positionApplicants.length) return null
@@ -81,7 +152,7 @@ export default function OfferLettersClient({
                       <span>{tier.level}</span>
                       <span className="font-semibold">
                         ${tier.hourly_min.toFixed(2)}–${tier.hourly_max.toFixed(2)}/hr (
-                        {tier.monthly_min.toLocaleString()}–${tier.monthly_max.toLocaleString()}/mo)
+                        ${tier.monthly_min.toLocaleString()}–${tier.monthly_max.toLocaleString()}/mo)
                       </span>
                     </div>
                   ))}
