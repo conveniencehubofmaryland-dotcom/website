@@ -54,7 +54,7 @@ export default async function AdminOfferLettersPage({
     filterStatus === 'all'
       ? applicants
       : filterStatus === 'new'
-      ? applicants.filter(a => a.onboarding_status === 'new')
+      ? applicants.filter(a => ['new', 'orientation_signed', 'offer_signed'].includes(a.onboarding_status))
       : filterStatus === 'ready'
       ? applicants.filter(a => a.onboarding_status === 'ready_to_claim_shifts')
       : applicants.filter(a => a.status === filterStatus)
