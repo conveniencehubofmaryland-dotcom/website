@@ -58,18 +58,16 @@ export default function OfferLettersClient({
         <StatusFilter />
       </div>
 
-      {/* SEPARATE INVITE SECTION - AT TOP */}
       <SendInviteCard />
 
       <div className="space-y-10">
-        {/* NEW: PENDING POSITION SECTION - APPEARS FIRST */}
         {pendingApplicants.length > 0 && (
           <div>
             <h2 className="font-semibold text-lg text-chm-black mb-4 pb-2 border-b border-gray-200">
               ⏳ Pending Position (Awaiting Selection)
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              These applicants have started the onboarding process but haven't selected their position yet.
+              These applicants have started the onboarding process but have not selected their position yet.
             </p>
             <div className="overflow-x-auto -mx-4 sm:mx-0 mb-8">
               <table className="min-w-full text-sm">
@@ -86,9 +84,7 @@ export default function OfferLettersClient({
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingApplicants.map(applicant => {
-                    const offer = offerMap.get(applicant.id)
-                    return (
+                  {pendingApplicants.map(applicant => (
                       <tr key={applicant.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-3 px-4">
                           <p className="font-semibold text-chm-black">{applicant.full_name}</p>
@@ -125,15 +121,13 @@ export default function OfferLettersClient({
                           />
                         </td>
                       </tr>
-                    )
-                  })}
+                    ))}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* EXISTING: POSITION-GROUPED SECTIONS */}
         {POSITION_LIST.map(position => {
           const positionApplicants = grouped[position]
           if (!positionApplicants.length) return null
