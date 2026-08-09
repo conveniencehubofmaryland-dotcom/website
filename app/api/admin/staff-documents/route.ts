@@ -127,7 +127,7 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
     console.error('Error fetching module titles:', moduleError)
   }
 
-  const moduleMap = new Map(modules.map(m => [m.id, m.title]))
+  const moduleMap = new Map((modules || []).map(m => [m.id, m.title]))
 
   return (data || []).map(row => {
     const person = staffMap.get(row.staff_id)
