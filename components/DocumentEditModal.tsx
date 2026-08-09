@@ -12,6 +12,7 @@ interface StaffDocument {
   documentUrl: string | null
   status: string
   ownCar: boolean | null
+  notes?: string | null
 }
 
 interface DocumentEditModalProps {
