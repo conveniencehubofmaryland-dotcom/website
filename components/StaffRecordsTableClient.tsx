@@ -255,6 +255,10 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
         return 'Training Certificate'
       case 'certification':
         return 'Certification'
+      case 'cpr_certification':
+        return 'CPR Certification'
+      case 'first_aid_certification':
+        return 'First Aid Certification'
       case 'orientation':
         return 'Orientation/MOU'
       case 'offer_letter':
