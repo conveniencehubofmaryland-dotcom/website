@@ -259,27 +259,23 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   }
 
   const getDocumentTypeLabel = (type: string) => {
-    switch (type) {
-      case 'background_check':
-        return 'Background Check'
-      case 'training_cert':
-        return 'Training Certificate'
-      case 'certification':
-        return 'Certification'
-      case 'cpr_certification':
-        return 'CPR Certification'
-      case 'first_aid_certification':
-        return 'First Aid Certification'
-      case 'orientation':
-        return 'Orientation/MOU'
-      case 'offer_letter':
-        return 'Offer Letter'
-      case 'direct_deposit':
-        return 'Direct Deposit Form'
-      default:
-        return type
-    }
+  switch (type) {
+    case 'background_check':
+      return 'Background Check'
+    case 'training_cert':
+      return 'Training Certificate'
+    case 'certification':
+      return 'Certification'
+    case 'orientation':
+      return 'Orientation/MOU'
+    case 'offer_letter':
+      return 'Offer Letter'
+    case 'direct_deposit':
+      return 'Direct Deposit Form'
+    default:
+      return type
   }
+}
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.staffName.toLowerCase().includes(docsSearchTerm.toLowerCase()) ||
