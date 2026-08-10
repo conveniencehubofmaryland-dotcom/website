@@ -237,76 +237,57 @@ export async function GET(req: NextRequest) {
 }
 
 // DELETE: Remove document from appropriate source
-export async function DELETE(req: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { documentId, documentType, staffId } = await req.json()
+    const { documentId, documentType, staffId } = await request.json()
 
-    if (!documentId || !documentType) {
-      return NextResponse.json({ error: 'Missing documentId or documentType' }, { status: 400 })
+    if (!documentId) {
+      return NextResponse.json({ error: 'Missing documentId' }, { status: 400 })
     }
 
     switch (documentType) {
       case 'orientation': {
-        // Update offer_letter_applicants to clear orientation
         const { error } = await supabase
           .from('offer_letter_applicants')
           .update({ orientation_accepted: false, orientation_accepted_at: null })
           .eq('id', staffId)
-
         if (error) throw error
         break
       }
 
       case 'offer_letter': {
-        // Delete from offer_letters table
         const { error } = await supabase
           .from('offer_letters')
           .delete()
           .eq('id', documentId)
-
         if (error) throw error
         break
       }
 
       case 'certification': {
-        // Delete from staff_module_progress table
         const { error } = await supabase
           .from('staff_module_progress')
           .delete()
           .eq('id', documentId)
-
         if (error) throw error
         break
       }
 
       case 'background_check': {
-        // Delete file from storage and clear URL
-        if (documentId) {
-          await supabase.storage.from('application-documents').remove([documentId])
-        }
-
         const { error } = await supabase
           .from('offer_letter_applicants')
           .update({ background_check_url: null, background_check_status: null })
           .eq('id', staffId)
-
         if (error) throw error
         break
       }
 
       default: {
-        // Delete from staff_documents table
         const { error: docError } = await supabase
           .from('staff_documents')
           .delete()
           .eq('id', documentId)
-
         if (docError) throw docError
-
-        // Also delete from storage if URL exists
-        if (documentId) {
-          await supabase.storage.from('application-documents').remove([documentId])
-        }
         break
       }
     }
