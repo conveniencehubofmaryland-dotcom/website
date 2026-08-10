@@ -211,9 +211,9 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
 }
 
 // GET: Fetch all documents from all sources
-export async function GET(req: NextRequest) {
+export async function PATCH(request: NextRequest) {
   try {
-    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs] = await Promise.all([
+    const { documentId, staffEmail, staffName, documentName } = await request.json()
       fetchOrientations(),
       fetchOfferLetters(),
       fetchCertifications(),
@@ -419,7 +419,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update staff_documents table
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, string | null> = {
       status,
       notes,
     }
