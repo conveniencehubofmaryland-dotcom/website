@@ -1,4 +1,10 @@
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(
   req: NextRequest,
@@ -7,34 +13,24 @@ export async function GET(
   try {
     const { id } = await params
 
-    // Fetch offer letter with applicant data
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${id}&select=*,offer_letter_applicants(full_name,email,phone,position)`,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      }
-    )
+    const { data, error } = await supabase
+      .from('offer_letters')
+      .select('*, offer_letter_applicants(full_name, email, position)')
+      .eq('id', id)
+      .single()
 
-    if (!res.ok) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    const data = await res.json()
-    if (!data || data.length === 0) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
-
-    const offerLetter = data[0]
-    const applicant = offerLetter.offer_letter_applicants
-
-    const signedDate = offerLetter.signed_at 
-      ? new Date(offerLetter.signed_at).toLocaleDateString('en-US', {
+    const applicant = data.offer_letter_applicants
+    const signedDate = data.signed_at
+      ? new Date(data.signed_at).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         })
       : 'Not signed'
 
@@ -45,65 +41,55 @@ export async function GET(
           <meta charset="UTF-8">
           <title>Offer Letter</title>
           <style>
-            body { font-family: Georgia, serif; margin: 40px; line-height: 1.8; }
-            h1 { text-align: center; margin-bottom: 30px; }
-            .header { text-align: center; margin-bottom: 40px; }
-            .content { margin: 30px 0; }
-            .signature-section { margin-top: 50px; }
-            table { width: 100%; margin: 20px 0; }
-            td { padding: 10px; border-bottom: 1px solid #eee; }
+            body { font-family: Georgia, serif; margin: 40px; line-height: 1.6; }
+            h1 { text-align: center; margin-bottom: 10px; }
+            h2 { font-weight: bold; margin-top: 30px; margin-bottom: 15px; }
+            p { margin: 10px 0; }
+            .section { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
+            .signature-section { margin-top: 40px; }
+            .highlight { background-color: #fffacd; padding: 15px; border-left: 4px solid #ffd700; }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>OFFER OF EMPLOYMENT</h1>
-            <p>Convenience Hub of Maryland, LLC</p>
+          <h1>CONVENIENCE HUB OF MARYLAND</h1>
+          <h2>Offer Letter</h2>
+          
+          <div class="section">
+            <h2>EMPLOYEE INFORMATION</h2>
+            <p><strong>Name:</strong> ${applicant.full_name}</p>
+            <p><strong>Position:</strong> ${applicant.position}</p>
+            <p><strong>Email:</strong> ${applicant.email}</p>
+            <p><strong>Start Date:</strong> ${data.start_date ? new Date(data.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'TBD'}</p>
           </div>
 
-          <div class="content">
-            <p>Dear ${applicant?.full_name || 'Applicant'},</p>
-            <p>We are pleased to extend an offer of employment to you for the position of <strong>${offerLetter.position}</strong>.</p>
+          <div class="section">
+            <h2>COMPENSATION & BENEFITS</h2>
+            <p><strong>Annual Salary:</strong> $${data.salary_annual?.toLocaleString()}</p>
+            ${data.benefits_summary ? `<p><strong>Benefits Summary:</strong></p><p>${data.benefits_summary.replace(/\n/g, '<br>')}</p>` : ''}
+          </div>
 
-            <table>
-              <tr>
-                <td><strong>Position:</strong></td>
-                <td>${offerLetter.position}</td>
-              </tr>
-              <tr>
-                <td><strong>Annual Salary:</strong></td>
-                <td>$${offerLetter.salary_annual?.toLocaleString() || 'TBD'}</td>
-              </tr>
-              <tr>
-                <td><strong>Start Date:</strong></td>
-                <td>${offerLetter.start_date || 'To be determined'}</td>
-              </tr>
-              <tr>
-                <td><strong>Employee Name:</strong></td>
-                <td>${applicant?.full_name || 'N/A'}</td>
-              </tr>
-              <tr>
-                <td><strong>Email:</strong></td>
-                <td><span style="color: #000; text-decoration: none;">${String(applicant?.email || 'N/A').replace(/[\[\]]/g, '')}</span></td>
-              </tr>
-              <tr>
-                <td><strong>Phone:</strong></td>
-                <td>${applicant?.phone || 'N/A'}</td>
-              </tr>
-            </table>
-
-            <h3>Benefits Summary</h3>
-            <p>${offerLetter.benefits_summary || 'Benefits to be discussed with HR.'}</p>
-
-            <p>This offer is contingent upon successful completion of our background check and other standard hiring procedures.</p>
-
-            <p>Please contact us if you have any questions.</p>
-
-            <p>Sincerely,<br/>Convenience Hub of Maryland<br/>202-579-2944</p>
+          <div class="section">
+            <h2>NEXT STEPS</h2>
+            <ul>
+              <li>Complete background check</li>
+              <li>Complete training modules</li>
+              <li>Review and sign orientation document</li>
+              <li>Claim your first available shifts</li>
+            </ul>
           </div>
 
           <div class="signature-section">
-            <p><strong>Accepted on:</strong> ${signedDate}</p>
-            <p><strong>By:</strong> ${applicant?.full_name || 'N/A'}</p>
+            <h2>ACCEPTANCE</h2>
+            <p>By signing below, you acknowledge receipt of this offer letter and agree to the terms and conditions outlined above.</p>
+            <p style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px;">
+              <strong>Signed:</strong> ${signedDate}
+            </p>
+            <p><strong>By:</strong> ${applicant.full_name}</p>
+          </div>
+
+          <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">
+            <p>Convenience Hub of Maryland • 202-579-2944</p>
+            <p style="color: #999;">Document ID: ${data.id}</p>
           </div>
         </body>
       </html>
@@ -112,11 +98,11 @@ export async function GET(
     return new NextResponse(htmlContent, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Content-Disposition': `attachment; filename="OfferLetter-${applicant?.full_name || 'Employee'}-${signedDate.split(' ')[0]}.html"`,
+        'Content-Disposition': `attachment; filename="OfferLetter-${applicant.full_name}.html"`,
       },
     })
   } catch (err) {
-    console.error('[offer-download] Error:', err)
+    console.error('[offer-letters download] Error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
