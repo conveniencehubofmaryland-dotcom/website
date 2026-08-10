@@ -401,3 +401,74 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to share document' }, { status: 500 })
   }
 }
+
+// PUT: Update document metadata and optionally replace file
+export async function PUT(request: NextRequest) {
+  try {
+    const url = new URL(request.url)
+    const documentId = url.pathname.split('/').pop()
+
+    const formData = await request.formData()
+    const status = formData.get('status') as string
+    const notes = formData.get('notes') as string
+    const file = formData.get('file') as File | null
+
+    if (!documentId) {
+      return NextResponse.json({ error: 'Missing documentId' }, { status: 400 })
+    }
+
+    let documentUrl: string | null = null
+
+    // If new file uploaded, upload to storage and get URL
+    if (file) {
+      const timestamp = Date.now()
+      const filePath = `${documentId}/${timestamp}-${file.name}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('application-documents')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: urlData } = supabase.storage
+        .from('application-documents')
+        .getPublicUrl(filePath)
+
+      documentUrl = urlData.publicUrl
+    }
+
+    // Update staff_documents table
+    const updateData: Record<string, any> = {
+      status,
+      notes,
+    }
+
+    if (documentUrl) {
+      updateData.document_url = documentUrl
+    }
+
+    const { data, error: dbError } = await supabase
+      .from('staff_documents')
+      .update(updateData)
+      .eq('id', documentId)
+      .select()
+
+    if (dbError) throw dbError
+
+    const updated = data?.[0]
+    if (!updated) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      id: updated.id,
+      staffId: updated.staff_id,
+      status: updated.status,
+      notes: updated.notes,
+      documentUrl: updated.document_url,
+    })
+  } catch (error) {
+    console.error('Error in PUT /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to update document' }, { status: 500 })
+  }
+}
