@@ -94,28 +94,13 @@ async function fetchOfferLetters(): Promise<StaffDocument[]> {
 async function fetchCertifications(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_module_progress')
-    .select('id, staff_id, completed_at, module_id')
+    .select('id, staff_name, staff_email, completed_at, module_id')
     .not('completed_at', 'is', null)
 
   if (error) {
     console.error('Error fetching certifications:', error)
     return []
   }
-
-  const staffIds = (data || []).map(p => p.staff_id)
-  if (staffIds.length === 0) return []
-
-  const { data: staff, error: staffError } = await supabase
-    .from('offer_letter_applicants')
-    .select('id, full_name, email')
-    .in('id', staffIds)
-
-  if (staffError) {
-    console.error('Error fetching staff info:', staffError)
-    return []
-  }
-
-  const staffMap = new Map(staff.map(s => [s.id, s]))
 
   const moduleIds = (data || []).map(p => p.module_id)
   const { data: modules, error: moduleError } = await supabase
@@ -130,13 +115,12 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
   const moduleMap = new Map((modules || []).map(m => [m.id, m.title]))
 
   return (data || []).map(row => {
-    const person = staffMap.get(row.staff_id)
     const moduleName = moduleMap.get(row.module_id) || 'Training Module'
     return {
       id: row.id,
-      staffId: row.staff_id,
-      staffName: person?.full_name || 'Unknown',
-      staffEmail: person?.email || '',
+      staffId: row.staff_email,
+      staffName: row.staff_name,
+      staffEmail: row.staff_email,
       documentType: 'certification' as const,
       documentName: `Certification: ${moduleName}`,
       dateSigned: row.completed_at,
