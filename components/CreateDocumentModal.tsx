@@ -13,7 +13,6 @@ interface CreateDocumentModalProps {
   onSuccess: () => void
 }
 
-const DOCUMENT_TYPES = [
   const DOCUMENT_TYPES = [
   { value: 'background_check', label: 'Background Check' },
   { value: 'offer_letter', label: 'Offer Letter' },
