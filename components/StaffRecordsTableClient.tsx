@@ -166,14 +166,25 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   }
 
   const handleDocumentView = (doc: StaffDocument) => {
-    if (doc.documentType === 'orientation') {
-      window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
-    } else if (doc.documentUrl) {
-      window.open(doc.documentUrl, '_blank')
-    } else {
-      alert('No file available for this document')
-    }
+  // Route to correct download endpoint based on document type
+  if (doc.documentType === 'orientation') {
+    window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
+  } else if (doc.documentType === 'offer_letter') {
+    window.open(`/api/admin/offer-letters/download/${doc.id}`, '_blank')
+  } else if (doc.documentType === 'certification') {
+    window.open(`/api/admin/certifications/download/${doc.id}`, '_blank')
+  } else if (doc.documentType === 'cpr_certification' || doc.documentType === 'first_aid_certification') {
+    // CPR and First Aid use certification route
+    window.open(`/api/admin/certifications/download/${doc.id}`, '_blank')
+  } else if (doc.documentType === 'background_check') {
+    window.open(`/api/admin/background-checks/download/${doc.staffId}`, '_blank')
+  } else if (doc.documentUrl) {
+    // Fallback for other uploaded documents
+    window.open(doc.documentUrl, '_blank')
+  } else {
+    alert('No file available for this document')
   }
+}
 
   const handleDocumentPrint = (doc: StaffDocument) => {
     if (doc.documentUrl) {
