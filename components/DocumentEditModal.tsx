@@ -21,6 +21,15 @@ interface DocumentEditModalProps {
   onSuccess: (document: StaffDocument) => void
 }
 
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  'background_check': 'Background Check',
+  'training_cert': 'Training Certificate',
+  'certification': 'Certification',
+  'orientation': 'Orientation/MOU',
+  'offer_letter': 'Offer Letter',
+  'direct_deposit': 'Direct Deposit Form',
+}
+
 export default function DocumentEditModal({ document, onClose, onSuccess }: DocumentEditModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -54,7 +63,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
       formDataToSend.append('status', formData.status)
       formDataToSend.append('notes', formData.notes)
       if (file) {
-        formDataToSend.append('document', file)
+        formDataToSend.append('file', file)
       }
 
       const res = await fetch(`/api/admin/staff-documents/${document.id}`, {
@@ -80,7 +89,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
       <div className="bg-white rounded-lg max-w-2xl w-full p-6 space-y-4">
         <div>
           <h2 className="text-2xl font-bold text-chm-black mb-1">Edit Document</h2>
-          <p className="text-sm text-gray-600">{document.documentName} • {document.staffName}</p>
+          <p className="text-sm text-gray-600">{document.documentName}</p>
         </div>
 
         {error && (
@@ -90,6 +99,30 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+              Staff Name
+            </label>
+            <input
+              type="text"
+              value={document.staffName}
+              disabled
+              className="w-full border border-gray-200 px-4 py-2 text-sm bg-gray-50 text-gray-600 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+              Document Type
+            </label>
+            <input
+              type="text"
+              value={DOCUMENT_TYPE_LABELS[document.documentType] || document.documentType}
+              disabled
+              className="w-full border border-gray-200 px-4 py-2 text-sm bg-gray-50 text-gray-600 rounded"
+            />
+          </div>
+
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
               Status
@@ -104,6 +137,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
               <option value="rejected">Rejected</option>
               <option value="signed">Signed</option>
               <option value="completed">Completed</option>
+              <option value="uploaded">Uploaded</option>
             </select>
           </div>
 
@@ -121,7 +155,7 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
 
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
-              Replace Document (Optional)
+              Upload File
             </label>
             <input
               type="file"
@@ -129,6 +163,9 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
               className="w-full border border-gray-200 px-4 py-2 text-sm rounded"
             />
             {file && <p className="text-sm text-green-600 mt-1">✓ {file.name}</p>}
+            {document.documentUrl && !file && (
+              <p className="text-sm text-gray-500 mt-1">Current file: {document.documentName}</p>
+            )}
           </div>
 
           <div className="flex gap-2 justify-end pt-4">
@@ -139,16 +176,6 @@ export default function DocumentEditModal({ document, onClose, onSuccess }: Docu
             >
               Cancel
             </button>
-            {document.documentUrl && (
-              <a
-                href={document.documentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-purple-100 text-purple-700 rounded font-semibold text-sm hover:bg-purple-200 transition-colors"
-              >
-                Print
-              </a>
-            )}
             <button
               type="submit"
               disabled={loading}
