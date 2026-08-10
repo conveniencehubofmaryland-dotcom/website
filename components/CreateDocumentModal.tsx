@@ -14,9 +14,12 @@ interface CreateDocumentModalProps {
 }
 
 const DOCUMENT_TYPES = [
+  const DOCUMENT_TYPES = [
   { value: 'background_check', label: 'Background Check' },
   { value: 'offer_letter', label: 'Offer Letter' },
   { value: 'certification', label: 'Certification' },
+  { value: 'cpr_certification', label: 'CPR Certification' },
+  { value: 'first_aid_certification', label: 'First Aid Certification' },
   { value: 'training_cert', label: 'Training Certificate' },
   { value: 'direct_deposit', label: 'Direct Deposit Form' },
   { value: 'other', label: 'Other (specify below)' },
