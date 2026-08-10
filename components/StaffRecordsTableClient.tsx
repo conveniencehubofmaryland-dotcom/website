@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
-import DocumentEditModal from './DocumentEditModal'
+import CreateDocumentModal from './CreateDocumentModal'
 
 interface StaffRecord {
   id: string
@@ -55,9 +55,9 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   const [activeTab, setActiveTab] = useState<'records' | 'documents'>('records')
   const [documents, setDocuments] = useState<StaffDocument[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
-  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(null)
   const [docsSearchTerm, setDocsSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
+  const [showCreateDocModal, setShowCreateDocModal] = useState(false)
 
   const filteredRecords = records.filter(record => {
     const matchesSearch =
@@ -130,7 +130,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
         body: JSON.stringify({ 
           documentId: documentId, 
           documentType: documentType,
-          staffId: selectedDocument?.staffId 
+          staffId: documents.find(d => d.id === documentId)?.staffId
         }),
       })
       if (!res.ok) throw new Error('Failed to delete document')
@@ -141,16 +141,21 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
-  const handleDocumentShare = async (email: string, documentUrl: string, documentName: string) => {
-    if (!documentUrl) {
+  const handleDocumentShare = async (doc: StaffDocument) => {
+    if (!doc.documentUrl) {
       alert('No file to share')
       return
     }
     try {
-      const res = await fetch('/api/admin/staff-documents/share', {
-        method: 'POST',
+      const res = await fetch('/api/admin/staff-documents', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, documentUrl, documentName }),
+        body: JSON.stringify({ 
+          documentId: doc.id,
+          staffEmail: doc.staffEmail, 
+          staffName: doc.staffName, 
+          documentName: doc.documentName 
+        }),
       })
       if (!res.ok) throw new Error('Failed to share document')
       alert('Document link sent to staff member')
@@ -160,8 +165,24 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
-  const handleEditDocument = (doc: StaffDocument) => {
-    setSelectedDocument(doc)
+  const handleDocumentView = (doc: StaffDocument) => {
+    if (doc.documentType === 'orientation') {
+      window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
+    } else if (doc.documentUrl) {
+      window.open(doc.documentUrl, '_blank')
+    } else {
+      alert('No file available for this document')
+    }
+  }
+
+  const handleDocumentPrint = (doc: StaffDocument) => {
+    if (doc.documentUrl) {
+      window.open(doc.documentUrl, '_blank')
+    } else if (doc.documentType === 'orientation') {
+      window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
+    } else {
+      alert('No file available to print')
+    }
   }
 
   const exportCSV = () => {
@@ -399,7 +420,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
       {/* DOCUMENTS & INFO TAB */}
       {activeTab === 'documents' && (
         <div className="space-y-4">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-4 flex-wrap items-end">
             <input
               type="text"
               placeholder="Search by name or email…"
@@ -419,6 +440,12 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
               <option value="offer_letter">Offer Letters</option>
               <option value="direct_deposit">Direct Deposit Forms</option>
             </select>
+            <button
+              onClick={() => setShowCreateDocModal(true)}
+              className="bg-chm-red text-white px-4 py-2 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors rounded"
+            >
+              + Create Document
+            </button>
           </div>
 
           {docsLoading ? (
@@ -433,7 +460,6 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Staff Name</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Document Type</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">File</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Actions</th>
                   </tr>
                 </thead>
@@ -449,28 +475,14 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                       <td className="px-4 py-3"><span className="text-gray-700">{getDocumentTypeLabel(doc.documentType)}</span></td>
                       <td className="px-4 py-3">{getStatusBadge(doc.status)}</td>
                       <td className="px-4 py-3">
-                        {doc.documentUrl ? (
-                          <a href={doc.documentUrl} target="_blank" rel="noopener noreferrer" className="text-chm-red hover:underline text-xs font-semibold">View File</a>
-                        ) : (
-                          <span className="text-gray-400 text-xs">No file</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
                         <div className="flex gap-2 flex-wrap">
+                          <button onClick={() => handleDocumentView(doc)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">View</button>
                           {doc.documentUrl && (
-                            <button onClick={() => handleDocumentShare(doc.staffEmail, doc.documentUrl!, doc.documentName)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">Share</button>
+                            <button onClick={() => handleDocumentShare(doc)} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Share</button>
                           )}
-                          <button onClick={() => {
-                            if (doc.documentType === 'orientation') {
-                              window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
-                            } else if (doc.documentUrl) {
-                              window.open(doc.documentUrl, '_blank')
-                            }
-                          }} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">View</button>
                           {doc.documentUrl && (
-                            <button onClick={() => window.open(doc.documentUrl!, '_blank')} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Print</button>
+                            <button onClick={() => handleDocumentPrint(doc)} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
                           )}
-                          <button onClick={() => handleEditDocument(doc)} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition">Edit</button>
                           <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                         </div>
                       </td>
@@ -485,7 +497,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
 
       {showCreateModal && <CreateStaffModal onClose={() => setShowCreateModal(false)} onSuccess={handleCreateSuccess} />}
       {showEditModal && editingRecord && <EditStaffModal record={editingRecord} onClose={() => { setShowEditModal(false); setEditingRecord(null) }} onSuccess={handleEditSuccess} />}
-      {selectedDocument && <DocumentEditModal document={selectedDocument} onClose={() => setSelectedDocument(null)} onSuccess={(updated) => { setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d)); setSelectedDocument(null); fetchDocuments() }} />}
+      {showCreateDocModal && <CreateDocumentModal staffRecords={records} onClose={() => setShowCreateDocModal(false)} onSuccess={() => { setShowCreateDocModal(false); fetchDocuments() }} />}
     </div>
   )
 }
