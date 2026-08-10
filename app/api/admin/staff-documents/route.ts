@@ -20,7 +20,6 @@ interface StaffDocument {
   notes?: string | null
 }
 
-// CORRECTED: Fetch from offer_letter_applicants.orientation_accepted_at (not orientation_signed_at)
 async function fetchOrientations(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('offer_letter_applicants')
@@ -46,7 +45,6 @@ async function fetchOrientations(): Promise<StaffDocument[]> {
   }))
 }
 
-// Fetch offer letters from offer_letters table
 async function fetchOfferLetters(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('offer_letters')
@@ -90,7 +88,6 @@ async function fetchOfferLetters(): Promise<StaffDocument[]> {
   })
 }
 
-// Fetch certifications from staff_module_progress table
 async function fetchCertifications(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_module_progress')
@@ -131,7 +128,6 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
   })
 }
 
-// Fetch background checks from offer_letter_applicants.background_check_url
 async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('offer_letter_applicants')
@@ -157,7 +153,6 @@ async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
   }))
 }
 
-// Fetch other documents from staff_documents table
 async function fetchStaffDocuments(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_documents')
@@ -183,17 +178,19 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
 
   const staffMap = new Map(staff.map(s => [s.id, s]))
 
+  const docTypeMap: Record<string, string> = {
+    'direct_deposit': 'Direct Deposit Form',
+    'background_check': 'Background Check (Additional)',
+    'training_cert': 'Training Certificate',
+    'certification': 'Certification',
+    'orientation': 'Orientation Document',
+    'offer_letter': 'Offer Letter (Copy)',
+  }
+
   return (data || []).map(row => {
     const person = staffMap.get(row.staff_id)
-    const docTypeMap: Record<string, string> = {
-      'direct_deposit': 'Direct Deposit Form',
-      'background_check': 'Background Check (Additional)',
-      'training_cert': 'Training Certificate',
-      'certification': 'Certification',
-      'orientation': 'Orientation Document',
-      'offer_letter': 'Offer Letter (Copy)',
-    }
     const documentType = (row.document_type as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter') || 'direct_deposit'
+    
     return {
       id: row.id,
       staffId: row.staff_id,
@@ -210,10 +207,9 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
   })
 }
 
-// GET: Fetch all documents from all sources
-export async function PATCH(request: NextRequest) {
+export async function GET() {
   try {
-    const { documentId, staffEmail, staffName, documentName } = await request.json()
+    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs] = await Promise.all([
       fetchOrientations(),
       fetchOfferLetters(),
       fetchCertifications(),
@@ -236,7 +232,54 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE: Remove document from appropriate source
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData()
+    const file = formData.get('file') as File
+    const staffId = formData.get('staffId') as string
+    const documentType = formData.get('documentType') as string
+    const notes = formData.get('notes') as string
+
+    if (!file || !staffId || !documentType) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const timestamp = Date.now()
+    const filePath = `${staffId}/${timestamp}-${file.name}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('application-documents')
+      .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    const { data: urlData } = supabase.storage
+      .from('application-documents')
+      .getPublicUrl(filePath)
+
+    const { data, error: dbError } = await supabase
+      .from('staff_documents')
+      .insert([
+        {
+          staff_id: staffId,
+          document_type: documentType,
+          document_url: urlData.publicUrl,
+          status: 'uploaded',
+          notes,
+          uploaded_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+
+    if (dbError) throw dbError
+
+    return NextResponse.json(data[0])
+  } catch (error) {
+    console.error('Error in POST /api/admin/staff-documents:', error)
+    return NextResponse.json({ error: 'Failed to upload document' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { documentId, documentType, staffId } = await request.json()
@@ -299,59 +342,6 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// POST: Upload new document to staff_documents
-export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData()
-    const file = formData.get('file') as File
-    const staffId = formData.get('staffId') as string
-    const documentType = formData.get('documentType') as string
-    const notes = formData.get('notes') as string
-
-    if (!file || !staffId || !documentType) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    // Upload file to storage
-    const timestamp = Date.now()
-    const filePath = `${staffId}/${timestamp}-${file.name}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('application-documents')
-      .upload(filePath, file)
-
-    if (uploadError) throw uploadError
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('application-documents')
-      .getPublicUrl(filePath)
-
-    // Insert into staff_documents
-    const { data, error: dbError } = await supabase
-      .from('staff_documents')
-      .insert([
-        {
-          staff_id: staffId,
-          document_type: documentType,
-          document_url: urlData.publicUrl,
-          status: 'uploaded',
-          notes,
-          uploaded_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-
-    if (dbError) throw dbError
-
-    return NextResponse.json(data[0])
-  } catch (error) {
-    console.error('Error in POST /api/admin/staff-documents:', error)
-    return NextResponse.json({ error: 'Failed to upload document' }, { status: 500 })
-  }
-}
-
-// PATCH: Share document (send email)
 export async function PATCH(request: NextRequest) {
   try {
     const { documentId, staffEmail, staffName, documentName } = await request.json()
@@ -360,7 +350,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Call share route via internal API
     const shareResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/admin/staff-documents/share`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -383,7 +372,6 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// PUT: Update document metadata and optionally replace file
 export async function PUT(request: NextRequest) {
   try {
     const url = new URL(request.url)
@@ -400,7 +388,6 @@ export async function PUT(request: NextRequest) {
 
     let documentUrl: string | null = null
 
-    // If new file uploaded, upload to storage and get URL
     if (file) {
       const timestamp = Date.now()
       const filePath = `${documentId}/${timestamp}-${file.name}`
@@ -418,7 +405,6 @@ export async function PUT(request: NextRequest) {
       documentUrl = urlData.publicUrl
     }
 
-    // Update staff_documents table
     const updateData: Record<string, string | null> = {
       status,
       notes,
