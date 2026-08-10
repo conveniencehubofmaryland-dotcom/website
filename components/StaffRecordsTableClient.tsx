@@ -121,13 +121,17 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
-  const handleDocumentDelete = async (documentId: string, type: string) => {
+  const handleDocumentDelete = async (documentId: string, documentType: string) => {
     if (!confirm('Delete this document?')) return
     try {
       const res = await fetch('/api/admin/staff-documents', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: documentId, type }),
+        body: JSON.stringify({ 
+          documentId: documentId, 
+          documentType: documentType,
+          staffId: selectedDocument?.staffId 
+        }),
       })
       if (!res.ok) throw new Error('Failed to delete document')
       setDocuments(prev => prev.filter(d => d.id !== documentId))
