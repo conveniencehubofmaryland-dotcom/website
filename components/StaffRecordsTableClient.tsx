@@ -27,7 +27,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'cpr_certification' | 'first_aid_certification' | 'background_check' | 'training_cert' | 'direct_deposit'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
