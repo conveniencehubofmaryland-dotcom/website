@@ -142,7 +142,7 @@ const STATIC_SERVICES: Service[] = [
   },
   {
     id: 'care', slug: 'care', sort_order: 4, active: true, created_at: '',
-    title: 'Premium Nanny & Care Companion Services',
+    title: 'Premium Nanny & Non-Medical Adult Care Companion Services',
     subtitle: 'Childcare · Elder Companionship · Adult Care',
     description: "Professional, background-checked, CPR-certified childcare and companion care for infants through school-age children, and seniors or adults needing support. Personnel matched to your family's specific needs.",
     price_from: 'From $28/hr',
