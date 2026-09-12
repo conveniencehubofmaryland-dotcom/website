@@ -11,7 +11,7 @@ const STATIC_SERVICES = [
   { slug: 'cleaning', title: 'Professional Cleaning & Estate Care', subtitle: 'Residential · Commercial · Estate', description: 'Studio to estate-scale cleaning. Standard, deep clean, move-in/out, and recurring plans.', price_from: 'From $100/visit' },
   { slug: 'culinary', title: 'Culinary, Housekeeping & Household Management', subtitle: 'Meal Prep · Organization · Home Management · Errands', description: 'Meal prep plans, personal chef services, household organization, and errand running tailored to your needs.', price_from: 'From $300/month' },
   { slug: 'laundry', title: 'Premium Laundry Pickup & Delivery', subtitle: 'Pickup · Wash · Dry · Fold · Deliver', description: 'We handle everything — pickup to delivery. Regular and same-day express options available.', price_from: 'From $3.99/lb' },
-  { slug: 'care', title: 'Premium Nanny & Care Services', subtitle: 'Childcare · Companionship · Adult Care', description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.', price_from: 'Custom Quote' },
+  { slug: 'care', title: 'Premium Nanny and Non-Medical Adult Care and Companion Services', subtitle: 'Childcare · Companionship · Adult Care', description: 'Background-checked, CPR-certified staff. Tailored to your family\'s schedule and care needs.', price_from: 'Custom Quote' },
   { slug: 'commercial', title: 'Commercial Operations & Special Projects', subtitle: 'Offices · Retail · Warehouses', description: 'Corporate offices, retail spaces, warehouses, and post-construction projects. Custom-quoted.', price_from: 'Custom Quote' },
 ]
 
