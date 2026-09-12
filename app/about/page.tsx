@@ -42,9 +42,10 @@ export default function AboutPage() {
               is valuable, and your home deserves professional care.
             </p>
             <p>
-              From professional deep cleaning and premium laundry pickup &amp; delivery, to culinary support,
-              household management, nanny services, and commercial operations — we offer a complete suite of
-              services designed to simplify your daily routine.
+              From professional deep cleaning and premium laundry services featuring free pickup and delivery, 
+              to culinary support, household management, premium nanny services, non-medical adult care and 
+              companionship, and commercial operations— We offer a complete suite of services designed to 
+              simplify your daily life.
             </p>
             <p>
               Every member of our team is rigorously vetted, background-checked, CPR-certified, and trained to deliver consistent,
