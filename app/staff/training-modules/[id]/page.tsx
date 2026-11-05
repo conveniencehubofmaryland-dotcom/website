@@ -3,85 +3,43 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { TrainingModule, QuizQuestion } from '@/lib/types'
+import {
+  RESIDENTIAL_TIERS,
+  splitResidentialFee,
+  type ResidentialTierKey,
+} from '@/lib/contractor-compensation'
 
-const PAY_STRUCTURE: Record<string, { 
-  levels: Array<{ level: string; hourly: string; weekly: string; monthly: string }>;
-  leaveIn?: Array<{ level: string; monthly: string }>;
-  bonuses: string[] 
-}> = {
-  'Housekeeping Staff': {
-    levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$680–$760', monthly: '$2,945–$3,290' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$780–$900', monthly: '$3,380–$3,900' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$920–$1,060', monthly: '$3,980–$4,590' },
-      { level: 'Premium (3+ yr)', hourly: '$23.00–$25.00', weekly: '$1,080–$1,240', monthly: '$4,680–$5,370' },
-    ],
-    leaveIn: [
-      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
-      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
-      { level: 'Senior (2+ yr)', monthly: '$3,000' },
-      { level: 'Premium (3+ yr)', monthly: '$3,500' },
-    ],
-    bonuses: ['Client satisfaction', 'Reliability', 'Project completion'],
-  },
-  'Care Companion (Adult/Senior)': {
-    levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$760–$880', monthly: '$3,290–$3,810' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$880–$1,040', monthly: '$3,810–$4,500' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$22.00', weekly: '$1,040–$1,240', monthly: '$4,500–$5,370' },
-      { level: 'Premium (3+ yr)', hourly: '$22.00–$25.00', weekly: '$1,240–$1,480', monthly: '$5,370–$6,410' },
-    ],
-    leaveIn: [
-      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
-      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
-      { level: 'Senior (2+ yr)', monthly: '$3,000' },
-      { level: 'Premium (3+ yr)', monthly: '$3,500' },
-    ],
-    bonuses: ['Client/family satisfaction', 'Reliability',],
-  },
-  'Nanny/Childcare Specialist': {
-    levels: [
-      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
-      { level: 'Lead (3+ yr)', hourly: '$23.00–$25.00', weekly: '$920–$1,200', monthly: '$3,984–$5,196' },
-    ],
-    leaveIn: [
-      { level: 'Entry (0–6 mo)', monthly: '$2,000' },
-      { level: 'Standard (6 mo–2 yr)', monthly: '$2,500' },
-      { level: 'Senior (2+ yr)', monthly: '$3,000' },
-      { level: 'Premium (3+ yr)', monthly: '$3,500' },
-    ],
-    bonuses: ['Child development milestones', 'Family satisfaction',],
-  },
-  'Cleaning Specialist': {
-    levels: [
-      { level: 'Entry Level (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,858–$3,118' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$20.00', weekly: '$740–$820', monthly: '$3,204–$3,551' },
-      { level: 'Senior (2+ yr)', hourly: '$20.00–$23.00', weekly: '$800–$940', monthly: '$3,464–$4,070' },
-      { level: 'Lead (3+ yr)', hourly: '$23.00–$25.00', weekly: '$920–$1,120', monthly: '$3,984–$4,850' },
-    ],
-    bonuses: ['5-star reviews (4+ monthly): $50–$100/month', 'Perfect attendance (quarterly): $150–$200', 'Referral: $50–$100 per client', 'Tenure: $100–$300 anniversary bonus'],
-  },
-  'Laundry Handler': {
-    levels: [
-      { level: 'Entry (0–6 mo)', hourly: '$16.00–$18.00', weekly: '$660–$720', monthly: '$2,860–$3,120' },
-      { level: 'Standard (6 mo–2 yr)', hourly: '$18.00–$21.00', weekly: '$740–$840', monthly: '$3,200–$3,640' },
-      { level: 'Senior (2+ yr)', hourly: '$21.00–$24.00', weekly: '$860–$980', monthly: '$3,730–$4,240' },
-      { level: 'Lead (3+ yr)', hourly: '$24.00–$28.00', weekly: '$1,000–$1,120', monthly: '$4,330–$4,850' },
-    ],
-    bonuses: ['Zero complaints: $50–$100', 'Referrals: $100–$150',],
-  },
-  'Culinary/Chef': {
-    levels: [
-      { level: 'Entry (0–1 yr)', hourly: '$20.00–$23.00', weekly: '$800–$960', monthly: '$3,464–$4,157' },
-      { level: 'Standard (1–3 yr)', hourly: '$23.00–$26.00', weekly: '$960–$1,120', monthly: '$4,157–$4,850' },
-      { level: 'Senior (3+ yr)', hourly: '$26.00–$30.00', weekly: '$1,120–$1,280', monthly: '$4,850–$5,542' },
-      { level: 'Executive (5+ yr)', hourly: '$30.00–$35.00', weekly: '$1,280–$1,600', monthly: '$5,542–$6,928' },
-    ],
-    bonuses: ['Client reviews: $30', 'Referrals: $50', 'Event success: $50'],
-  },
+// Set to false to hide the compensation section on this page.
+// Keep false until the CPA / employment attorney review is complete.
+const SHOW_CONTRACTOR_COMPENSATION = true
+
+const POSITION_TIERS: Record<string, Array<{ service: string; tier: ResidentialTierKey }>> = {
+  'Housekeeping Staff': [
+    { service: 'Regular housekeeping', tier: 'XL' },
+  ],
+  'Care Companion (Adult/Senior)': [
+    { service: 'Care companion (elderly)', tier: 'XL' },
+  ],
+  'Nanny/Childcare Specialist': [
+    { service: 'Nanny / childcare', tier: 'XL' },
+  ],
+  'Cleaning Specialist': [
+    { service: 'One-time and monthly cleaning', tier: 'BLUE' },
+    { service: 'Bi-weekly and weekly cleaning', tier: 'PRIORITY' },
+  ],
+  'Laundry Handler': [
+    { service: 'Laundry handling', tier: 'BLUE' },
+  ],
+  'Culinary/Chef': [
+    { service: 'Culinary', tier: 'PRIORITY' },
+  ],
 }
+
+const RESIDENTIAL_INCENTIVES = [
+  'Five-star client reviews (4 or more in a month): $50 – $100 per month',
+  'Zero complaints for the quarter: $100 – $150',
+  'Referral of a new client who books service: $50 – $100 per client',
+]
 
 export default function TrainingModuleDetailPage({ params, searchParams }: {
   params: Promise<{ id: string }>
@@ -191,7 +149,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 
   const questions = module.quiz_questions || []
   const passed = score >= 80
-  const payStructure = PAY_STRUCTURE[module.position]
+  const positionTiers = POSITION_TIERS[module.position]
 
   return (
     <div className="bg-white min-h-screen">
@@ -219,59 +177,56 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
               </div>
             </div>
 
-            {payStructure && (
+            {SHOW_CONTRACTOR_COMPENSATION && positionTiers && (
               <div className="mb-12 bg-gradient-to-br from-chm-red/5 to-chm-red/10 border border-chm-red/20 rounded-lg p-8">
                 <div className="mb-8">
-                  <h2 className="font-serif text-3xl text-chm-black mb-2">Compensation Structure</h2>
-                  <p className="text-gray-600 text-sm">Your position: <span className="font-semibold text-chm-black">{module.position}</span></p>
+                  <h2 className="font-serif text-3xl text-chm-black mb-2">Your Compensation</h2>
+                  <p className="text-gray-600 text-sm">Position: <span className="font-semibold text-chm-black">{module.position}</span></p>
+                </div>
+
+                <div className="mb-8 bg-white border border-gray-200 p-5 rounded text-sm text-gray-700">
+                  You are an independent contractor. You set your own availability and may decline assignments without penalty. Your share is a percentage of each client service fee.
                 </div>
 
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-chm-black mb-4">Hourly Rates by Experience Level</h3>
+                  <h3 className="text-lg font-semibold text-chm-black mb-4">Your Share of Client Fees</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {payStructure.levels.map((level, idx) => (
-                      <div key={idx} className="bg-white border border-gray-200 p-4 rounded">
-                        <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">{level.level}</p>
-                        <p className="text-2xl font-bold text-chm-red mb-3">{level.hourly}/hr</p>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          <p>Weekly: {level.weekly}</p>
-                          <p>Monthly: {level.monthly}</p>
+                    {positionTiers.map(item => {
+                      const t = RESIDENTIAL_TIERS[item.tier]
+                      const perHundred = splitResidentialFee(100, item.tier).contractor
+                      return (
+                        <div key={item.tier} className="bg-white border border-gray-200 p-4 rounded">
+                          <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">{t.label}</p>
+                          <p className="text-sm text-gray-700 mb-3">{item.service}</p>
+                          <p className="text-2xl font-bold text-chm-red">{Math.round(t.providerShare * 100)}%</p>
+                          <p className="text-xs text-gray-600 mt-2">You keep ${perHundred.toFixed(2)} of every $100 in client fees.</p>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
 
-                {payStructure.leaveIn && (
-                  <div className="mb-8 pt-6 border-t border-gray-300">
-                    <h3 className="text-lg font-semibold text-chm-black mb-4">Leave-In Staff (Monthly Rate)</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {payStructure.leaveIn.map((item, idx) => (
-                        <div key={idx} className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 p-4 rounded">
-                          <p className="text-xs uppercase tracking-widest text-purple-600 font-semibold mb-2">{item.level}</p>
-                          <p className="text-2xl font-bold text-purple-700">{item.monthly}/month</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="bg-white border border-gray-200 p-6 rounded">
-                  <h3 className="text-lg font-semibold text-chm-black mb-4">Performance Bonuses</h3>
+                <div className="bg-white border border-gray-200 p-6 rounded mb-8">
+                  <h3 className="text-lg font-semibold text-chm-black mb-2">Optional Performance Incentives</h3>
+                  <p className="text-xs text-gray-500 mb-4">Paid from the CHM share. These are optional bonuses, not wages, and they do not change your tier.</p>
                   <div className="space-y-2">
-                    {payStructure.bonuses.map((bonus, idx) => (
+                    {RESIDENTIAL_INCENTIVES.map((item, idx) => (
                       <div key={idx} className="flex items-start gap-3">
                         <span className="text-chm-red font-bold">✓</span>
-                        <span className="text-gray-700">{bonus}</span>
+                        <span className="text-gray-700">{item}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
-                  <p className="text-sm text-blue-900">
-                    <strong>Mileage Reimbursement:</strong> CHM reimburses $0.56 per mile for travel between claimed shifts and service-related mileage.
-                  </p>
+                <div className="bg-white border border-gray-200 p-6 rounded">
+                  <h3 className="text-lg font-semibold text-chm-black mb-4">Payments</h3>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>Payouts are processed weekly on Fridays by direct bank transfer or check.</p>
+                    <p>You receive a statement with each payout showing the client fee, your tier, the CHM share, incentives, and the amount paid.</p>
+                    <p>A completed IRS Form W-9 is required before your first payment.</p>
+                    <p>CHM does not withhold income or payroll taxes. You are responsible for your own taxes, business licenses, insurance, and supplies unless your written agreement says otherwise.</p>
+                  </div>
                 </div>
               </div>
             )}
