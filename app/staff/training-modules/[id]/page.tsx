@@ -35,6 +35,19 @@ const POSITION_TIERS: Record<string, Array<{ service: string; tier: ResidentialT
   ],
 }
 
+// Matches a module's position to a POSITION_TIERS key, ignoring spaces,
+// slashes, capital letters, and small wording differences.
+function findPositionTiers(position: string | undefined) {
+  if (!position) return undefined
+  const clean = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '')
+  const p = clean(position)
+  const key = Object.keys(POSITION_TIERS).find(k => {
+    const c = clean(k)
+    return c === p || c.includes(p) || p.includes(c)
+  })
+  return key ? POSITION_TIERS[key] : undefined
+}
+
 const RESIDENTIAL_INCENTIVES = [
   'Five-star client reviews (4 or more in a month): $50 – $100 per month',
   'Zero complaints for the quarter: $100 – $150',
@@ -149,7 +162,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 
   const questions = module.quiz_questions || []
   const passed = score >= 80
-  const positionTiers = POSITION_TIERS[module.position]
+  const positionTiers = findPositionTiers(module.position)
 
   return (
     <div className="bg-white min-h-screen">
