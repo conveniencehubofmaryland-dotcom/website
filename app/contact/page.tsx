@@ -1,139 +1,178 @@
-import Link from 'next/link'
+'use client'
 
-function RoseSVG() {
-  return (
-    <svg viewBox="0 0 64 80" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="currentColor">
-      {/* Outer petals */}
-      <path d="M32 8 C24 8 16 16 16 26 C16 30 18 34 20 36 C16 34 10 30 10 24 C10 14 20 6 32 6 C44 6 54 14 54 24 C54 30 48 34 44 36 C46 34 48 30 48 26 C48 16 40 8 32 8Z" opacity="0.6"/>
-      {/* Mid petals */}
-      <path d="M32 12 C26 12 20 18 20 26 C20 32 24 37 28 39 C24 37 18 33 18 27 C18 19 24 13 32 13 C40 13 46 19 46 27 C46 33 40 37 36 39 C40 37 44 32 44 26 C44 18 38 12 32 12Z" opacity="0.75"/>
-      {/* Inner petals */}
-      <path d="M32 16 C27 16 22 21 22 27 C22 33 27 38 32 40 C37 38 42 33 42 27 C42 21 37 16 32 16Z" opacity="0.9"/>
-      {/* Center */}
-      <ellipse cx="32" cy="30" rx="6" ry="7" opacity="1"/>
-      {/* Stem */}
-      <path d="M30 42 C30 50 29 56 30 68" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7"/>
-      {/* Left leaf */}
-      <path d="M29 54 C22 50 16 52 14 58 C20 58 26 57 29 54Z" opacity="0.6"/>
-      {/* Right leaf */}
-      <path d="M31 60 C38 56 44 58 46 64 C40 64 34 63 31 60Z" opacity="0.6"/>
-    </svg>
-  )
-}
+import { useState } from 'react'
+import AnimatedSection from '@/components/AnimatedSection'
 
-function FacebookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" aria-hidden="true">
-      <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/>
-    </svg>
-  )
-}
 
-function InstagramIcon() {
-  return (
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-    </svg>
-  )
-}
+// Next.js metadata can't be exported from a 'use client' file — set it in a parent or use Head.
+// Title/desc are handled by layout.tsx template pattern.
 
-const contactLinks = [
-  { href: 'tel:+12025792944', label: 'Call', value: '202-579-2944' },
-  { href: 'sms:+12025792944', label: 'Text', value: '202-579-2944' },
-  { href: 'https://wa.me/12025792944', label: 'WhatsApp', value: '202-579-2944' },
-  { href: 'mailto:conveniencehubofmaryland@gmail.com', label: 'Email', value: 'conveniencehubofmaryland@gmail.com' },
+const CONTACT_METHODS = [
+  { label: 'Phone',     value: '202-579-2944',                           href: 'tel:+12025792944',                   cta: 'Call Now'         },
+  { label: 'Text',      value: '202-579-2944',                           href: 'sms:+12025792944',                   cta: 'Send Text'        },
+  { label: 'WhatsApp',  value: '202-579-2944',                           href: 'https://wa.me/12025792944',          cta: 'Open WhatsApp'    },
+  { label: 'Email',     value: 'conveniencehubofmaryland@gmail.com',     href: 'mailto:conveniencehubofmaryland@gmail.com', cta: 'Send Email' },
 ]
 
-const socialLinks = [
-  { href: 'https://www.facebook.com/profile.php?id=61590993750066', label: 'Facebook', Icon: FacebookIcon },
-  { href: 'https://www.instagram.com/chm_dmv', label: 'Instagram', Icon: InstagramIcon },
-]
+export default function ContactPage() {
+  const [form, setForm]     = useState({ name: '', phone: '', email: '', message: '' })
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errMsg, setErrMsg] = useState('')
 
-const navLinks = [
-  { href: '/services',   label: 'Services'   },
-  { href: '/deals',      label: 'Deals'      },
-  { href: '/deals',      label: 'Deals & Membership' },
-  { href: '/reviews',    label: 'Reviews'    },
-  { href: '/book',       label: 'Book Now'   },
-  { href: '/contact',    label: 'Contact'    },
-  { href: '/about',      label: 'About'      },
-]
+  function set(field: string, value: string) {
+    setForm(f => ({ ...f, [field]: value }))
+  }
 
-export default function Footer() {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setStatus('submitting')
+    setErrMsg('')
+    try {
+      const res = await fetch('/api/contact', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(form),
+      })
+      const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
+      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+      setErrMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    }
+  }
+
   return (
-    <footer className="bg-rose-100 border-t border-rose-200 relative overflow-hidden">
-      {/* Botanical accent */}
-      <div className="absolute right-0 top-0 opacity-[0.06] pointer-events-none text-chm-red translate-x-8 -translate-y-4">
-        <RoseSVG />
+    <div className="bg-white">
+      {/* Header */}
+      <div className="bg-cream py-10 border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">We&apos;re Here</p>
+          <h1 className="font-serif text-5xl md:text-6xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+            Contact Us
+          </h1>
+          <div className="w-12 h-px bg-chm-red mt-6 mb-4" />
+          <p className="text-gray-400 max-w-xl text-sm leading-relaxed font-light">
+            Multiple ways to reach us — pick what works best for you.
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Brand */}
-        <div>
-          <div className="flex items-center gap-3 mb-5">
-            <span className="text-chm-red">
-              <RoseSVG />
-            </span>
-            <div>
-              <p className="text-chm-black font-semibold text-sm uppercase tracking-widest leading-tight">Convenience Hub</p>
-              <p className="text-gray-400 text-xs uppercase tracking-widest">of Maryland</p>
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm leading-relaxed italic font-light">
-            &ldquo;We simplify your routine so you can focus on what matters most.&rdquo;
-          </p>
-          <p className="text-gray-300 text-xs mt-4 tracking-wide uppercase">Maryland · Virginia · D.C.</p>
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-16 space-y-16">
+        {/* Contact method tiles */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
+          {CONTACT_METHODS.map((c, i) => (
+            <AnimatedSection key={c.label} delay={i * 80}>
+              <div className="bg-white p-8 hover:bg-cream transition-colors flex flex-col justify-between gap-6 h-full">
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-6 h-px bg-chm-red" />
+                    <span className="text-chm-red text-xs font-semibold uppercase tracking-widest">{c.label}</span>
+                  </div>
+                  <p className="font-serif text-2xl text-chm-black break-all" style={{ fontFamily: 'var(--font-serif)' }}>
+                    {c.value}
+                  </p>
+                </div>
+                <a href={c.href} className="self-start border border-chm-black/20 text-chm-black px-6 py-2 font-semibold text-sm uppercase tracking-wide hover:border-chm-red hover:text-chm-red transition-colors">
+                  {c.cta}
+                </a>
+              </div>
+            </AnimatedSection>
+          ))}
         </div>
 
-        {/* Nav */}
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-5">Pages</p>
-          <div className="flex flex-col gap-3">
-            {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href} className="text-gray-500 hover:text-chm-red text-sm transition-colors tracking-wide font-light">
-                {label}
-              </Link>
-            ))}
+        {/* Hours */}
+        <AnimatedSection>
+          <div className="border-t border-chm-red/20 pt-10">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-4">Hours of Operation</p>
+            <p className="font-serif text-3xl text-chm-black mb-1" style={{ fontFamily: 'var(--font-serif)' }}>
+              Monday – Saturday
+            </p>
+            <p className="text-chm-red font-semibold text-xl">9:00 AM – 9:00 PM</p>
+            <p className="text-gray-400 text-sm mt-3 tracking-wide">Maryland • Virginia • Washington D.C.</p>
           </div>
-        </div>
+        </AnimatedSection>
 
-        {/* Contact */}
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mb-5">Contact</p>
-          <div className="flex flex-col gap-3">
-            {contactLinks.map(({ href, label, value }) => (
-              <a key={label} href={href} className="text-sm group flex items-baseline gap-2">
-                <span className="text-chm-red font-semibold text-xs uppercase w-16 shrink-0 tracking-wide">{label}</span>
-                <span className="text-gray-500 group-hover:text-chm-black transition-colors font-light">{value}</span>
-              </a>
-            ))}
-          </div>
-
-          {/* Follow Us */}
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-400 mt-8 mb-5">Follow Us</p>
-          <div className="flex flex-col gap-3">
-            {socialLinks.map(({ href, label, Icon }) => (
+        {/* Follow Us */}
+        <AnimatedSection>
+          <div className="border-t border-chm-red/20 pt-10">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.2em] mb-4">Follow Us</p>
+            <div className="flex flex-wrap gap-8">
               <a
-                key={label}
-                href={href}
+                href="https://www.facebook.com/profile.php?id=61590993750066"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`CHM on ${label}`}
-                className="text-sm group flex items-center gap-2 text-gray-500 hover:text-chm-red transition-colors font-light"
+                className="font-serif text-2xl text-chm-black hover:text-chm-red transition-colors"
+                style={{ fontFamily: 'var(--font-serif)' }}
               >
-                <Icon />
-                <span>{label}</span>
+                Facebook
               </a>
-            ))}
+              <a
+                href="https://www.instagram.com/chm_dmv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-serif text-2xl text-chm-black hover:text-chm-red transition-colors"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Instagram
+              </a>
+            </div>
           </div>
-        </div>
-      </div>
+        </AnimatedSection>
 
-      <div className="border-t border-rose-200 py-5 text-center text-gray-400 text-xs tracking-wide">
-        © {new Date().getFullYear()} Convenience Hub of Maryland. All rights reserved.
+        {/* Contact form */}
+        <AnimatedSection>
+          <div className="border-t border-chm-red/20 pt-10">
+            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Send a Message</p>
+            <h2 className="font-serif text-3xl text-chm-black mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+              Get in Touch
+            </h2>
+            <div className="w-10 h-px bg-chm-red mb-8" />
+
+            {status === 'success' ? (
+              <div className="text-center py-12">
+                <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
+                <p className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>Message Sent</p>
+                <p className="text-gray-500 text-sm max-w-sm mx-auto">We&apos;ll get back to you within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name *</label>
+                    <input required type="text" value={form.name} onChange={e => set('name', e.target.value)}
+                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red transition-colors"
+                      placeholder="Jane Smith" />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Phone</label>
+                    <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)}
+                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red transition-colors"
+                      placeholder="202-555-0100" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                  <input type="email" value={form.email} onChange={e => set('email', e.target.value)}
+                    className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red transition-colors"
+                    placeholder="jane@example.com" />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Message *</label>
+                  <textarea required rows={5} value={form.message} onChange={e => set('message', e.target.value)}
+                    className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red transition-colors resize-none"
+                    placeholder="Tell us what you need…" />
+                </div>
+                {status === 'error' && <p className="text-chm-red text-sm">{errMsg}</p>}
+                <button type="submit" disabled={status === 'submitting'}
+                  className="bg-chm-red text-white px-10 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60">
+                  {status === 'submitting' ? 'Sending…' : 'Send Message'}
+                </button>
+              </form>
+            )}
+          </div>
+        </AnimatedSection>
       </div>
-    </footer>
+    </div>
   )
 }
