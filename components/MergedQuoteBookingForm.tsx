@@ -332,7 +332,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         </p>
         <p className="text-gray-500 text-sm max-w-md mx-auto mb-8">
           {quoteStep === 'booking'
-            ? `Thank you, ${bookingForm.customer_name}. Your booking has been received. Once your payment is confirmed, service is offered within 6 to 72 hours. Need it sooner? Call 202-579-2944. You'll receive a payment confirmation email.`
+            ? `Thank you, ${bookingForm.customer_name}. Your booking has been received and is pending review. Your slot is secured once full payment is confirmed. After payment is confirmed, service is offered within 6 to 72 hours. Need it sooner? Call 202-579-2944 and our customer service team will arrange it with you. You'll receive a confirmation email within 1 hour (Mon–Sat, 9 AM–9 PM).`
             : `Your quote has been sent to ${contact.email}. Our team will review your details and follow up shortly. Call us at 202-579-2944 for questions.`}
         </p>
         <Link href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
