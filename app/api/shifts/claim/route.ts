@@ -29,6 +29,9 @@ type ClientDetails = {
   notes: string | null
 }
 
+// Positions that do not require training modules (orientation is still required)
+const NO_TRAINING_POSITIONS = ['Commercial Cleaner']
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const RESEND_KEY = process.env.RESEND_API_KEY
@@ -108,26 +111,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. Every training module for the position must be completed
-    const modules = await getRows<{ id: string }>(
-      `training_modules?position=eq.${encodeURIComponent(applicant.position)}&select=id`
-    )
-    if (modules.length === 0) {
-      return NextResponse.json(
-        { error: 'Training for your position is not set up yet. Please call 202-579-2944.' },
-        { status: 403 }
+    // 4. Training: every module for the position must be completed,
+    //    except for positions that do not require training
+    if (!NO_TRAINING_POSITIONS.includes(applicant.position)) {
+      const modules = await getRows<{ id: string }>(
+        `training_modules?position=eq.${encodeURIComponent(applicant.position)}&select=id`
       )
-    }
-    const progress = await getRows<{ module_id: string }>(
-      `staff_module_progress?staff_email=ilike.${encodeURIComponent(staffEmail)}&status=eq.completed&select=module_id`
-    )
-    const completed = new Set(progress.map(p => p.module_id))
-    const remaining = modules.filter(m => !completed.has(m.id))
-    if (remaining.length > 0) {
-      return NextResponse.json(
-        { error: 'Please complete all training modules for your position before claiming shifts.' },
-        { status: 403 }
+      if (modules.length === 0) {
+        return NextResponse.json(
+          { error: 'Training for your position is not set up yet. Please call 202-579-2944.' },
+          { status: 403 }
+        )
+      }
+      const progress = await getRows<{ module_id: string }>(
+        `staff_module_progress?staff_email=ilike.${encodeURIComponent(staffEmail)}&status=eq.completed&select=module_id`
       )
+      const completed = new Set(progress.map(p => p.module_id))
+      const remaining = modules.filter(m => !completed.has(m.id))
+      if (remaining.length > 0) {
+        return NextResponse.json(
+          { error: 'Please complete all training modules for your position before claiming shifts.' },
+          { status: 403 }
+        )
+      }
     }
 
     // 5. Claim the shift only if it is still available
