@@ -29,8 +29,9 @@ type ClientDetails = {
   notes: string | null
 }
 
-// Positions that do not require training modules (orientation is still required)
-const NO_TRAINING_POSITIONS = ['Commercial Cleaner']
+// Commercial Cleaner shifts: open to Cleaning Specialists only, no training required
+const COMMERCIAL_ROLE = 'Commercial Cleaner'
+const COMMERCIAL_ELIGIBLE_POSITION = 'Cleaning Specialist'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -103,17 +104,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This shift has already been claimed.' }, { status: 409 })
     }
 
-    // 3. The shift role must match the staff member's position
-    if ((shift.role || '').trim().toLowerCase() !== applicant.position.trim().toLowerCase()) {
+    const shiftRole = (shift.role || '').trim()
+    const isCommercial = shiftRole.toLowerCase() === COMMERCIAL_ROLE.toLowerCase()
+
+    // 3. Position rules
+    if (isCommercial) {
+      if (applicant.position !== COMMERCIAL_ELIGIBLE_POSITION) {
+        return NextResponse.json(
+          { error: 'Commercial Cleaner shifts are open to Cleaning Specialists only.' },
+          { status: 403 }
+        )
+      }
+    } else if (shiftRole.toLowerCase() !== applicant.position.trim().toLowerCase()) {
       return NextResponse.json(
-        { error: `This shift is for ${shift.role}. Your position is ${applicant.position}.` },
+        { error: `This shift is for ${shiftRole}. Your position is ${applicant.position}.` },
         { status: 403 }
       )
     }
 
-    // 4. Training: every module for the position must be completed,
-    //    except for positions that do not require training
-    if (!NO_TRAINING_POSITIONS.includes(applicant.position)) {
+    // 4. Training: every module for the position must be completed.
+    //    Commercial Cleaner shifts require no training.
+    if (!isCommercial) {
       const modules = await getRows<{ id: string }>(
         `training_modules?position=eq.${encodeURIComponent(applicant.position)}&select=id`
       )
@@ -183,7 +194,7 @@ export async function POST(request: NextRequest) {
     // 7. Email the staff member
     await sendEmail(
       [applicant.email],
-      `Shift Confirmed - ${shift.role} on ${shiftDate}`,
+      `Shift Confirmed - ${shiftRole} on ${shiftDate}`,
       `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: #E8192C; padding: 24px 32px; border-radius: 8px 8px 0 0;">
@@ -214,11 +225,11 @@ export async function POST(request: NextRequest) {
     // 8. Email the admin
     await sendEmail(
       ['conveniencehubofmaryland@gmail.com'],
-      `New Shift Claim - ${shift.role} by ${applicant.full_name}`,
+      `New Shift Claim - ${shiftRole} by ${applicant.full_name}`,
       `
         <h2 style="color: #E8192C;">New Shift Claim</h2>
         <table style="border-collapse: collapse; font-family: sans-serif; font-size: 14px;">
-          <tr><td style="padding: 6px 16px 6px 0; color: #666;">Shift</td><td style="font-weight: 600;">${shift.role}</td></tr>
+          <tr><td style="padding: 6px 16px 6px 0; color: #666;">Shift</td><td style="font-weight: 600;">${shiftRole}</td></tr>
           <tr><td style="padding: 6px 16px 6px 0; color: #666;">Date</td><td style="font-weight: 600;">${shiftDate}</td></tr>
           <tr><td style="padding: 6px 16px 6px 0; color: #666;">Time</td><td style="font-weight: 600;">${shift.start_time} - ${shift.end_time}</td></tr>
           <tr><td style="padding: 6px 16px 6px 0; color: #666;">Location</td><td style="font-weight: 600;">${shift.location}</td></tr>
