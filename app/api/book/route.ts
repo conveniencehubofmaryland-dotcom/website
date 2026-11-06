@@ -44,6 +44,7 @@ async function confirmCustomer(booking: {
             <div style="padding:32px;background:#fff;border:1px solid #eee">
               <p style="font-size:15px;color:#333">Hi ${booking.customer_name},</p>
               <p style="font-size:14px;color:#555">We received your booking and will confirm within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).</p>
+              <p style="font-size:14px;color:#555">Your slot is secured once full payment of your total is confirmed. After payment is confirmed, service is offered within <strong>6 to 72 hours</strong>. Need service sooner? Call <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a> to arrange it with our customer service team, who will confirm whether an earlier time is possible.</p>
               <table style="border-collapse:collapse;font-size:14px;width:100%;margin:20px 0">
                 <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888;width:140px">Service</td><td style="color:#222;font-weight:600">${booking.service_title}</td></tr>
                 <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888">Date</td><td style="color:#222;font-weight:600">${booking.appointment_date}</td></tr>
@@ -118,6 +119,7 @@ export async function POST(req: NextRequest) {
     service_id, appointment_date, time_slot,
     notes, service_title,
     invoice_base64, invoice_filename, invoice_type,
+    quoted_total,
   } = body
 
   if (!customer_name?.trim() || !phone?.trim() || !address?.trim() || !state || !service_id || !appointment_date || !time_slot) {
@@ -180,6 +182,7 @@ export async function POST(req: NextRequest) {
     notes:            notes?.trim() || null,
     status:           'pending',
     invoice_screenshot_url: invoiceUrl,
+    quoted_total:     typeof quoted_total === 'number' ? quoted_total : null,
   })
 
   if (error) {
