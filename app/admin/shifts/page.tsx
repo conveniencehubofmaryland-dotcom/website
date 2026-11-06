@@ -56,14 +56,15 @@ export default function ManageShifts() {
   }, [])
 
   const fetchRoles = useCallback(async () => {
-    // Hardcoded roles - no API call needed
+    // Hardcoded roles - must match the training positions exactly
     const roleList = [
       { id: '1', title: 'Cleaning Specialist' },
       { id: '2', title: 'Laundry Handler' },
-      { id: '3', title: 'Culinary & Housekeeping Staff' },
-      { id: '4', title: 'Nanny / Childcare Staff' },
-      { id: '5', title: 'Care Companion (Adult)' },
-      { id: '6', title: 'Commercial Cleaner' },
+      { id: '3', title: 'Culinary / Chef' },
+      { id: '4', title: 'Housekeeping Staff' },
+      { id: '5', title: 'Nanny / Childcare Specialist' },
+      { id: '6', title: 'Care Companion (Adult/Senior)' },
+      { id: '7', title: 'Commercial Cleaner' },
     ]
     setRoles(roleList)
   }, [])
