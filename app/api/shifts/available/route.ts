@@ -1,31 +1,31 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  getApplicantBySession,
+  createEligibilityChecker,
+  sbFetch,
+  type ShiftRow,
+} from '@/lib/shift-eligibility'
 
-export async function GET() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json({ error: 'Missing Supabase credentials' }, { status: 500 })
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    const url = `${supabaseUrl}/rest/v1/shifts?status=eq.available&order=date.asc,start_time.asc`
-    
-    const res = await fetch(url, {
-      headers: {
-        apikey: supabaseKey,
-        Authorization: `Bearer ${supabaseKey}`,
-      },
-    })
+    const applicant = await getApplicantBySession(request.nextUrl.searchParams.get('token'))
+    if (!applicant) {
+      return NextResponse.json({ error: 'Please sign in to see shifts.' }, { status: 401 })
+    }
 
+    const res = await sbFetch('shifts?status=eq.available&order=date.asc,start_time.asc&select=*')
     if (!res.ok) {
-      const errorText = await res.text()
-      console.error('[shifts] Supabase error:', res.status, errorText)
+      console.error('[shifts] Supabase error:', res.status, await res.text())
       return NextResponse.json({ error: 'Failed to fetch shifts' }, { status: 500 })
     }
 
-    const shifts = await res.json()
-    return NextResponse.json(shifts)
+    const shifts = (await res.json()) as ShiftRow[]
+    const check = createEligibilityChecker(applicant)
+    const eligible: ShiftRow[] = []
+    for (const shift of shifts) {
+      if ((await check(shift)).eligible) eligible.push(shift)
+    }
+    return NextResponse.json(eligible)
   } catch (error) {
     console.error('[shifts] Error:', error)
     return NextResponse.json({ error: 'Failed to fetch shifts' }, { status: 500 })

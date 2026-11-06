@@ -3,6 +3,7 @@ import { dbSelectAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import AppointmentStatusButton from '@/components/AppointmentStatusButton'
 import ShiftsSection from '@/components/ShiftsSection'
+import PayrollSection from '@/components/PayrollSection'
 
 type AppointmentRow = Appointment
 
@@ -122,6 +123,9 @@ export default async function AdminSchedulePage({
 
       <div className="border-t-2 border-gray-200 pt-12">
         <ShiftsSection />
+        <div className="border-t-2 border-gray-200 pt-12 mt-12">
+          <PayrollSection />
+        </div>
       </div>
     </div>
   )

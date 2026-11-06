@@ -77,7 +77,8 @@ export default function AvailableShiftsContent() {
 
   const fetchShifts = async () => {
     try {
-      const res = await fetch('/api/shifts/available')
+      const token = localStorage.getItem('staff_session_token') ?? ''
+      const res = await fetch(`/api/shifts/available?token=${encodeURIComponent(token)}`)
       if (!res.ok) throw new Error('Failed to fetch shifts')
       const data: Shift[] = await res.json()
       setShifts(data)
@@ -106,6 +107,7 @@ export default function AvailableShiftsContent() {
           staffName: claimForm.name,
           staffEmail: claimForm.email,
           staffPhone: claimForm.phone,
+          sessionToken: localStorage.getItem('staff_session_token'),
         }),
       })
 
@@ -155,6 +157,7 @@ export default function AvailableShiftsContent() {
           <div>
             <h1 className="text-4xl font-bold text-red-600">Available Shifts</h1>
             <p className="text-gray-600 mt-2">Browse and claim shifts below.</p>
+            <a href="/staff/my-shifts" className="text-red-600 underline text-sm">Go to My Shifts (clock in / out)</a>
           </div>
           <button
             onClick={handleLogout}

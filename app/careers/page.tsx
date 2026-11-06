@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 const FALLBACK_POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
-  'Culinary & Housekeeping Staff',
-  'Nanny / Childcare Staff',
-  'Care Companion (Adult)',
-  'Commercial Cleaner',
+  'Culinary / Chef',
+  'Housekeeping Staff',
+  'Nanny / Childcare Specialist',
+  'Care Companion (Adult/Senior)',
 ]
 
 const WHY = [
