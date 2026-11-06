@@ -88,7 +88,7 @@ function summarizeSelections(category: Category, sel: SelectionRecord): string[]
     } else {
       lines.push(`${sel.serviceType === 'deep' ? 'Deep' : 'Standard'} Cleaning — ${sel.homeSize || '—'}`)
       if (sel.frequency) lines.push(`Frequency: ${sel.frequency}`)
-      if (sel.firstTime) lines.push('First-time customer surcharge applies')
+      if (sel.firstTime) lines.push('First-time customer discount applies')
     }
     if (sel.pets && sel.pets !== '0') lines.push(`Pets: ${sel.pets}`)
     if (Array.isArray(sel.addOns) && sel.addOns.length > 0) lines.push(`Add-ons: ${sel.addOns.join(', ')}`)
@@ -167,9 +167,9 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
   const [errorMsg, setErrorMsg] = useState('')
   const [quoteStep, setQuoteStep] = useState<QuoteStep>(null)
 
-  // Results
-  const [result, setResult] = useState<{ subtotal: number | null; tax: number | null; total: number | null; deposit: number | null; breakdown: LineItem[] }>({
-    subtotal: null, tax: null, total: null, deposit: null, breakdown: [],
+  // Results (no tax; amount due is the full total)
+  const [result, setResult] = useState<{ total: number | null; breakdown: LineItem[] }>({
+    total: null, breakdown: [],
   })
 
   const minDate = _defaultDate
@@ -224,10 +224,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
 
       setResult({
-        subtotal: data.subtotal ?? null,
-        tax: data.tax ?? null,
         total: data.total ?? null,
-        deposit: data.deposit ?? null,
         breakdown: data.breakdown ?? [],
       })
 
@@ -335,7 +332,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         </p>
         <p className="text-gray-500 text-sm max-w-md mx-auto mb-8">
           {quoteStep === 'booking'
-            ? `Thank you, ${bookingForm.customer_name}. Your booking has been received and is pending review. You'll receive a confirmation email within 1 hour (Mon–Sat, 9 AM–9 PM). For urgent inquiries, call 202-579-2944.`
+            ? `Thank you, ${bookingForm.customer_name}. Your booking has been received. Once your payment is confirmed, service is offered within 6 to 72 hours. Need it sooner? Call 202-579-2944. You'll receive a payment confirmation email.`
             : `Your quote has been sent to ${contact.email}. Our team will review your details and follow up shortly. Call us at 202-579-2944 for questions.`}
         </p>
         <Link href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
@@ -378,27 +375,27 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   </span>
                 </div>
               ))}
-              <div className="flex justify-between text-sm text-gray-500 mt-3 pt-3 border-t border-gray-100">
-                <span>Subtotal</span><span>${result.subtotal?.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 mb-3">
-                <span>Tax (6%)</span><span>${result.tax?.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold text-chm-black border-t border-gray-200 pt-3">
-                <span>Estimated Total</span><span className="text-chm-red">${result.total?.toFixed(2)}</span>
+              <div className="flex justify-between text-lg font-bold text-chm-black border-t border-gray-200 pt-3 mt-3">
+                <span>Total</span><span className="text-chm-red">${result.total?.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="bg-cream mt-6 p-5 text-center">
-              <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Spot</p>
-              <p className="text-2xl font-serif text-chm-black mb-1">${result.deposit?.toFixed(2)}</p>
-              <p className="text-xs text-gray-500 mb-4">30% deposit due to book</p>
+              <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Slot</p>
+              <p className="text-2xl font-serif text-chm-black mb-1">${result.total?.toFixed(2)}</p>
+              <p className="text-xs text-gray-500 mb-4">Full payment of the total is required to secure your slot.</p>
               <button type="button" onClick={() => window.open(CLOVER_LINK, '_blank')} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-                Pay Deposit via Clover
+                Pay ${result.total?.toFixed(2)} in Full via Clover
               </button>
               <p className="text-xs text-gray-400 mt-3">
-                Enter <strong>${result.deposit?.toFixed(2)}</strong> on the Clover page.
+                Enter <strong>${result.total?.toFixed(2)}</strong> on the Clover page.
               </p>
+            </div>
+
+            <div className="mt-6 border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 leading-relaxed">
+              <p className="font-semibold text-chm-black mb-1">When your service happens</p>
+              <p>After your payment is confirmed, service is offered within 6 to 72 hours. You will receive a payment confirmation email explaining this.</p>
+              <p className="mt-2">Need service sooner? Call our customer service team at <strong>202-579-2944</strong>. We will arrange it with you and confirm whether an earlier time is possible.</p>
             </div>
           </div>
         ) : (
@@ -435,7 +432,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
           >
             Start Over
           </button>
-          <p className="text-xs text-gray-400">This is an estimate. Final pricing confirmed after assessment.</p>
+          <p className="text-xs text-gray-400">This is an estimate. Final details are confirmed after assessment.</p>
         </div>
       </div>
     )
@@ -555,6 +552,9 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
+              <p className="text-xs text-gray-400 mt-2">
+                Service is offered within 6 to 72 hours of confirmed payment. Need it sooner? Call 202-579-2944.
+              </p>
             </div>
           </fieldset>
 
@@ -573,7 +573,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
             />
             <div>
               <label className={labelClass}>
-                Invoice Screenshot <span className="text-gray-400 normal-case tracking-normal">(optional — if you already paid a deposit)</span>
+                Payment Screenshot <span className="text-gray-400 normal-case tracking-normal">(optional — if you already paid in full)</span>
               </label>
               <input
                 type="file"
@@ -679,7 +679,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
     )
   }
 
-  // ===== STEP 2: DETAILS (ALL CATEGORIES - COMPLETE) =====
+  // ===== STEP 2: DETAILS =====
   if (step === 2) {
     return (
       <div className="max-w-2xl">
@@ -985,9 +985,9 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   <label className={labelClass}>Nanny Tier *</label>
                   <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
-                    <option value="parttime">Part-Time — 15-20 hrs/week (~$2,760-3,680/mo)</option>
-                    <option value="standard">Standard — 30-35 hrs/week (~$5,520-7,245/mo)</option>
-                    <option value="premium">Premium — 40+ hrs/week (~$8,280-11,500/mo)</option>
+                    <option value="parttime">Part-Time — 15-20 hrs/week (~$3,220/mo)</option>
+                    <option value="standard">Standard — 30-35 hrs/week (~$6,383/mo)</option>
+                    <option value="premium">Premium — 40+ hrs/week (~$9,890/mo)</option>
                   </select>
                 </div>
               )}
@@ -996,10 +996,10 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   <label className={labelClass}>Companion Care Tier *</label>
                   <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
-                    <option value="light">Light — 8-10 hrs/week (~$920-1,150/mo)</option>
-                    <option value="standard">Standard — 20-25 hrs/week (~$2,300-3,165/mo)</option>
-                    <option value="fulltime">Full-Time — 40+ hrs/week (~$4,600-6,900/mo)</option>
-                    <option value="24hour">24-Hour Care (~$9,200-13,800/mo)</option>
+                    <option value="light">Light — 8-10 hrs/week (~$1,035/mo)</option>
+                    <option value="standard">Standard — 20-25 hrs/week (~$2,733/mo)</option>
+                    <option value="fulltime">Full-Time — 40+ hrs/week (~$5,750/mo)</option>
+                    <option value="24hour">24-Hour Care (~$11,500/mo)</option>
                   </select>
                 </div>
               )}
@@ -1008,9 +1008,9 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                   <label className={labelClass}>Program Type *</label>
                   <select required value={String(sel.tier || '')} onChange={e => set('tier', e.target.value)} className={inputClass}>
                     <option value="">Select…</option>
-                    <option value="social">Social Activities — ~$69-92/day</option>
-                    <option value="wellness">Wellness & Activity — ~$92-138/day</option>
-                    <option value="fullservice">Full-Service — ~$138-173/day</option>
+                    <option value="social">Social Activities — ~$403/week</option>
+                    <option value="wellness">Wellness & Activity — ~$575/week</option>
+                    <option value="fullservice">Full-Service — ~$778/week</option>
                   </select>
                 </div>
               )}
@@ -1020,10 +1020,10 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                     <label className={labelClass}>Service Type *</label>
                     <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
-                      <option value="babysitting">Standard Babysitting — $40-52/hr</option>
-                      <option value="overnight">Overnight Care — $35-46/hr</option>
-                      <option value="nannyhousekeeping">Nanny Plus Housekeeping — $40-52/hr</option>
-                      <option value="event">Event/Party Supervision — $35-46/hr</option>
+                      <option value="babysitting">Standard Babysitting — $46/hr</option>
+                      <option value="overnight">Overnight Care — $40.50/hr</option>
+                      <option value="nannyhousekeeping">Nanny Plus Housekeeping — $46/hr</option>
+                      <option value="event">Event/Party Supervision — $40.50/hr</option>
                     </select>
                   </div>
                   <div>
@@ -1046,11 +1046,11 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
                     <label className={labelClass}>Service Type *</label>
                     <select required value={String(sel.subtype || '')} onChange={e => set('subtype', e.target.value)} className={inputClass}>
                       <option value="">Select…</option>
-                      <option value="companion">Care Companion — $35-46/hr</option>
-                      <option value="personalcare">Personal Care Assistant — $35-46/hr</option>
-                      <option value="postrecovery">Post-Recovery Care — $35-46/hr</option>
-                      <option value="respite">Respite Care — $35-46/hr</option>
-                      <option value="overnight">Overnight Care — $35-46/hr</option>
+                      <option value="companion">Care Companion — $40.50/hr</option>
+                      <option value="personalcare">Personal Care Assistant — $40.50/hr</option>
+                      <option value="postrecovery">Post-Recovery Care — $40.50/hr</option>
+                      <option value="respite">Respite Care — $40.50/hr</option>
+                      <option value="overnight">Overnight Care — $40.50/hr</option>
                     </select>
                   </div>
                   <div>
