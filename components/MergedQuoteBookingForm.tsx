@@ -280,6 +280,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         invoice_base64,
         invoice_filename,
         invoice_type,
+        quoted_total: result.total ?? null,
       }
 
       const res = await fetch('/api/book', {
