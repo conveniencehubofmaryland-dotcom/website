@@ -4,6 +4,7 @@ import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import { sendSms } from '@/lib/sms'
 import { sendPaymentConfirmationEmail } from '@/lib/email'
+import { createShiftForPaidAppointment } from '@/lib/shift-eligibility'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
@@ -72,6 +73,13 @@ async function markPaid(id: string, amountPaid: number, token: string) {
     } catch (e) {
       console.error('[paid] payment confirmation email error:', e)
     }
+  }
+
+  try {
+    const shiftResult = await createShiftForPaidAppointment(id)
+    console.log('[paid] shift:', shiftResult.reason)
+  } catch (e) {
+    console.error('[paid] shift creation error:', e)
   }
 
   return NextResponse.json({ success: true })

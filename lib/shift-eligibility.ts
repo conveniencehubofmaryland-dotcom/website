@@ -128,3 +128,73 @@ export function computeWorked(clockInIso: string, clockOutIso: string) {
   const hours = Math.round((minutes / 60) * 100) / 100
   return { minutes, hours }
 }
+
+// Maps a booked service (services slug) to the staff role that works it.
+const SERVICE_ROLE: Record<string, string> = {
+  cleaning: 'Cleaning Specialist',
+  laundry: 'Laundry Handler',
+  culinary: 'Culinary / Chef',
+  care: 'Care Companion (Adult/Senior)',
+  commercial: 'Commercial Cleaner',
+}
+
+export const DEFAULT_SHIFT_HOURS = 4
+
+// "1:00 PM" -> "13:00:00"
+function to24h(slot: string): string | null {
+  const m = slot.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+  if (!m) return null
+  let h = Number(m[1]) % 12
+  if (m[3].toUpperCase() === 'PM') h += 12
+  return `${String(h).padStart(2, '0')}:${m[2]}:00`
+}
+
+function addHours(hhmmss: string, hours: number): string {
+  const [h, m] = hhmmss.split(':').map(Number)
+  const total = Math.min(h * 60 + m + hours * 60, 23 * 60 + 59)
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
+}
+
+// Creates one available shift for a paid booking. Safe to call more than once.
+export async function createShiftForPaidAppointment(
+  appointmentId: string
+): Promise<{ created: boolean; reason: string }> {
+  const apptRes = await sbFetch(
+    `appointments?id=eq.${encodeURIComponent(appointmentId)}&select=id,service_id,appointment_date,time_slot,address,state`
+  )
+  const rows = await apptRes.json()
+  const appt = Array.isArray(rows) ? rows[0] : null
+  if (!appt) return { created: false, reason: 'Booking not found' }
+
+  const role = appt.service_id ? SERVICE_ROLE[appt.service_id] : undefined
+  if (!role) return { created: false, reason: 'This service does not create a staff shift' }
+
+  const start = to24h(appt.time_slot || '')
+  if (!start) return { created: false, reason: 'Could not read the booking time' }
+
+  const existingRes = await sbFetch(
+    `shifts?appointment_id=eq.${encodeURIComponent(appointmentId)}&select=id&limit=1`
+  )
+  const existing = await existingRes.json()
+  if (Array.isArray(existing) && existing.length > 0) {
+    return { created: false, reason: 'Shift already exists for this booking' }
+  }
+
+  const location = [appt.address, appt.state].filter(Boolean).join(', ')
+  const res = await sbFetch('shifts', {
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({
+      date: appt.appointment_date,
+      start_time: start,
+      end_time: addHours(start, DEFAULT_SHIFT_HOURS),
+      location,
+      role,
+      pay_rate: null,
+      status: 'available',
+      appointment_id: appt.id,
+    }),
+  })
+  if (!res.ok) return { created: false, reason: await res.text() }
+  return { created: true, reason: 'Shift created' }
+}
