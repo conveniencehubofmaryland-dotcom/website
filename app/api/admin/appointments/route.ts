@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import { sendSms } from '@/lib/sms'
+import { sendPaymentConfirmationEmail } from '@/lib/email'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
@@ -44,12 +45,56 @@ async function sendConfirmationEmail(appt: Appointment) {
   }
 }
 
+// Records a payment and sends the payment confirmation email.
+async function markPaid(id: string, amountPaid: number, token: string) {
+  const { error } = await dbPatchAuth(
+    'appointments',
+    id,
+    { paid: true, paid_at: new Date().toISOString(), amount_paid: amountPaid },
+    token,
+  )
+  if (error) return NextResponse.json({ error }, { status: 500 })
+
+  const rows = await dbSelectAuth<Appointment & { services?: { title: string } | null }>(
+    'appointments',
+    token,
+    { id: `eq.${id}`, select: '*,services(title)' },
+  )
+  const appt = rows[0]
+  if (appt?.email) {
+    try {
+      await sendPaymentConfirmationEmail(
+        appt.email,
+        appt.customer_name,
+        appt.services?.title || 'Your Service',
+        amountPaid,
+      )
+    } catch (e) {
+      console.error('[paid] payment confirmation email error:', e)
+    }
+  }
+
+  return NextResponse.json({ success: true })
+}
+
 export async function PATCH(req: NextRequest) {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, status } = await req.json()
+  const body = await req.json()
+  const { id, status } = body
+
+  // Mark as Paid
+  if (body.paid === true) {
+    const amountPaid = Number(body.amount_paid)
+    if (!id || !Number.isFinite(amountPaid) || amountPaid <= 0) {
+      return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
+    }
+    return markPaid(id, amountPaid, token)
+  }
+
+  // Status change (Confirm / Cancel / Reset)
   if (!id || !VALID_STATUSES.includes(status)) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
