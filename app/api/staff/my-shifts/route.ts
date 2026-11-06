@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getApplicantBySession, loadShift, sbFetch, type ShiftRow } from '@/lib/shift-eligibility'
+import { getApplicantBySession, loadShift, sbFetch, todayInEastern, type ShiftRow } from '@/lib/shift-eligibility'
 
 // Staff: list my claimed shifts
 export async function GET(request: NextRequest) {
@@ -38,6 +38,9 @@ export async function POST(request: NextRequest) {
     let patch: Record<string, unknown>
 
     if (action === 'clock_in') {
+      if (shift.date !== todayInEastern()) {
+        return NextResponse.json({ error: 'You can only clock in on the day of the shift.' }, { status: 400 })
+      }
       if (shift.clock_in_at) return NextResponse.json({ error: 'You are already clocked in.' }, { status: 400 })
       if (shift.staff_confirmed_at) return NextResponse.json({ error: 'This shift is already confirmed.' }, { status: 400 })
       patch = { clock_in_at: now }

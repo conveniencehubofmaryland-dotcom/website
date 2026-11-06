@@ -1,8 +1,28 @@
-// Shared shift rules: who may claim a shift and how staff hours are recorded.
+// Shared shift rules: who may claim a shift, how staff hours are recorded, and shift creation.
 // Server-side only (uses the service role key).
 
 export const COMMERCIAL_ROLE = 'Commercial Cleaner'
 export const COMMERCIAL_ELIGIBLE_POSITION = 'Cleaning Specialist'
+export const DEFAULT_SHIFT_HOURS = 4
+
+// Services that cover more than one staff role. The admin picks one when marking the booking paid.
+export const SERVICE_ROLE_CHOICES: Record<string, string[]> = {
+  culinary: ['Culinary / Chef', 'Housekeeping Staff'],
+  care: ['Care Companion (Adult/Senior)', 'Nanny / Childcare Specialist'],
+}
+
+// Services with one staff role.
+const SERVICE_ROLE: Record<string, string> = {
+  cleaning: 'Cleaning Specialist',
+  laundry: 'Laundry Handler',
+  commercial: 'Commercial Cleaner',
+}
+
+export function rolesForService(slug: string | null | undefined): string[] {
+  if (!slug) return []
+  if (SERVICE_ROLE_CHOICES[slug]) return SERVICE_ROLE_CHOICES[slug]
+  return SERVICE_ROLE[slug] ? [SERVICE_ROLE[slug]] : []
+}
 
 export type StaffApplicant = {
   id: string
@@ -32,6 +52,7 @@ export type ShiftRow = {
   clock_out_at?: string | null
   staff_confirmed_at?: string | null
   approved_at?: string | null
+  reminder_sent_at?: string | null
   hours_worked?: number | null
 }
 
@@ -46,6 +67,12 @@ export async function sbFetch(path: string, init: RequestInit = {}): Promise<Res
   headers.set('Authorization', `Bearer ${key}`)
   headers.set('Content-Type', 'application/json')
   return fetch(`${url}/rest/v1/${path}`, { ...init, headers })
+}
+
+// Today's date (or a later date) in Maryland time, as YYYY-MM-DD.
+export function todayInEastern(offsetDays = 0): string {
+  const d = new Date(Date.now() + offsetDays * 86400000)
+  return d.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
 }
 
 // Looks up the signed-in applicant from the staff session token.
@@ -129,17 +156,6 @@ export function computeWorked(clockInIso: string, clockOutIso: string) {
   return { minutes, hours }
 }
 
-// Maps a booked service (services slug) to the staff role that works it.
-const SERVICE_ROLE: Record<string, string> = {
-  cleaning: 'Cleaning Specialist',
-  laundry: 'Laundry Handler',
-  culinary: 'Culinary / Chef',
-  care: 'Care Companion (Adult/Senior)',
-  commercial: 'Commercial Cleaner',
-}
-
-export const DEFAULT_SHIFT_HOURS = 4
-
 // "1:00 PM" -> "13:00:00"
 function to24h(slot: string): string | null {
   const m = slot.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
@@ -156,8 +172,10 @@ function addHours(hhmmss: string, hours: number): string {
 }
 
 // Creates one available shift for a paid booking. Safe to call more than once.
+// chosenRole is used for services with more than one role; otherwise the first role is used.
 export async function createShiftForPaidAppointment(
-  appointmentId: string
+  appointmentId: string,
+  chosenRole?: string
 ): Promise<{ created: boolean; reason: string }> {
   const apptRes = await sbFetch(
     `appointments?id=eq.${encodeURIComponent(appointmentId)}&select=id,service_id,appointment_date,time_slot,address,state`
@@ -166,8 +184,9 @@ export async function createShiftForPaidAppointment(
   const appt = Array.isArray(rows) ? rows[0] : null
   if (!appt) return { created: false, reason: 'Booking not found' }
 
-  const role = appt.service_id ? SERVICE_ROLE[appt.service_id] : undefined
-  if (!role) return { created: false, reason: 'This service does not create a staff shift' }
+  const roles = rolesForService(appt.service_id)
+  if (roles.length === 0) return { created: false, reason: 'This service does not create a staff shift' }
+  const role = chosenRole && roles.includes(chosenRole) ? chosenRole : roles[0]
 
   const start = to24h(appt.time_slot || '')
   if (!start) return { created: false, reason: 'Could not read the booking time' }
@@ -197,4 +216,23 @@ export async function createShiftForPaidAppointment(
   })
   if (!res.ok) return { created: false, reason: await res.text() }
   return { created: true, reason: 'Shift created' }
+}
+
+// Removes open (unclaimed) shifts for a cancelled booking. Returns how many were removed
+// and how many are already claimed (those need an admin decision).
+export async function removeAvailableShiftsForAppointment(
+  appointmentId: string
+): Promise<{ removed: number; claimed: number }> {
+  const enc = encodeURIComponent(appointmentId)
+  const delRes = await sbFetch(`shifts?appointment_id=eq.${enc}&status=eq.available`, {
+    method: 'DELETE',
+    headers: { Prefer: 'return=representation' },
+  })
+  const deleted = await delRes.json().catch(() => [])
+  const claimedRes = await sbFetch(`shifts?appointment_id=eq.${enc}&status=eq.claimed&select=id`)
+  const claimedRows = await claimedRes.json().catch(() => [])
+  return {
+    removed: Array.isArray(deleted) ? deleted.length : 0,
+    claimed: Array.isArray(claimedRows) ? claimedRows.length : 0,
+  }
 }

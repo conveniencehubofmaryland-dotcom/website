@@ -4,7 +4,7 @@ import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import { sendSms } from '@/lib/sms'
 import { sendPaymentConfirmationEmail } from '@/lib/email'
-import { createShiftForPaidAppointment } from '@/lib/shift-eligibility'
+import { createShiftForPaidAppointment, removeAvailableShiftsForAppointment } from '@/lib/shift-eligibility'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
@@ -47,7 +47,7 @@ async function sendConfirmationEmail(appt: Appointment) {
 }
 
 // Records a payment and sends the payment confirmation email.
-async function markPaid(id: string, amountPaid: number, token: string) {
+async function markPaid(id: string, amountPaid: number, token: string, shiftRole?: string) {
   const { error } = await dbPatchAuth(
     'appointments',
     id,
@@ -76,7 +76,7 @@ async function markPaid(id: string, amountPaid: number, token: string) {
   }
 
   try {
-    const shiftResult = await createShiftForPaidAppointment(id)
+    const shiftResult = await createShiftForPaidAppointment(id, shiftRole)
     console.log('[paid] shift:', shiftResult.reason)
   } catch (e) {
     console.error('[paid] shift creation error:', e)
@@ -99,7 +99,7 @@ export async function PATCH(req: NextRequest) {
     if (!id || !Number.isFinite(amountPaid) || amountPaid <= 0) {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
     }
-    return markPaid(id, amountPaid, token)
+    return markPaid(id, amountPaid, token, typeof body.shift_role === 'string' ? body.shift_role : undefined)
   }
 
   // Status change (Confirm / Cancel / Reset)
@@ -109,6 +109,15 @@ export async function PATCH(req: NextRequest) {
 
   const { error } = await dbPatchAuth('appointments', id, { status }, token)
   if (error) return NextResponse.json({ error }, { status: 500 })
+
+  if (status === 'cancelled') {
+    try {
+      const result = await removeAvailableShiftsForAppointment(id)
+      console.log('[cancel] shifts removed:', result)
+    } catch (e) {
+      console.error('[cancel] shift removal error:', e)
+    }
+  }
 
   if (status === 'confirmed') {
     const rows = await dbSelectAuth<Appointment>('appointments', token, { 'id': `eq.${id}`, select: '*' })

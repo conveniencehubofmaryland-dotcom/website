@@ -18,6 +18,12 @@ const COLORS: Record<Status, string> = {
 
 const MISMATCH_TOLERANCE = 0.005
 
+// Services that cover two staff roles: admin picks one when marking paid.
+const ROLE_OPTIONS: Record<string, string[]> = {
+  culinary: ['Culinary / Chef', 'Housekeeping Staff'],
+  care: ['Care Companion (Adult/Senior)', 'Nanny / Childcare Specialist'],
+}
+
 export default function AppointmentStatusButton({
   appointment,
 }: {
@@ -51,6 +57,7 @@ export default function AppointmentStatusButton({
   }
 
   async function markPaid() {
+    const roleOptions = ROLE_OPTIONS[appointment.service_id ?? ''] ?? []
     const hint = quoted != null ? ` (quoted total: $${quoted.toFixed(2)})` : ''
     const input = window.prompt(`Enter the amount shown in Clover${hint}`)
     if (input === null) return
@@ -58,6 +65,13 @@ export default function AppointmentStatusButton({
     if (!Number.isFinite(amount) || amount <= 0) {
       alert('Please enter a valid amount.')
       return
+    }
+
+    let shiftRole: string | undefined
+    if (roleOptions.length > 1) {
+      const pick = window.prompt(`Which staff role should take this shift?\n1 = ${roleOptions[0]}\n2 = ${roleOptions[1]}`, '1')
+      if (pick === null) return
+      shiftRole = pick.trim() === '2' ? roleOptions[1] : roleOptions[0]
     }
 
     if (quoted != null && Math.abs(amount - quoted) > MISMATCH_TOLERANCE) {
@@ -72,7 +86,7 @@ export default function AppointmentStatusButton({
       const res = await fetch('/api/admin/appointments', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, paid: true, amount_paid: amount }),
+        body: JSON.stringify({ id, paid: true, amount_paid: amount, shift_role: shiftRole }),
       })
       if (res.ok) {
         setPaid(true)
