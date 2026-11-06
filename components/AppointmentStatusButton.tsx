@@ -7,6 +7,7 @@ type Status = 'pending' | 'confirmed' | 'cancelled'
 type AppointmentWithPayment = Appointment & {
   paid?: boolean | null
   amount_paid?: number | null
+  quoted_total?: number | null
 }
 
 const COLORS: Record<Status, string> = {
@@ -14,6 +15,8 @@ const COLORS: Record<Status, string> = {
   confirmed: 'text-green-700 bg-green-50 border-green-200',
   cancelled: 'text-red-600   bg-red-50   border-red-200',
 }
+
+const MISMATCH_TOLERANCE = 0.005
 
 export default function AppointmentStatusButton({
   appointment,
@@ -28,6 +31,10 @@ export default function AppointmentStatusButton({
   const [deleted, setDeleted] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const id = appointment.id
+
+  const quoted = appointment.quoted_total != null ? Number(appointment.quoted_total) : null
+  const mismatch = paid && quoted != null && amountPaid != null
+    && Math.abs(amountPaid - quoted) > MISMATCH_TOLERANCE
 
   async function update(newStatus: Status) {
     setLoading(true)
@@ -44,14 +51,20 @@ export default function AppointmentStatusButton({
   }
 
   async function markPaid() {
-    const input = window.prompt(
-      'Amount received in USD (confirm this in Clover first), e.g. 540.00'
-    )
+    const hint = quoted != null ? ` (quoted total: $${quoted.toFixed(2)})` : ''
+    const input = window.prompt(`Enter the amount shown in Clover${hint}`)
     if (input === null) return
     const amount = Number(input)
     if (!Number.isFinite(amount) || amount <= 0) {
       alert('Please enter a valid amount.')
       return
+    }
+
+    if (quoted != null && Math.abs(amount - quoted) > MISMATCH_TOLERANCE) {
+      const proceed = window.confirm(
+        `The amount ($${amount.toFixed(2)}) does not match the quoted total ($${quoted.toFixed(2)}). Mark as paid anyway?`
+      )
+      if (!proceed) return
     }
 
     setLoading(true)
@@ -97,11 +110,23 @@ export default function AppointmentStatusButton({
       <span className={`inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm ${COLORS[status]}`}>
         {status}
       </span>
+
+      {quoted != null && !paid && (
+        <span className="text-xs text-gray-500">Quoted ${quoted.toFixed(2)}</span>
+      )}
+
       {paid && (
         <span className="inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm text-green-700 bg-green-50 border-green-200">
           Paid{amountPaid != null ? ` $${amountPaid.toFixed(2)}` : ''}
         </span>
       )}
+
+      {mismatch && (
+        <span className="inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm text-red-600 bg-red-50 border-red-200">
+          Amount mismatch (quoted ${quoted!.toFixed(2)})
+        </span>
+      )}
+
       <div className="flex gap-3 flex-wrap">
         <button
           onClick={() => setShowDetails(true)}
@@ -201,6 +226,10 @@ export default function AppointmentStatusButton({
               <div>
                 <p className="text-xs uppercase tracking-widest text-gray-400">Notes</p>
                 <p className="text-chm-black">{appointment.notes || '—'}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-gray-400">Quoted Total</p>
+                <p className="text-chm-black">{quoted != null ? `$${quoted.toFixed(2)}` : '—'}</p>
               </div>
             </div>
           </div>
