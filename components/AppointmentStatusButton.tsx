@@ -4,18 +4,26 @@ import { useRouter } from 'next/navigation'
 import type { Appointment } from '@/lib/types'
 
 type Status = 'pending' | 'confirmed' | 'cancelled'
+type AppointmentWithPayment = Appointment & {
+  paid?: boolean | null
+  amount_paid?: number | null
+}
+
 const COLORS: Record<Status, string> = {
   pending:   'text-amber-700 bg-amber-50 border-amber-200',
   confirmed: 'text-green-700 bg-green-50 border-green-200',
   cancelled: 'text-red-600   bg-red-50   border-red-200',
 }
+
 export default function AppointmentStatusButton({
   appointment,
 }: {
-  appointment: Appointment
+  appointment: AppointmentWithPayment
 }) {
   const router = useRouter()
   const [status,  setStatus]  = useState<Status>(appointment.status)
+  const [paid, setPaid] = useState<boolean>(!!appointment.paid)
+  const [amountPaid, setAmountPaid] = useState<number | null>(appointment.amount_paid ?? null)
   const [loading, setLoading] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -34,6 +42,36 @@ export default function AppointmentStatusButton({
       setLoading(false)
     }
   }
+
+  async function markPaid() {
+    const input = window.prompt(
+      'Amount received in USD (confirm this in Clover first), e.g. 540.00'
+    )
+    if (input === null) return
+    const amount = Number(input)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      alert('Please enter a valid amount.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/appointments', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, paid: true, amount_paid: amount }),
+      })
+      if (res.ok) {
+        setPaid(true)
+        setAmountPaid(amount)
+      } else {
+        alert('Could not mark as paid. Please try again.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function handleDelete() {
     if (!confirm('Delete this appointment? This cannot be undone.')) return
     setLoading(true)
@@ -46,17 +84,24 @@ export default function AppointmentStatusButton({
       if (res.ok) {
         setDeleted(true)
         router.refresh()
-    }
+      }
     } finally {
       setLoading(false)
     }
   }
+
   if (deleted) return <span className="text-xs text-gray-300">Deleted</span>
+
   return (
     <div className="flex flex-col gap-2">
       <span className={`inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm ${COLORS[status]}`}>
         {status}
       </span>
+      {paid && (
+        <span className="inline-block text-xs px-2 py-0.5 border font-semibold rounded-sm text-green-700 bg-green-50 border-green-200">
+          Paid{amountPaid != null ? ` $${amountPaid.toFixed(2)}` : ''}
+        </span>
+      )}
       <div className="flex gap-3 flex-wrap">
         <button
           onClick={() => setShowDetails(true)}
@@ -64,6 +109,15 @@ export default function AppointmentStatusButton({
         >
           View
         </button>
+        {!paid && (
+          <button
+            disabled={loading}
+            onClick={markPaid}
+            className="text-xs text-chm-black hover:underline underline-offset-2 font-semibold disabled:opacity-40"
+          >
+            Mark as Paid
+          </button>
+        )}
         {status !== 'confirmed' && (
           <button
             disabled={loading}
