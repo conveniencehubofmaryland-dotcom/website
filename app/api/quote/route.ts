@@ -3,98 +3,103 @@ import { dbInsertService } from '@/lib/db'
 
 const TAX_RATE = 0.06
 
+// CLEANING: +20%
 const STANDARD_CLEANING: Record<string, number> = {
-  studio: 100, '1br': 150, '2br': 250, '3br': 350, '4br': 450, '5br+': 500,
+  studio: 120, '1br': 180, '2br': 300, '3br': 420, '4br': 540, '5br+': 600,
 }
 const DEEP_CLEANING: Record<string, number> = {
-  studio: 250, '1br': 300, '2br': 350, '3br': 450, '4br': 600, '5br+': 750,
+  studio: 300, '1br': 360, '2br': 420, '3br': 540, '4br': 720, '5br+': 900,
 }
 const MOVEINOUT: Record<string, { good: number; poor: number }> = {
-  '1br': { good: 450, poor: 600 },
-  '3br': { good: 600, poor: 900 },
-  '4br': { good: 800, poor: 1200 },
-  '5br': { good: 950, poor: 1350 },
+  '1br': { good: 540, poor: 720 },
+  '3br': { good: 720, poor: 1080 },
+  '4br': { good: 960, poor: 1440 },
+  '5br': { good: 1140, poor: 1620 },
 }
 const FREQUENCY_DISCOUNT: Record<string, number> = {
   onetime: 0, monthly: 0.10, biweekly: 0.10, weekly: 0.15, twiceweekly: 0.15,
 }
-const PET_FEE: Record<string, number> = { '0': 0, '1': 27.5, '2': 50, '3+': 80 }
+const PET_FEE: Record<string, number> = { '0': 0, '1': 33, '2': 60, '3+': 96 }
 const ADDON_PRICES: Record<string, number> = {
-  carpet: 175, windowInt: 97.5, windowExt: 175, appliance: 112.5,
-  grout: 212.5, petOdor: 137.5, disinfect: 75,
+  carpet: 210, windowInt: 117, windowExt: 210, appliance: 135,
+  grout: 255, petOdor: 165, disinfect: 90,
 }
 const FIRST_TIME_DISCOUNT = 0.15
 const SITE_URL = 'https://conveniencehubofmaryland.com'
 
+// LAUNDRY: +15%
 const LAUNDRY_PER_LB: Record<string, number> = {
-  colors: 3.99, mixed: 4.99, bedding: 4.99, whites: 6.99, wool: 7.99, delicates: 8.99,
+  colors: 4.59, mixed: 5.74, bedding: 5.74, whites: 8.04, wool: 9.19, delicates: 10.34,
 }
 const LAUNDRY_PREMIUM_PER_LB: Record<string, number> = {
-  none: 0, ironhang: 2.00, expressiron: 4.00, samedayexpress: 1.75,
+  none: 0, ironhang: 2.30, expressiron: 4.60, samedayexpress: 2.01,
 }
-const LAUNDRY_FOLDING_RATE = 1.50
+const LAUNDRY_FOLDING_RATE = 1.73
 const LAUNDRY_RECURRING: Record<string, number> = {
-  light: 140, standard: 250, premium: 350, unlimited: 500,
+  light: 160, standard: 290, premium: 405, unlimited: 575,
 }
 const LAUNDRY_ADDON_PRICES: Record<string, number> = {
-  stainRemoval: 15, allergenFree: 15, hypoallergenic: 10,
-  comforter: 40, beddingSet: 50, curtainPanels: 3.5, tablecloths: 20,
+  stainRemoval: 17.25, allergenFree: 17.25, hypoallergenic: 11.5,
+  comforter: 46, beddingSet: 57.5, curtainPanels: 4.03, tablecloths: 23,
 }
+
+// MEAL PREP: +15%
 const MEALPREP_PLANS: Record<string, number> = {
-  starter: 350, standard: 675, premium: 975, luxury: 1350,
+  starter: 405, standard: 775, premium: 1120, luxury: 1550,
 }
 const CULINARY_HOURLY: Record<string, { rate: number; minHrs: number }> = {
-  personalchef: { rate: 90, minHrs: 3 },
-  eventcatering: { rate: 87.5, minHrs: 4 },
-  kitchencoaching: { rate: 105, minHrs: 2 },
+  personalchef: { rate: 103.5, minHrs: 3 },
+  eventcatering: { rate: 100.63, minHrs: 4 },
+  kitchencoaching: { rate: 120.75, minHrs: 2 },
 }
 const CULINARY_SPECIALTY_PER_SERVING: Record<string, number> = {
-  breakfast: 10, lunch: 12.5, dinner: 16, dessert: 9,
+  breakfast: 11.5, lunch: 14.38, dinner: 18.4, dessert: 10.35,
 }
 const CULINARY_GROCERY: Record<string, number> = {
-  basic: 40, premium: 62.5,
+  basic: 46, premium: 71.88,
 }
 const CULINARY_DIETARY_PCT: Record<string, number> = {
   glutenfree: 0.175, vegan: 0.10, keto: 0.175,
 }
-// Nanny / Childcare
+
+// NANNY / CHILDCARE: +15%
 const NANNY_MONTHLY: Record<string, { cost: number; avgWeeklyHrs: number }> = {
-  parttime: { cost: 2800, avgWeeklyHrs: 17.5 },
-  standard: { cost: 5550, avgWeeklyHrs: 32.5 },
-  premium:  { cost: 8600, avgWeeklyHrs: 40 },
+  parttime: { cost: 3220, avgWeeklyHrs: 17.5 },
+  standard: { cost: 6382.5, avgWeeklyHrs: 32.5 },
+  premium:  { cost: 9890, avgWeeklyHrs: 40 },
 }
 const NANNY_HOURLY: Record<string, { rate: number; minHrs: number }> = {
-  babysitting: { rate: 40, minHrs: 2 },
-  overnight: { rate: 35, minHrs: 8 },
-  nannyhousekeeping: { rate: 40, minHrs: 3 },
-  event: { rate: 35, minHrs: 2 },
+  babysitting: { rate: 46, minHrs: 2 },
+  overnight: { rate: 40.5, minHrs: 8 },
+  nannyhousekeeping: { rate: 46, minHrs: 3 },
+  event: { rate: 40.5, minHrs: 2 },
 }
 const NANNY_SPECIALIZED_PER_HR: Record<string, number> = {
-  infant: 4, specialneeds: 6.5, bilingual: 5,
+  infant: 4.6, specialneeds: 7.48, bilingual: 5.75,
 }
-const NANNY_EXTRA_CHILD_PER_HR = 3.5
-const NANNY_WEEKEND_PER_HR = 4
+const NANNY_EXTRA_CHILD_PER_HR = 4.03
+const NANNY_WEEKEND_PER_HR = 4.6
 const NANNY_HOLIDAY_MULTIPLIER = 0.375
 
-// Elder / Companion Care
+// ELDER / COMPANION CARE: +15%
 const CARE_MONTHLY: Record<string, { cost: number; avgWeeklyHrs: number }> = {
-  light: { cost: 900, avgWeeklyHrs: 9 },
-  standard: { cost: 2375, avgWeeklyHrs: 22.5 },
-  fulltime: { cost: 5000, avgWeeklyHrs: 40 },
-  '24hour': { cost: 10000, avgWeeklyHrs: 168 },
+  light: { cost: 1035, avgWeeklyHrs: 9 },
+  standard: { cost: 2732.5, avgWeeklyHrs: 22.5 },
+  fulltime: { cost: 5750, avgWeeklyHrs: 40 },
+  '24hour': { cost: 11500, avgWeeklyHrs: 168 },
 }
 const CARE_HOURLY: Record<string, { rate: number; minHrs: number }> = {
-  companion: { rate: 35, minHrs: 2 },
-  personalcare: { rate: 35, minHrs: 3 },
-  postrecovery: { rate: 35, minHrs: 4 },
-  respite: { rate: 35, minHrs: 4 },
-  overnight: { rate: 35, minHrs: 8 },
+  companion: { rate: 40.5, minHrs: 2 },
+  personalcare: { rate: 40.5, minHrs: 3 },
+  postrecovery: { rate: 40.5, minHrs: 4 },
+  respite: { rate: 40.5, minHrs: 4 },
+  overnight: { rate: 40.5, minHrs: 8 },
 }
 const CARE_SPECIALIZED_PER_HR: Record<string, number> = {
-  dementia: 6, postsurgical: 7.5, mobility: 4.5, medication: 3,
+  dementia: 6.9, postsurgical: 8.63, mobility: 5.18, medication: 3.45,
 }
 const CARE_DAY_PROGRAM: Record<string, number> = {
-  social: 350, wellness: 500, fullservice: 675,
+  social: 402.5, wellness: 575, fullservice: 777.5,
 }
 
 type Selections = Record<string, unknown>
@@ -157,7 +162,7 @@ function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } 
   } else if (planType === 'foldingOnly') {
     const weight = Math.max(10, Number(sel.weight) || 10)
     const cost = LAUNDRY_FOLDING_RATE * weight
-    breakdown.push({ label: `Folding Only — ${weight} lbs @ $1.50/lb`, amount: cost })
+    breakdown.push({ label: `Folding Only — ${weight} lbs @ $${LAUNDRY_FOLDING_RATE.toFixed(2)}/lb`, amount: cost })
     total = cost
   } else {
     // per-pound standard service
@@ -198,6 +203,7 @@ function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } 
 
   return { total, breakdown }
 }
+
 function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] } {
   const breakdown: LineItem[] = []
   const mode = sel.mode as string || 'monthly'
@@ -251,6 +257,7 @@ function calcMealPrep(sel: Selections): { total: number; breakdown: LineItem[] }
 
   return { total, breakdown }
 }
+
 function calcNanny(sel: Selections): { total: number; breakdown: LineItem[] } {
   const breakdown: LineItem[] = []
   const mode = sel.mode as string
