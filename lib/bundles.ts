@@ -14,13 +14,16 @@ export interface Bundle {
   highlighted?: boolean
 }
 
+// Prices updated: +15% across bundles, rounded to the nearest $10.
+// Bundles that include cleaning should be adjusted to +20% on the cleaning
+// portion once the price split per bundle is confirmed.
 export const BUNDLES: Bundle[] = [
   // Residential (6 bundles)
   {
     id: 'res-starter',
     category: 'residential',
     name: 'Starter',
-    price: 800,
+    price: 920,
     savingsPercent: 15,
     description: 'Perfect for basic cleaning maintenance',
     services: [
@@ -31,7 +34,7 @@ export const BUNDLES: Bundle[] = [
     id: 'res-essentials',
     category: 'residential',
     name: 'Essentials',
-    price: 1200,
+    price: 1380,
     savingsPercent: 20,
     description: 'Weekly Cleaning + Bi-Weekly Laundry',
     highlighted: true,
@@ -44,7 +47,7 @@ export const BUNDLES: Bundle[] = [
     id: 'res-comfort',
     category: 'residential',
     name: 'Comfort',
-    price: 2700,
+    price: 3110,
     savingsPercent: 10,
     description: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization',
     highlighted: true,
@@ -58,7 +61,7 @@ export const BUNDLES: Bundle[] = [
     id: 'res-professional',
     category: 'residential',
     name: 'Professional',
-    price: 2100,
+    price: 2420,
     savingsPercent: 18,
     description: 'Comprehensive home management solution',
     services: [
@@ -71,7 +74,7 @@ export const BUNDLES: Bundle[] = [
     id: 'res-luxury',
     category: 'residential',
     name: 'Luxury',
-    price: 5400,
+    price: 6210,
     savingsPercent: 10,
     description: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization',
     highlighted: true,
@@ -87,7 +90,7 @@ export const BUNDLES: Bundle[] = [
     id: 'res-complete',
     category: 'residential',
     name: 'Complete Living',
-    price: 3600,
+    price: 4140,
     savingsPercent: 22,
     description: 'Full-service luxury home care package',
     services: [
@@ -103,7 +106,7 @@ export const BUNDLES: Bundle[] = [
     id: 'fam-essentials',
     category: 'family',
     name: 'Family Essentials',
-    price: 2400,
+    price: 2760,
     savingsPercent: 16,
     description: 'Home + childcare support for growing families',
     services: [
@@ -116,7 +119,7 @@ export const BUNDLES: Bundle[] = [
     id: 'fam-care',
     category: 'family',
     name: 'Family Care',
-    price: 4050,
+    price: 4660,
     savingsPercent: 10,
     description: 'Comprehensive family support with full childcare',
     highlighted: true,
@@ -133,7 +136,7 @@ export const BUNDLES: Bundle[] = [
     id: 'senior-companion',
     category: 'senior',
     name: 'Senior Companion',
-    price: 2700,
+    price: 3110,
     savingsPercent: 14,
     description: 'Home care with companion support',
     services: [
@@ -146,7 +149,7 @@ export const BUNDLES: Bundle[] = [
     id: 'senior-care',
     category: 'senior',
     name: 'Senior Care',
-    price: 4500,
+    price: 5180,
     savingsPercent: 10,
     description: 'Premium senior living support package',
     highlighted: true,
@@ -163,7 +166,7 @@ export const BUNDLES: Bundle[] = [
     id: 'com-small',
     category: 'commercial',
     name: 'Small Office Complete',
-    price: 2700,
+    price: 3110,
     savingsPercent: 10,
     description: 'Professional cleaning for small offices',
     services: [
@@ -176,7 +179,7 @@ export const BUNDLES: Bundle[] = [
     id: 'com-medium',
     category: 'commercial',
     name: 'Medium Office Premium',
-    price: 4500,
+    price: 5180,
     savingsPercent: 10,
     description: 'Comprehensive service for growing offices',
     services: [
