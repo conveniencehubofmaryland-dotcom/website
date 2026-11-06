@@ -1,0 +1,19 @@
+name: Shift reminders
+
+on:
+  schedule:
+    # Every day at 6:00 PM Eastern (11:00 PM UTC in November)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the reminder endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -sS -f -X POST "https://conveniencehubofmaryland.com/api/cron/shift-reminders" \
+            -H "x-cron-secret: $CRON_SECRET"
+          echo
