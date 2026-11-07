@@ -10,7 +10,7 @@ type LineItem = { label: string; amount: number }
 type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
 type QuoteStep = 'quote-preview' | 'booking' | null
 
-import { startCloverCheckout, CLOVER_FALLBACK_LINK } from '@/lib/clover'
+import CloverCardForm from './CloverCardForm'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -385,12 +385,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Slot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.total?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">Full payment of the total is required to secure your slot.</p>
-              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('full', isBundle ? `bundle-${sel.bundleId}` : category, sel, contact) } catch (err) { alert(`${err instanceof Error ? err.message : 'Could not start payment.'}\n\nYou can pay on the Clover page that is opening now. Enter $${Number(result.total).toFixed(2)} as the amount.`); window.location.href = CLOVER_FALLBACK_LINK } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-                Pay ${result.total?.toFixed(2)} in Full via Clover
-              </button>
-              <p className="text-xs text-gray-400 mt-3">
-                You&apos;ll be taken to a secure Clover payment page with <strong>${result.total?.toFixed(2)}</strong> already filled in.
-              </p>
+              <CloverCardForm kind="full" amount={Number(result.total)} category={isBundle ? `bundle-${sel.bundleId}` : category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} />
             </div>
 
             <div className="mt-6 border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 leading-relaxed">

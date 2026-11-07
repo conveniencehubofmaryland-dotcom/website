@@ -1,21 +1,8 @@
-// Your existing Clover payment page, used as a backup if automatic checkout fails.
-export const CLOVER_FALLBACK_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
+// Clover settings used by the website's card form (public values only; the private key stays on the server).
+export const CLOVER_MERCHANT_ID = '958280968883'
+export const CLOVER_PUBLIC_TOKEN = '274936ac4ed1a9fa6658979fcd965b99'
+// Live card-entry script. Use https://checkout.sandbox.dev.clover.com/sdk.js only with sandbox keys.
+export const CLOVER_SDK_URL = 'https://checkout.clover.com/sdk.js'
 
-// Starts a Clover hosted checkout. The server works out the exact amount from the quote details.
-export async function startCloverCheckout(
-  kind: 'deposit' | 'full',
-  category: string,
-  selections: Record<string, unknown>,
-  contact: { name?: string; email?: string }
-): Promise<string> {
-  const res = await fetch('/api/payments/clover-checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kind, category, selections, name: contact.name, email: contact.email }),
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok || !data.url) {
-    throw new Error(data.error || 'Could not start payment. Please call 202-579-2944.')
-  }
-  return data.url as string
-}
+// Your existing Clover payment page, shown as a small backup link.
+export const CLOVER_FALLBACK_LINK = 'https://link.clover.com/urlshortener/m92Kg8'

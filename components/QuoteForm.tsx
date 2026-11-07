@@ -8,7 +8,7 @@ import BundleModal from './BundleModal'
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
 
-import { startCloverCheckout, CLOVER_FALLBACK_LINK } from '@/lib/clover'
+import CloverCardForm from './CloverCardForm'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -202,12 +202,7 @@ export default function QuoteForm() {
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Spot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.deposit?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">30% deposit due to book</p>
-              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('deposit', category, sel, contact) } catch (err) { alert(`${err instanceof Error ? err.message : 'Could not start payment.'}\n\nYou can pay on the Clover page that is opening now. Enter $${Number(result.deposit).toFixed(2)} as the amount.`); window.location.href = CLOVER_FALLBACK_LINK } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
-                Pay Deposit via Clover
-              </button>
-              <p className="text-xs text-gray-400 mt-3">
-                You&apos;ll be taken to a secure Clover payment page with <strong>${result.deposit?.toFixed(2)}</strong> already filled in.
-              </p>
+              <CloverCardForm kind="deposit" amount={Number(result.deposit)} category={category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} />
               <div className="border-t border-gray-200 mt-5 pt-5">
                 <p className="text-xs text-gray-500 mb-3">Already paid? Click below to complete your booking with full details.</p>
                 <a href={result.bookLink} className="inline-block border-2 border-chm-red text-chm-red px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors">
