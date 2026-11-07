@@ -27,7 +27,6 @@ export default function StaffDocumentsSection({
 }: StaffDocumentsSectionProps) {
   const [filter, setFilter] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const [selectedDocument, setSelectedDocument] = useState<StaffDocument | null>(null)
   const [loading, setLoading] = useState(false)
 
   const filteredDocs = documents.filter(doc => {

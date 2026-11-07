@@ -8,6 +8,25 @@ import { createShiftForPaidAppointment, removeAvailableShiftsForAppointment } fr
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
+async function sendClaimedShiftCancelAlert(appointmentId: string, claimedCount: number) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) return
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
+        to: ['conveniencehubofmaryland@gmail.com'],
+        subject: `Action needed - cancelled booking has ${claimedCount} claimed shift(s)`,
+        html: `<p>An appointment (ID ${appointmentId}) was cancelled, but ${claimedCount} shift(s) were already claimed by staff.</p><p>Please contact the assigned staff member to let them know the booking is cancelled.</p>`,
+      }),
+    })
+  } catch (e) {
+    console.error('[cancel] admin alert failed:', e)
+  }
+}
+
 async function sendConfirmationEmail(appt: Appointment) {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey || !appt.email) return
@@ -114,6 +133,9 @@ export async function PATCH(req: NextRequest) {
     try {
       const result = await removeAvailableShiftsForAppointment(id)
       console.log('[cancel] shifts removed:', result)
+      if (result.claimed > 0) {
+        await sendClaimedShiftCancelAlert(id, result.claimed)
+      }
     } catch (e) {
       console.error('[cancel] shift removal error:', e)
     }

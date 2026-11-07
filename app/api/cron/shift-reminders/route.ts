@@ -83,5 +83,30 @@ async function runReminders(request: NextRequest) {
     reminded++
   }
 
-  return NextResponse.json({ date: tomorrow, checked: shifts.length, reminded })
+  // Admin alert: shifts for tomorrow that nobody has claimed yet
+  const openRes = await sbFetch(
+    `shifts?date=eq.${tomorrow}&status=eq.available&select=id,role,start_time,end_time,location`
+  )
+  const openShifts = openRes.ok ? ((await openRes.json()) as ShiftRow[]) : []
+  if (resendKey && openShifts.length > 0) {
+    const rows = openShifts
+      .map(s => `<li>${s.role} · ${s.start_time.slice(0, 5)} - ${s.end_time.slice(0, 5)} · ${s.location}</li>`)
+      .join('')
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
+          to: ['conveniencehubofmaryland@gmail.com'],
+          subject: `Unclaimed shifts for tomorrow (${openShifts.length})`,
+          html: `<p>These shifts for ${tomorrow} are still unclaimed:</p><ul>${rows}</ul>`,
+        }),
+      })
+    } catch (e) {
+      console.error('[reminders] unclaimed alert error:', e)
+    }
+  }
+
+  return NextResponse.json({ date: tomorrow, checked: shifts.length, reminded, unclaimed: openShifts.length })
 }

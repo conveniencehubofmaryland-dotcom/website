@@ -195,6 +195,43 @@ export async function POST(request: NextRequest) {
       console.error('[shifts] Error sending admin email:', emailError)
     }
 
+    // 8. Email to the customer (only if the booking has an email on file)
+    if (appointment.email) {
+      try {
+        const firstName = (applicant.full_name || '').split(' ')[0] || 'our team member'
+        const customerFirst = (appointment.customer_name || '').split(' ')[0] || 'there'
+        const customerRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
+            reply_to: ['conveniencehubofmaryland@gmail.com'],
+            to: [appointment.email],
+            subject: `Your team member for ${shiftDate}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #E8192C;">Your Service Is Scheduled</h2>
+                <p>Hi ${customerFirst}, ${firstName} has been assigned to your appointment.</p>
+                <table style="border-collapse: collapse; font-size: 14px; margin: 16px 0;">
+                  <tr><td style="padding: 6px 16px 6px 0; color: #666;">Date</td><td style="font-weight: 600;">${shiftDate}</td></tr>
+                  <tr><td style="padding: 6px 16px 6px 0; color: #666;">Time</td><td style="font-weight: 600;">${shift.start_time} - ${shift.end_time}</td></tr>
+                </table>
+                <p style="font-size: 14px; color: #555;">Questions? Call or text <a href="tel:+12025792944" style="color: #E8192C;">202-579-2944</a></p>
+              </div>
+            `,
+          }),
+        })
+        if (!customerRes.ok) {
+          console.error('[shifts] Customer email failed:', await customerRes.text())
+        }
+      } catch (emailError) {
+        console.error('[shifts] Error sending customer email:', emailError)
+      }
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[shifts] Error claiming shift:', error)

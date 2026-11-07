@@ -589,6 +589,10 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
             <p className="text-chm-red text-sm">{errorMsg}</p>
           )}
 
+          <p className="text-xs text-gray-500 leading-relaxed">
+            <strong>Cancellation policy:</strong> Please give at least 24 hours&apos; notice to cancel or reschedule. Late cancellations are charged $50 or 50% of the service value, whichever applies.
+          </p>
+
           <div className="flex gap-3 pt-2">
             <button
               type="button"

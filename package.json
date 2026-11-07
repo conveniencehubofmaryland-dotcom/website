@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:shifts": "npx --yes tsx scripts/shift-rules.test.ts",
     "build:worker": "opennextjs-cloudflare build && cp -r .open-next/assets/. .open-next/ && node scripts/create-assets-worker.mjs"
   },
   "dependencies": {

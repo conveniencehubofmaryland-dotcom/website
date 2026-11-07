@@ -68,17 +68,6 @@ export default async function AdminAnalyticsPage() {
     }
   })
 
-  const merged = progress
-    .map(p => {
-      const moduleData = modules.find(m => m.id === p.module_id)
-      return { ...p, module_title: moduleData?.title || 'Unknown Module' }
-    })
-    .sort((a, b) => {
-      const aDate = a.completed_at ? new Date(a.completed_at).getTime() : 0
-      const bDate = b.completed_at ? new Date(b.completed_at).getTime() : 0
-      return bDate - aDate
-    })
-
   return (
     <div>
       <div className="mb-8">
