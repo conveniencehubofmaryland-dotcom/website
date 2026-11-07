@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { computeQuote, type Selections } from '@/lib/quote-pricing'
 
 const SITE = 'https://conveniencehubofmaryland.com'
+const DEPOSIT_RATE = 0.3
 
-// Creates a Clover hosted checkout for an exact amount and returns its payment page address.
+// Creates a Clover hosted checkout. The amount is calculated here from the quote details,
+// never taken from the browser.
 // Requires these hosting settings: CLOVER_MERCHANT_ID, CLOVER_PRIVATE_KEY, CLOVER_API_BASE.
 export async function POST(request: NextRequest) {
   const merchantId = process.env.CLOVER_MERCHANT_ID
@@ -16,22 +19,32 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let body: { amount?: unknown; label?: unknown }
+  let body: { kind?: unknown; category?: unknown; selections?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
-  const amount = Number(body.amount)
-  if (!Number.isFinite(amount) || amount < 1 || amount > 20000) {
-    return NextResponse.json({ error: 'Invalid payment amount.' }, { status: 400 })
+  const kind = body.kind === 'deposit' ? 'deposit' : body.kind === 'full' ? 'full' : null
+  const category = typeof body.category === 'string' ? body.category : ''
+  const selections = (body.selections && typeof body.selections === 'object' ? body.selections : {}) as Selections
+  if (!kind || !category) {
+    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
+
+  const quote = computeQuote(category, selections)
+  if (quote.total === null || quote.total < 1) {
+    return NextResponse.json(
+      { error: 'This quote needs a personal review. Please call 202-579-2944 to pay.' },
+      { status: 400 }
+    )
+  }
+
+  const total = Math.round(quote.total * 100) / 100
+  const amount = kind === 'deposit' ? Math.round(total * DEPOSIT_RATE * 100) / 100 : total
   const cents = Math.round(amount * 100)
-  const label =
-    typeof body.label === 'string' && body.label.trim()
-      ? body.label.trim().slice(0, 100)
-      : 'Convenience Hub of Maryland service'
+  const label = kind === 'deposit' ? 'Booking deposit' : 'Booking payment in full'
 
   try {
     const res = await fetch(`${apiBase.replace(/\/$/, '')}/invoicingcheckoutservice/v1/checkouts`, {
@@ -61,7 +74,7 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       )
     }
-    return NextResponse.json({ url: data.href })
+    return NextResponse.json({ url: data.href, amount })
   } catch (e) {
     console.error('[clover] error:', e)
     return NextResponse.json(
