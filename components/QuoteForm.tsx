@@ -8,7 +8,7 @@ import BundleModal from './BundleModal'
 type Category = 'cleaning' | 'laundry' | 'mealprep' | 'nanny' | 'eldercare' | 'commercial' | 'special' | ''
 type LineItem = { label: string; amount: number }
 
-import { startCloverCheckout } from '@/lib/clover'
+import { startCloverCheckout, CLOVER_FALLBACK_LINK } from '@/lib/clover'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -202,7 +202,7 @@ export default function QuoteForm() {
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Spot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.deposit?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">30% deposit due to book</p>
-              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('deposit', category, sel, contact) } catch (err) { alert(err instanceof Error ? err.message : 'Could not start payment.') } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('deposit', category, sel, contact) } catch (err) { alert(`${err instanceof Error ? err.message : 'Could not start payment.'}\n\nYou can pay on the Clover page that is opening now. Enter $${Number(result.deposit).toFixed(2)} as the amount.`); window.open(CLOVER_FALLBACK_LINK, '_blank') } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
                 Pay Deposit via Clover
               </button>
               <p className="text-xs text-gray-400 mt-3">

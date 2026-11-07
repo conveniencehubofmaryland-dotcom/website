@@ -1,3 +1,6 @@
+// Your existing Clover payment page, used as a backup if automatic checkout fails.
+export const CLOVER_FALLBACK_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
+
 // Starts a Clover hosted checkout. The server works out the exact amount from the quote details.
 export async function startCloverCheckout(
   kind: 'deposit' | 'full',

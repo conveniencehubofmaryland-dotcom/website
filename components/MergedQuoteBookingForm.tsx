@@ -10,7 +10,7 @@ type LineItem = { label: string; amount: number }
 type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
 type QuoteStep = 'quote-preview' | 'booking' | null
 
-import { startCloverCheckout } from '@/lib/clover'
+import { startCloverCheckout, CLOVER_FALLBACK_LINK } from '@/lib/clover'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -385,7 +385,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Slot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.total?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">Full payment of the total is required to secure your slot.</p>
-              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('full', isBundle ? `bundle-${sel.bundleId}` : category, sel, contact) } catch (err) { alert(err instanceof Error ? err.message : 'Could not start payment.') } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout('full', isBundle ? `bundle-${sel.bundleId}` : category, sel, contact) } catch (err) { alert(`${err instanceof Error ? err.message : 'Could not start payment.'}\n\nYou can pay on the Clover page that is opening now. Enter $${Number(result.total).toFixed(2)} as the amount.`); window.open(CLOVER_FALLBACK_LINK, '_blank') } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
                 Pay ${result.total?.toFixed(2)} in Full via Clover
               </button>
               <p className="text-xs text-gray-400 mt-3">
