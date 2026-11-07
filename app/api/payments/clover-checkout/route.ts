@@ -75,11 +75,17 @@ export async function POST(request: NextRequest) {
         },
       }),
     })
-    const data = await res.json().catch(() => null)
+    const raw = await res.text()
+    let data: { href?: string } | null = null
+    try {
+      data = JSON.parse(raw)
+    } catch {
+      data = null
+    }
     if (!res.ok || !data?.href) {
-      console.error('[clover] checkout failed:', res.status, JSON.stringify(data))
+      console.error('[clover] checkout failed:', res.status, raw.slice(0, 500))
       return NextResponse.json(
-        { error: 'Could not start payment. Please call 202-579-2944.' },
+        { error: `Could not start payment. Clover replied ${res.status}: ${raw.slice(0, 300)}` },
         { status: 502 }
       )
     }
