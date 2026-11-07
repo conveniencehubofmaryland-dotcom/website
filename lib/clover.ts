@@ -2,12 +2,13 @@
 export async function startCloverCheckout(
   kind: 'deposit' | 'full',
   category: string,
-  selections: Record<string, unknown>
+  selections: Record<string, unknown>,
+  contact: { name?: string; email?: string }
 ): Promise<string> {
   const res = await fetch('/api/payments/clover-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kind, category, selections }),
+    body: JSON.stringify({ kind, category, selections, name: contact.name, email: contact.email }),
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok || !data.url) {

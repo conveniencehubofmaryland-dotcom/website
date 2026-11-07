@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let body: { kind?: unknown; category?: unknown; selections?: unknown }
+  let body: { kind?: unknown; category?: unknown; selections?: unknown; name?: unknown; email?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -46,6 +46,15 @@ export async function POST(request: NextRequest) {
   const cents = Math.round(amount * 100)
   const label = kind === 'deposit' ? 'Booking deposit' : 'Booking payment in full'
 
+  // Clover needs at least a first/last name or an email for the checkout.
+  const fullName = typeof body.name === 'string' ? body.name.trim() : ''
+  const email = typeof body.email === 'string' ? body.email.trim() : ''
+  const nameParts = fullName.split(/\s+/).filter(Boolean)
+  const customer: Record<string, string> = {}
+  if (nameParts[0]) customer.firstName = nameParts[0]
+  if (nameParts.length > 1) customer.lastName = nameParts.slice(1).join(' ')
+  if (email) customer.email = email
+
   try {
     const res = await fetch(`${apiBase.replace(/\/$/, '')}/invoicingcheckoutservice/v1/checkouts`, {
       method: 'POST',
@@ -56,7 +65,7 @@ export async function POST(request: NextRequest) {
         authorization: `Bearer ${privateKey}`,
       },
       body: JSON.stringify({
-        customer: {},
+        customer,
         shoppingCart: {
           lineItems: [{ name: label, price: cents, unitQty: 1, note: 'Convenience Hub of Maryland' }],
         },
