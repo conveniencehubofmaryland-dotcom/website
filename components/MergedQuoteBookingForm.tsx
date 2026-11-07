@@ -10,7 +10,7 @@ type LineItem = { label: string; amount: number }
 type SelectionRecord = Record<string, string | number | boolean | string[] | Record<string, string>>
 type QuoteStep = 'quote-preview' | 'booking' | null
 
-const CLOVER_LINK = 'https://link.clover.com/urlshortener/m92Kg8'
+import { startCloverCheckout } from '@/lib/clover'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -385,11 +385,11 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Slot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.total?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">Full payment of the total is required to secure your slot.</p>
-              <button type="button" onClick={() => window.open(CLOVER_LINK, '_blank')} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+              <button type="button" onClick={async () => { try { window.location.href = await startCloverCheckout(Number(result.total), 'Booking payment in full') } catch (err) { alert(err instanceof Error ? err.message : 'Could not start payment.') } }} className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
                 Pay ${result.total?.toFixed(2)} in Full via Clover
               </button>
               <p className="text-xs text-gray-400 mt-3">
-                Enter <strong>${result.total?.toFixed(2)}</strong> on the Clover page.
+                You&apos;ll be taken to a secure Clover payment page with <strong>${result.total?.toFixed(2)}</strong> already filled in.
               </p>
             </div>
 
