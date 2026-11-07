@@ -78,3 +78,25 @@ export const PAY_STRUCTURE: Record<string, PositionPayStructure> = {
 }
 
 export const POSITION_LIST = Object.keys(PAY_STRUCTURE)
+
+// Commercial Cleaner pay is a share of the monthly contract value, not an hourly rate.
+// Kept separate from PAY_STRUCTURE so it does not appear in offer letters as an hourly role.
+// Each range includes its lower amount and excludes its upper amount.
+export const COMMERCIAL_CLEANER_SHARE_TIERS = [
+  { min: 500, max: 1000, contractorShare: 0.8 },
+  { min: 1000, max: 3000, contractorShare: 0.75 },
+  { min: 3000, max: 7500, contractorShare: 0.7 },
+  { min: 7500, max: Infinity, contractorShare: 0.65 },
+]
+
+// Returns the contractor's share (0–1) for a monthly contract amount, or null below $500.
+export function commercialContractorShare(monthlyContract: number): number | null {
+  const tier = COMMERCIAL_CLEANER_SHARE_TIERS.find(t => monthlyContract >= t.min && monthlyContract < t.max)
+  return tier ? tier.contractorShare : null
+}
+
+// Contractor amount for a monthly contract, rounded to cents.
+export function commercialContractorPay(monthlyContract: number): number | null {
+  const share = commercialContractorShare(monthlyContract)
+  return share === null ? null : Math.round(monthlyContract * share * 100) / 100
+}
