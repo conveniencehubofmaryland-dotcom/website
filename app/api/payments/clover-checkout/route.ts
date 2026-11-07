@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal.timeout(15000),
     })
     const raw = await res.text()
-    let data: { href?: string } | null = null
+    let data: { href?: string; checkoutSessionId?: string } | null = null
     try {
       data = JSON.parse(raw)
     } catch {
@@ -90,7 +90,13 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       )
     }
-    return NextResponse.json({ url: data.href, amount })
+    // Clover's href is a reference ID, not a full web address. The payment page lives at
+    // https://www.clover.com/checkout/<checkoutSessionId>, so build the full address from that.
+    const href = data.href as string
+    const url = /^https?:\/\//.test(href)
+      ? href
+      : `https://www.clover.com/checkout/${data.checkoutSessionId ?? href}`
+    return NextResponse.json({ url, amount })
   } catch (e) {
     const reason = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
     console.error('[clover] error:', reason)
