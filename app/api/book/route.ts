@@ -112,6 +112,29 @@ async function notifyOwner(booking: {
   }
 }
 
+// Confirms a card charge with Clover before the booking is marked paid.
+async function verifyCloverCharge(chargeId: string): Promise<{ amount: number } | null> {
+  const privateKey = process.env.CLOVER_PRIVATE_KEY
+  const apiBase = process.env.CLOVER_API_BASE
+  if (!privateKey || !apiBase || !/^[A-Za-z0-9_-]+$/.test(chargeId)) return null
+  try {
+    const res = await fetch(`${apiBase.replace(/\/$/, '')}/v1/charges/${chargeId}`, {
+      headers: { accept: 'application/json', authorization: `Bearer ${privateKey}` },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (data?.id !== chargeId) return null
+    if (['failed', 'declined', 'refunded', 'voided'].includes(data.status)) return null
+    const cents = Number(data.amount)
+    if (!Number.isFinite(cents) || cents <= 0) return null
+    return { amount: Math.round(cents) / 100 }
+  } catch (e) {
+    console.error('[book] Clover verify error:', e)
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const {
@@ -170,6 +193,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Card payment taken on the website, confirmed with Clover before it is recorded
+  const paymentChargeId = typeof body.payment_charge_id === 'string' ? body.payment_charge_id : ''
+  const verifiedPayment = paymentChargeId ? await verifyCloverCharge(paymentChargeId) : null
+  const paymentFields: Record<string, unknown> = verifiedPayment
+    ? { paid: true, paid_at: new Date().toISOString(), amount_paid: verifiedPayment.amount }
+    : {}
+  const paymentNote = verifiedPayment
+    ? `Card paid on website: $${verifiedPayment.amount.toFixed(2)} (Clover charge ${paymentChargeId})`
+    : ''
+
   const { error } = await dbInsert('appointments', {
     customer_name:    customer_name.trim(),
     phone:            phone.trim(),
@@ -179,7 +212,8 @@ export async function POST(req: NextRequest) {
     service_id: resolvedServiceId,
     appointment_date,
     time_slot,
-    notes:            notes?.trim() || null,
+    notes:            [notes?.trim(), paymentNote].filter(Boolean).join('\n') || null,
+    ...paymentFields,
     status:           'pending',
     invoice_screenshot_url: invoiceUrl,
     quoted_total:     typeof quoted_total === 'number' ? quoted_total : null,

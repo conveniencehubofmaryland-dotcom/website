@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { CLOVER_FALLBACK_LINK, CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL } from '@/lib/clover'
+import { CLOVER_FALLBACK_LINK, CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL, saveCloverCharge } from '@/lib/clover'
 
 type Props = {
   kind: 'deposit' | 'full'
@@ -93,6 +93,7 @@ export default function CloverCardForm({ kind, amount, category, selections, con
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Payment could not be completed.')
       }
+      saveCloverCharge(data.chargeId, Number(data.amount))
       setDone(`Payment of $${Number(data.amount).toFixed(2)} received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Payment could not be completed.')

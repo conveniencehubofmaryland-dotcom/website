@@ -11,6 +11,7 @@ type SelectionRecord = Record<string, string | number | boolean | string[] | Rec
 type QuoteStep = 'quote-preview' | 'booking' | null
 
 import CloverCardForm from './CloverCardForm'
+import { getSavedCloverCharge } from '@/lib/clover'
 
 const SERVICE_MAP: Record<string, string> = {
   cleaning: 'cleaning',
@@ -281,6 +282,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         invoice_filename,
         invoice_type,
         quoted_total: result.total ?? null,
+        payment_charge_id: getSavedCloverCharge(),
       }
 
       const res = await fetch('/api/book', {
