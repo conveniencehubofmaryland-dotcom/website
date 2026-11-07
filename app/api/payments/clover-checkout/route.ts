@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
           failure: `${SITE}/book`,
         },
       }),
+      signal: AbortSignal.timeout(15000),
     })
     const raw = await res.text()
     let data: { href?: string } | null = null
@@ -91,9 +92,10 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ url: data.href, amount })
   } catch (e) {
-    console.error('[clover] error:', e)
+    const reason = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
+    console.error('[clover] error:', reason)
     return NextResponse.json(
-      { error: 'Could not start payment. Please call 202-579-2944.' },
+      { error: `Could not start payment. Reason: ${reason.slice(0, 300)}` },
       { status: 502 }
     )
   }
