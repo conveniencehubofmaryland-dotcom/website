@@ -34,15 +34,15 @@ export default function ReferralProgram() {
               </h3>
 
               <div className="mb-8">
-                <p className="text-5xl md:text-6xl font-bold text-chm-red mb-2">15%</p>
-                <p className="text-chm-black font-semibold mb-4">Off Your First Cleaning or Laundry Service</p>
+                <p className="text-5xl md:text-6xl font-bold text-chm-red mb-2">3%</p>
+                <p className="text-chm-black font-semibold mb-4">Off Your First Service</p>
                 <div className="w-8 h-px bg-chm-red mb-6" />
               </div>
 
               <ul className="space-y-3 mb-8 text-sm text-gray-700">
                 <li className="flex items-start gap-3">
                   <span className="text-chm-red font-bold mt-0.5">✓</span>
-                  <span>15% off first laundry or cleaning service (10% on other services)</span>
+                  <span>3% off your first service, applied on your quote</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-chm-red font-bold mt-0.5">✓</span>

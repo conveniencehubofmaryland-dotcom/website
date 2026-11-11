@@ -13,7 +13,7 @@ const MOVEINOUT: Record<string, { good: number; poor: number }> = {
   '5br': { good: 1140, poor: 1620 },
 }
 const FREQUENCY_DISCOUNT: Record<string, number> = {
-  onetime: 0, monthly: 0.10, biweekly: 0.10, weekly: 0.15, twiceweekly: 0.15,
+  onetime: 0, monthly: 0.03, biweekly: 0.03, weekly: 0.05, twiceweekly: 0.05,
 }
 const PET_FEE: Record<string, number> = { '0': 0, '1': 33, '2': 60, '3+': 96 }
 const ADDON_PRICES: Record<string, number> = {

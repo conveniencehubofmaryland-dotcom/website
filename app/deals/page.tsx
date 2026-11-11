@@ -5,6 +5,7 @@ import ReferralProgram from '@/components/ReferralProgram'
 import MembershipSignupForm from '@/components/MembershipSignupForm'
 import { dbSelect } from '@/lib/db'
 import type { Deal } from '@/lib/types'
+import { BUNDLES, formatPrice } from '@/lib/bundles'
 
 export const metadata: Metadata = {
   title: 'Deals, Bundles & Membership | Convenience Hub of Maryland',
@@ -14,81 +15,27 @@ export const metadata: Metadata = {
 const PERKS = [
   { icon: '★', title: 'Priority Booking',    desc: 'First access to available time slots before the general public.' },
   { icon: '◆', title: 'Exclusive Deals',     desc: 'Member-only weekly deals and promotions on all services.' },
-  { icon: '↻', title: 'Recurring Discounts', desc: '2% off all recurring service bookings for active members.' },
+  { icon: '↻', title: 'Recurring Discounts', desc: 'Recurring plans get the discount shown on your quote.' },
   { icon: '✓', title: 'Free Signup',         desc: 'No cost to join — membership is completely free.' },
 ]
 
 const PREMIUM_PERKS = [
-  '15% discount on all services',
   'Priority scheduling',
   'Free upgrade services (quarterly)',
   'Dedicated customer service line',
   'Quarterly loyalty bonus ($20 credit)',
 ]
 
-const RESIDENTIAL_BUNDLES = [
-  {
-    name: 'The Essentials Bundle',
-    includes: 'Weekly Standard Cleaning + Bi-Weekly Laundry',
-    regular: '~$1,500/month',
-    bundle: '$1,200/month',
-    save: '20%'
-  },
-  {
-    name: 'The Comfort Bundle',
-    includes: 'Bi-Weekly Cleaning + Weekly Meal Prep + Monthly Organization',
-    regular: '~$3,000/month',
-    bundle: '$2,700/month',
-    save: '10%'
-  },
-  {
-    name: 'The Luxury Bundle',
-    includes: 'Weekly Cleaning + Bi-Weekly Laundry + 3x/Week Meal Prep + Bi-Weekly Nanny + Monthly Organization',
-    regular: '~$6,000/month',
-    bundle: '$5,400/month',
-    save: '10%'
-  },
-  {
-    name: 'Family Care Bundle',
-    subtitle: 'With Children',
-    includes: 'Weekly Cleaning + Bi-Weekly Childcare (16 hrs) + Weekly Meal Prep + Monthly Organization',
-    regular: '~$4,500/month',
-    bundle: '$4,050/month',
-    save: '10%'
-  },
-  {
-    name: 'Senior Care Bundle',
-    subtitle: 'Elderly Parent',
-    includes: 'Weekly Cleaning + 20 hrs/week Companion Care + Weekly Meal Prep + Monthly Organization',
-    regular: '~$5,000/month',
-    bundle: '$4,500/month',
-    save: '10%'
-  }
-]
+const toBundleCard = (b: (typeof BUNDLES)[number]) => ({
+  name: b.name,
+  subtitle: '',
+  includes: b.description,
+  bundle: formatPrice(b.price),
+  save: `${b.savingsPercent}%`,
+})
 
-const COMMERCIAL_BUNDLES = [
-  {
-    name: 'Small Office Complete',
-    includes: '3x/week Janitorial + Weekly Window Cleaning + Monthly Floor Maintenance',
-    regular: '~$3,000/month',
-    bundle: '$2,700/month',
-    save: '10%'
-  },
-  {
-    name: 'Medium Office Premium',
-    includes: '5x/week Janitorial + 2x/week Windows + 2x/month Deep Clean + Monthly Floor Maintenance',
-    regular: '~$5,000/month',
-    bundle: '$4,500/month',
-    save: '10%'
-  },
-  {
-    name: 'Enterprise Comprehensive',
-    includes: 'Daily Janitorial + Weekly Specialized Services + Monthly Floor Care + Quarterly Deep Clean',
-    regular: 'Custom quote',
-    bundle: 'Custom quote',
-    save: '20%'
-  }
-]
+const RESIDENTIAL_BUNDLES = BUNDLES.filter(b => b.category !== 'commercial').map(toBundleCard)
+const COMMERCIAL_BUNDLES = BUNDLES.filter(b => b.category === 'commercial').map(toBundleCard)
 
 export default async function DealsPage() {
   const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
@@ -157,7 +104,6 @@ export default async function DealsPage() {
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>Priority booking access</li>
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>Member-only weekly deals</li>
-                <li className="flex gap-3"><span className="text-chm-red">✓</span>2% off all recurring services</li>
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>No fees, cancel anytime</li>
               </ul>
             </div>
@@ -218,7 +164,6 @@ export default async function DealsPage() {
                       )}
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">{bundle.includes}</p>
                       <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                        <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
                         <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
                       </div>
                     </div>
@@ -253,7 +198,6 @@ export default async function DealsPage() {
                       </h3>
                       <p className="text-gray-600 text-sm leading-relaxed mb-4">{bundle.includes}</p>
                       <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                        <span className="text-gray-500">Regular: <span className="text-gray-700 font-medium">{bundle.regular}</span></span>
                         <span className="text-chm-black">Bundle: <span className="font-semibold">{bundle.bundle}</span></span>
                       </div>
                     </div>
@@ -279,16 +223,7 @@ export default async function DealsPage() {
                 Earn $20 Credit
               </h3>
               <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                You earn $20 credit per qualified referral. Your friend gets 10% off their first service. Unlimited referrals, no cap.
-              </p>
-            </div>
-            <div className="bg-white p-8">
-              <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Military Discount</p>
-              <h3 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
-                15% OFF All Services
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                We proudly offer 15% discount across board for all active duty and veterans. Military ID required.
+                You earn $20 credit per qualified referral. Your friend gets 3% off their first service. Unlimited referrals, no cap.
               </p>
             </div>
           </div>
