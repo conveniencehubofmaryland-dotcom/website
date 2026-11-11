@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { svcInsert, sendEmail } from '@/lib/realtor'
+import { dbInsert } from '@/lib/db'
+import { sendEmail } from '@/lib/realtor'
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
@@ -10,8 +11,8 @@ export async function POST(req: NextRequest) {
   if (!name || !email || !phone) {
     return NextResponse.json({ error: 'Please enter your name, email and phone.' }, { status: 400 })
   }
-  const res = await svcInsert('realtors', { name, email, phone, brokerage: brokerage || null, approved: false })
-  if (!res.ok) {
+  const res = await dbInsert('realtors', { name, email, phone, brokerage: brokerage || null, approved: false })
+  if (res.error) {
     if (res.error.includes('23505') || res.error.toLowerCase().includes('duplicate')) {
       return NextResponse.json({ error: 'This email is already registered. Use "Sign in" to get your code.' }, { status: 409 })
     }
