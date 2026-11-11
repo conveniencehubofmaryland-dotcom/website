@@ -71,6 +71,10 @@ export type Appointment = {
   notes: string | null
   created_at: string
   services?: Pick<Service, 'id' | 'title' | 'slug'>
+  paid?: boolean | null
+  amount_paid?: number | null
+  payment_charge_id?: string | null
+  refund_id?: string | null
 }
 
 export type Member = {

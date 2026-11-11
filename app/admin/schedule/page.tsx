@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { dbSelectAuth } from '@/lib/db'
 import type { Appointment } from '@/lib/types'
 import AppointmentStatusButton from '@/components/AppointmentStatusButton'
+import RefundButton from '@/components/RefundButton'
 import ShiftsSection from '@/components/ShiftsSection'
 import PayrollSection from '@/components/PayrollSection'
 
@@ -112,6 +113,9 @@ export default async function AdminSchedulePage({
                     </td>
                     <td className="py-3 px-4">
                       <AppointmentStatusButton appointment={a} />
+                      {a.paid && a.amount_paid ? (
+                        <RefundButton appointmentId={a.id} amount={Number(a.amount_paid)} refunded={!!a.refund_id} />
+                      ) : null}
                     </td>
                   </tr>
                 ))}

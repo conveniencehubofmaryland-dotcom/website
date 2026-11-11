@@ -206,7 +206,7 @@ export async function POST(req: NextRequest) {
   const paymentChargeId = typeof body.payment_charge_id === 'string' ? body.payment_charge_id : ''
   const verifiedPayment = paymentChargeId ? await verifyCloverCharge(paymentChargeId) : null
   const paymentFields: Record<string, unknown> = verifiedPayment
-    ? { paid: true, paid_at: new Date().toISOString(), amount_paid: verifiedPayment.amount }
+    ? { paid: true, paid_at: new Date().toISOString(), amount_paid: verifiedPayment.amount, payment_charge_id: paymentChargeId }
     : {}
   const paymentNote = verifiedPayment
     ? `Card paid on website: $${verifiedPayment.amount.toFixed(2)} (Clover charge ${paymentChargeId})`
