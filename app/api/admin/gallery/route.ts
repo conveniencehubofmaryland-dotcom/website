@@ -94,7 +94,7 @@ export async function DELETE(req: NextRequest) {
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/gallery_items?id=eq.${id}`, {
     method: 'DELETE',
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+    headers: { apikey: SERVICE_KEY, ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}) },
   })
 
   if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: 500 })
