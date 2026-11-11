@@ -56,11 +56,10 @@ export default function BookingCalendar({ value, onChange, min, max, onSundayAtt
 
   function isDisabled(day: number) {
     const str = dateStr(day)
-    return isSunday(day) || str < min || str > max
+    return str < min || str > max
   }
 
   function handleClick(day: number) {
-    if (isSunday(day)) { onSundayAttempt?.(); return }
     if (!isDisabled(day)) onChange(dateStr(day))
   }
 
@@ -137,7 +136,7 @@ export default function BookingCalendar({ value, onChange, min, max, onSundayAtt
 
       {/* Legend */}
       <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-        <span>Closed Sundays</span>
+        <span>Sundays 9 AM–9 PM</span>
         {value
           ? <span className="text-chm-red font-semibold">{value}</span>
           : <span>Select a date</span>

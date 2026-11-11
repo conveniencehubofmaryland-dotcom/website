@@ -147,13 +147,13 @@ Important First-Week Tasks
 HR & Administration
 - Email: conveniencehubofmaryland@gmail.com
 - Phone: 202-579-2944
-- Hours: Monday–Saturday, 9 AM–9 PM
+- Hours: Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM
 
 Your Direct Supervisor
 - Will be provided on your first day
 
 Emergency Support
-- 202-579-2944 (Mon–Sat, 9 AM–9 PM)
+- 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM)
 
 7. MEMORANDUM OF UNDERSTANDING: CLIENT NON-SOLICITATION & CONFIDENTIALITY AGREEMENT
 
@@ -369,7 +369,7 @@ export default function OrientationPage() {
           </button>
 
           <p className="text-xs text-gray-400 text-center">
-            Questions? Call us at 202-579-2944 (Mon–Sat, 9 AM–9 PM)
+            Questions? Call us at 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM)
           </p>
         </form>
       </div>

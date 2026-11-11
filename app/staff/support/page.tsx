@@ -34,7 +34,7 @@ export default function SupportPage() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1">Hours</p>
-                <p className="text-sm text-gray-700">Monday–Saturday, 9 AM–9 PM</p>
+                <p className="text-sm text-gray-700">Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM</p>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function SupportPage() {
         {/* Next Steps */}
         <div className="bg-chm-red/10 border border-chm-red/20 rounded-lg p-8 text-center">
           <p className="text-sm text-gray-600 mb-4">Need more help?</p>
-          <p className="text-lg font-semibold text-chm-black mb-6">Our HR team is ready to assist Monday–Saturday, 9 AM–9 PM.</p>
+          <p className="text-lg font-semibold text-chm-black mb-6">Our HR team is ready to assist Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="mailto:conveniencehubofmaryland@gmail.com" className="inline-block bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors rounded">
               Email Support

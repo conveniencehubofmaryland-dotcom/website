@@ -8,7 +8,7 @@ const SERVICES = [
     id: 'laundry', slug: 'laundry', sort_order: 1, active: true,
     title: 'Premium Laundry Pickup & Delivery',
     subtitle: 'Pickup · Wash · Dry · Fold · Deliver',
-    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 9 AM–9 PM. 10 lb minimum order.',
+    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM. 10 lb minimum order.',
     price_from: 'From $3.99/lb',
     pricing_details: [
       { section: 'Regular Service (1–3 Day Delivery)', label: 'Colors',           price: '$3.99', unit: '/lb' },

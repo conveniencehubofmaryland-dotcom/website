@@ -87,7 +87,7 @@ export async function PATCH(req: NextRequest) {
         <li>Shift confirmations will be sent via email</li>
         <li>Check the portal regularly for new shift opportunities</li>
       </ul>
-      <p>Welcome to the team! If you have any questions, contact us at 202-579-2944 (Mon–Sat, 9 AM–9 PM).</p>
+      <p>Welcome to the team! If you have any questions, contact us at 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).</p>
       <p>Convenience Hub of Maryland<br/>202-579-2944</p>
     `
 

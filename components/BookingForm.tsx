@@ -138,7 +138,7 @@ export default function BookingForm({ services, initial }: Props) {
         <p className="text-gray-500 text-sm max-w-md mx-auto leading-relaxed mb-8">
           Thank you, <strong>{form.customer_name}</strong>. Your request has been received and is pending review.
           Once confirmed by our team, you will receive a confirmation email{form.email ? ` at ${form.email}` : ''}.
-          For time-sensitive inquiries, please call or text us at <strong>202-579-2944</strong> (Mon–Sat, 9 AM–9 PM).
+          For time-sensitive inquiries, please call or text us at <strong>202-579-2944</strong> (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).
         </p>
         <Link href="/" className="text-chm-red text-xs font-semibold uppercase tracking-widest hover:underline underline-offset-4">
           ← Back to Home
@@ -342,7 +342,7 @@ export default function BookingForm({ services, initial }: Props) {
       </button>
 
       <p className="text-xs text-gray-400 text-center leading-relaxed">
-        Mon–Sat 9 AM–9 PM &nbsp;·&nbsp; Closed Sundays &nbsp;·&nbsp; 202-579-2944
+        Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM &nbsp;·&nbsp; Sundays 9 AM–9 PM &nbsp;·&nbsp; 202-579-2944
       </p>
     </form>
   )

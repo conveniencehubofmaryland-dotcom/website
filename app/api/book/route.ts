@@ -45,7 +45,7 @@ async function confirmCustomer(booking: {
             </div>
             <div style="padding:32px;background:#fff;border:1px solid #eee">
               <p style="font-size:15px;color:#333">Hi ${booking.customer_name},</p>
-              <p style="font-size:14px;color:#555">We received your booking and will confirm within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).</p>
+              <p style="font-size:14px;color:#555">We received your booking and will confirm within 1 hour during business hours (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).</p>
               <p style="font-size:14px;color:#555">Your slot is secured once full payment of your total is confirmed. After payment is confirmed, service is offered within <strong>6 to 72 hours</strong>. Need service sooner? Call <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a> to arrange it with our customer service team, who will confirm whether an earlier time is possible.</p>
               <table style="border-collapse:collapse;font-size:14px;width:100%;margin:20px 0">
                 <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 0;color:#888;width:140px">Service</td><td style="color:#222;font-weight:600">${booking.service_title}</td></tr>
@@ -275,7 +275,7 @@ export async function POST(req: NextRequest) {
     }) : Promise.resolve(),
     sendSms(
       phone.trim(),
-      `Hi ${customer_name.trim()}, we received your booking for ${title} on ${appointment_date} at ${time_slot}. We'll confirm within 1 hour (Mon-Sat 9AM-9PM). Questions? Call 202-579-2944.`
+      `Hi ${customer_name.trim()}, we received your booking for ${title} on ${appointment_date} at ${time_slot}. We'll confirm within 1 hour (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM). Questions? Call 202-579-2944.`
     ),
     sendAdminSMS(
       `NEW BOOKING\nService: ${title}\nDate: ${appointment_date} at ${time_slot}\nAddress: ${address.trim()}\nLocation: ${stateLabel}\nCustomer: ${customer_name.trim()}\nPhone: ${phone.trim()}\nAdmin: conveniencehubofmaryland.com/admin/appointments`

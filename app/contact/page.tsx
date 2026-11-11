@@ -88,6 +88,8 @@ export default function ContactPage() {
             <p className="font-serif text-3xl text-chm-black mb-1" style={{ fontFamily: 'var(--font-serif)' }}>
               Monday – Saturday
             </p>
+            <p className="text-chm-red font-semibold text-xl">7:00 AM – 11:00 PM</p>
+            <p className="font-serif text-2xl text-chm-black mt-4 mb-1" style={{ fontFamily: 'var(--font-serif)' }}>Sunday</p>
             <p className="text-chm-red font-semibold text-xl">9:00 AM – 9:00 PM</p>
             <p className="text-gray-400 text-sm mt-3 tracking-wide">Maryland • Virginia • Washington D.C.</p>
           </div>
@@ -133,7 +135,7 @@ export default function ContactPage() {
               <div className="text-center py-12">
                 <div className="w-12 h-px bg-chm-red mx-auto mb-6" />
                 <p className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>Message Sent</p>
-                <p className="text-gray-500 text-sm max-w-sm mx-auto">We&apos;ll get back to you within 1 hour during business hours (Mon–Sat, 9 AM–9 PM).</p>
+                <p className="text-gray-500 text-sm max-w-sm mx-auto">We&apos;ll get back to you within 1 hour during business hours (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">

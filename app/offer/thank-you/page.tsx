@@ -25,7 +25,7 @@ export default function OfferThankYouPage() {
         </p>
 
         <p className="text-xs text-gray-400">
-          Questions? Call 202-579-2944<br/>Mon–Sat, 9 AM–9 PM
+          Questions? Call 202-579-2944<br/>Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM
         </p>
       </div>
     </div>

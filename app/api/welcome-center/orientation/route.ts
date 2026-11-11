@@ -48,7 +48,7 @@ export async function PATCH(req: NextRequest) {
         <li>Prepare required documents for your first day</li>
         <li>Claim your first shift when assignments become available: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Claim Shifts</a></li>
       </ul>
-      <p>If you have any questions, contact us at 202-579-2944 (Mon–Sat, 9 AM–9 PM).</p>
+      <p>If you have any questions, contact us at 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).</p>
       <p>Welcome to the CHM team!</p>
       <p>Convenience Hub of Maryland<br>202-579-2944</p>
     `

@@ -109,7 +109,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
             <div className="space-y-2 text-sm text-gray-700 mb-6">
               <p><strong>Email:</strong> conveniencehubofmaryland@gmail.com</p>
               <p><strong>Phone:</strong> 202-579-2944</p>
-              <p><strong>Hours:</strong> Monday–Saturday, 9 AM–9 PM</p>
+              <p><strong>Hours:</strong> Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM</p>
             </div>
           </div>
 

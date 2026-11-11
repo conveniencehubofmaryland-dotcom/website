@@ -92,7 +92,7 @@ export default function TrainingThankYouPage() {
             <p className="text-xs text-gray-400 mb-3">Need help?</p>
             <div className="space-y-1 text-sm text-gray-600">
               <p><strong>Email:</strong> conveniencehubofmaryland@gmail.com</p>
-              <p><strong>Phone:</strong> 202-579-2944 (Mon–Sat, 9 AM–9 PM)</p>
+              <p><strong>Phone:</strong> 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM)</p>
             </div>
           </div>
         </div>

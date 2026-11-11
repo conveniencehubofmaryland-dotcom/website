@@ -32,7 +32,7 @@ const STATIC_SERVICES: Service[] = [
     id: 'laundry', slug: 'laundry', sort_order: 1, active: true, created_at: '',
     title: 'Premium Laundry Pickup & Delivery',
     subtitle: 'Pickup · Wash · Dry · Fold · Deliver — Priced Per Pound',
-    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Monday–Saturday 8 AM–10 PM EST, Sunday by appointment. 10 lb minimum order. Free pickup and delivery.',
+    description: 'We pick up, wash, dry, fold, and deliver directly to your doorstep. Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM. 10 lb minimum order. Free pickup and delivery.',
     price_from: 'From $4.59/lb',
     pricing_details: [
       { section: 'Standard Service (5–7 Business Day Turnaround)', label: 'Colors', price: '$4.59', unit: '/lb' },
@@ -325,7 +325,7 @@ export default async function ServicesPage() {
               </div>
               <div>
                 <p className="font-semibold text-chm-black mb-1">Service Hours</p>
-                <p>Monday–Saturday, 8 AM–10 PM EST. Sunday by appointment only.</p>
+                <p>Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM</p>
               </div>
               <div>
                 <p className="font-semibold text-chm-black mb-1">No Hidden Fees</p>
@@ -337,7 +337,7 @@ export default async function ServicesPage() {
 
         <div className="bg-cream border border-gray-100 p-5">
           <p className="text-sm text-gray-600">
-            <span className="font-semibold text-chm-black">Laundry minimum:</span> 10 lbs &nbsp;•&nbsp; Mon–Sat 8 AM–10 PM EST
+            <span className="font-semibold text-chm-black">Laundry minimum:</span> 10 lbs &nbsp;•&nbsp; Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM
           </p>
         </div>
 

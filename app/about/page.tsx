@@ -52,7 +52,7 @@ export default function AboutPage() {
               high-quality results. We are fully insured and use 100% eco-friendly, non-toxic products, giving you complete peace of mind on every visit.
             </p>
             <p>
-              We cover all areas across the DMV. Service hours: Monday–Saturday, 8 AM–10 PM EST, with Sunday by appointment.
+              We cover all areas across the DMV. Service hours: Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM
             </p>
           </div>
         </section>

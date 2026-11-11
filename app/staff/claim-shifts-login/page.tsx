@@ -95,7 +95,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-xs text-gray-400 text-center mt-6">
-            Need help? Call 202-579-2944 (Mon–Sat, 9 AM–9 PM)
+            Need help? Call 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM)
           </p>
         </div>
       </div>

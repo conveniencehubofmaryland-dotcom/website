@@ -147,6 +147,10 @@ export default async function HomePage() {
             openingHoursSpecification: [{
               '@type': 'OpeningHoursSpecification',
               dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+              opens: '07:00', closes: '23:00',
+            }, {
+              '@type': 'OpeningHoursSpecification',
+              dayOfWeek: ['Sunday'],
               opens: '09:00', closes: '21:00',
             }],
             sameAs: [
@@ -509,7 +513,7 @@ export default async function HomePage() {
                 Ready to Book?
               </h2>
               <p className="text-gray-600 text-lg">Get in Touch</p>
-              <p className="text-gray-500 text-sm mt-2">Mon – Sat · 9 AM – 9 PM</p>
+              <p className="text-gray-500 text-sm mt-2">Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM</p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-4">
