@@ -3,6 +3,7 @@ import AdminLogoutButton from '@/components/AdminLogoutButton'
 
 const adminLinks = [
   { href: '/admin/schedule', label: 'schedule' },
+  { href: '/admin/calendar', label: 'Calendar' },
   { href: '/admin/offer-letters', label: 'Offer Letters' },
   { href: '/admin/staff-records', label: 'Staff Records' },
   { href: '/admin/reviews', label: 'Reviews' },
