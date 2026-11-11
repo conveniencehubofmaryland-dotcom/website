@@ -133,9 +133,10 @@ async function fileToBase64(file: File): Promise<string> {
 
 interface MergedFormProps {
   initial?: { name: string; email: string; phone: string; serviceId: string }
+  initialCategory?: Category
 }
 
-export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) {
+export default function MergedQuoteAndBookingForm({ initial, initialCategory }: MergedFormProps) {
   const _etToday = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   const _etDow = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
   const _defaultDate = _etDow === 'Sun'
@@ -143,8 +144,8 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
     : _etToday
 
   // Quote state (Steps 1-4)
-  const [step, setStep] = useState(1)
-  const [category, setCategory] = useState<Category>('')
+  const [step, setStep] = useState(initialCategory ? 2 : 1)
+  const [category, setCategory] = useState<Category>(initialCategory ?? '')
   const [sel, setSel] = useState<SelectionRecord>({})
   const [contact, setContact] = useState({ name: initial?.name || '', email: initial?.email || '', phone: initial?.phone || '' })
   const [honeypot, setHoneypot] = useState('')

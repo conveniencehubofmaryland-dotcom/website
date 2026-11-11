@@ -6,7 +6,18 @@ export const metadata = {
   description: 'Get an instant quote and book your service with Convenience Hub.',
 }
 
-export default function BookPage() {
+// Maps the service id from the Services page to the booking form's section.
+// 'care' covers two sections, so the visitor chooses on the first screen.
+const SERVICE_TO_CATEGORY: Record<string, 'cleaning' | 'laundry' | 'mealprep' | 'commercial'> = {
+  cleaning: 'cleaning',
+  laundry: 'laundry',
+  culinary: 'mealprep',
+  commercial: 'commercial',
+}
+
+export default async function BookPage({ searchParams }: { searchParams: Promise<{ service?: string }> }) {
+  const { service } = await searchParams
+  const initialCategory = service ? SERVICE_TO_CATEGORY[service] : undefined
   const initial = {
     name: '',
     email: '',
@@ -27,7 +38,7 @@ export default function BookPage() {
 
         <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
           <Suspense fallback={<div className="text-center py-12"><p className="text-gray-600">Loading form...</p></div>}>
-            <MergedQuoteBookingForm initial={initial} />
+            <MergedQuoteBookingForm initial={initial} initialCategory={initialCategory} />
           </Suspense>
         </div>
       </div>
