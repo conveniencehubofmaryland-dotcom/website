@@ -6,22 +6,22 @@
 const URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const KEY  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-const headers = {
-  apikey: KEY,
-  Authorization: `Bearer ${KEY}`,
-  'Content-Type': 'application/json',
+// New Supabase keys (sb_publishable_... / sb_secret_...) go in the apikey header only.
+// Older JWT-style keys (eyJ...) also go in the Authorization header.
+function keyHeaders(key: string) {
+  const h: Record<string, string> = { apikey: key, 'Content-Type': 'application/json' }
+  if (key.startsWith('eyJ')) h.Authorization = `Bearer ${key}`
+  return h
 }
+
+const headers = keyHeaders(KEY)
 
 function getServiceHeaders() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const hasServiceKey = Boolean(serviceKey)
   console.log('[db] SUPABASE_SERVICE_ROLE_KEY present:', hasServiceKey)
   if (!serviceKey) return null
-  return {
-    apikey: serviceKey,
-    Authorization: `Bearer ${serviceKey}`,
-    'Content-Type': 'application/json',
-  }
+  return keyHeaders(serviceKey)
 }
 
 export async function dbSelect<T>(
