@@ -22,14 +22,10 @@ const SERVICE_MAP: Record<string, string> = {
   commercial: 'commercial',
   special: 'care',
 }
+import { slotsForDate } from '@/lib/hours'
 
 const STEP_LABELS = ['Service', 'Details', 'Review', 'Contact', 'Booking']
 
-const TIME_SLOTS = [
-  '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-  '1:00 PM',  '2:00 PM',  '3:00 PM',  '4:00 PM',
-  '5:00 PM',  '6:00 PM',  '7:00 PM',  '8:00 PM', '9:00 PM',
-]
 
 const ADVANCE_NOTICE_IDS = new Set(['cleaning', 'culinary', 'laundry'])
 
@@ -250,8 +246,8 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
       return
     }
 
-    if (new Date(bookingForm.appointment_date + 'T12:00:00').getDay() === 0) {
-      setErrorMsg('We are closed on Sundays. Please select a Monday–Saturday date.')
+    if (!slotsForDate(bookingForm.appointment_date).includes(bookingForm.time_slot)) {
+      setErrorMsg('Please choose a time within our business hours.')
       setStatus('idle')
       return
     }
@@ -522,7 +518,7 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
             </legend>
             <div>
               <label className={labelClass}>
-                Preferred Date * <span className="text-gray-400 normal-case tracking-normal">(Mon–Sat only)</span>
+                Preferred Date * <span className="text-gray-400 normal-case tracking-normal">(open 7 days a week)</span>
               </label>
               <input
                 required
@@ -531,7 +527,7 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
                 onChange={e => {
                   setErrorMsg('')
                   setBooking('appointment_date', e.target.value)
-                  if (bookingForm.time_slot && isSlotDisabled(bookingForm.time_slot, e.target.value, SERVICE_MAP[category] || '')) {
+                  if (bookingForm.time_slot && (!slotsForDate(e.target.value).includes(bookingForm.time_slot) || isSlotDisabled(bookingForm.time_slot, e.target.value, SERVICE_MAP[category] || ''))) {
                     setBooking('time_slot', '')
                   }
                 }}
@@ -549,7 +545,7 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
                 className={`${inputClass} bg-white`}
               >
                 <option value="">Select a time…</option>
-                {TIME_SLOTS.filter(t => !isSlotDisabled(t, bookingForm.appointment_date, SERVICE_MAP[category] || '')).map(t => (
+                {slotsForDate(bookingForm.appointment_date).filter(t => !isSlotDisabled(t, bookingForm.appointment_date, SERVICE_MAP[category] || '')).map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
@@ -610,7 +606,7 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
             </button>
           </div>
           <p className="text-xs text-gray-400 text-center leading-relaxed">
-            Mon–Sat 9 AM–9 PM &nbsp;·&nbsp; Closed Sundays &nbsp;·&nbsp; 202-579-2944
+            Mon–Sat 7 AM–11 PM &nbsp;·&nbsp; Sun 9 AM–9 PM &nbsp;·&nbsp; 202-579-2944
           </p>
         </form>
       </div>

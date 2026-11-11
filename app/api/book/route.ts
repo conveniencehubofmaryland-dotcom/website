@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
 import { consumeReferralCode } from '@/lib/realtor'
+import { slotsForDate } from '@/lib/hours'
 
 async function whatsappNotify(message: string) {
   const apiKey  = process.env.CALLMEBOT_API_KEY
@@ -149,6 +150,9 @@ export async function POST(req: NextRequest) {
 
   if (!customer_name?.trim() || !phone?.trim() || !address?.trim() || !state || !service_id || !appointment_date || !time_slot) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+  if (!slotsForDate(appointment_date).includes(time_slot)) {
+    return NextResponse.json({ error: 'Please choose a time within our business hours.' }, { status: 400 })
   }
 
   const VALID_STATES = ['MD', 'VA', 'DC']
