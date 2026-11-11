@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: {
           apikey: SERVICE_KEY,
-          Authorization: `Bearer ${SERVICE_KEY}`,
+          ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
           'Content-Type': beforeFile.type,
         },
         body: beforeFile,
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: {
           apikey: SERVICE_KEY,
-          Authorization: `Bearer ${SERVICE_KEY}`,
+          ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
           'Content-Type': afterFile.type,
         },
         body: afterFile,
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
+        ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
