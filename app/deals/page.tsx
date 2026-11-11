@@ -268,30 +268,6 @@ export default async function DealsPage() {
           </div>
         </AnimatedSection>
 
-        {/* First-Time Specials */}
-        <AnimatedSection>
-          <div className="bg-cream p-8 md:p-10">
-            <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">New Customers</p>
-            <h2 className="font-serif text-3xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
-              First-Time Customer Specials
-            </h2>
-            <div className="grid sm:grid-cols-3 gap-6 text-sm">
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">LAUNDRY15</p>
-                <p className="text-gray-600">15% off first laundry service</p>
-              </div>
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">CLEANING15</p>
-                <p className="text-gray-600">15% off first cleaning service (min. $150)</p>
-              </div>
-              <div className="bg-white p-6 border border-gray-100">
-                <p className="font-mono text-chm-red text-lg mb-2">WELCOME2024</p>
-                <p className="text-gray-600">10% off first service (all other services)</p>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
-
         <ReferralProgram />
 
         {/* Referral + Military */}
@@ -347,41 +323,15 @@ export default async function DealsPage() {
             </div>
 
             <div className="border-t border-gray-100 pt-10">
-              <h3 className="font-serif text-2xl text-chm-black mb-6" style={{ fontFamily: 'var(--font-serif)' }}>
+              <h3 className="font-serif text-2xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
                 Cancellation Policy
               </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 font-semibold text-chm-black">Notice</th>
-                      <th className="text-left py-3 font-semibold text-chm-black">Charge</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-gray-600">
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3">More than 48 hours</td>
-                      <td className="py-3">No charge, full refund available</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3">24–48 hours</td>
-                      <td className="py-3">50% of service price</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3">Less than 24 hours</td>
-                      <td className="py-3">100% of service price</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">No-show</td>
-                      <td className="py-3">100% charged</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Please give at least 24 hours&apos; notice to cancel or reschedule. Late cancellations are charged $50 or up to 50% of the estimated service value. No-shows are charged in full.
+              </p>
             </div>
           </div>
         </AnimatedSection>
-
         {/* Membership Signup Form */}
         <AnimatedSection>
           <div className="border-t border-chm-red/20 pt-10">

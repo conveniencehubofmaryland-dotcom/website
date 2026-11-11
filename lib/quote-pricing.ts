@@ -20,7 +20,7 @@ const ADDON_PRICES: Record<string, number> = {
   carpet: 210, windowInt: 117, windowExt: 210, appliance: 135,
   grout: 255, petOdor: 165, disinfect: 90,
 }
-const FIRST_TIME_DISCOUNT = 0.15
+const FIRST_TIME_DISCOUNT = 0.03
 
 // LAUNDRY: +15%
 const LAUNDRY_PER_LB: Record<string, number> = {
@@ -119,7 +119,7 @@ export function calcCleaning(sel: Selections): { total: number; breakdown: LineI
 
     if (serviceType === 'standard' && sel.firstTime) {
       const discountAmt = base * FIRST_TIME_DISCOUNT
-      breakdown.push({ label: 'First-Time Customer Discount (15%)', amount: -discountAmt })
+      breakdown.push({ label: 'First-Time Customer Discount (3%)', amount: -discountAmt })
       base = base - discountAmt
     }
 

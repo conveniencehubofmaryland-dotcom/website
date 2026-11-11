@@ -46,7 +46,7 @@ function summarizeSelections(category: Category, sel: Record<string, any>): stri
     } else {
       lines.push(`${sel.serviceType === 'deep' ? 'Deep' : 'Standard'} Cleaning — ${sel.homeSize || '—'}`)
       if (sel.frequency) lines.push(`Frequency: ${sel.frequency}`)
-      if (sel.firstTime) lines.push('First-time customer surcharge applies')
+      if (sel.firstTime) lines.push('First-time customer discount applies (3%)')
     }
     if (sel.pets && sel.pets !== '0') lines.push(`Pets: ${sel.pets}`)
     if (Array.isArray(sel.addOns) && sel.addOns.length > 0) lines.push(`Add-ons: ${sel.addOns.join(', ')}`)

@@ -70,7 +70,7 @@ const STATIC_SERVICES: Service[] = [
       { section: 'Standard Residential Cleaning', label: '2 Bedroom Home (500–1,200 sq ft)', price: '$300', unit: '/visit', note: '2.5–3 hrs' },
       { section: 'Standard Residential Cleaning', label: '3 Bedroom Home (1,200–1,800 sq ft)', price: '$420', unit: '/visit', note: '3–4 hrs' },
       { section: 'Standard Residential Cleaning', label: '4 Bedroom Home (1,800–2,500 sq ft)', price: '$540', unit: '/visit', note: '4–5 hrs' },
-      { section: 'Standard Residential Cleaning', label: '5+ Bedroom Home (2,500+ sq ft)', price: '$600+', unit: '/visit', note: '5–6+ hrs. First-time customers save 15% — see Deals page' },
+      { section: 'Standard Residential Cleaning', label: '5+ Bedroom Home (2,500+ sq ft)', price: '$600+', unit: '/visit', note: '5–6+ hrs. First-time customers save 3% — see Deals page' },
       { section: 'Deep Cleaning Services', label: 'Studio', price: '$300', unit: '/visit' },
       { section: 'Deep Cleaning Services', label: '1 Bedroom', price: '$360', unit: '/visit' },
       { section: 'Deep Cleaning Services', label: '2 Bedroom', price: '$420', unit: '/visit' },
