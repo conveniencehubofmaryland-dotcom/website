@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { CLOVER_FALLBACK_LINK, CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL, saveCloverCharge } from '@/lib/clover'
+import { CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL, saveCloverCharge } from '@/lib/clover'
 
 type Props = {
   kind: 'deposit' | 'full'
@@ -139,13 +139,6 @@ export default function CloverCardForm({ kind, amount, category, selections, con
       >
         {busy ? 'Processing…' : `Pay $${amount.toFixed(2)} Securely`}
       </button>
-
-      <p className="text-xs text-gray-400 text-center">
-        Having trouble?{' '}
-        <a href={CLOVER_FALLBACK_LINK} className="underline" target="_blank" rel="noopener noreferrer">
-          Pay on our Clover page instead
-        </a>
-      </p>
     </div>
   )
 }
