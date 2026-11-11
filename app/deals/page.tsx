@@ -333,7 +333,6 @@ export default async function DealsPage() {
                     <li>Bank Transfer/ACH</li>
                     <li>Check (contracts only)</li>
                     <li>Zelle: conveniencehubofmaryland@gmail.com</li>
-                    <li>Direct Deposit via <a href="https://link.clover.com/urlshortener/m92Kg8" className="text-chm-red underline">Clover</a></li>
                   </ul>
                 </div>
                 <div>
