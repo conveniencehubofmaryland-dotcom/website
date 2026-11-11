@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/reviews',    label: 'Reviews'    },
   { href: '/contact',    label: 'Contact'    },
   { href: '/gallery',    label: 'Gallery'    },
+  { href: '/realtors',   label: 'Realtors'   },
 ]
 
 export default function Navbar() {

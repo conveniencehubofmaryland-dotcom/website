@@ -1,3 +1,4 @@
+import { BUNDLES } from '@/lib/bundles'
 
 // CLEANING: +20%
 const STANDARD_CLEANING: Record<string, number> = {
@@ -372,6 +373,11 @@ export function calcElderCare(sel: Selections): { total: number; breakdown: Line
 
 // Single source of truth for quote totals. Returns null total for unknown categories.
 function computeBaseQuote(category: string, selections: Selections): { total: number | null; breakdown: LineItem[] } {
+  if (category.startsWith('bundle-')) {
+    const bundle = BUNDLES.find(b => b.id === category.slice('bundle-'.length))
+    if (!bundle || !bundle.price) return { total: null, breakdown: [] }
+    return { total: bundle.price, breakdown: [{ label: `${bundle.name} bundle`, amount: bundle.price }] }
+  }
   if (category === 'cleaning') return calcCleaning(selections)
   if (category === 'laundry') return calcLaundry(selections)
   if (category === 'mealprep') return calcMealPrep(selections)

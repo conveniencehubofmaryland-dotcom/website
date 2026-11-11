@@ -22,7 +22,11 @@ export async function POST(req: NextRequest) {
     from: 'CHM Realtor Partners <support@conveniencehubofmaryland.com>',
     to: ['conveniencehubofmaryland@gmail.com'],
     subject: `New realtor partner request — ${name}`,
-    html: `<p><strong>${name}</strong> (${brokerage || 'no brokerage given'}) asked to join as a realtor partner.</p><p>${email} · ${phone}</p><p>Approve them in admin → Realtors.</p>`,
+    html: `<h2 style="color:#E8192C">New Realtor Partner Request</h2>
+<p><strong>${name}</strong> (${brokerage || 'no brokerage given'}) asked to join as a realtor partner.</p>
+<p style="font-size:14px">Email: ${email}<br/>Phone: ${phone}</p>
+<p style="margin-top:20px"><a href="https://conveniencehubofmaryland.com/admin/realtors" style="display:inline-block;background:#E8192C;color:#fff;padding:12px 28px;text-decoration:none;font-weight:600">Log in to Admin to Approve</a></p>
+<p style="font-size:12px;color:#999">Log in with your admin account, then click Approve next to their name.</p>`,
   })
   return NextResponse.json({ ok: true })
 }
