@@ -263,7 +263,7 @@ export default async function ServicesPage() {
                 {service.description && (
                  <p className="text-gray-600 text-sm mb-6 max-w-2xl leading-relaxed">{service.description}</p>
                 )}
-                <Link href="/quote" className="inline-block bg-chm-red text-white px-6 py-2.5 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors mb-8">
+                <Link href="/book" className="inline-block bg-chm-red text-white px-6 py-2.5 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors mb-8">
                   Get a Quote
                 </Link>
 
