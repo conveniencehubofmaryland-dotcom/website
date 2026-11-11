@@ -7,9 +7,13 @@ const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 export const REALTOR_COOKIE = 'chm_realtor'
 export const REFERRAL_DISCOUNT_NOTE = 'Realtor Referral Discount (15%)'
 
+// New Supabase secret keys (sb_secret_...) go in the apikey header only.
+// Older JWT-style keys (eyJ...) also go in the Authorization header.
 function svcHeaders(extra: Record<string, string> = {}) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-  return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...extra }
+  const headers: Record<string, string> = { apikey: key, 'Content-Type': 'application/json', ...extra }
+  if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`
+  return headers
 }
 
 export async function svcSelect<T>(table: string, params: Record<string, string>): Promise<T[]> {
