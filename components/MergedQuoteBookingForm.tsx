@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BUNDLES } from '@/lib/bundles'
 import BundleModal from './BundleModal'
@@ -165,6 +165,11 @@ export default function MergedQuoteAndBookingForm({ initial, initialCategory }: 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const [quoteStep, setQuoteStep] = useState<QuoteStep>(null)
+
+  // When the next step appears, bring the top of the form into view (it was opening off-screen)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [quoteStep, step, status])
 
   // Results (no tax; amount due is the full total)
   const [result, setResult] = useState<{ total: number | null; breakdown: LineItem[] }>({
