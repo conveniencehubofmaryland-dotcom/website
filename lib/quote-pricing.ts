@@ -376,7 +376,7 @@ function computeBaseQuote(category: string, selections: Selections): { total: nu
   if (category.startsWith('bundle-')) {
     const bundle = BUNDLES.find(b => b.id === category.slice('bundle-'.length))
     if (!bundle || !bundle.price) return { total: null, breakdown: [] }
-    return { total: bundle.price, breakdown: [{ label: `${bundle.name} bundle`, amount: bundle.price }] }
+    return { total: bundle.price, breakdown: [{ label: `${bundle.name} bundle (first month)`, amount: bundle.price }] }
   }
   if (category === 'cleaning') return calcCleaning(selections)
   if (category === 'laundry') return calcLaundry(selections)

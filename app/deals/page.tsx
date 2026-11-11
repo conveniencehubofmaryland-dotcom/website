@@ -21,9 +21,7 @@ const PERKS = [
 
 const PREMIUM_PERKS = [
   'Priority scheduling',
-  'Free upgrade services (quarterly)',
-  'Dedicated customer service line',
-  'Quarterly loyalty bonus ($20 credit)',
+  '2% off recurring services',
 ]
 
 const toBundleCard = (b: (typeof BUNDLES)[number]) => ({

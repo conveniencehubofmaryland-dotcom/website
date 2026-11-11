@@ -352,11 +352,8 @@ export default async function HomePage() {
               </h2>
               <p className="text-gray-500 text-sm mb-6">Requirement: 12-month subscription or 12+ services/year</p>
               <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>15% discount on all services</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>2% off recurring services</span></div>
                 <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Free upgrade services (quarterly)</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Dedicated customer service line</span></div>
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Quarterly loyalty bonus ($20 credit)</span></div>
               </div>
             </div>
           </div>
