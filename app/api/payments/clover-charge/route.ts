@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
+import { isActiveMember } from '@/lib/membership'
 
 const DEPOSIT_RATE = 0.3
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
@@ -36,7 +37,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid payment details. Please try again.' }, { status: 400 })
   }
 
-  const quote = computeQuote(category, selections)
+  const member = await isActiveMember(email)
+  const quote = computeQuote(category, selections, { member })
   if (quote.total === null || quote.total < 1) {
     return NextResponse.json(
       { error: 'This quote needs a personal review. Please call 202-579-2944 to pay.' },

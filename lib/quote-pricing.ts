@@ -371,11 +371,32 @@ export function calcElderCare(sel: Selections): { total: number; breakdown: Line
 }
 
 // Single source of truth for quote totals. Returns null total for unknown categories.
-export function computeQuote(category: string, selections: Selections): { total: number | null; breakdown: LineItem[] } {
+function computeBaseQuote(category: string, selections: Selections): { total: number | null; breakdown: LineItem[] } {
   if (category === 'cleaning') return calcCleaning(selections)
   if (category === 'laundry') return calcLaundry(selections)
   if (category === 'mealprep') return calcMealPrep(selections)
   if (category === 'nanny') return calcNanny(selections)
   if (category === 'eldercare') return calcElderCare(selections)
   return { total: null, breakdown: [] }
+}
+
+// Members get an extra 2% off recurring plans (added on top of the frequency discount).
+const MEMBER_RECURRING_DISCOUNT = 0.02
+const RECURRING_FREQUENCIES = ['weekly', 'twiceweekly', 'biweekly', 'monthly']
+
+export function computeQuote(
+  category: string,
+  selections: Selections,
+  opts?: { member?: boolean }
+): { total: number | null; breakdown: LineItem[] } {
+  const result = computeBaseQuote(category, selections)
+  const freq = (selections as Record<string, unknown>).frequency as string | undefined
+  if (!opts?.member || result.total === null || !freq || !RECURRING_FREQUENCIES.includes(freq)) {
+    return result
+  }
+  const memberAmt = Math.round(result.total * MEMBER_RECURRING_DISCOUNT * 100) / 100
+  return {
+    total: Math.round((result.total - memberAmt) * 100) / 100,
+    breakdown: [...result.breakdown, { label: 'Member Discount (2% recurring)', amount: -memberAmt }],
+  }
 }

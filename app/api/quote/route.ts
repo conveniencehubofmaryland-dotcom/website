@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { computeQuote, type LineItem } from '@/lib/quote-pricing'
+import { isActiveMember } from '@/lib/membership'
 
 const SITE_URL = 'https://conveniencehubofmaryland.com'
 const SUPPORT_PHONE = '202-579-2944'
@@ -19,7 +20,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const quote = computeQuote(category, selections || {})
+    const member = await isActiveMember(email)
+    const quote = computeQuote(category, selections || {}, { member })
     let total: number | null = quote.total
     const breakdown: LineItem[] = quote.breakdown
 

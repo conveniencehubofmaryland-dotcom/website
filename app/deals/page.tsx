@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 const PERKS = [
   { icon: '★', title: 'Priority Booking',    desc: 'First access to available time slots before the general public.' },
   { icon: '◆', title: 'Exclusive Deals',     desc: 'Member-only weekly deals and promotions on all services.' },
-  { icon: '↻', title: 'Recurring Discounts', desc: 'Recurring plans get the discount shown on your quote.' },
+  { icon: '↻', title: 'Recurring Discounts', desc: '2% off all recurring services for active members.' },
   { icon: '✓', title: 'Free Signup',         desc: 'No cost to join — membership is completely free.' },
 ]
 
@@ -104,6 +104,7 @@ export default async function DealsPage() {
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>Priority booking access</li>
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>Member-only weekly deals</li>
+                <li className="flex gap-3"><span className="text-chm-red">✓</span>2% off all recurring services</li>
                 <li className="flex gap-3"><span className="text-chm-red">✓</span>No fees, cancel anytime</li>
               </ul>
             </div>
