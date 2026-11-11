@@ -148,6 +148,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
   const [sel, setSel] = useState<SelectionRecord>({})
   const [contact, setContact] = useState({ name: initial?.name || '', email: initial?.email || '', phone: initial?.phone || '' })
   const [honeypot, setHoneypot] = useState('')
+  const [referralCode, setReferralCode] = useState('')
   const [showBundleModal, setShowBundleModal] = useState(false)
 
   // Booking state (Step 5)
@@ -218,7 +219,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
       const res = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...contact, category: serviceCategory, selections: sel, honeypot }),
+        body: JSON.stringify({ ...contact, category: serviceCategory, selections: sel, honeypot, referralCode: referralCode.trim() }),
       })
 
       const data = await res.json().catch(() => ({}))
@@ -283,6 +284,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         invoice_type,
         quoted_total: result.total ?? null,
         payment_charge_id: getSavedCloverCharge(),
+        referral_code: referralCode.trim() || null,
       }
 
       const res = await fetch('/api/book', {
@@ -387,7 +389,7 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Slot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.total?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">Full payment of the total is required to secure your slot.</p>
-              <CloverCardForm kind="full" amount={Number(result.total)} category={isBundle ? `bundle-${sel.bundleId}` : category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} />
+              <CloverCardForm kind="full" amount={Number(result.total)} category={isBundle ? `bundle-${sel.bundleId}` : category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} referralCode={referralCode.trim()} />
             </div>
 
             <div className="mt-6 border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 leading-relaxed">
@@ -1195,6 +1197,10 @@ export default function MergedQuoteAndBookingForm({ initial }: MergedFormProps) 
         <div>
           <label className={labelClass}>Email *</label>
           <input required type="email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} className={inputClass} placeholder="jane@example.com" />
+        </div>
+        <div>
+          <label className={labelClass}>Realtor Referral Code <span className="text-gray-400 normal-case tracking-normal">(optional)</span></label>
+          <input type="text" value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} className={inputClass} placeholder="CHM-XXXX-XXXX" />
         </div>
 
         <input type="text" value={honeypot} onChange={e => setHoneypot(e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />

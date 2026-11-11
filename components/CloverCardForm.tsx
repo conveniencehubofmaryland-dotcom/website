@@ -9,11 +9,12 @@ type Props = {
   category: string
   selections: Record<string, unknown>
   contact: { name: string; email: string; phone: string }
+  referralCode?: string
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export default function CloverCardForm({ kind, amount, category, selections, contact }: Props) {
+export default function CloverCardForm({ kind, amount, category, selections, contact, referralCode }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const ids = {
     number: `cc-number-${uid}`,
@@ -87,6 +88,7 @@ export default function CloverCardForm({ kind, amount, category, selections, con
           name: contact.name,
           email: contact.email,
           phone: contact.phone,
+          referralCode: referralCode || '',
         }),
       })
       const data = await res.json().catch(() => ({}))

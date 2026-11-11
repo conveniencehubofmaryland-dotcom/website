@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
+import { consumeReferralCode } from '@/lib/realtor'
 
 async function whatsappNotify(message: string) {
   const apiKey  = process.env.CALLMEBOT_API_KEY
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
     notes, service_title,
     invoice_base64, invoice_filename, invoice_type,
     quoted_total,
+    referral_code,
   } = body
 
   if (!customer_name?.trim() || !phone?.trim() || !address?.trim() || !state || !service_id || !appointment_date || !time_slot) {
@@ -152,6 +154,13 @@ export async function POST(req: NextRequest) {
   const VALID_STATES = ['MD', 'VA', 'DC']
   if (!VALID_STATES.includes(state)) {
     return NextResponse.json({ error: 'Sorry, we only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
+  }
+
+  if (typeof referral_code === 'string' && referral_code.trim()) {
+    const used = await consumeReferralCode(referral_code, customer_name)
+    if (!used) {
+      return NextResponse.json({ error: 'That referral code has already been used or has expired.' }, { status: 409 })
+    }
   }
 
   // Resolve slug to UUID

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { isActiveMember } from '@/lib/membership'
+import { checkReferralCode } from '@/lib/realtor'
 
 const DEPOSIT_RATE = 0.3
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
@@ -32,13 +33,20 @@ export async function POST(request: NextRequest) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const email = typeof body.email === 'string' ? body.email.trim() : ''
   const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
+  const referralCode = typeof body.referralCode === 'string' ? body.referralCode.trim() : ''
 
   if (!token.startsWith('clv_') || !kind || !category) {
     return NextResponse.json({ error: 'Invalid payment details. Please try again.' }, { status: 400 })
   }
 
-  const member = await isActiveMember(email)
-  const quote = computeQuote(category, selections, { member })
+  let realtor = false
+  if (referralCode) {
+    const check = await checkReferralCode(referralCode)
+    if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
+    realtor = true
+  }
+  const member = realtor ? false : await isActiveMember(email)
+  const quote = computeQuote(category, selections, { member, realtor })
   if (quote.total === null || quote.total < 1) {
     return NextResponse.json(
       { error: 'This quote needs a personal review. Please call 202-579-2944 to pay.' },

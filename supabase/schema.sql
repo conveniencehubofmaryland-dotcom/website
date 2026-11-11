@@ -157,3 +157,37 @@ create policy "Admin full access to availability"
 
 create policy "Admin full access to blocked dates"
   on public.blocked_dates for all using (auth.role() = 'authenticated');
+
+-- Realtor partners and one-time 15% referral codes (applied to the live database)
+create table if not exists public.realtors (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text unique not null,
+  phone text not null,
+  brokerage text,
+  approved boolean not null default false,
+  login_code_hash text,
+  login_code_expires_at timestamptz,
+  session_token_hash text,
+  session_expires_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.referral_codes (
+  id uuid primary key default gen_random_uuid(),
+  code text unique not null,
+  realtor_id uuid not null references public.realtors(id) on delete cascade,
+  buyer_name text not null,
+  buyer_email text not null,
+  buyer_phone text,
+  status text not null default 'unused' check (status in ('unused','used','revoked')),
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  used_by_booking text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.realtors enable row level security;
+alter table public.referral_codes enable row level security;
+create policy "Admin full access to realtors" on public.realtors for all to public using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Admin full access to referral codes" on public.referral_codes for all to public using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');

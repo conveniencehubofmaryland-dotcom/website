@@ -84,6 +84,7 @@ export default function QuoteForm() {
   const [sel, setSel] = useState<Record<string, any>>({})
   const [contact, setContact] = useState({ name: '', email: '', phone: '' })
   const [honeypot, setHoneypot] = useState('')
+  const [referralCode, setReferralCode] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
   const [showBundleModal, setShowBundleModal] = useState(false)
@@ -125,7 +126,7 @@ export default function QuoteForm() {
       const res = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...contact, category, selections: sel, honeypot }),
+        body: JSON.stringify({ ...contact, category, selections: sel, honeypot, referralCode: referralCode.trim() }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
@@ -202,7 +203,7 @@ export default function QuoteForm() {
               <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Secure Your Spot</p>
               <p className="text-2xl font-serif text-chm-black mb-1">${result.deposit?.toFixed(2)}</p>
               <p className="text-xs text-gray-500 mb-4">30% deposit due to book</p>
-              <CloverCardForm kind="deposit" amount={Number(result.deposit)} category={category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} />
+              <CloverCardForm kind="deposit" amount={Number(result.deposit)} category={category} selections={sel} contact={{ name: contact.name, email: contact.email, phone: contact.phone }} referralCode={referralCode.trim()} />
               <div className="border-t border-gray-200 mt-5 pt-5">
                 <p className="text-xs text-gray-500 mb-3">Already paid? Click below to complete your booking with full details.</p>
                 <a href={result.bookLink} className="inline-block border-2 border-chm-red text-chm-red px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-chm-red hover:text-white transition-colors">
@@ -974,6 +975,10 @@ export default function QuoteForm() {
         <div>
           <label className={labelClass}>Email *</label>
           <input required type="email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} className={inputClass} placeholder="jane@example.com" />
+        </div>
+        <div>
+          <label className={labelClass}>Realtor Referral Code <span className="text-gray-400 normal-case tracking-normal">(optional)</span></label>
+          <input type="text" value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} className={inputClass} placeholder="CHM-XXXX-XXXX" />
         </div>
 
         {/* Honeypot field — hidden from real users, bots tend to fill every field */}

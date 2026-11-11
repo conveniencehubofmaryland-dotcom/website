@@ -387,8 +387,18 @@ const RECURRING_FREQUENCIES = ['weekly', 'twiceweekly', 'biweekly', 'monthly']
 export function computeQuote(
   category: string,
   selections: Selections,
-  opts?: { member?: boolean }
+  opts?: { member?: boolean; realtor?: boolean }
 ): { total: number | null; breakdown: LineItem[] } {
+  // Realtor referral code: 15% off all services. It replaces the first-time and member discounts (best one only).
+  if (opts?.realtor) {
+    const base = computeBaseQuote(category, { ...selections, firstTime: false })
+    if (base.total === null) return base
+    const off = Math.round(base.total * 0.15 * 100) / 100
+    return {
+      total: Math.round((base.total - off) * 100) / 100,
+      breakdown: [...base.breakdown, { label: 'Realtor Referral Discount (15%)', amount: -off }],
+    }
+  }
   const result = computeBaseQuote(category, selections)
   const freq = (selections as Record<string, unknown>).frequency as string | undefined
   if (!opts?.member || result.total === null || !freq || !RECURRING_FREQUENCIES.includes(freq)) {
