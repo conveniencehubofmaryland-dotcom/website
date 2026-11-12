@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           login_code: code,
           login_code_expires_at: expiresAt,
+          login_code_attempts: 0,
         }),
       }
     )

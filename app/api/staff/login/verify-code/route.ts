@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     // Find applicant
     const findRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?email=eq.${encodeURIComponent(email)}&select=id,login_code,login_code_expires_at`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?email=eq.${encodeURIComponent(email)}&select=id,login_code,login_code_expires_at,login_code_attempts`,
       {
         headers: {
           ...serviceHeaders(),
@@ -27,8 +27,22 @@ export async function POST(req: NextRequest) {
 
     const applicant = applicants[0]
 
+    // Stop guessing: after 5 wrong codes, the current code is void and a new one must be requested
+    const attempts = Number(applicant.login_code_attempts) || 0
+    if (attempts >= 5) {
+      return NextResponse.json({ error: 'Too many attempts. Please request a new code.' }, { status: 429 })
+    }
+
     // Verify code
     if (applicant.login_code !== code) {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant.id}`,
+        {
+          method: 'PATCH',
+          headers: { ...serviceHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login_code_attempts: attempts + 1 }),
+        }
+      )
       return NextResponse.json({ error: 'Invalid code' }, { status: 401 })
     }
 
