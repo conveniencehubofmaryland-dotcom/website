@@ -92,7 +92,8 @@ async function fetchOfferLetters(): Promise<StaffDocument[]> {
 async function fetchCertifications(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_module_progress')
-    .select('id, staff_name, staff_email, completed_at, module_id')
+    .select('id, staff_name, staff_email, completed_at, module_id, certificate_url')
+    .eq('status', 'completed')
     .not('completed_at', 'is', null)
 
   if (error) {
@@ -122,7 +123,7 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
       documentType: 'certification' as const,
       documentName: `Certification: ${moduleName}`,
       dateSigned: row.completed_at,
-      documentUrl: null,
+      documentUrl: row.certificate_url || null,
       status: 'completed',
       ownCar: null,
     }

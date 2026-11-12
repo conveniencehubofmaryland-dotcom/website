@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
+import { buildCertificateHtml, storeCertificate, getModuleTitle } from '@/lib/certificate'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,16 +18,37 @@ export async function POST(req: NextRequest) {
 
     const finalScore = Math.round(quiz_score || 0)
 
+    const passed = finalScore >= 80
+    const completedAt = new Date().toISOString()
+    const progressId = crypto.randomUUID()
+
+    // On a pass, build the certificate once and store it so it can be viewed in Documents.
+    let certificateUrl: string | null = null
+    let moduleTitle = 'Training Module'
+    if (passed) {
+      moduleTitle = await getModuleTitle(module_id)
+      const html = buildCertificateHtml({
+        id: progressId,
+        staffName: staff_name.trim(),
+        moduleTitle,
+        score: finalScore,
+        completedAt,
+      })
+      certificateUrl = await storeCertificate(progressId, html)
+    }
+
     console.log('[PROGRESS] Calling dbInsertService...')
     const { error } = await dbInsertService('staff_module_progress', {
+      id: progressId,
       staff_name: staff_name.trim(),
       staff_email: staff_email.trim(),
       staff_phone: staff_phone?.trim() || null,
       position: position?.trim() || null,
       module_id,
-      status: finalScore >= 80 ? 'completed' : 'failed',
+      status: passed ? 'completed' : 'failed',
       quiz_score: finalScore,
-      completed_at: new Date().toISOString(),
+      completed_at: completedAt,
+      certificate_url: certificateUrl,
     })
 
     console.log('[PROGRESS] Insert result:', { error })
@@ -48,10 +70,10 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             staff_name: staff_name.trim(),
             staff_email: staff_email.trim(),
-            module_title: 'Training Module',
+            module_title: moduleTitle,
             position: position?.trim() || 'Staff',
             quiz_score: finalScore,
-            completed_at: new Date().toISOString(),
+            completed_at: completedAt,
           }),
         })
         console.log('[PROGRESS] Email sent')
