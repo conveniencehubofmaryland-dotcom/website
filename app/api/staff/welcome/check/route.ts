@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function GET(req: NextRequest) {
   const applicantId = req.nextUrl.searchParams.get('applicant_id')
@@ -18,8 +19,7 @@ export async function GET(req: NextRequest) {
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/staff_invites?invite_token=eq.${encodeURIComponent(inviteToken)}&select=applicant_id`,
         {
           headers: {
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            ...serviceHeaders(),
           },
         }
       )
@@ -35,8 +35,7 @@ export async function GET(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${finalApplicantId}&select=orientation_accepted,full_name,onboarding_status`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
@@ -16,8 +17,7 @@ export async function PATCH(req: NextRequest) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

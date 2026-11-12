@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const { email, code } = await req.json()
@@ -14,8 +15,7 @@ export async function POST(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?email=eq.${encodeURIComponent(email)}&select=id,login_code,login_code_expires_at`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )
@@ -47,8 +47,7 @@ export async function POST(req: NextRequest) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

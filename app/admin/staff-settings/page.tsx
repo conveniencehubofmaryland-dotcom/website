@@ -2,11 +2,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-type Setting = {
-  key: string
-  value: string
-}
-
 export default function StaffSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -18,13 +13,10 @@ export default function StaffSettings() {
   }, [])
 
   const fetchPassword = async () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    const res = await fetch(`${supabaseUrl}/rest/v1/settings?key=eq.staff_portal_password`, {
-      headers: { apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` },
-    })
-    const data: Setting[] = await res.json()
-    setCurrentPassword(data[0]?.value || '')
+    const res = await fetch('/api/staff/update-password')
+    if (!res.ok) return
+    const data: { value: string } = await res.json()
+    setCurrentPassword(data.value || '')
   }
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -34,7 +26,7 @@ export default function StaffSettings() {
       return
     }
     setLoading(true)
-    const res = await fetch('/api/admin/update-password', {
+    const res = await fetch('/api/staff/update-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newPassword: newPassword.trim() }),

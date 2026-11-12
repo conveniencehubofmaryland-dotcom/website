@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendUserEmail } from '@/lib/email'
+import { serviceHeaders } from '@/lib/supabase-keys'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -15,8 +16,7 @@ export async function POST(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?email=eq.${encodeURIComponent(email)}&select=id,full_name,onboarding_status`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )
@@ -51,8 +51,7 @@ export async function POST(req: NextRequest) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

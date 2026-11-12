@@ -1,10 +1,12 @@
+import { serviceHeaders } from '@/lib/supabase-keys'
+
 export async function POST(request: Request) {
   const { password } = await request.json()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+  // Read with the server-side service key so the password is never readable with the public key.
   const res = await fetch(`${supabaseUrl}/rest/v1/settings?key=eq.staff_portal_password`, {
-    headers: { apikey: supabaseKey as string, Authorization: `Bearer ${supabaseKey as string}` },
+    headers: serviceHeaders(),
   })
 
   const data = await res.json()

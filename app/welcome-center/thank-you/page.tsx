@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 async function checkStatus(applicantId: string) {
   try {
@@ -6,8 +7,7 @@ async function checkStatus(applicantId: string) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=onboarding_status`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )

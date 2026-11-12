@@ -3,6 +3,7 @@ import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
 import { consumeReferralCode } from '@/lib/realtor'
 import { slotsForDate } from '@/lib/hours'
+import { anonHeaders, serviceHeaders } from '@/lib/supabase-keys'
 
 async function whatsappNotify(message: string) {
   const apiKey  = process.env.CALLMEBOT_API_KEY
@@ -169,9 +170,8 @@ export async function POST(req: NextRequest) {
 
   // Resolve slug to UUID
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   const svcRes = await fetch(`${supabaseUrl}/rest/v1/services?slug=eq.${service_id}&select=id&limit=1`, {
-    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+    headers: anonHeaders()
   })
   const svcData = await svcRes.json()
   const resolvedServiceId = svcData[0]?.id ?? null
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            ...serviceHeaders(),
             'Content-Type': invoice_type || 'application/octet-stream',
           },
           body: fileBuffer,

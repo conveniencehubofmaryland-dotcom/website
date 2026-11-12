@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
@@ -15,8 +16,7 @@ export async function GET(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?sign_token=eq.${token}`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
       }
@@ -44,8 +44,7 @@ export async function GET(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${offer.applicant_id}`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
       }

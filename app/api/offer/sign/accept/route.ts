@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -19,8 +20,7 @@ export async function POST(req: NextRequest) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -44,8 +44,7 @@ export async function POST(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${offer_id}&select=*,offer_letter_applicants(id,full_name,email)`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
       }
@@ -72,8 +71,7 @@ export async function POST(req: NextRequest) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ onboarding_status: 'offer_signed', updated_at: now }),

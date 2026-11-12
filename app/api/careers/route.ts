@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
           {
             method: 'POST',
             headers: {
-              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              ...serviceHeaders(),
               'Content-Type': resume_type || 'application/octet-stream',
             },
             body: fileBuffer,
