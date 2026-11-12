@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,6 +11,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   try {
     const { id } = await params
 

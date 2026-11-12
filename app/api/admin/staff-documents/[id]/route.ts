@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -7,6 +8,8 @@ const supabase = createClient(
 )
 
 export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   try {
     const params = await props.params
     const documentId = params.id
@@ -101,6 +104,8 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
 }
 
 export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   try {
     const params = await props.params
     const documentId = params.id

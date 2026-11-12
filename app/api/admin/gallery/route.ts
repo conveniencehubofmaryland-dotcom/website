@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Keeps only letters, numbers, dots and dashes so file names never break image links.
+function safeName(name: string): string {
+  return name.replace(/[^A-Za-z0-9.-]/g, '-').replace(/-+/g, '-').slice(-80)
+}
+
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -19,8 +24,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const timestamp = Date.now()
-    const beforePath = `${service_category}/${timestamp}-before-${beforeFile.name}`
-    const afterPath = `${service_category}/${timestamp}-after-${afterFile.name}`
+    const beforePath = `${service_category}/${timestamp}-before-${safeName(beforeFile.name)}`
+    const afterPath = `${service_category}/${timestamp}-after-${safeName(afterFile.name)}`
 
     const beforeUpload = await fetch(
       `${SUPABASE_URL}/storage/v1/object/gallery-images/${beforePath}`,

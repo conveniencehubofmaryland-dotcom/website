@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -207,7 +208,9 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
   })
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   try {
     const [orientations, offerLetters, certifications, backgroundChecks, staffDocs] = await Promise.all([
       fetchOrientations(),
@@ -233,6 +236,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin(request)
+  if (denied) return denied
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -281,6 +286,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const denied = await requireAdmin(request)
+  if (denied) return denied
   try {
     const { documentId, documentType, staffId } = await request.json()
 
@@ -343,6 +350,8 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const denied = await requireAdmin(request)
+  if (denied) return denied
   try {
     const { documentId, staffEmail, staffName, documentName } = await request.json()
 
@@ -373,6 +382,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const denied = await requireAdmin(request)
+  if (denied) return denied
   try {
     const url = new URL(request.url)
     const documentId = url.pathname.split('/').pop()

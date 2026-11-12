@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
@@ -11,6 +12,8 @@ const supabase = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   try {
     const { full_name, email, phone } = await req.json()
 
