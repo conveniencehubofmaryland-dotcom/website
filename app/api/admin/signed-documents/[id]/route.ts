@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth'
+import { serviceHeaders } from '@/lib/supabase-keys'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -14,8 +15,7 @@ export async function GET(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )

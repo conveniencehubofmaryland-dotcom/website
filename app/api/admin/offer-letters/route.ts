@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendUserEmail, sendAdminEmail } from '@/lib/email'
+import { requireAdmin } from '@/lib/admin-auth'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const denied = await requireAdmin(req)
+  if (denied) return denied
 
   const body = await req.json()
   const { applicant_id, position, salary_annual, start_date, benefits_summary } = body
@@ -18,8 +22,7 @@ export async function POST(req: NextRequest) {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
       {
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )
@@ -40,8 +43,7 @@ const insertRes = await fetch(
   {
     method: 'POST',
     headers: {
-      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      ...serviceHeaders(),
       'Content-Type': 'application/json',
       'Prefer': 'return=minimal',
     },
@@ -69,8 +71,7 @@ if (!insertRes.ok) {
       {
         method: 'PATCH',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status: 'sent', updated_at: new Date().toISOString() }),

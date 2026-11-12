@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/admin-auth'
 
 // Keeps only letters, numbers, dots and dashes so file names never break image links.
 function safeName(name: string): string {
@@ -8,6 +9,8 @@ function safeName(name: string): string {
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const denied = await requireAdmin(req)
+  if (denied) return denied
 
   const formData = await req.formData()
   const title = formData.get('title') as string
@@ -90,6 +93,8 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const denied = await requireAdmin(req)
+  if (denied) return denied
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })

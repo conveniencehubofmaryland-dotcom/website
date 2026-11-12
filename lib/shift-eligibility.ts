@@ -64,7 +64,7 @@ export async function sbFetch(path: string, init: RequestInit = {}): Promise<Res
   if (!url || !key) throw new Error('Database not configured')
   const headers = new Headers(init.headers)
   headers.set('apikey', key)
-  headers.set('Authorization', `Bearer ${key}`)
+  if (key.startsWith('eyJ')) headers.set('Authorization', `Bearer ${key}`)
   headers.set('Content-Type', 'application/json')
   return fetch(`${url}/rest/v1/${path}`, { ...init, headers })
 }

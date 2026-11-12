@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json()
@@ -19,8 +20,7 @@ export async function POST(req: NextRequest) {
     const generateLinkRes = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
       method: 'POST',
       headers: {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        Authorization: `Bearer ${serviceRoleKey}`,
+        ...serviceHeaders(),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

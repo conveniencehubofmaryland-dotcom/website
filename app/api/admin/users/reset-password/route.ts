@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/admin-auth'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   // Check if user is logged in as admin (verify the session cookie exists)
-  const adminToken = req.cookies.get('chm_admin')?.value
-
-  if (!adminToken) {
-    return NextResponse.json(
-      { error: 'Unauthorized. Admin login required.' },
-      { status: 401 }
-    )
-  }
+  const denied = await requireAdmin(req)
+  if (denied) return denied
 
   const { email } = await req.json()
 
@@ -34,8 +30,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
       method: 'POST',
       headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
+        ...serviceHeaders(),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/admin-auth'
+import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function DELETE(
   req: NextRequest,
@@ -7,6 +9,8 @@ export async function DELETE(
   const { id } = await params
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const denied = await requireAdmin(req)
+  if (denied) return denied
 
   if (!id) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 })
@@ -18,8 +22,7 @@ export async function DELETE(
       {
         method: 'DELETE',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          ...serviceHeaders(),
         },
       }
     )
