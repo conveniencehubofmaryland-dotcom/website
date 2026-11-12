@@ -6,6 +6,24 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest) {
   const supabaseUrl     = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const serviceKey      = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+  // Refuse once any account exists, so a stranger cannot create an admin.
+  try {
+    const svcHeaders: Record<string, string> = { apikey: serviceKey }
+    if (serviceKey.startsWith('eyJ')) svcHeaders.Authorization = `Bearer ${serviceKey}`
+    const check = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=1&per_page=1`, { headers: svcHeaders })
+    const list = await check.json()
+    const users = Array.isArray(list?.users) ? list.users : []
+    if (!check.ok || users.length > 0) {
+      return NextResponse.json(
+        { error: 'Admin setup is closed. An admin account already exists.' },
+        { status: 403 }
+      )
+    }
+  } catch {
+    return NextResponse.json({ error: 'Could not verify setup status. Try again later.' }, { status: 500 })
+  }
 
   const { email, password } = await req.json()
   if (!email?.trim() || !password?.trim()) {
