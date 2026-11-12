@@ -1,6 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type GoogleReview = {
+  author: string
+  authorUrl: string | null
+  rating: number
+  text: string
+  relativeTime: string
+}
+
 type GoogleRating = {
   rating: number
   reviewCount: number
+  reviews: GoogleReview[]
 } | null
 
 export async function getGoogleRating(): Promise<GoogleRating> {
@@ -13,11 +23,12 @@ export async function getGoogleRating(): Promise<GoogleRating> {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.rating,places.userRatingCount,places.id',
+        'X-Goog-FieldMask': 'places.rating,places.userRatingCount,places.id,places.reviews',
       },
       body: JSON.stringify({
         textQuery: 'Convenience Hub of Maryland 904-820-0881',
       }),
+      next: { revalidate: 3600 },
     })
 
     if (!res.ok) {
@@ -30,9 +41,20 @@ export async function getGoogleRating(): Promise<GoogleRating> {
 
     if (!place || typeof place.rating !== 'number') return null
 
+    const reviews: GoogleReview[] = (place.reviews ?? [])
+      .filter((r: any) => r?.text?.text && typeof r.rating === 'number')
+      .map((r: any) => ({
+        author: r.authorAttribution?.displayName || 'Google user',
+        authorUrl: r.authorAttribution?.uri || null,
+        rating: r.rating,
+        text: r.text.text,
+        relativeTime: r.relativePublishTimeDescription || '',
+      }))
+
     return {
       rating: place.rating,
       reviewCount: place.userRatingCount || 0,
+      reviews,
     }
   } catch (err) {
     console.error('[googleReviews] fetch error:', err)

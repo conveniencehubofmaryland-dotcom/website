@@ -112,6 +112,47 @@ export default async function ReviewsPage() {
           </AnimatedSection>
         )}
 
+        {/* Google Reviews */}
+        {googleRating && googleRating.reviews.length > 0 && (
+          <AnimatedSection>
+            <div className="space-y-8">
+              <div>
+                <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">From Google</p>
+                <h2 className="font-serif text-3xl md:text-4xl text-chm-black" style={{ fontFamily: 'var(--font-serif)' }}>
+                  Recent Google Reviews
+                </h2>
+                <div className="w-12 h-px bg-chm-red mt-4" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
+                {googleRating.reviews.map((review, i) => (
+                  <div key={i} className="bg-white p-8 h-full flex flex-col gap-4">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <span key={j} className={j < review.rating ? 'text-amber-400' : 'text-gray-200'}>★</span>
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed flex-1 font-light">
+                      &ldquo;{review.text}&rdquo;
+                    </p>
+                    <div>
+                      {review.authorUrl ? (
+                        <a href={review.authorUrl} target="_blank" rel="noopener noreferrer" className="text-chm-black font-semibold text-sm hover:text-chm-red">
+                          {review.author}
+                        </a>
+                      ) : (
+                        <p className="text-chm-black font-semibold text-sm">{review.author}</p>
+                      )}
+                      {review.relativeTime && (
+                        <p className="text-gray-400 text-xs mt-0.5">{review.relativeTime} · on Google</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </AnimatedSection>
+        )}
+
         {/* Leave a Review Form */}
         <AnimatedSection>
           <div className="bg-cream p-8 md:p-10">
