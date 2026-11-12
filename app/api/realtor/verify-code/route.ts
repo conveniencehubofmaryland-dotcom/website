@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   if (!email || !code) return NextResponse.json({ error: 'Enter the code from your email.' }, { status: 400 })
 
   const rows = await svcSelect<{ id: string; login_code_hash: string | null; login_code_expires_at: string | null }>('realtors', {
-    email: `eq.${email}`, approved: 'eq.true', select: 'id,login_code_hash,login_code_expires_at', limit: '1',
+    email: `eq.${encodeURIComponent(email)}`, approved: 'eq.true', select: 'id,login_code_hash,login_code_expires_at', limit: '1',
   })
   const r = rows[0]
   const expired = !r?.login_code_expires_at || new Date(r.login_code_expires_at).getTime() <= Date.now()

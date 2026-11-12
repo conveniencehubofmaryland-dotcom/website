@@ -4,7 +4,7 @@ import { serviceHeaders } from '@/lib/supabase-keys'
 async function checkStatus(applicantId: string) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicantId}&select=onboarding_status`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(applicantId)}&select=onboarding_status`,
       {
         headers: {
           ...serviceHeaders(),

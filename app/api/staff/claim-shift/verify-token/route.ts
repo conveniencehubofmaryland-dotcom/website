@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     console.log('[verify-token] Querying database...')
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?claim_shift_token=eq.${token}&select=id,full_name`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?claim_shift_token=eq.${encodeURIComponent(String(token))}&select=id,full_name`,
       {
         headers: {
           ...serviceHeaders(),

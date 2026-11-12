@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     
     // First fetch the offer
     const offerRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?sign_token=eq.${token}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?sign_token=eq.${encodeURIComponent(String(token))}`,
       {
         headers: {
           ...serviceHeaders(),

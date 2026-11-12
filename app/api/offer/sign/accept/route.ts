@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     // Update offer to mark as signed
     const updateRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${offer_id}&sign_token=eq.${token}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${encodeURIComponent(String(offer_id))}&sign_token=eq.${encodeURIComponent(String(token))}`,
       {
         method: 'PATCH',
         headers: {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch offer and applicant details for email
     const fetchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${offer_id}&select=*,offer_letter_applicants(id,full_name,email)`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letters?id=eq.${encodeURIComponent(String(offer_id))}&select=*,offer_letter_applicants(id,full_name,email)`,
       {
         headers: {
           ...serviceHeaders(),

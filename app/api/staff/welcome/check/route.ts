@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch applicant details
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${finalApplicantId}&select=orientation_accepted,full_name,onboarding_status`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(finalApplicantId))}&select=orientation_accepted,full_name,onboarding_status`,
       {
         headers: {
           ...serviceHeaders(),

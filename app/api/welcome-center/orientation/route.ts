@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const now = new Date().toISOString()
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(applicant_id))}`,
       {
         method: 'PATCH',
         headers: {

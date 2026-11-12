@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(applicant_id))}`,
       {
         method: 'PATCH',
         headers: {
@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest) {
   try {
     // Verify token and update status
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}&sign_token=eq.${token}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(applicant_id))}&sign_token=eq.${encodeURIComponent(String(token))}`,
       {
         method: 'PATCH',
         headers: {
