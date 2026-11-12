@@ -1,5 +1,15 @@
 import { requireAdmin } from '@/lib/admin-auth'
+import { ORIENTATION_DOCUMENT } from '@/lib/orientation-document'
 import { NextRequest, NextResponse } from 'next/server'
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
 
 export async function GET(
   req: NextRequest,
@@ -15,7 +25,7 @@ export async function GET(
     const headers: Record<string, string> = { apikey: serviceKey }
     if (serviceKey.startsWith('eyJ')) headers.Authorization = `Bearer ${serviceKey}`
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(id)}`,
       { headers }
     )
 
@@ -30,7 +40,6 @@ export async function GET(
 
     const applicant = data[0]
 
-    // Generate HTML content
     const signedDate = new Date(applicant.orientation_accepted_at).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -39,6 +48,18 @@ export async function GET(
       minute: '2-digit',
     })
 
+    const name = escapeHtml(String(applicant.full_name ?? ''))
+    const position = escapeHtml(String(applicant.position ?? ''))
+    const email = escapeHtml(String(applicant.email || 'N/A'))
+    const phone = escapeHtml(String(applicant.phone ?? ''))
+    const address = escapeHtml(String(applicant.address || 'Not provided'))
+    const signatureName = escapeHtml(String(applicant.signature_name || applicant.full_name || ''))
+    const recordId = escapeHtml(String(applicant.id ?? ''))
+    const signatureSrc = typeof applicant.full_signature === 'string'
+      && (applicant.full_signature.startsWith('data:image/') || applicant.full_signature.startsWith('https://'))
+      ? escapeHtml(applicant.full_signature)
+      : null
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -46,9 +67,11 @@ export async function GET(
           <meta charset="UTF-8">
           <title>Orientation Document</title>
           <style>
-            body { font-family: Georgia, serif; margin: 40px; line-height: 1.6; }
-            h2 { font-weight: bold; margin-top: 30px; margin-bottom: 15px; }
+            body { font-family: Georgia, serif; margin: 40px; line-height: 1.6; color: #1A1A1A; }
+            h1 { text-align: center; margin-bottom: 4px; }
+            h2 { font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 12px; }
             p { margin: 5px 0; }
+            .full-text { white-space: pre-wrap; word-wrap: break-word; font-size: 14px; border: 1px solid #ccc; padding: 24px; margin-top: 20px; }
             .section { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
             .signature-section { margin-top: 40px; }
             img { max-width: 300px; max-height: 120px; }
@@ -56,19 +79,21 @@ export async function GET(
         </head>
         <body>
           <h1>CONVENIENCE HUB OF MARYLAND</h1>
-          <h2>New Employee Orientation Document & Memorandum of Understanding</h2>
 
           <div class="section">
             <h2>EMPLOYEE INFORMATION</h2>
-            <p><strong>Name:</strong> ${applicant.full_name}</p>
-            <p><strong>Position:</strong> ${applicant.position}</p>
-            <p><strong>Email:</strong> ${applicant.email || 'N/A'}</p>
-            <p><strong>Phone:</strong> ${applicant.phone}</p>
-            <p><strong>Address:</strong> ${applicant.address || 'Not provided'}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Position:</strong> ${position}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Address:</strong> ${address}</p>
             <p><strong>Date Signed:</strong> ${signedDate}</p>
           </div>
 
-          <div class="section">
+          <h2>FULL ORIENTATION DOCUMENT &amp; MEMORANDUM OF UNDERSTANDING</h2>
+          <div class="full-text">${escapeHtml(ORIENTATION_DOCUMENT)}</div>
+
+          <div class="section" style="margin-top: 30px;">
             <h2>EMPLOYEE ACKNOWLEDGMENT</h2>
             <p>By signing this document, I acknowledge that I have read, understood, and agree to comply with all terms outlined in this Orientation Document and Memorandum of Understanding.</p>
             <p>I specifically acknowledge:</p>
@@ -83,29 +108,28 @@ export async function GET(
 
           <div class="signature-section">
             <h2>EMPLOYEE SIGNATURE</h2>
-            ${applicant.full_signature ? `<img src="${applicant.full_signature}" alt="Signature" style="margin-bottom: 20px;">` : '<p>No signature available</p>'}
+            ${signatureSrc ? `<img src="${signatureSrc}" alt="Signature" style="margin-bottom: 20px;">` : '<p>No signature available</p>'}
             <p style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px;">
-              <strong>Signature Name:</strong> ${applicant.signature_name || applicant.full_name}
+              <strong>Signature Name:</strong> ${signatureName}
             </p>
             <p><strong>Signed:</strong> ${signedDate}</p>
-            <p><strong>By:</strong> ${applicant.full_name}</p>
-            <p><strong>Position:</strong> ${applicant.position}</p>
+            <p><strong>By:</strong> ${name}</p>
+            <p><strong>Position:</strong> ${position}</p>
           </div>
 
           <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">
             <p>This document was electronically signed and accepted on ${signedDate}</p>
             <p>Convenience Hub of Maryland • 202-579-2944</p>
-            <p style="color: #999;">Record ID: ${applicant.id}</p>
+            <p style="color: #999;">Record ID: ${recordId}</p>
           </div>
         </body>
       </html>
     `
 
-    // Return as HTML (browser will open/download it)
     return new NextResponse(htmlContent, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Content-Disposition': `attachment; filename="Orientation-${applicant.full_name}-${signedDate.split(' ')[0]}.html"`,
+        'Content-Disposition': `attachment; filename="Orientation-${String(applicant.full_name ?? 'Staff').replace(/[^A-Za-z0-9_-]/g, '_')}-${signedDate.split(' ')[0].replace(/[^A-Za-z0-9_-]/g, '_')}.html"`,
       },
     })
   } catch (err) {
