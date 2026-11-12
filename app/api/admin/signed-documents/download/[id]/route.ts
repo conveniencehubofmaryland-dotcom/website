@@ -10,15 +10,13 @@ export async function GET(
   try {
     const { id } = await params
 
-    // Fetch applicant data
+    // Fetch applicant data (service key goes in apikey; Bearer only for legacy JWT-style keys)
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    const headers: Record<string, string> = { apikey: serviceKey }
+    if (serviceKey.startsWith('eyJ')) headers.Authorization = `Bearer ${serviceKey}`
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}`,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      }
+      { headers }
     )
 
     if (!res.ok) {
