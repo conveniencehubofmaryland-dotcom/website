@@ -30,3 +30,6 @@ npm-debug.log*
 # Debug screenshots from Playwright (root-level only)
 /*.jpeg
 /*.png
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
