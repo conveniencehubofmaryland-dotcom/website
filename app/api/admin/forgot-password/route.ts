@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
     })
 
     if (!generateLinkRes.ok) {
-      return NextResponse.json({ error: 'Failed to generate reset link.' }, { status: 500 })
+      // Same reply as success, so this can't be used to find out which emails have accounts.
+      return NextResponse.json({ success: true })
     }
 
     const { action_link } = await generateLinkRes.json()
