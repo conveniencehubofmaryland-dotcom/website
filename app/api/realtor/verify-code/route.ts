@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     login_code_expires_at: null,
     session_token_hash: await sha256Hex(token),
     session_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    session_last_active_at: new Date().toISOString(),
   })
   const res = NextResponse.json({ ok: true })
   res.cookies.set(REALTOR_COOKIE, token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 7 * 24 * 60 * 60 })

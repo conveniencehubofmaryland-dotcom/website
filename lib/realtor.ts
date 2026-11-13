@@ -97,18 +97,30 @@ export async function consumeReferralCode(raw: string, bookingLabel: string): Pr
 }
 
 // Returns the signed-in, approved realtor from the session cookie, or null.
+// Realtors are signed out after 30 minutes without a request.
+const REALTOR_IDLE_MS = 30 * 60 * 1000
+
 export async function getSignedInRealtor() {
   const token = (await cookies()).get(REALTOR_COOKIE)?.value
   if (!token) return null
   const hash = await sha256Hex(token)
-  const rows = await svcSelect<{ id: string; name: string; email: string; approved: boolean }>('realtors', {
+  const rows = await svcSelect<{ id: string; name: string; email: string; approved: boolean; session_last_active_at: string | null }>('realtors', {
     session_token_hash: `eq.${hash}`,
     session_expires_at: `gt.${new Date().toISOString()}`,
     approved: 'eq.true',
-    select: 'id,name,email,approved',
+    select: 'id,name,email,approved,session_last_active_at',
     limit: '1',
   })
-  return rows[0] ?? null
+  const r = rows[0]
+  if (!r) return null
+  const lastActive = r.session_last_active_at ? new Date(r.session_last_active_at).getTime() : 0
+  if (Date.now() - lastActive > REALTOR_IDLE_MS) {
+    // Idle too long: end the session.
+    await svcPatch('realtors', { id: `eq.${r.id}` }, { session_token_hash: null, session_expires_at: null })
+    return null
+  }
+  await svcPatch('realtors', { id: `eq.${r.id}` }, { session_last_active_at: new Date().toISOString() })
+  return { id: r.id, name: r.name, email: r.email, approved: r.approved }
 }
 
 export async function sendEmail(payload: Record<string, unknown>) {

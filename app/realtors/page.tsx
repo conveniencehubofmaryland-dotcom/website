@@ -45,6 +45,35 @@ export default function RealtorsPage() {
 
   useEffect(() => { loadCodes() }, [])
 
+  // Sign the partner out after 30 minutes with no activity on the page.
+  // While they are active, check in with the server every 5 minutes to keep the session alive.
+  useEffect(() => {
+    if (!signedIn) return
+    const IDLE_MS = 30 * 60 * 1000
+    const PING_MS = 5 * 60 * 1000
+    let lastPing = Date.now()
+    let timer: ReturnType<typeof setTimeout>
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart']
+    const reset = () => {
+      clearTimeout(timer)
+      if (Date.now() - lastPing > PING_MS) {
+        lastPing = Date.now()
+        fetch('/api/realtor/referrals').catch(() => {})
+      }
+      timer = setTimeout(async () => {
+        await fetch('/api/realtor/logout', { method: 'POST' }).catch(() => {})
+        setSignedIn(false); setCodes([]); setLastCode(''); setCodeSent(false)
+        setMsg('You were signed out after 30 minutes of inactivity. Please sign in again.')
+      }, IDLE_MS)
+    }
+    events.forEach(e => window.addEventListener(e, reset))
+    reset()
+    return () => {
+      clearTimeout(timer)
+      events.forEach(e => window.removeEventListener(e, reset))
+    }
+  }, [signedIn])
+
   async function post(url: string, body: unknown) {
     setBusy(true); setErr(''); setMsg('')
     try {
