@@ -66,12 +66,32 @@ export async function POST(req: NextRequest) {
     // 5. Build email HTML (minified to avoid template literal issues)
     const emailHTML = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><div style="background-color: #c41e3a; padding: 20px; text-align: center; color: white;"><h1 style="margin: 0;">Welcome to CHM</h1></div><div style="padding: 30px;"><p>Hi ${full_name},</p><p>We&apos;re excited to have you join the Convenience Hub of Maryland team! 🌟</p><p>To get started with your onboarding, please click the button below:</p><p style="background-color: #fff7e6; border: 1px solid #f0c36d; padding: 12px 16px; border-radius: 5px;"><strong>Please have your background check document ready.</strong> It must be dated within the last 6 months, and you will need to upload it when you submit your application.</p><div style="text-align: center; margin: 30px 0;"><a href="${onboarding_link}" style="display: inline-block; background-color: #c41e3a; color: white; padding: 15px 40px; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;">Start Your Onboarding</a></div><p style="color: #666; font-size: 14px;">This link will expire in 30 days. If you have any questions, please contact our HR team.</p><hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;"><p><strong>Contact Info:</strong><br>📧 conveniencehubofmaryland@gmail.com<br>📱 202-579-2944<br>Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM</p><p>Looking forward to working with you!</p><p><strong>The CHM Team</strong></p></div><div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666;"><p>This is an automated message. Please do not reply to this email.</p></div></div>`
 
+    // Plain-text version: spam filters trust emails that include one.
+    const emailText = [
+      `Hi ${full_name},`,
+      '',
+      'We are excited to have you join the Convenience Hub of Maryland team!',
+      '',
+      'To get started with your onboarding, please open this link:',
+      onboarding_link,
+      '',
+      'Please have your background check document ready. It must be dated within the last 6 months, and you will need to upload it when you submit your application.',
+      '',
+      'This link will expire in 30 days. If you have any questions, please contact our HR team.',
+      '',
+      'Contact: conveniencehubofmaryland@gmail.com | 202-579-2944',
+      'Mon-Sat 7 AM-11 PM, Sun 9 AM-9 PM',
+      '',
+      'The CHM Team',
+    ].join('\n')
+
     // 6. Send email with clickable button
     const { error: emailError } = await resend.emails.send({
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
-      subject: '🎉 Welcome to Convenience Hub of Maryland - Start Your Onboarding',
+      subject: 'Welcome to Convenience Hub of Maryland - Start Your Onboarding',
       html: emailHTML,
+      text: emailText,
     })
 
     if (emailError) {
