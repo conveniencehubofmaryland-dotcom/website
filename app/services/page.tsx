@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import AnimatedSection from '@/components/AnimatedSection'
 import type { Service, PricingItem } from '@/lib/types'
+import { dbSelect } from '@/lib/db'
 import Link from 'next/link'
 import CustomQuoteButton from '@/components/CustomQuoteButton'
 
@@ -216,7 +217,9 @@ function groupBySections(items: PricingItem[]): { name: string; items: PricingIt
 }
 
 export default async function ServicesPage() {
-  const services = STATIC_SERVICES
+  // Services and prices come from the admin Services list; the built-in list is a fallback.
+  const dbServices = await dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: '*' })
+  const services = dbServices.length > 0 ? dbServices : STATIC_SERVICES
 
   return (
     <div className="bg-white">

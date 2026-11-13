@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import type { Review, Deal } from '@/lib/types'
+import type { Review, Deal, Service } from '@/lib/types'
 import { getGoogleRating } from '@/lib/googleReviews'
 import AnimatedSection from '@/components/AnimatedSection'
 import AuthRedirectHandler from '@/components/AuthRedirectHandler'
@@ -123,7 +123,9 @@ function LeafSVG({ className = '' }: { className?: string }) {
 
 export default async function HomePage() {
   const reviews = await dbSelect<Review>('reviews', { approved: 'eq.true', order: 'created_at.desc', limit: '6', select: 'id,customer_name,rating,body,service_mentioned' })
-  const services = STATIC_SERVICES
+  // Services come from the admin Services list; the built-in list is a fallback.
+  const dbServices = await dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,slug,title,subtitle,description,price_from' })
+  const services = dbServices.length > 0 ? dbServices : STATIC_SERVICES
   const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', limit: '4' })
   const googleRating = await getGoogleRating()
   return (

@@ -172,13 +172,13 @@ export async function POST(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   // The booking form sends short category names; map them to the services table slugs.
   const CATEGORY_TO_SLUG: Record<string, string> = {
-    cleaning: 'cleaning-estate-care',
-    laundry: 'laundry-pickup-delivery',
-    mealprep: 'meal-prep',
-    nanny: 'nanny-childcare',
-    eldercare: 'elder-companion-care',
-    commercial: 'commercial-cleaning',
-    special: 'special-projects',
+    cleaning: 'cleaning',
+    laundry: 'laundry',
+    mealprep: 'culinary',
+    nanny: 'care',
+    eldercare: 'care',
+    commercial: 'commercial',
+    special: 'care',
   }
   const dbSlug = CATEGORY_TO_SLUG[service_id] ?? service_id
   const svcRes = await fetch(`${supabaseUrl}/rest/v1/services?slug=eq.${encodeURIComponent(dbSlug)}&select=id&limit=1`, {
