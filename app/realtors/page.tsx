@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from 'react'
 
+type Code = { id: string; code: string; buyer_name: string; buyer_email: string; buyer_phone: string | null; status: string; expires_at: string; used_at: string | null; created_at: string }
+
+function codeStatus(c: Code) {
+  if (c.status === 'used') return 'Used'
+  if (c.status === 'revoked') return 'Cancelled'
+  if (new Date(c.expires_at).getTime() <= Date.now()) return 'Expired'
+  return 'Active'
+}
+
 const input = 'w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red bg-white'
 const label = 'block text-xs uppercase tracking-widest text-gray-500 mb-2'
 const btn = 'bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60'
@@ -10,6 +19,7 @@ export default function RealtorsPage() {
   const [loaded, setLoaded] = useState(false)
   const [signedIn, setSignedIn] = useState(false)
   const [realtorName, setRealtorName] = useState('')
+  const [codes, setCodes] = useState<Code[]>([])
   const [tab, setTab] = useState<'register' | 'signin'>('signin')
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
@@ -29,6 +39,7 @@ export default function RealtorsPage() {
     const data = await res.json()
     setSignedIn(true)
     setRealtorName(data.realtor?.name || '')
+    setCodes(data.codes || [])
     setLoaded(true)
   }
 
@@ -83,7 +94,7 @@ export default function RealtorsPage() {
 
   async function logout() {
     await fetch('/api/realtor/logout', { method: 'POST' })
-    setSignedIn(false); setLastCode(''); setMsg('')
+    setSignedIn(false); setCodes([]); setLastCode(''); setMsg('')
   }
 
   if (!loaded) return <div className="max-w-3xl mx-auto px-6 py-24 text-gray-400 text-sm">Loading…</div>
@@ -158,6 +169,31 @@ export default function RealtorsPage() {
               {lastCode && <p className="text-sm">Last code: <strong className="tracking-widest">{lastCode}</strong></p>}
               <button disabled={busy} className={btn}>{busy ? 'Creating…' : 'Create & Email Code'}</button>
             </form>
+
+            <div>
+              <p className="font-serif text-2xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>Your referred clients</p>
+              {codes.length === 0 ? (
+                <p className="text-sm text-gray-400">No referrals yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead><tr className="text-left text-xs uppercase tracking-widest text-gray-500 border-b"><th className="py-2">Code</th><th>Buyer</th><th>Contact</th><th>Created</th><th>Expires</th><th>Status</th></tr></thead>
+                    <tbody>
+                      {codes.map(c => (
+                        <tr key={c.id} className="border-b border-gray-100 align-top">
+                          <td className="py-3 font-mono">{c.code}</td>
+                          <td>{c.buyer_name}</td>
+                          <td className="text-xs">{c.buyer_email}{c.buyer_phone ? <><br />{c.buyer_phone}</> : null}</td>
+                          <td>{new Date(c.created_at).toLocaleDateString()}</td>
+                          <td>{new Date(c.expires_at).toLocaleDateString()}</td>
+                          <td>{codeStatus(c)}{c.status === 'used' && c.used_at ? <><br /><span className="text-xs text-gray-500">{new Date(c.used_at).toLocaleDateString()}</span></> : null}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

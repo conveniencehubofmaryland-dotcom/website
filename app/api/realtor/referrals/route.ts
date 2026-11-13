@@ -5,7 +5,7 @@ export async function GET() {
   const realtor = await getSignedInRealtor()
   if (!realtor) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 })
   const codes = await svcSelect<Record<string, unknown>>('referral_codes', {
-    realtor_id: `eq.${realtor.id}`, select: 'id,code,buyer_name,buyer_email,status,expires_at,used_at,created_at', order: 'created_at.desc',
+    realtor_id: `eq.${realtor.id}`, select: 'id,code,buyer_name,buyer_email,buyer_phone,status,expires_at,used_at,created_at', order: 'created_at.desc',
   })
   return NextResponse.json({ realtor: { name: realtor.name }, codes })
 }
