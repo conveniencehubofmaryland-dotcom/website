@@ -1,17 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
 import AnimatedSection from '@/components/AnimatedSection'
 
 export default function ReferralProgram() {
-  const [copied, setCopied] = useState(false)
-  const referralCode = 'CONVENIENCEHUB'
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(referralCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   return (
     <section className="bg-white py-14 md:py-20 border-t border-gray-100">
@@ -137,19 +128,13 @@ export default function ReferralProgram() {
         <AnimatedSection>
           <div className="bg-chm-red text-white p-8 md:p-10 text-center">
             <h3 className="font-serif text-2xl md:text-3xl mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
-              Your Unique Referral Code
+              Your Personal Referral Code
             </h3>
-            <p className="mb-6 text-sm font-light">Share this code and start earning rewards</p>
+            <p className="mb-6 text-sm font-light">Every member gets their own code. It is emailed to you when you join.</p>
 
-            <div className="flex items-center justify-center gap-4 bg-white/20 rounded p-4 max-w-sm mx-auto backdrop-blur-sm mb-4">
-              <p className="text-2xl font-bold">{referralCode}</p>
-              <button
-                onClick={handleCopyCode}
-                className="px-4 py-2 bg-white text-chm-red font-semibold text-xs uppercase tracking-widest rounded hover:bg-gray-100 transition-colors"
-              >
-                {copied ? '✓ Copied' : 'Copy'}
-              </button>
-            </div>
+            <a href="#join" className="inline-block bg-white text-chm-red font-semibold text-xs uppercase tracking-widest px-6 py-3 hover:bg-gray-100 transition-colors mb-4">
+              Join to Get Your Code
+            </a>
 
             <p className="text-xs font-light">Share on social media, email, or text</p>
           </div>

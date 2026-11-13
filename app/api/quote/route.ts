@@ -3,6 +3,7 @@ import { dbInsertService } from '@/lib/db'
 import { computeQuote, type LineItem } from '@/lib/quote-pricing'
 import { isActiveMember } from '@/lib/membership'
 import { checkReferralCode } from '@/lib/realtor'
+import { isMemberCode, checkMemberReferral } from '@/lib/member-referral'
 
 const SITE_URL = 'https://conveniencehubofmaryland.com'
 const SUPPORT_PHONE = '202-579-2944'
@@ -22,7 +23,10 @@ export async function POST(req: NextRequest) {
     }
 
     let realtor = false
-    if (typeof referralCode === 'string' && referralCode.trim()) {
+    if (typeof referralCode === 'string' && referralCode.trim() && isMemberCode(referralCode)) {
+      const memberCheck = await checkMemberReferral(referralCode, email)
+      if (!memberCheck.ok) return NextResponse.json({ error: memberCheck.error }, { status: 400 })
+    } else if (typeof referralCode === 'string' && referralCode.trim()) {
       const check = await checkReferralCode(referralCode)
       if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
       realtor = true

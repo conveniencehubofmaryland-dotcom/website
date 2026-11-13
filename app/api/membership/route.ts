@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
+import { newMemberCode } from '@/lib/member-referral'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
@@ -15,7 +16,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'We only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
   }
 
+  const referralCode = newMemberCode()
   const { error } = await dbInsert('members', {
+    referral_code:       referralCode,
     name:                name.trim(),
     phone:               phone.trim(),
     email:               email.trim(),
@@ -103,6 +106,9 @@ export async function POST(req: NextRequest) {
                 <p style="font-size:15px;color:#333">Hi ${trimmedName},</p>
                 <p style="font-size:14px;color:#555;line-height:1.6">
                   Welcome to Convenience Hub of Maryland. Your membership is now active and you have immediate access to all member benefits.
+                </p>
+                <p style="font-size:14px;color:#555;line-height:1.6">
+                  Your personal referral code is <strong style="color:#E8192C">${referralCode}</strong>. Share it with friends. When a friend pays for their first service with your code, you earn one $15 referral bonus. Show proof to redeem it. Members only.
                 </p>
                 <table style="border-collapse:collapse;font-size:14px;width:100%;margin:20px 0">
                   <tr style="border-bottom:1px solid #f0f0f0">

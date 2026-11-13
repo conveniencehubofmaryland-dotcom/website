@@ -977,7 +977,7 @@ export default function QuoteForm() {
           <input required type="email" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} className={inputClass} placeholder="jane@example.com" />
         </div>
         <div>
-          <label className={labelClass}>Realtor Referral Code <span className="text-gray-400 normal-case tracking-normal">(optional)</span></label>
+          <label className={labelClass}>Referral Code <span className="text-gray-400 normal-case tracking-normal">(optional)</span></label>
           <input type="text" value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} className={inputClass} placeholder="CHM-XXXX-XXXX" />
         </div>
 

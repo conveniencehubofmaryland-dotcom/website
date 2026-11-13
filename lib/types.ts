@@ -202,3 +202,21 @@ export type MembershipPlan = {
   active: boolean
   created_at: string
 }
+
+export type MemberReferral = {
+  id: string
+  referrer_email: string
+  referrer_name: string
+  referrer_code: string
+  referred_name: string
+  referred_email: string
+  referred_phone: string | null
+  status: 'pending' | 'earned' | 'redeemed' | 'ineligible'
+  booking_label: string | null
+  proof_charge_id: string | null
+  proof_amount: number | null
+  earned_at: string | null
+  redeemed_at: string | null
+  note: string | null
+  created_at: string
+}

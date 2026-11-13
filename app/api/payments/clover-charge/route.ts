@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { isActiveMember } from '@/lib/membership'
 import { checkReferralCode } from '@/lib/realtor'
+import { isMemberCode, checkMemberReferral, recordPaidReferral, type MemberReferralCheck } from '@/lib/member-referral'
 
 const DEPOSIT_RATE = 0.3
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
@@ -40,7 +41,12 @@ export async function POST(request: NextRequest) {
   }
 
   let realtor = false
-  if (referralCode) {
+  let memberRef: Extract<MemberReferralCheck, { ok: true }> | null = null
+  if (referralCode && isMemberCode(referralCode)) {
+    const memberCheck = await checkMemberReferral(referralCode, email)
+    if (!memberCheck.ok) return NextResponse.json({ error: memberCheck.error }, { status: 400 })
+    memberRef = memberCheck
+  } else if (referralCode) {
     const check = await checkReferralCode(referralCode)
     if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
     realtor = true
@@ -95,6 +101,10 @@ export async function POST(request: NextRequest) {
   }
 
   const chargeId = charge.id as string
+  if (memberRef) {
+    await recordPaidReferral(memberRef, { name, email, phone }, { chargeId, amount })
+      .catch(e => console.error('[referral] paid record error:', e))
+  }
   const resendKey = process.env.RESEND_API_KEY
   const label = kind === 'deposit' ? 'Deposit' : 'Payment in full'
 

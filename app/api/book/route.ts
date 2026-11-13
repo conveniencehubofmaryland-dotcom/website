@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
+import { isMemberCode, checkMemberReferral, recordPendingReferral, type MemberReferralCheck } from '@/lib/member-referral'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
 import { consumeReferralCode } from '@/lib/realtor'
 import { slotsForDate } from '@/lib/hours'
@@ -161,7 +162,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Sorry, we only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
   }
 
-  if (typeof referral_code === 'string' && referral_code.trim()) {
+  let memberReferral: Extract<MemberReferralCheck, { ok: true }> | null = null
+  if (typeof referral_code === 'string' && referral_code.trim() && isMemberCode(referral_code)) {
+    const memberCheck = await checkMemberReferral(referral_code, email || '')
+    if (!memberCheck.ok) return NextResponse.json({ error: memberCheck.error }, { status: 400 })
+    memberReferral = memberCheck
+  } else if (typeof referral_code === 'string' && referral_code.trim()) {
     const used = await consumeReferralCode(referral_code, customer_name)
     if (!used) {
       return NextResponse.json({ error: 'That referral code has already been used or has expired.' }, { status: 409 })
@@ -293,5 +299,9 @@ export async function POST(req: NextRequest) {
     ),
   ])
 
+  if (memberReferral) {
+    await recordPendingReferral(memberReferral, { name: customer_name, email: email || '', phone }, customer_name)
+      .catch(e => console.error('[referral] pending record error:', e))
+  }
   return NextResponse.json({ success: true })
 }

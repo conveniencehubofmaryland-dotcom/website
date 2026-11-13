@@ -289,7 +289,7 @@ export default async function DealsPage() {
         </AnimatedSection>
         {/* Membership Signup Form */}
         <AnimatedSection>
-          <div className="border-t border-chm-red/20 pt-10">
+          <div id="join" className="border-t border-chm-red/20 pt-10 scroll-mt-24">
             <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Sign Up</p>
             <h2 className="font-serif text-3xl text-chm-black mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
               Join Today
