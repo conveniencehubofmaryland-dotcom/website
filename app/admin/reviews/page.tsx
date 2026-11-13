@@ -9,7 +9,7 @@ export default async function AdminReviewsPage({
 }: {
   searchParams: Promise<{ filter?: string }>
 }) {
-  const { filter = 'pending' } = await searchParams
+  const { filter = 'all' } = await searchParams
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
 
