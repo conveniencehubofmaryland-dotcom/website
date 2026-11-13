@@ -77,9 +77,10 @@ export default function WelcomeCenterForm() {
       !formData.date_of_birth ||
       !formData.position ||
       formData.years_of_experience === '' ||
-      !formData.acknowledged_1099
+      !formData.acknowledged_1099 ||
+      !formData.backgroundCheckFile
     ) {
-      setError('All fields are required')
+      setError('All fields are required, including your background check document')
       setLoading(false)
       return
     }
@@ -311,12 +312,13 @@ export default function WelcomeCenterForm() {
           {/* NEW: Background Check Upload */}
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
-              Background Check Document (PDF, JPG, or PNG)
+              Background Check Document (PDF, JPG, or PNG) *
             </label>
-            <p className="text-xs text-gray-500 mb-2">Maximum file size: 10 MB (optional)</p>
+            <p className="text-xs text-gray-500 mb-2">Required. Maximum file size: 10 MB</p>
             <input
               type="file"
               name="backgroundCheck"
+              required
               onChange={handleFileChange}
               accept=".pdf,.jpg,.jpeg,.png"
               className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"

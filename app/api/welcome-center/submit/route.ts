@@ -45,6 +45,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if (!backgroundCheckFile || backgroundCheckFile.size === 0) {
+      return NextResponse.json(
+        { error: 'Background check document is required' },
+        { status: 400 }
+      )
+    }
+
     // Validate date of birth is in past
     const dob = new Date(date_of_birth)
     if (dob > new Date()) {
