@@ -240,10 +240,10 @@ export default async function DealsPage() {
             <div className="bg-white p-8">
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Refer a Friend</p>
               <h3 className="font-serif text-2xl text-chm-black mb-3" style={{ fontFamily: 'var(--font-serif)' }}>
-                Earn $20 Credit
+                Earn $15 Credit
               </h3>
               <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                You earn $20 credit per qualified referral. Your friend gets 3% off their first service. Unlimited referrals, no cap.
+                One $15 referral bonus per person. Your friend gets 3% off their first service. You must be a member, and you must show proof of the referral to redeem.
               </p>
             </div>
           </div>

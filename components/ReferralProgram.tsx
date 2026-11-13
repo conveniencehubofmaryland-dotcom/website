@@ -74,34 +74,15 @@ export default function ReferralProgram() {
                 <div className="bg-white border border-gray-200 p-4">
                   <div className="flex justify-between items-start mb-2">
                     <p className="font-semibold text-chm-black">Refer 1 friend</p>
-                    <p className="text-2xl font-bold text-chm-red">$20</p>
+                    <p className="text-2xl font-bold text-chm-red">$15</p>
                   </div>
-                  <p className="text-xs text-gray-600">credit</p>
+                  <p className="text-xs text-gray-600">one referral bonus per person</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 3 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">$80</p>
-                  </div>
-                  <p className="text-xs text-gray-600">credit</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 5 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">$150</p>
-                  </div>
-                  <p className="text-xs text-gray-600">credit</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-semibold text-chm-black">Refer 10 friends</p>
-                    <p className="text-2xl font-bold text-chm-red">Free month</p>
-                  </div>
-                  <p className="text-xs text-gray-600">up to $400 in services</p>
-                </div>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-3"><span className="text-chm-red font-bold mt-0.5">✓</span><span>You must be a member to redeem</span></li>
+                  <li className="flex items-start gap-3"><span className="text-chm-red font-bold mt-0.5">✓</span><span>Show proof of the referral to redeem</span></li>
+                </ul>
               </div>
 
               <a href="tel:+12025792944" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
@@ -147,7 +128,7 @@ export default function ReferralProgram() {
                   4
                 </div>
                 <h4 className="font-semibold text-chm-black mb-2">Redeem</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">Use credits toward any service anytime</p>
+                <p className="text-xs text-gray-600 leading-relaxed">Members show proof to redeem the $15 credit</p>
               </div>
             </div>
           </div>
