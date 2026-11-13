@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   const email = String(body.email || '').trim().toLowerCase()
   if (email) {
-    const rows = await svcSelect<{ id: string }>('realtors', { email: `eq.${encodeURIComponent(email)}`, approved: 'eq.true', select: 'id', limit: '1' })
+    const rows = await svcSelect<{ id: string }>('realtors', { email: `eq.${email}`, approved: 'eq.true', select: 'id', limit: '1' })
     if (rows[0]) {
       const code = randomSixDigits()
       await svcPatch('realtors', { id: `eq.${rows[0].id}` }, {
