@@ -49,7 +49,7 @@ export default function ReferralProgram() {
                 </li>
               </ul>
 
-              <a href="tel:+12025792944" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
+              <a href="/book" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
                 Claim Discount
               </a>
             </div>
@@ -76,7 +76,7 @@ export default function ReferralProgram() {
                 </ul>
               </div>
 
-              <a href="tel:+12025792944" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
+              <a href="#join" className="block w-full bg-chm-red text-white px-6 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors text-center">
                 Start Earning
               </a>
             </div>
