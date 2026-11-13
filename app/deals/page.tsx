@@ -4,7 +4,7 @@ import AnimatedSection from '@/components/AnimatedSection'
 import ReferralProgram from '@/components/ReferralProgram'
 import MembershipSignupForm from '@/components/MembershipSignupForm'
 import { dbSelect } from '@/lib/db'
-import type { Deal } from '@/lib/types'
+import type { Deal, BundleRow, MembershipPlan } from '@/lib/types'
 import { BUNDLES, formatPrice } from '@/lib/bundles'
 
 export const metadata: Metadata = {
@@ -19,24 +19,46 @@ const PERKS = [
   { icon: '✓', title: 'Free Signup',         desc: 'No cost to join — membership is completely free.' },
 ]
 
-const PREMIUM_PERKS = [
-  'Priority scheduling',
-  '2% off recurring services',
+// Fallbacks used only if the admin-managed tables are empty or unreachable.
+const FALLBACK_PLANS: MembershipPlan[] = [
+  { id: 'fallback-standard', tier: 'standard', name: 'Free Member', price_label: '$0', subtitle: '/ forever', features: ['Priority booking access', 'Member-only weekly deals', '2% off all recurring services', 'No fees, cancel anytime'], sort_order: 1, active: true, created_at: '' },
+  { id: 'fallback-premium', tier: 'premium', name: 'Premium Status', price_label: 'Unlocked with', subtitle: '12-month subscription or 12+ services/year', features: ['Priority scheduling', '2% off recurring services'], sort_order: 2, active: true, created_at: '' },
 ]
 
-const toBundleCard = (b: (typeof BUNDLES)[number]) => ({
+const FALLBACK_BUNDLES: BundleRow[] = BUNDLES.map((b, i) => ({
+  id: b.id,
+  category: b.category === 'senior' || b.category === 'family' ? 'residential' : b.category,
+  name: b.name,
+  price: b.price,
+  savings_percent: b.savingsPercent,
+  description: b.description,
+  highlighted: !!b.highlighted,
+  services: b.services,
+  sort_order: i,
+  active: true,
+  created_at: '',
+}))
+
+const toBundleCard = (b: BundleRow) => ({
   name: b.name,
   subtitle: '',
-  includes: b.description,
+  includes: b.description ?? '',
   bundle: formatPrice(b.price),
-  save: `${b.savingsPercent}%`,
+  save: `${b.savings_percent}%`,
 })
 
-const RESIDENTIAL_BUNDLES = BUNDLES.filter(b => b.category !== 'commercial').map(toBundleCard)
-const COMMERCIAL_BUNDLES = BUNDLES.filter(b => b.category === 'commercial').map(toBundleCard)
-
 export default async function DealsPage() {
-  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
+  const [deals, bundleRows, planRows] = await Promise.all([
+    dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' }),
+    dbSelect<BundleRow>('bundles', { active: 'eq.true', order: 'sort_order' }),
+    dbSelect<MembershipPlan>('membership_plans', { active: 'eq.true', order: 'sort_order' }),
+  ])
+  const bundles = bundleRows.length > 0 ? bundleRows : FALLBACK_BUNDLES
+  const plans = planRows.length > 0 ? planRows : FALLBACK_PLANS
+  const standardPlan = plans.find(p => p.tier === 'standard') ?? FALLBACK_PLANS[0]
+  const premiumPlan = plans.find(p => p.tier === 'premium') ?? FALLBACK_PLANS[1]
+  const RESIDENTIAL_BUNDLES = bundles.filter(b => b.category !== 'commercial').map(toBundleCard)
+  const COMMERCIAL_BUNDLES = bundles.filter(b => b.category === 'commercial').map(toBundleCard)
 
   return (
     <div className="bg-white">
@@ -95,28 +117,27 @@ export default async function DealsPage() {
             <div className="bg-white p-8 md:p-10">
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Standard</p>
               <h3 className="font-serif text-3xl text-chm-black mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
-                Free Member
+                {standardPlan.name}
               </h3>
-              <p className="text-2xl text-chm-black mb-6">$0<span className="text-sm text-gray-400 font-normal"> / forever</span></p>
+              <p className="text-2xl text-chm-black mb-6">{standardPlan.price_label}<span className="text-sm text-gray-400 font-normal"> {standardPlan.subtitle}</span></p>
               <div className="w-10 h-px bg-chm-red mb-6" />
               <ul className="space-y-3 text-sm text-gray-600 mb-8">
-                <li className="flex gap-3"><span className="text-chm-red">✓</span>Priority booking access</li>
-                <li className="flex gap-3"><span className="text-chm-red">✓</span>Member-only weekly deals</li>
-                <li className="flex gap-3"><span className="text-chm-red">✓</span>2% off all recurring services</li>
-                <li className="flex gap-3"><span className="text-chm-red">✓</span>No fees, cancel anytime</li>
+                {standardPlan.features.map(f => (
+                  <li key={f} className="flex gap-3"><span className="text-chm-red">✓</span>{f}</li>
+                ))}
               </ul>
             </div>
 
             <div className="bg-chm-black text-white p-8 md:p-10">
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Premium</p>
               <h3 className="font-serif text-3xl text-white mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
-                Premium Status
+                {premiumPlan.name}
               </h3>
-              <p className="text-2xl text-white mb-2">Unlocked with</p>
-              <p className="text-sm text-gray-400 mb-6">12-month subscription or 12+ services/year</p>
+              <p className="text-2xl text-white mb-2">{premiumPlan.price_label}</p>
+              <p className="text-sm text-gray-400 mb-6">{premiumPlan.subtitle}</p>
               <div className="w-10 h-px bg-chm-red mb-6" />
               <ul className="space-y-3 text-sm text-gray-300 mb-8">
-                {PREMIUM_PERKS.map(p => (
+                {premiumPlan.features.map(p => (
                   <li key={p} className="flex gap-3"><span className="text-chm-red">✓</span>{p}</li>
                 ))}
               </ul>

@@ -174,3 +174,31 @@ export type StaffModuleProgress = {
   completed_at: string | null
   created_at: string
 }
+
+export type BundleService = { name: string; frequency?: string | null }
+
+export type BundleRow = {
+  id: string
+  category: 'residential' | 'family' | 'senior' | 'commercial'
+  name: string
+  price: number
+  savings_percent: number
+  description: string | null
+  highlighted: boolean
+  services: BundleService[]
+  sort_order: number
+  active: boolean
+  created_at: string
+}
+
+export type MembershipPlan = {
+  id: string
+  tier: 'standard' | 'premium'
+  name: string
+  price_label: string | null
+  subtitle: string | null
+  features: string[]
+  sort_order: number
+  active: boolean
+  created_at: string
+}

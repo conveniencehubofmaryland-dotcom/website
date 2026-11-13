@@ -126,7 +126,7 @@ export default async function HomePage() {
   // Services come from the admin Services list; the built-in list is a fallback.
   const dbServices = await dbSelect<Service>('services', { active: 'eq.true', order: 'sort_order', select: 'id,slug,title,subtitle,description,price_from' })
   const services = dbServices.length > 0 ? dbServices : STATIC_SERVICES
-  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order', limit: '4' })
+  const deals = await dbSelect<Deal>('deals', { active: 'eq.true', order: 'sort_order' })
   const googleRating = await getGoogleRating()
   return (
     <>
