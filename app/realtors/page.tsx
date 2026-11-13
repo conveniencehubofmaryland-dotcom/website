@@ -34,7 +34,8 @@ export default function RealtorsPage() {
 
   async function loadCodes() {
     const res = await fetch('/api/realtor/referrals')
-    if (res.status === 401) { setSignedIn(false); setLoaded(true); return }
+    // Only show the partner area when the server confirms a signed-in realtor.
+    if (!res.ok) { setSignedIn(false); setLoaded(true); return }
     const data = await res.json()
     setSignedIn(true)
     setRealtorName(data.realtor?.name || '')
