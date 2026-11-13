@@ -44,7 +44,9 @@ export default function StaffPageContent() {
           applicantId = applCookie ? applCookie.split('=')[1] : null
         }
         if (!applicantId) {
-          router.push('/welcome-center')
+          // No invite and not signed in: show the staff portal instead of redirecting.
+          setStaffName('')
+          setLoading(false)
           return
         }
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
@@ -80,7 +82,7 @@ export default function StaffPageContent() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-2">Welcome</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-chm-black">Hello, {staffName}</h1>
+          <h1 className="font-serif text-4xl md:text-5xl text-chm-black">{staffName ? `Hello, ${staffName}` : 'Staff Portal'}</h1>
           <div className="w-8 h-px bg-chm-red mt-4" />
         </div>
 
