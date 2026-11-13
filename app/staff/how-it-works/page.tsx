@@ -6,32 +6,25 @@ export default function StaffHowItWorksPage() {
   const [error, setError] = useState('')
   const [buttonLoading, setButtonLoading] = useState(false)
 
+  const [inviteToken, setInviteToken] = useState('')
+
+  // Arrives from the invite email with ?invite_token=... and saves the applicant on this device.
+  // Nothing is marked as read here: the step is completed only when Get Started is pressed.
   useEffect(() => {
-    async function markAsRead() {
+    async function loadApplicant() {
       try {
-        let id = localStorage.getItem('applicant_id')
-        if (!id) {
-          const cookies = document.cookie.split(';')
-          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-          id = applCookie ? applCookie.split('=')[1] : null
+        const token = new URLSearchParams(window.location.search).get('invite_token') || ''
+        if (token) {
+          setInviteToken(token)
+          localStorage.setItem('invite_token', token)
+          const res = await fetch(`/api/staff/welcome/check?invite_token=${encodeURIComponent(token)}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.applicant_id) localStorage.setItem('applicant_id', data.applicant_id)
+          }
         }
-
-        if (!id) {
-          setError('No applicant ID found. Please start from /welcome-center')
-          setLoading(false)
-          return
-        }
-
-        // Mark as read
-        const res = await fetch('/api/staff/how-it-works', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ applicant_id: id }),
-        })
-
-        if (!res.ok) {
-          console.error('Failed to mark as read')
-        }
+        const stored = localStorage.getItem('applicant_id')
+        if (!token && !stored) setError('Please open the onboarding link from your invitation email.')
       } catch (err) {
         console.error('Error:', err)
       } finally {
@@ -39,7 +32,7 @@ export default function StaffHowItWorksPage() {
       }
     }
 
-    markAsRead()
+    loadApplicant()
   }, [])
 
   const handleGetStarted = async () => {
@@ -66,7 +59,8 @@ export default function StaffHowItWorksPage() {
       })
 
       if (res.ok) {
-        window.location.href = '/welcome-center'
+        const token = inviteToken || localStorage.getItem('invite_token') || ''
+        window.location.href = token ? `/welcome-center?invite=${encodeURIComponent(token)}` : '/welcome-center'
       } else {
         setError('Failed to save progress. Please try again.')
         setButtonLoading(false)

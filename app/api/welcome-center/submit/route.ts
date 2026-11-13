@@ -136,6 +136,19 @@ export async function POST(req: NextRequest) {
       applicant_id = invite.applicant_id
       console.log('[submit] Found applicant:', applicant_id)
 
+      // Step gate: the applicant must have read How It Works and pressed Get Started first.
+      const { data: gate } = await supabase
+        .from('offer_letter_applicants')
+        .select('onboarding_status')
+        .eq('id', applicant_id)
+        .single()
+      if (!gate || !['how_it_works_read', 'profile_submitted'].includes(String(gate.onboarding_status))) {
+        return NextResponse.json(
+          { error: 'Please open the link from your invitation email and press Get Started on the How It Works page first.' },
+          { status: 400 }
+        )
+      }
+
       // Update existing applicant
       const { error: updateError } = await supabase
         .from('offer_letter_applicants')

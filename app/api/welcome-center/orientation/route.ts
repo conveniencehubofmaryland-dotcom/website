@@ -11,6 +11,19 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
+    // Step gate: the welcome profile must be submitted before orientation can be signed.
+    const statusRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(applicant_id))}&select=onboarding_status`,
+      { headers: { ...serviceHeaders() } }
+    )
+    const statusRows = statusRes.ok ? await statusRes.json() : []
+    if (!statusRows[0] || statusRows[0].onboarding_status !== 'profile_submitted') {
+      return NextResponse.json(
+        { error: 'Please complete your welcome profile before signing the orientation.' },
+        { status: 400 }
+      )
+    }
+
     const now = new Date().toISOString()
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${encodeURIComponent(String(applicant_id))}`,
