@@ -12,7 +12,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9' | 'timesheet'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -155,6 +155,52 @@ async function fetchW9Forms(): Promise<StaffDocument[]> {
   }))
 }
 
+// One timesheet per staff member per week (Monday to Sunday) that has shifts.
+async function fetchTimesheets(): Promise<StaffDocument[]> {
+  const { data: shifts, error } = await supabase
+    .from('shifts')
+    .select('applicant_id, date')
+    .not('applicant_id', 'is', null)
+  if (error) {
+    console.error('Error fetching timesheet shifts:', error)
+    return []
+  }
+
+  const weeks = new Map<string, { applicantId: string; week: string }>()
+  for (const row of shifts || []) {
+    const d = new Date(`${row.date}T12:00:00Z`)
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7))
+    const week = d.toISOString().slice(0, 10)
+    weeks.set(`${row.applicant_id}_${week}`, { applicantId: row.applicant_id, week })
+  }
+  if (weeks.size === 0) return []
+
+  const applicantIds = Array.from(new Set(Array.from(weeks.values()).map(w => w.applicantId)))
+  const { data: applicants } = await supabase
+    .from('offer_letter_applicants')
+    .select('id, full_name, email')
+    .in('id', applicantIds)
+  const byId = new Map((applicants || []).map(a => [a.id, a]))
+
+  return Array.from(weeks.entries())
+    .sort((a, b) => b[1].week.localeCompare(a[1].week))
+    .map(([id, w]) => {
+      const applicant = byId.get(w.applicantId)
+      return {
+        id,
+        staffId: w.applicantId,
+        staffName: applicant?.full_name || 'Staff',
+        staffEmail: applicant?.email || '',
+        documentType: 'timesheet' as const,
+        documentName: `Timesheet: week of ${w.week}`,
+        dateSigned: w.week,
+        documentUrl: null,
+        status: 'signed',
+        ownCar: null,
+      }
+    })
+}
+
 async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('offer_letter_applicants')
@@ -243,13 +289,14 @@ export async function GET(req: NextRequest) {
   const denied = await requireAdmin(req)
   if (denied) return denied
   try {
-    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs, w9Forms] = await Promise.all([
+    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs, w9Forms, timesheets] = await Promise.all([
       fetchOrientations(),
       fetchOfferLetters(),
       fetchCertifications(),
       fetchBackgroundChecks(),
       fetchStaffDocuments(),
       fetchW9Forms(),
+      fetchTimesheets(),
     ])
 
     const allDocuments = [
@@ -259,6 +306,7 @@ export async function GET(req: NextRequest) {
       ...backgroundChecks,
       ...staffDocs,
       ...w9Forms,
+      ...timesheets,
     ]
 
     return NextResponse.json(allDocuments)
