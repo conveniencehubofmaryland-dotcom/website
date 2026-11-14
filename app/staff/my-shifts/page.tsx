@@ -63,21 +63,37 @@ export default function MyShiftsPage() {
     run()
   }, [loadShifts])
 
+  // Reads the phone's GPS position. Returns null if location is off or denied; the server flags that for admin.
+  const getPosition = (): Promise<{ lat: number; lng: number } | null> =>
+    new Promise(resolve => {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) return resolve(null)
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      )
+    })
+
   const act = async (shiftId: string, action: 'clock_in' | 'clock_out' | 'confirm') => {
     const token = localStorage.getItem('staff_session_token') ?? ''
     setBusyId(shiftId)
     setMessage('')
     try {
+      const position = action === 'clock_in' || action === 'clock_out' ? await getPosition() : null
       const res = await fetch('/api/staff/my-shifts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionToken: token, shiftId, action }),
+        body: JSON.stringify({ sessionToken: token, shiftId, action, lat: position?.lat ?? null, lng: position?.lng ?? null }),
       })
       const data = await res.json()
       if (!res.ok) {
         setMessage(`❌ ${data.error || 'Something went wrong'}`)
       } else {
-        setMessage(action === 'clock_in' ? '✅ Clocked in.' : action === 'clock_out' ? '✅ Clocked out. Please confirm the shift is complete.' : '✅ Thank you. Shift marked complete.')
+        const noGps = (action === 'clock_in' || action === 'clock_out') && !position
+        setMessage(
+          (action === 'clock_in' ? '✅ Clocked in.' : action === 'clock_out' ? '✅ Clocked out. Please confirm the shift is complete.' : '✅ Thank you. Shift marked complete.')
+          + (noGps ? ' Your location was not available, so this will be reviewed by admin.' : '')
+        )
         await loadShifts(token)
       }
     } catch {

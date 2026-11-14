@@ -1,3 +1,4 @@
+import { checkSiteDistance } from '@/lib/gps'
 import { NextRequest, NextResponse } from 'next/server'
 import { getApplicantBySession, loadShift, sbFetch, todayInEastern, type ShiftRow } from '@/lib/shift-eligibility'
 
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 // Staff: clock_in, clock_out, or confirm (completed)
 export async function POST(request: NextRequest) {
   try {
-    const { sessionToken, shiftId, action } = await request.json()
+    const { sessionToken, shiftId, action, lat, lng } = await request.json()
     if (!sessionToken || !shiftId || !action) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
@@ -37,18 +38,23 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString()
     let patch: Record<string, unknown>
 
+    // GPS check for clock in/out. The result is flagged for admin; it never blocks the clock.
+    const gps = action === 'clock_in' || action === 'clock_out'
+      ? await checkSiteDistance(shift, lat, lng)
+      : { distance: null, flag: null }
+
     if (action === 'clock_in') {
       if (shift.date !== todayInEastern()) {
         return NextResponse.json({ error: 'You can only clock in on the day of the shift.' }, { status: 400 })
       }
       if (shift.clock_in_at) return NextResponse.json({ error: 'You are already clocked in.' }, { status: 400 })
       if (shift.staff_confirmed_at) return NextResponse.json({ error: 'This shift is already confirmed.' }, { status: 400 })
-      patch = { clock_in_at: now }
+      patch = { clock_in_at: now, clock_in_distance_m: gps.distance, clock_in_flag: gps.flag }
     } else if (action === 'clock_out') {
       if (!shift.clock_in_at) return NextResponse.json({ error: 'Clock in first.' }, { status: 400 })
       if (shift.clock_out_at) return NextResponse.json({ error: 'You already clocked out.' }, { status: 400 })
       const minutes = Math.round((Date.parse(now) - Date.parse(shift.clock_in_at)) / 60000)
-      patch = { clock_out_at: now, hours_worked: Math.round((minutes / 60) * 100) / 100 }
+      patch = { clock_out_at: now, hours_worked: Math.round((minutes / 60) * 100) / 100, clock_out_distance_m: gps.distance, clock_out_flag: gps.flag }
     } else if (action === 'confirm') {
       if (!shift.clock_out_at) return NextResponse.json({ error: 'Clock out before confirming.' }, { status: 400 })
       if (shift.staff_confirmed_at) return NextResponse.json({ error: 'Already confirmed.' }, { status: 400 })

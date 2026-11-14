@@ -17,6 +17,19 @@ type PayrollShift = {
   staff_confirmed_at?: string | null
   approved_at?: string | null
   hours_worked?: number | null
+  clock_in_flag?: string | null
+  clock_out_flag?: string | null
+  clock_in_distance_m?: number | null
+  clock_out_distance_m?: number | null
+}
+
+// Plain-language GPS flag for admin review.
+function gpsNote(flag?: string | null, distance?: number | null) {
+  if (!flag || flag === 'ok') return null
+  if (flag === 'outside_radius') return `Flag: ${distance ?? '?'} m from job site (limit 500 m)`
+  if (flag === 'no_gps') return 'Flag: no GPS location sent'
+  if (flag === 'no_site_location') return 'Flag: job site address could not be located'
+  return `Flag: ${flag}`
 }
 
 const TZ = 'America/New_York'
@@ -182,9 +195,13 @@ export default function PayrollSection() {
                     <td className="px-3 py-3 whitespace-nowrap">{r.staff_name}</td>
                     <td className="px-3 py-3">{r.staff_email}</td>
                     <td className="px-3 py-3 whitespace-nowrap">{r.role}</td>
-                    <td className="px-3 py-3 whitespace-nowrap">{fmt(r.clock_in_at) || '—'}</td>
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      {fmt(r.clock_in_at) || '—'}
+                      {gpsNote(r.clock_in_flag, r.clock_in_distance_m) && <div className="text-xs text-orange-700 font-semibold">{gpsNote(r.clock_in_flag, r.clock_in_distance_m)}</div>}
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap">
                       {fmt(r.clock_out_at) || '—'}
+                      {gpsNote(r.clock_out_flag, r.clock_out_distance_m) && <div className="text-xs text-orange-700 font-semibold">{gpsNote(r.clock_out_flag, r.clock_out_distance_m)}</div>}
                       {r.clock_in_at && !r.clock_out_at && !r.approved_at && (
                         editingId === r.id ? (
                           <div className="mt-2 space-y-2">
