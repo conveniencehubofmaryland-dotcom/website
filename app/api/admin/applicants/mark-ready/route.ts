@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { sendUserEmailHtml } from '@/lib/email'
+import { sendUserEmailHtml, sendUserHtmlWithAttachment } from '@/lib/email'
+import { buildBadgeHtml } from '@/lib/staff-badge'
 import { requireAdmin } from '@/lib/admin-auth'
 import { serviceHeaders } from '@/lib/supabase-keys'
 import crypto from 'crypto'
@@ -129,6 +130,38 @@ export async function PATCH(req: NextRequest) {
       )
     } catch (emailErr) {
       console.error('[mark-ready] Congratulations email failed:', emailErr)
+    }
+
+    // Staff badge: emailed as a printable file with instructions. Failure is logged only.
+    try {
+      const issuedOn = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      const badgeHtml = buildBadgeHtml({
+        fullName: applicant.full_name,
+        position: applicant.position,
+        applicantId: applicant_id,
+        issuedOn,
+      })
+      const badgeEmailHtml = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a; line-height: 1.6;">
+        <h2 style="color: #c41e3a;">Your CHM Staff Badge</h2>
+        <p>Hi ${firstName}, your CHM staff badge is attached to this email. Please follow these steps before your first job:</p>
+        <ol>
+          <li><strong>Download</strong> the attached file <em>CHM-Staff-Badge.html</em> and save it.</li>
+          <li><strong>Open</strong> it in a web browser and press <strong>Print</strong> (Ctrl+P on Windows, Cmd+P on Mac). Print at 100% scale.</li>
+          <li><strong>Cut</strong> out the card along the red border.</li>
+          <li><strong>Laminate</strong> the card so it stays protected.</li>
+        </ol>
+        <p><strong>Important:</strong> Present your badge to every client before you enter their home. Keep it with you at every job.</p>
+        <p>Questions? Call or text 202-579-2944.</p>
+        <p><strong>The CHM Team</strong></p>
+      </div>`
+      await sendUserHtmlWithAttachment(
+        applicant.email,
+        'Your CHM Staff Badge – Print and Laminate Before Your First Job',
+        badgeEmailHtml,
+        { filename: 'CHM-Staff-Badge.html', content: badgeHtml }
+      )
+    } catch (badgeErr) {
+      console.error('[mark-ready] Staff badge email failed:', badgeErr)
     }
 
     console.log('[mark-ready] Applicant marked ready and email sent:', applicant_id)

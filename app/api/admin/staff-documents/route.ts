@@ -266,11 +266,17 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
     'certification': 'Certification',
     'orientation': 'Orientation Document',
     'offer_letter': 'Offer Letter (Copy)',
+    'cpr_certification': 'CPR Certificate (uploaded)',
+    'first_aid_certification': 'First Aid Certificate (uploaded)',
+    'cmt_certificate': 'CMT Certificate',
+    'cna_certificate': 'CNA Certificate',
   }
 
   return (data || []).map(row => {
     const person = staffMap.get(row.staff_id)
-    const documentType = (row.document_type as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter') || 'direct_deposit'
+    // Uploaded certificates open from their file link, so they use the training certificate type.
+    const uploadedCertificate = ['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate'].includes(row.document_type)
+    const documentType = ((uploadedCertificate ? 'training_cert' : row.document_type) as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter') || 'direct_deposit'
     
     return {
       id: row.id,

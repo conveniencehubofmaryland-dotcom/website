@@ -77,6 +77,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'The W-9 file is larger than 10 MB.' }, { status: 400 })
     }
 
+    // Direct deposit and certificates. Required items must be attached; optional ones are saved only if attached.
+    const DOC_UPLOADS = [
+      { field: 'directDeposit', docType: 'direct_deposit', label: 'Direct Deposit Form', required: true },
+      { field: 'cprCertificate', docType: 'cpr_certification', label: 'CPR Certificate', required: true },
+      { field: 'firstAidCertificate', docType: 'first_aid_certification', label: 'First Aid Certificate', required: true },
+      { field: 'cmtCertificate', docType: 'cmt_certificate', label: 'CMT Certificate', required: false },
+      { field: 'cnaCertificate', docType: 'cna_certificate', label: 'CNA Certificate', required: false },
+    ]
+    const docUploads = DOC_UPLOADS.map(d => ({ ...d, file: formData.get(d.field) as File | null }))
+    for (const d of docUploads) {
+      if (d.required && (!d.file || d.file.size === 0)) {
+        return NextResponse.json({ error: `Please attach your ${d.label}.` }, { status: 400 })
+      }
+      if (d.file && d.file.size > 10 * 1024 * 1024) {
+        return NextResponse.json({ error: `The ${d.label} file is larger than 10 MB.` }, { status: 400 })
+      }
+    }
+
     // Validate date of birth is in past
     const dob = new Date(date_of_birth)
     if (dob > new Date()) {
@@ -279,6 +297,32 @@ export async function POST(req: NextRequest) {
     if (w9Res.error) {
       console.error('[submit] W-9 save error:', w9Res.error)
       return NextResponse.json({ error: 'Could not save the W-9. Please try again.' }, { status: 500 })
+    }
+
+    // Save direct deposit and certificate uploads to this applicant's Documents in admin.
+    for (const d of docUploads) {
+      if (!d.file || d.file.size === 0) continue
+      try {
+        const ext = (d.file.name.split('.').pop() || 'pdf').toLowerCase()
+        const path = `${applicant_id}/${Date.now()}-${d.docType}.${ext}`
+        const { error: docUploadError } = await supabase.storage
+          .from('application-documents')
+          .upload(path, d.file, { contentType: d.file.type, upsert: false })
+        if (docUploadError) throw docUploadError
+        const { data: urlData } = supabase.storage.from('application-documents').getPublicUrl(path)
+        const { error: docInsertError } = await supabase.from('staff_documents').insert({
+          staff_id: applicant_id,
+          document_type: d.docType,
+          document_url: urlData.publicUrl,
+          status: 'uploaded',
+          notes: 'Uploaded by applicant on the welcome form',
+          uploaded_at: new Date().toISOString(),
+        })
+        if (docInsertError) throw docInsertError
+      } catch (docErr) {
+        console.error('[submit] Document save error:', d.docType, docErr)
+        return NextResponse.json({ error: `Could not save your ${d.label}. Please try again.` }, { status: 500 })
+      }
     }
 
     // Send confirmation email to applicant

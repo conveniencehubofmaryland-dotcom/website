@@ -3,6 +3,15 @@ import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 const W9_URL = 'https://www.irs.gov/pub/irs-pdf/fw9.pdf'
+
+// Direct deposit and certificate uploads. Each one is saved to the applicant's Documents in admin.
+const DOCUMENT_FIELDS = [
+  { key: 'directDeposit', label: 'Direct Deposit Form', required: true, help: 'Upload your completed direct deposit form, or a voided check. Your payments are sent to this account.' },
+  { key: 'cprCertificate', label: 'CPR Certificate', required: true, help: 'Upload your current CPR certificate.' },
+  { key: 'firstAidCertificate', label: 'First Aid Certificate', required: true, help: 'Upload your current First Aid certificate.' },
+  { key: 'cmtCertificate', label: 'CMT Certificate', required: false, help: 'Optional. Upload your CMT certificate if you have one.' },
+  { key: 'cnaCertificate', label: 'CNA Certificate', required: false, help: 'Optional. Upload your CNA certificate if you have one.' },
+]
 const POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
@@ -35,6 +44,7 @@ export default function WelcomeCenterForm() {
     backgroundCheckFile: null as File | null,
     w9File: null as File | null,
   })
+  const [docFiles, setDocFiles] = useState<Record<string, File | null>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -70,6 +80,11 @@ export default function WelcomeCenterForm() {
     }))
   }
 
+  const handleDocFileChange = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setDocFiles(prev => ({ ...prev, [key]: file }))
+  }
+
   const handleRadioChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -92,7 +107,10 @@ export default function WelcomeCenterForm() {
       formData.years_of_experience === '' ||
       !formData.acknowledged_1099 ||
       !formData.backgroundCheckFile ||
-      !formData.w9File
+      !formData.w9File ||
+      !docFiles.directDeposit ||
+      !docFiles.cprCertificate ||
+      !docFiles.firstAidCertificate
     ) {
       setError('All fields are required, including your background check and completed IRS Form W-9')
       setLoading(false)
@@ -116,6 +134,10 @@ export default function WelcomeCenterForm() {
       if (formData.w9File) {
         fd.append('w9File', formData.w9File)
       }
+      DOCUMENT_FIELDS.forEach(f => {
+        const file = docFiles[f.key]
+        if (file) fd.append(f.key, file)
+      })
       if (invite_token) {
         fd.append('invite_token', invite_token)
       }
@@ -395,6 +417,33 @@ export default function WelcomeCenterForm() {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Direct deposit and certificates */}
+          <div className="border border-gray-200 p-6 rounded-lg space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold">Direct Deposit &amp; Certificates</p>
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">Attach a PDF, JPG, or PNG for each item. Maximum file size: 10 MB each.</p>
+            </div>
+            {DOCUMENT_FIELDS.map(f => (
+              <div key={f.key}>
+                <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+                  {f.label}{f.required ? ' *' : ' (optional)'}
+                </label>
+                <p className="text-xs text-gray-500 mb-2">{f.help}</p>
+                <input
+                  type="file"
+                  name={f.key}
+                  required={f.required}
+                  onChange={e => handleDocFileChange(f.key, e)}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
+                />
+                {docFiles[f.key] && (
+                  <p className="text-xs text-green-600 mt-2">✓ {docFiles[f.key]?.name} selected</p>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">

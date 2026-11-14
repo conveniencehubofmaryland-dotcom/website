@@ -103,6 +103,29 @@ export async function sendUserEmailWithAttachment(
   }
 }
 
+// Sends a complete HTML email with one attachment, as-is (no extra wrapper).
+export async function sendUserHtmlWithAttachment(
+  to: string,
+  subject: string,
+  html: string,
+  attachment: { filename: string; content: string },
+) {
+  if (!resend) {
+    console.error('Missing RESEND_API_KEY; email not sent')
+    return
+  }
+  const res = await resend.emails.send({
+    from: 'team@conveniencehubofmaryland.com',
+    to,
+    subject,
+    html,
+    attachments: [
+      { filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') },
+    ],
+  })
+  return res
+}
+
 // Sends a complete HTML email as-is (no extra wrapper).
 export async function sendUserEmailHtml(to: string, subject: string, html: string) {
   if (!resend) {
