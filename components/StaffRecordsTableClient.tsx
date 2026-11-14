@@ -121,6 +121,21 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
+  const handleBackgroundCheckStatus = async (doc: StaffDocument, status: 'pending' | 'cleared' | 'not_cleared') => {
+    try {
+      const res = await fetch('/api/admin/background-checks/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicant_id: doc.staffId, status }),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      setDocuments(prev => prev.map(d => (d.id === doc.id ? { ...d, status } : d)))
+    } catch (err) {
+      console.error('Error updating background check status:', err)
+      alert('Failed to update background check status')
+    }
+  }
+
   const handleDocumentDelete = async (documentId: string, documentType: string) => {
     if (!confirm('Delete this document?')) return
     try {
@@ -256,6 +271,10 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
         return <span className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold">✗ Rejected</span>
       case 'pending':
         return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">⏳ Pending</span>
+      case 'cleared':
+        return <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">✓ Cleared</span>
+      case 'not_cleared':
+        return <span className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold">✗ Not Cleared</span>
       default:
         return <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">{status}</span>
     }
@@ -496,6 +515,12 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                           )}
                           {doc.documentUrl && (
                             <button onClick={() => handleDocumentPrint(doc)} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold hover:bg-purple-200 transition">Print</button>
+                          )}
+                          {doc.documentType === 'background_check' && (
+                            <>
+                              <button onClick={() => handleBackgroundCheckStatus(doc, 'cleared')} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Mark Cleared</button>
+                              <button onClick={() => handleBackgroundCheckStatus(doc, 'not_cleared')} className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-semibold hover:bg-orange-200 transition">Mark Not Cleared</button>
+                            </>
                           )}
                           <button onClick={() => handleDocumentDelete(doc.id, doc.documentType)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">Delete</button>
                         </div>
