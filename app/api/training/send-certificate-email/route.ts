@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { staff_name, staff_email, module_title, position, quiz_score, completed_at } = body
+    const { staff_name, staff_email, module_title, position, quiz_score, completed_at, certificate_url } = body
 
     console.log('[certificate-email] Sending to:', staff_email)
 
@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
           </p>
         </div>
         
+        ${certificate_url ? `<div style="text-align: center; margin: 24px 0;"><a href="${certificate_url}" style="display: inline-block; background-color: #d32f2f; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: bold; border-radius: 5px;">View / Download Your Certificate</a></div>` : ''}
+
         <p style="font-size: 16px; color: #333; line-height: 1.6;">
           You are now certified to work in this position for Convenience Hub of Maryland. Please keep this email for your records.
         </p>

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     if (finalScore >= 80) {
       console.log('[PROGRESS] Sending certificate email...')
       try {
-        await fetch(`${req.headers.get('origin')}/api/training/send-certificate-email`, {
+        const emailRes = await fetch(new URL('/api/training/send-certificate-email', req.url), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -74,9 +74,14 @@ export async function POST(req: NextRequest) {
             position: position?.trim() || 'Staff',
             quiz_score: finalScore,
             completed_at: completedAt,
+            certificate_url: certificateUrl,
           }),
         })
-        console.log('[PROGRESS] Email sent')
+        if (!emailRes.ok) {
+          console.error('[PROGRESS] Certificate email failed:', emailRes.status, await emailRes.text())
+        } else {
+          console.log('[PROGRESS] Email sent')
+        }
       } catch (emailErr) {
         console.error('[PROGRESS] Email error:', emailErr)
       }
