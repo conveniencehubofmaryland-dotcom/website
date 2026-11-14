@@ -102,3 +102,22 @@ export async function sendUserEmailWithAttachment(
     throw error
   }
 }
+
+// Sends a complete HTML email as-is (no extra wrapper).
+export async function sendUserEmailHtml(to: string, subject: string, html: string) {
+  if (!resend) {
+    console.error('Missing RESEND_API_KEY; email not sent')
+    return
+  }
+  const res = await resend.emails.send({
+    from: 'team@conveniencehubofmaryland.com',
+    to,
+    subject,
+    html,
+  })
+  if (res.error) {
+    console.error('Congratulations email error:', res.error)
+    throw new Error(res.error.message)
+  }
+  return res
+}
