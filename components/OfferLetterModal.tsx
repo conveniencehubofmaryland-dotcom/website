@@ -89,7 +89,7 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
             {/* Pay Structure Tiers */}
             {tiers.length > 0 && (
               <div className="bg-gray-50 p-4 rounded">
-                <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-3">Pay Tiers</p>
+                <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-3">Reference Ranges (not part of the contractor offer)</p>
                 <div className="space-y-2 text-xs">
                   {tiers.map((tier: PayTier) => (
                     <div key={tier.level} className="flex justify-between text-gray-700">
