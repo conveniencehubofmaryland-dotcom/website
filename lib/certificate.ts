@@ -109,7 +109,8 @@ export async function storeCertificate(id: string, html: string): Promise<string
       console.error('[certificate] upload failed:', await res.text())
       return null
     }
-    return `${url}/storage/v1/object/public/${CERT_BUCKET}/${path}`
+    // Link to the site's certificate page (storage serves HTML as plain text).
+    return `https://conveniencehubofmaryland.com/api/training/certificate/${id}`
   } catch (err) {
     console.error('[certificate] upload error:', err)
     return null
