@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendUserEmail, sendAdminEmail } from '@/lib/email'
+import { sendUserEmail, sendAdminEmail, sendUserEmailWithAttachment } from '@/lib/email'
+import { buildOfferLetterHtml } from '@/lib/offer-letter'
 import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
@@ -101,17 +102,31 @@ export async function POST(req: NextRequest) {
       <p><strong>Next Steps:</strong></p>
       <ul>
         <li>Complete all required training modules: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
-        <li>Submit all necessary documents to HR: IRS Form W-9, your background check, and any certifications</li>
+        <li>Complete IRS Form W-9 after you finish all required training (we will email you the link)</li>
         <li>Claim your first shift: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
       </ul>
       <p>We are excited to have you on the team!</p>
       <p>Convenience Hub of Maryland<br/>202-579-2944</p>
     `
 
-    await sendUserEmail(
+    // Attach the signed offer letter (same document the admin sees after signing).
+    const signedLetter = buildOfferLetterHtml({
+      documentId: offer.id,
+      fullName: applicant.full_name,
+      email: applicant.email,
+      position: offer.position,
+      startDate: offer.start_date,
+      signedAt: now,
+      signatureName: String(signature_name).trim(),
+      signatureImage: offer.signature_image ?? imageText,
+      managerName: offer.manager_name,
+    })
+
+    await sendUserEmailWithAttachment(
       applicant.email,
       'Offer Accepted – Welcome to CHM!',
-      confirmationHtml
+      confirmationHtml,
+      { filename: 'Signed-Offer-Letter.html', content: signedLetter }
     )
 
     // Send notification to admin

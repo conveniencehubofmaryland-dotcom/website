@@ -73,3 +73,32 @@ export async function sendPaymentConfirmationEmail(
     throw error
   }
 }
+
+// Sends an email with a file attached (content is the raw text of the file).
+export async function sendUserEmailWithAttachment(
+  to: string,
+  subject: string,
+  message: string,
+  attachment: { filename: string; content: string },
+) {
+  if (!resend) {
+    console.error('Missing RESEND_API_KEY; email not sent')
+    return
+  }
+  try {
+    const res = await resend.emails.send({
+      from: 'team@conveniencehubofmaryland.com',
+      to,
+      subject,
+      html: `<p>${message}</p>`,
+      attachments: [
+        { filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') },
+      ],
+    })
+    console.log('User email with attachment sent:', res)
+    return res
+  } catch (error) {
+    console.error('Failed to send user email with attachment:', error)
+    throw error
+  }
+}

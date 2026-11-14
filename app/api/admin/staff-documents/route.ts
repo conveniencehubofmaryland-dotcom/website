@@ -12,7 +12,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -130,6 +130,31 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
   })
 }
 
+async function fetchW9Forms(): Promise<StaffDocument[]> {
+  const { data, error } = await supabase
+    .from('w9_forms')
+    .select('id, applicant_id, staff_email, full_name, signed_at')
+    .order('signed_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching W-9 forms:', error)
+    return []
+  }
+
+  return (data || []).map(row => ({
+    id: row.id,
+    staffId: row.applicant_id || row.id,
+    staffName: row.full_name,
+    staffEmail: row.staff_email,
+    documentType: 'w9' as const,
+    documentName: 'IRS Form W-9',
+    dateSigned: row.signed_at,
+    documentUrl: null,
+    status: 'signed',
+    ownCar: null,
+  }))
+}
+
 async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('offer_letter_applicants')
@@ -218,12 +243,13 @@ export async function GET(req: NextRequest) {
   const denied = await requireAdmin(req)
   if (denied) return denied
   try {
-    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs] = await Promise.all([
+    const [orientations, offerLetters, certifications, backgroundChecks, staffDocs, w9Forms] = await Promise.all([
       fetchOrientations(),
       fetchOfferLetters(),
       fetchCertifications(),
       fetchBackgroundChecks(),
       fetchStaffDocuments(),
+      fetchW9Forms(),
     ])
 
     const allDocuments = [
@@ -232,6 +258,7 @@ export async function GET(req: NextRequest) {
       ...certifications,
       ...backgroundChecks,
       ...staffDocs,
+      ...w9Forms,
     ]
 
     return NextResponse.json(allDocuments)

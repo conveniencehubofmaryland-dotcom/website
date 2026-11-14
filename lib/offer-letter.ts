@@ -152,7 +152,7 @@ export function buildOfferLetterHtml(opts: {
     <h3>3. Next Steps</h3>
     <ol>
       <li>Review and electronically sign this offer letter</li>
-      <li>Complete IRS Form W-9 (Request for Taxpayer Identification Number)</li>
+      <li>After completing all required training, complete IRS Form W-9 (we will email you the link)</li>
       <li>Complete all required training modules</li>
     </ol>
 

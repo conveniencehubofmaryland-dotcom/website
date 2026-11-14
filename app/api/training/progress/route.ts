@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { buildCertificateHtml, storeCertificate, getModuleTitle } from '@/lib/certificate'
+import { hasPassedTraining } from '@/lib/shift-eligibility'
+import { sendUserEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -84,6 +86,22 @@ export async function POST(req: NextRequest) {
         }
       } catch (emailErr) {
         console.error('[PROGRESS] Email error:', emailErr)
+      }
+    }
+
+    // Once every required module is passed, ask the applicant to complete the W-9.
+    if (passed) {
+      try {
+        const allTrained = await hasPassedTraining(staff_email.trim(), position?.trim() || '')
+        if (allTrained) {
+          await sendUserEmail(
+            staff_email.trim(),
+            'Training Complete – Please Complete Your IRS Form W-9',
+            `Congratulations, you have completed all required training with Convenience Hub of Maryland. Please complete your IRS Form W-9 here: <a href="https://conveniencehubofmaryland.com/staff/w9">Complete W-9</a>. You will need to sign in with your staff sign-in code to open the form.`
+          )
+        }
+      } catch (w9Err) {
+        console.error('[PROGRESS] W-9 email error:', w9Err)
       }
     }
 

@@ -27,7 +27,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'cpr_certification' | 'first_aid_certification' | 'background_check' | 'training_cert' | 'direct_deposit'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'cpr_certification' | 'first_aid_certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -177,6 +177,8 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   } else if (doc.documentType === 'cpr_certification' || doc.documentType === 'first_aid_certification') {
     // CPR and First Aid use certification route
     window.open(`/api/admin/certifications/download/${doc.id}`, '_blank')
+  } else if (doc.documentType === 'w9') {
+    window.open(`/api/admin/w9/download/${doc.id}`, '_blank')
   } else if (doc.documentType === 'background_check' && !doc.documentUrl) {
     window.open(`/api/admin/background-checks/download/${doc.staffId}`, '_blank')
   } else if (doc.documentUrl) {
