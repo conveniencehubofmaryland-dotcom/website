@@ -18,7 +18,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
     start_date: '',
     manager_name: '',
     deadline_date: '',
-    benefits_summary: '',
     pay_frequency: 'hour',
   })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
@@ -44,7 +43,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
           applicant_id: applicantId,
           position,
           start_date: form.start_date,
-          benefits_summary: form.benefits_summary || null,
           manager_name: form.manager_name,
           deadline_date: form.deadline_date,
           pay_frequency: form.pay_frequency,
@@ -138,17 +136,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
               />
             </div>
 
-            {/* Benefits Summary */}
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Additional Benefits (optional)</label>
-              <textarea
-                rows={3}
-                value={form.benefits_summary}
-                onChange={e => set('benefits_summary', e.target.value)}
-                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors resize-none"
-                placeholder="e.g., Health insurance, flexible schedule"
-              />
-            </div>
 
             {(status === 'error' || errorMsg) && (
               <p className="text-chm-red text-sm">{errorMsg}</p>

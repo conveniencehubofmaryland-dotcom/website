@@ -49,14 +49,9 @@ export default function ViewOfferLetterModal({
               <ul>
                 <li><strong>Position:</strong> {offer.position}</li>
                 <li><strong>Start Date:</strong> {startDateFormatted}</li>
-                <li><strong>Hourly Rate:</strong> ${offer.salary_annual}/hour</li>
+                <li><strong>Engagement:</strong> Independent contractor (IRS Form 1099)</li>
+                <li><strong>Pay:</strong> Under the CHM Contractor Compensation Structure, paid every Friday for the prior week</li>
               </ul>
-              {offer.benefits_summary && (
-                <>
-                  <h3>ADDITIONAL BENEFITS</h3>
-                  <p>{offer.benefits_summary}</p>
-                </>
-              )}
               <p className="text-xs text-gray-500 mt-8">ID: {offer.id}</p>
             </div>
 

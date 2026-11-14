@@ -129,17 +129,16 @@ export default function SignOfferPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li><strong>Position:</strong> {offer.position}</li>
                 <li><strong>Start Date:</strong> {startDateFormatted}</li>
-                <li><strong>Employment Type:</strong> Full-Time</li>
-                <li><strong>Hours:</strong> 40 hours per week</li>
-                <li><strong>Hourly Rate:</strong> ${offer.salary_annual}/hour, paid weekly every Friday</li>
+                <li><strong>Engagement Type:</strong> Independent contractor (IRS Form 1099)</li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold text-chm-black mb-3">COMPENSATION & BENEFITS</h3>
+              <h3 className="font-semibold text-chm-black mb-3">COMPENSATION</h3>
               <ul className="space-y-2 text-sm text-gray-700">
-                <li><strong>Weekly Pay:</strong> Paid every Friday for work performed in the prior week</li>
-                <li><strong>401(k) Retirement Plan:</strong> Eligible after 90 days of employment</li>
+                <li><strong>Pay Schedule:</strong> Paid every Friday for work performed in the prior week</li>
+                <li><strong>Pay Structure:</strong> Per the CHM Contractor Compensation Structure, as detailed in your offer letter</li>
+                <li><strong>Benefits:</strong> Not eligible for employee benefits (independent contractor)</li>
               </ul>
             </div>
 
@@ -147,7 +146,7 @@ export default function SignOfferPage() {
               <h3 className="font-semibold text-chm-black mb-3">TERMS OF EMPLOYMENT</h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li>This offer is contingent on successful completion of a background check and reference verification</li>
-                <li>Employment is at-will and may be terminated by either party at any time</li>
+                <li>This is an independent contractor engagement, not employment, and may be ended by either party at any time</li>
                 <li>You must complete all required company paperwork before your start date</li>
               </ul>
             </div>

@@ -139,7 +139,7 @@ export default function OfferLettersClient({
               </h2>
 
               <div className="bg-gray-50 p-4 rounded mb-6 text-xs">
-                <p className="text-gray-600 font-semibold mb-2">Pay Tiers:</p>
+                <p className="text-gray-600 font-semibold mb-2">Reference Ranges (not part of the contractor offer):</p>
                 <div className="space-y-1">
                   {PAY_STRUCTURE[position]?.tiers.map(tier => (
                     <div key={tier.level} className="flex justify-between text-gray-700">
