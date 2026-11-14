@@ -12,6 +12,8 @@ export default function TrainingModulesPage() {
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  // Set only when the visitor is signed in to the staff portal.
+  const [access, setAccess] = useState<{ position: string; own_position_complete: boolean } | null>(null)
 
  const positions = [
   'Cleaning Specialist',
@@ -24,7 +26,27 @@ export default function TrainingModulesPage() {
 
   useEffect(() => {
     setLoading(false)
+    let token: string | null = null
+    try {
+      token = localStorage.getItem('staff_session_token')
+    } catch {
+      token = null
+    }
+    if (!token) return
+    fetch('/api/staff/training-access', { headers: { 'x-staff-token': token } })
+      .then(async res => {
+        if (!res.ok) return
+        const data = await res.json()
+        setAccess({ position: data.position, own_position_complete: data.own_position_complete })
+        // Signed-in staff start on their own position.
+        if (data.position && !data.own_position_complete) setSelectedPosition(data.position)
+      })
+      .catch(() => {})
   }, [])
+
+  // Signed-in staff can open only their own position until it is complete.
+  const positionLocked = (pos: string) =>
+    !!access && !access.own_position_complete && pos !== access.position
 
   useEffect(() => {
     if (selectedPosition) {
@@ -114,14 +136,18 @@ export default function TrainingModulesPage() {
             {positions.map(pos => (
               <button
                 key={pos}
+                disabled={positionLocked(pos)}
                 onClick={() => setSelectedPosition(pos)}
                 className={`border-2 px-4 py-3 text-sm text-left transition-all ${
-                  selectedPosition === pos
-                    ? 'border-chm-red bg-red-50 text-chm-black font-semibold'
-                    : 'border-gray-200 text-gray-600 hover:border-chm-red'
+                  positionLocked(pos)
+                    ? 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                    : selectedPosition === pos
+                      ? 'border-chm-red bg-red-50 text-chm-black font-semibold'
+                      : 'border-gray-200 text-gray-600 hover:border-chm-red'
                 }`}
               >
                 {pos}
+                {positionLocked(pos) && <span className="block text-xs mt-1">Locked: finish {access?.position} first</span>}
               </button>
             ))}
           </div>

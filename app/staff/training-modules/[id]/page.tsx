@@ -60,6 +60,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
 }) {
   const router = useRouter()
   const [module, setModule] = useState<TrainingModule | null>(null)
+  const [lockedFor, setLockedFor] = useState<string | null>(null)
   const [staffName, setStaffName] = useState('')
   const [staffEmail, setStaffEmail] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
@@ -93,6 +94,22 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       const data = await res.json()
       if (data.length > 0) {
         setModule(data[0])
+        // Signed-in staff can open only their own position's modules until it is complete.
+        let token: string | null = null
+        try {
+          token = localStorage.getItem('staff_session_token')
+        } catch {
+          token = null
+        }
+        if (token) {
+          const accessRes = await fetch('/api/staff/training-access', { headers: { 'x-staff-token': token } })
+          if (accessRes.ok) {
+            const access = await accessRes.json()
+            if (!access.own_position_complete && data[0].position !== access.position) {
+              setLockedFor(access.position)
+            }
+          }
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error loading module')
@@ -163,6 +180,18 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const questions = module.quiz_questions || []
   const passed = score >= 80
   const positionTiers = findPositionTiers(module.position)
+
+  if (lockedFor) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <h1 className="font-serif text-2xl text-chm-black mb-3">This module is locked</h1>
+          <p className="text-sm text-gray-600 mb-6">Finish all training modules for {lockedFor} first. Other positions unlock after that.</p>
+          <Link href="/staff/training-modules" className="text-chm-red hover:underline text-sm">Back to training modules</Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white min-h-screen">
