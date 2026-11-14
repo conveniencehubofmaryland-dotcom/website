@@ -35,6 +35,7 @@ export async function GET(
       position: data.position || applicant?.position || '',
       startDate: data.start_date ?? null,
       signedAt: data.signed_at ?? null,
+      signatureName: data.signature_name ?? null,
     })
 
     const safeName = String(applicant?.full_name ?? 'Staff').replace(/[^A-Za-z0-9_-]/g, '_')

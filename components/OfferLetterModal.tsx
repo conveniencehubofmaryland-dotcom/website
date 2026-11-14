@@ -15,7 +15,6 @@ type Props = {
 export default function OfferLetterModal({ applicantId, applicantName, position, onClose }: Props) {
   const router = useRouter()
   const [form, setForm] = useState({
-    hourly_rate: '',
     start_date: '',
     manager_name: '',
     deadline_date: '',
@@ -44,7 +43,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
         body: JSON.stringify({
           applicant_id: applicantId,
           position,
-          salary_annual: parseFloat(form.hourly_rate),
           start_date: form.start_date,
           benefits_summary: form.benefits_summary || null,
           manager_name: form.manager_name,
@@ -102,20 +100,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
                 </div>
               </div>
             )}
-
-            {/* Hourly Rate */}
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Hourly Rate *</label>
-              <input
-                required
-                type="number"
-                step="0.01"
-                value={form.hourly_rate}
-                onChange={e => set('hourly_rate', e.target.value)}
-                className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors"
-                placeholder="18.50"
-              />
-            </div>
 
             {/* Start Date */}
             <div>

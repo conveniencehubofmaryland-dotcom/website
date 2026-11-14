@@ -4,10 +4,13 @@ import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { token, offer_id } = body
+  const { token, offer_id, signature_name } = body
 
   if (!token || !offer_id) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+  if (!signature_name || !String(signature_name).trim()) {
+    return NextResponse.json({ error: 'Please type your full name as your signature.' }, { status: 400 })
   }
 
   try {
@@ -25,6 +28,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           signed_at: now,
+          signature_name: String(signature_name).trim(),
           sign_token: null,
           status: 'signed',
         }),

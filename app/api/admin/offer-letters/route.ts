@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { applicant_id, position, salary_annual, start_date, benefits_summary } = body
 
-  if (!applicant_id || !position || !salary_annual || !start_date) {
+  if (!applicant_id || !position || !start_date) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -95,7 +95,7 @@ if (!insertRes.ok) {
       </ul>
 
       <h3>COMPENSATION</h3>
-      <p>You are paid under the CHM Contractor Compensation Structure, effective October 22, 2026. The full tier shares and commercial fee bands are in your offer letter.</p>
+      <p>You are paid under the CHM Contractor Compensation Structure, effective October 22, 2026. Paid every Friday for work performed in the prior week. The full tier shares and commercial fee bands are in your offer letter.</p>
 
       <h3>NEXT STEPS</h3>
       <ol>

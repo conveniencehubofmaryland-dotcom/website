@@ -51,12 +51,14 @@ export function buildOfferLetterHtml(opts: {
   position: string
   startDate: string | null
   signedAt: string | null
+  signatureName: string | null
 }): string {
   const name = escapeHtml(opts.fullName || '')
   const position = escapeHtml(opts.position || '')
   const email = escapeHtml(opts.email || 'N/A')
   const start = escapeHtml(formatDate(opts.startDate))
   const signed = opts.signedAt ? escapeHtml(formatDate(opts.signedAt, true)) : 'Not signed'
+  const signatureName = escapeHtml(opts.signatureName || opts.fullName || '')
   const docId = escapeHtml(opts.documentId)
 
   const residentialTable = RESIDENTIAL_ROWS.map(r => `
@@ -117,6 +119,7 @@ export function buildOfferLetterHtml(opts: {
 
     <h3>2. Compensation</h3>
     <p>You are paid under the CHM Contractor Compensation Structure, effective October 22, 2026.</p>
+    <p><strong>Pay schedule:</strong> Paid every Friday for work performed in the prior week.</p>
 
     <p><strong>Residential services.</strong> Each service fee is split between you and CHM by tier:</p>
     <table>
@@ -154,7 +157,7 @@ export function buildOfferLetterHtml(opts: {
       <h2>Acceptance</h2>
       <p>By signing below, you acknowledge receipt of this offer letter and agree to the terms and conditions outlined above, including your status as an independent contractor.</p>
       <p style="margin-top: 36px; border-top: 1px solid #ccc; padding-top: 10px;"><strong>Signed:</strong> ${signed}</p>
-      <p><strong>By:</strong> ${name}</p>
+      <p><strong>Typed signature:</strong> ${signatureName}</p>
     </div>
 
     <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">

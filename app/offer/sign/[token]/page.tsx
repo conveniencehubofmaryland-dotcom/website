@@ -24,6 +24,7 @@ export default function SignOfferPage() {
   const [error, setError] = useState('')
   const [signing, setSigning] = useState(false)
   const [signed, setSigned] = useState(false)
+  const [signatureName, setSignatureName] = useState('')
 
   useEffect(() => {
     // Fetch offer details by token
@@ -43,6 +44,10 @@ export default function SignOfferPage() {
   }, [token])
 
   async function handleSign() {
+    if (!signatureName.trim()) {
+      setError('Please type your full name as your signature.')
+      return
+    }
     setSigning(true)
     setError('')
 
@@ -50,7 +55,7 @@ export default function SignOfferPage() {
       const res = await fetch('/api/offer/sign/accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, offer_id: offer?.id }),
+        body: JSON.stringify({ token, offer_id: offer?.id, signature_name: signatureName.trim() }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to sign offer')
@@ -164,9 +169,20 @@ export default function SignOfferPage() {
           <p className="text-chm-red text-sm bg-red-50 p-3 rounded mb-6">{error}</p>
         )}
 
+        <div className="mb-6">
+          <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Signature (type your full name) *</label>
+          <input
+            type="text"
+            value={signatureName}
+            onChange={e => setSignatureName(e.target.value)}
+            placeholder="Type your full name as your signature"
+            className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-black"
+          />
+        </div>
+
         <button
           onClick={handleSign}
-          disabled={signing}
+          disabled={signing || !signatureName.trim()}
           className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60 mb-4"
         >
           {signing ? 'Processing...' : 'Accept & Sign Offer'}
