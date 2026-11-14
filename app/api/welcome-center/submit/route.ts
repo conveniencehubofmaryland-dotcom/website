@@ -60,22 +60,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // W-9 (IRS Form W-9) is collected with the profile.
-    const w9BusinessName = String(formData.get('w9_business_name') || '').trim()
-    const w9TaxClass = String(formData.get('w9_tax_classification') || '')
-    const w9Address = String(formData.get('w9_address') || '').trim()
-    const w9CityStateZip = String(formData.get('w9_city_state_zip') || '').trim()
-    const w9Tin = String(formData.get('w9_tin') || '').replace(/\D/g, '')
-    const w9Signature = String(formData.get('w9_signature_image') || '')
-    const W9_TAX_CLASSES = ['individual', 'single_member_llc', 'c_corp', 's_corp', 'partnership', 'other']
-    if (!w9Address || !w9CityStateZip || !W9_TAX_CLASSES.includes(w9TaxClass)) {
-      return NextResponse.json({ error: 'Please complete the W-9 address and tax classification.' }, { status: 400 })
+    // IRS Form W-9: the applicant attaches the completed official form.
+    const w9File = formData.get('w9File') as File | null
+    if (!w9File || w9File.size === 0) {
+      return NextResponse.json({ error: 'Please attach your completed IRS Form W-9.' }, { status: 400 })
     }
-    if (w9Tin.length !== 9) {
-      return NextResponse.json({ error: 'Enter your 9-digit SSN or EIN on the W-9.' }, { status: 400 })
-    }
-    if (!w9Signature.startsWith('data:image/png;base64,') || w9Signature.length > 300000) {
-      return NextResponse.json({ error: 'Please draw your signature on the W-9.' }, { status: 400 })
+    if (w9File.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'The W-9 file is larger than 10 MB.' }, { status: 400 })
     }
 
     // Validate date of birth is in past
@@ -129,6 +120,27 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         )
       }
+    }
+
+    // Upload the completed W-9 form
+    let w9_file_path: string
+    try {
+      const w9Ext = (w9File.name.split('.').pop() || 'pdf').toLowerCase()
+      const w9Name = `w9/${email.replace(/[^a-z0-9]/gi, '_')}_w9_${Date.now()}.${w9Ext}`
+      const { data: w9Upload, error: w9UploadError } = await supabase.storage
+        .from('application-documents')
+        .upload(w9Name, w9File, {
+          contentType: w9File.type,
+          upsert: false,
+        })
+      if (w9UploadError || !w9Upload?.path) {
+        console.error('[submit] W-9 upload error:', w9UploadError)
+        return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
+      }
+      w9_file_path = w9Upload.path
+    } catch (w9Err) {
+      console.error('[submit] W-9 upload exception:', w9Err)
+      return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
     }
 
     let applicant_id: string
@@ -252,12 +264,7 @@ export async function POST(req: NextRequest) {
       applicant_id,
       staff_email: email,
       full_name,
-      business_name: w9BusinessName || null,
-      tax_classification: w9TaxClass,
-      address: w9Address,
-      city_state_zip: w9CityStateZip,
-      tin: w9Tin,
-      signature_image: w9Signature,
+      file_path: w9_file_path,
     })
     if (w9Res.error) {
       console.error('[submit] W-9 save error:', w9Res.error)

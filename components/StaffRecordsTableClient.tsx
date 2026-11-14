@@ -197,7 +197,8 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     const week = doc.id.split('_')[1]
     window.open(`/api/admin/timesheets?applicant_id=${doc.staffId}&week=${week}&format=html`, '_blank')
   } else if (doc.documentType === 'w9') {
-    window.open(`/api/admin/w9/download/${doc.id}`, '_blank')
+    // Uploaded W-9 files open directly; older records use the generated form
+    window.open(doc.documentUrl || `/api/admin/w9/download/${doc.id}`, '_blank')
   } else if (doc.documentType === 'background_check' && !doc.documentUrl) {
     window.open(`/api/admin/background-checks/download/${doc.staffId}`, '_blank')
   } else if (doc.documentUrl) {

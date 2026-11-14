@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
-import SignaturePad from './SignaturePad'
 import { useSearchParams, useRouter } from 'next/navigation'
+
+const W9_URL = 'https://www.irs.gov/pub/irs-pdf/fw9.pdf'
 const POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
@@ -31,13 +32,8 @@ export default function WelcomeCenterForm() {
     acknowledged_1099: false,
     own_car: 'no',
     backgroundCheckFile: null as File | null,
-    w9_business_name: '',
-    w9_tax_classification: '',
-    w9_address: '',
-    w9_city_state_zip: '',
-    w9_tin: '',
+    w9File: null as File | null,
   })
-  const [w9Signature, setW9Signature] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -65,6 +61,14 @@ export default function WelcomeCenterForm() {
     }))
   }
 
+  const handleW9FileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setFormData(prev => ({
+      ...prev,
+      w9File: file,
+    }))
+  }
+
   const handleRadioChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -86,13 +90,9 @@ export default function WelcomeCenterForm() {
       formData.years_of_experience === '' ||
       !formData.acknowledged_1099 ||
       !formData.backgroundCheckFile ||
-      !formData.w9_address.trim() ||
-      !formData.w9_city_state_zip.trim() ||
-      !formData.w9_tax_classification ||
-      formData.w9_tin.replace(/\D/g, '').length !== 9 ||
-      !w9Signature
+      !formData.w9File
     ) {
-      setError('All fields are required, including your background check document')
+      setError('All fields are required, including your background check and completed IRS Form W-9')
       setLoading(false)
       return
     }
@@ -107,14 +107,11 @@ export default function WelcomeCenterForm() {
       fd.append('years_of_experience', formData.years_of_experience)
       fd.append('acknowledged_1099', String(formData.acknowledged_1099))
       fd.append('own_car', formData.own_car)
-      fd.append('w9_business_name', formData.w9_business_name)
-      fd.append('w9_tax_classification', formData.w9_tax_classification)
-      fd.append('w9_address', formData.w9_address)
-      fd.append('w9_city_state_zip', formData.w9_city_state_zip)
-      fd.append('w9_tin', formData.w9_tin)
-      fd.append('w9_signature_image', w9Signature)
       if (formData.backgroundCheckFile) {
         fd.append('backgroundCheck', formData.backgroundCheckFile)
+      }
+      if (formData.w9File) {
+        fd.append('w9File', formData.w9File)
       }
       if (invite_token) {
         fd.append('invite_token', invite_token)
@@ -348,47 +345,38 @@ export default function WelcomeCenterForm() {
             )}
           </div>
 
-          {/* IRS Form W-9 */}
-          <div className="border border-gray-200 p-6 rounded-lg space-y-5">
+          {/* IRS Form W-9: applicant fills the official IRS form and attaches it here */}
+          <div className="border border-gray-200 p-6 rounded-lg space-y-4">
             <div>
               <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold">IRS Form W-9 *</p>
-              <p className="text-xs text-gray-500 mt-1">Required for contractor payments. Your name above is used on the form.</p>
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                Required for contractor payments. Step 1: open the official IRS Form W-9, fill it in and sign it (you can save it to your phone or computer). Step 2: attach the completed form below.
+              </p>
             </div>
+            <a
+              href={W9_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center border border-chm-red text-chm-red py-3 text-xs font-semibold uppercase tracking-widest hover:bg-red-50 transition-colors rounded"
+            >
+              Open IRS Form W-9 (irs.gov) →
+            </a>
             <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Business name (if any)</label>
-              <input type="text" value={formData.w9_business_name} onChange={e => setFormData({ ...formData, w9_business_name: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Federal tax classification *</label>
-              <select value={formData.w9_tax_classification} onChange={e => setFormData({ ...formData, w9_tax_classification: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded">
-                <option value="">Select one</option>
-                <option value="individual">Individual / sole proprietor</option>
-                <option value="single_member_llc">Single-member LLC</option>
-                <option value="c_corp">C Corporation</option>
-                <option value="s_corp">S Corporation</option>
-                <option value="partnership">Partnership / multi-member LLC</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Address *</label>
-              <input type="text" value={formData.w9_address} onChange={e => setFormData({ ...formData, w9_address: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">City, state, ZIP *</label>
-              <input type="text" value={formData.w9_city_state_zip} onChange={e => setFormData({ ...formData, w9_city_state_zip: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">SSN or EIN (9 digits) *</label>
-              <input type="text" inputMode="numeric" value={formData.w9_tin} onChange={e => setFormData({ ...formData, w9_tin: e.target.value })} placeholder="123-45-6789" className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
-              <p className="text-xs text-gray-400 mt-1">Stored securely. Administrators see only the last four digits.</p>
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Under penalties of perjury, I certify that the number I gave is my correct taxpayer identification number, that I am not subject to backup withholding, and that I am a U.S. person for tax purposes.
-            </p>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">W-9 signature *</label>
-              <SignaturePad onChange={setW9Signature} />
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Attach completed W-9 (PDF, JPG, or PNG) *</label>
+              <p className="text-xs text-gray-500 mb-2">Maximum file size: 10 MB</p>
+              <input
+                type="file"
+                name="w9File"
+                required
+                onChange={handleW9FileChange}
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
+              />
+              {formData.w9File && (
+                <p className="text-xs text-green-600 mt-2">
+                  ✓ {formData.w9File.name} selected
+                </p>
+              )}
             </div>
           </div>
 

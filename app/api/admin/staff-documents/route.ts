@@ -133,7 +133,7 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
 async function fetchW9Forms(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('w9_forms')
-    .select('id, applicant_id, staff_email, full_name, signed_at')
+    .select('id, applicant_id, staff_email, full_name, signed_at, file_path')
     .order('signed_at', { ascending: false })
 
   if (error) {
@@ -149,7 +149,10 @@ async function fetchW9Forms(): Promise<StaffDocument[]> {
     documentType: 'w9' as const,
     documentName: 'IRS Form W-9',
     dateSigned: row.signed_at,
-    documentUrl: null,
+    // Uploaded W-9 files open directly; older records use the generated form.
+    documentUrl: row.file_path
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/application-documents/${encodeURIComponent(row.file_path)}`
+      : null,
     status: 'signed',
     ownCar: null,
   }))
