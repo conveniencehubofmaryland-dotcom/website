@@ -25,6 +25,14 @@ export async function POST(req: NextRequest) {
     const backgroundCheckFile = formData.get('backgroundCheck') as File | null
     const invite_token = formData.get('invite_token') as string | null
 
+    // Only invited applicants can apply. Walk-in applications are not accepted, so How It Works cannot be skipped.
+    if (!invite_token) {
+      return NextResponse.json(
+        { error: 'Please open the link from your invitation email to start your application.' },
+        { status: 400 }
+      )
+    }
+
     console.log('[submit] Received body:', { full_name, email, phone, sex, date_of_birth, position, years_of_experience, acknowledged_1099, own_car, hasBackgroundCheck: !!backgroundCheckFile })
 
     // Validate all required fields

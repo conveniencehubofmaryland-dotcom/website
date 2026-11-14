@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// Keep the invite token when sending the applicant to the welcome center.
+const welcomeUrl = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('invite_token') : null
+  return token ? `/welcome-center?invite=${encodeURIComponent(token)}` : '/welcome-center'
+}
+
 export default function StaffPage() {
   const router = useRouter()
   const [staffName, setStaffName] = useState<string>('')
@@ -15,27 +21,27 @@ export default function StaffPage() {
         const applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
         
         if (!applicantId) {
-          router.push('/welcome-center')
+          router.push(welcomeUrl())
           return
         }
 
         const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
         if (!res.ok) {
-          router.push('/welcome-center')
+          router.push(welcomeUrl())
           return
         }
 
         const data = await res.json()
         
         if (!data.orientation_accepted) {
-          router.push('/welcome-center')
+          router.push(welcomeUrl())
           return
         }
 
         setStaffName(data.staffName || 'Staff Member')
       } catch (err) {
         console.error('Auth check failed:', err)
-        router.push('/welcome-center')
+        router.push(welcomeUrl())
       } finally {
         setLoading(false)
       }
