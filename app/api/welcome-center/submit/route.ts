@@ -122,27 +122,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Upload the completed W-9 form
-    let w9_file_path: string
-    try {
-      const w9Ext = (w9File.name.split('.').pop() || 'pdf').toLowerCase()
-      const w9Name = `w9/${email.replace(/[^a-z0-9]/gi, '_')}_w9_${Date.now()}.${w9Ext}`
-      const { data: w9Upload, error: w9UploadError } = await supabase.storage
-        .from('application-documents')
-        .upload(w9Name, w9File, {
-          contentType: w9File.type,
-          upsert: false,
-        })
-      if (w9UploadError || !w9Upload?.path) {
-        console.error('[submit] W-9 upload error:', w9UploadError)
-        return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
-      }
-      w9_file_path = w9Upload.path
-    } catch (w9Err) {
-      console.error('[submit] W-9 upload exception:', w9Err)
-      return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
-    }
-
     let applicant_id: string
 
     if (invite_token) {
@@ -257,6 +236,27 @@ export async function POST(req: NextRequest) {
 
       applicant_id = newApplicant.id
       console.log('[submit] New applicant created:', applicant_id)
+    }
+
+    // Upload the completed W-9 form (only after the applicant is confirmed)
+    let w9_file_path: string
+    try {
+      const w9Ext = (w9File.name.split('.').pop() || 'pdf').toLowerCase()
+      const w9Name = `w9/${email.replace(/[^a-z0-9]/gi, '_')}_w9_${Date.now()}.${w9Ext}`
+      const { data: w9Upload, error: w9UploadError } = await supabase.storage
+        .from('application-documents')
+        .upload(w9Name, w9File, {
+          contentType: w9File.type,
+          upsert: false,
+        })
+      if (w9UploadError || !w9Upload?.path) {
+        console.error('[submit] W-9 upload error:', w9UploadError)
+        return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
+      }
+      w9_file_path = w9Upload.path
+    } catch (w9Err) {
+      console.error('[submit] W-9 upload exception:', w9Err)
+      return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
     }
 
     // Save the W-9 for this applicant.

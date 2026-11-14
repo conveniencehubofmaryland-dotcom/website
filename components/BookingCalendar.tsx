@@ -15,7 +15,7 @@ type Props = {
   onSundayAttempt?: () => void
 }
 
-export default function BookingCalendar({ value, onChange, min, max, onSundayAttempt }: Props) {
+export default function BookingCalendar({ value, onChange, min, max }: Props) {
   const initialDate = value ? new Date(value + 'T12:00:00') : new Date()
   const [view, setView] = useState({ year: initialDate.getFullYear(), month: initialDate.getMonth() })
 
