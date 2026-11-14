@@ -25,6 +25,7 @@ export default function WelcomeCenterForm() {
     full_name: '',
     email: '',
     phone: '',
+    address: '',
     sex: '',
     date_of_birth: '',
     position: '',
@@ -84,6 +85,7 @@ export default function WelcomeCenterForm() {
       !formData.full_name ||
       !formData.email ||
       !formData.phone ||
+      !formData.address.trim() ||
       !formData.sex ||
       !formData.date_of_birth ||
       !formData.position ||
@@ -101,6 +103,7 @@ export default function WelcomeCenterForm() {
       fd.append('full_name', formData.full_name)
       fd.append('email', formData.email)
       fd.append('phone', formData.phone)
+      fd.append('address', formData.address.trim())
       fd.append('sex', formData.sex)
       fd.append('date_of_birth', formData.date_of_birth)
       fd.append('position', formData.position)
@@ -223,6 +226,20 @@ export default function WelcomeCenterForm() {
               onChange={handleChange}
               className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red rounded"
               placeholder="(202) 555-0100"
+            />
+          </div>
+          <div>
+            <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">
+              Full Home Address *
+            </label>
+            <input
+              type="text"
+              name="address"
+              required
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red rounded"
+              placeholder="Street, city, state, ZIP"
             />
           </div>
           <div>

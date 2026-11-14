@@ -9,6 +9,7 @@ interface StaffRecord {
   full_name: string
   email: string
   phone: string
+  address?: string | null
   sex: string
   date_of_birth: string
   position: string
@@ -224,6 +225,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
       'Full Name',
       'Email',
       'Phone',
+      'Address',
       'Sex',
       'Date of Birth',
       'Position',
@@ -240,6 +242,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
       r.full_name,
       r.email,
       r.phone,
+      r.address || '',
       r.sex,
       r.date_of_birth,
       r.position,
@@ -416,7 +419,10 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
               <tbody>
                 {filteredRecords.map(record => (
                   <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-chm-black">{record.full_name}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-chm-black">
+                      {record.full_name}
+                      {record.address && <p className="text-xs font-normal text-gray-500 mt-1">{record.address}</p>}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-600">{record.email}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{record.phone}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{record.position}</td>

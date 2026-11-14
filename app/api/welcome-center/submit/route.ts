@@ -53,6 +53,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const address = String(formData.get('address') || '').trim()
+    if (address.length < 10) {
+      return NextResponse.json(
+        { error: 'Please enter your full home address (street, city, state, ZIP).' },
+        { status: 400 }
+      )
+    }
+
     if (!backgroundCheckFile || backgroundCheckFile.size === 0) {
       return NextResponse.json(
         { error: 'Background check document is required' },
@@ -179,6 +187,7 @@ export async function POST(req: NextRequest) {
           years_of_experience: yearsExp,
           acknowledged_1099,
           own_car,
+          address,
           background_check_url,
           onboarding_status: 'profile_submitted',
           invited_at: new Date().toISOString(),
@@ -217,6 +226,7 @@ export async function POST(req: NextRequest) {
           years_of_experience: yearsExp,
           acknowledged_1099,
           own_car,
+          address,
           background_check_url,
           onboarding_status: 'profile_submitted',
           created_at: new Date().toISOString(),
