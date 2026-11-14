@@ -28,7 +28,8 @@ export default function ApplicantReadyButton({
       if (res.ok) {
         router.refresh()
       } else {
-        alert('Failed to mark as ready')
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'Failed to mark as ready')
       }
     } catch (err) {
       console.error('Error:', err)

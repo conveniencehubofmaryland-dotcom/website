@@ -46,6 +46,19 @@ export async function PATCH(req: NextRequest) {
 
     const applicant = applicantData[0]
 
+    // Gate: the W-9 must be on file before the applicant can claim shifts.
+    const w9Res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/w9_forms?applicant_id=eq.${applicant_id}&select=id&limit=1`,
+      { headers: { ...serviceHeaders() } }
+    )
+    const w9Rows = w9Res.ok ? await w9Res.json() : []
+    if (!Array.isArray(w9Rows) || w9Rows.length === 0) {
+      return NextResponse.json(
+        { error: 'The applicant has not submitted their IRS Form W-9 yet.' },
+        { status: 400 }
+      )
+    }
+
     // Generate secure token (valid for 30 days)
     const claimToken = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
