@@ -1,5 +1,5 @@
 'use client'
-import { POSITION_LIST, PAY_STRUCTURE } from '@/lib/pay-structure'
+import { POSITION_LIST } from '@/lib/pay-structure'
 import OfferLetterClient from '@/components/OfferLetterClient'
 import ApplicantStatusButton from '@/components/ApplicantStatusButton'
 import ApplicantReadyButton from '@/components/ApplicantReadyButton'
@@ -137,21 +137,6 @@ export default function OfferLettersClient({
               <h2 className="font-semibold text-lg text-chm-black mb-4 pb-2 border-b border-gray-200">
                 {position}
               </h2>
-
-              <div className="bg-gray-50 p-4 rounded mb-6 text-xs">
-                <p className="text-gray-600 font-semibold mb-2">Reference Ranges (not part of the contractor offer):</p>
-                <div className="space-y-1">
-                  {PAY_STRUCTURE[position]?.tiers.map(tier => (
-                    <div key={tier.level} className="flex justify-between text-gray-700">
-                      <span>{tier.level}</span>
-                      <span className="font-semibold">
-                        ${tier.hourly_min.toFixed(2)}–${tier.hourly_max.toFixed(2)}/hr (
-                        ${tier.monthly_min.toLocaleString()}–${tier.monthly_max.toLocaleString()}/mo)
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="overflow-x-auto -mx-4 sm:mx-0 mb-8">
                 <table className="min-w-full text-sm">

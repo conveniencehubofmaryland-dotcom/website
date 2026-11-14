@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PAY_STRUCTURE } from '@/lib/pay-structure'
-import type { PayTier } from '@/lib/pay-structure'
 
 type Props = {
   applicantId: string
@@ -22,9 +20,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
   })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
-
-  const positionData = PAY_STRUCTURE[position]
-  const tiers = positionData?.tiers || []
 
   function set(field: string, value: string) {
     setForm(f => ({ ...f, [field]: value }))
@@ -84,21 +79,6 @@ export default function OfferLetterModal({ applicantId, applicantName, position,
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Pay Structure Tiers */}
-            {tiers.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded">
-                <p className="text-xs uppercase tracking-widest text-gray-600 font-semibold mb-3">Reference Ranges (not part of the contractor offer)</p>
-                <div className="space-y-2 text-xs">
-                  {tiers.map((tier: PayTier) => (
-                    <div key={tier.level} className="flex justify-between text-gray-700">
-                      <span>{tier.level}</span>
-                      <span className="font-semibold">${tier.hourly_min.toFixed(2)}–${tier.hourly_max.toFixed(2)}/hr</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Start Date */}
             <div>
               <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Start Date *</label>
