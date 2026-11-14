@@ -9,7 +9,6 @@ const adminLinks = [
   { href: '/admin/reviews', label: 'Reviews' },
   { href: '/admin/services', label: 'Services' },
   { href: '/admin/deals', label: 'Deals' },
-  { href: '/admin/bundles', label: 'Bundles' },
   { href: '/admin/referrals', label: 'Referrals' },
   { href: '/admin/products', label: 'Products' },
   { href: '/admin/members', label: 'Members' },
