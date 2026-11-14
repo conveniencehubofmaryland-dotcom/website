@@ -35,6 +35,7 @@ async function run(req: NextRequest) {
   const applicantIds = Array.from(new Set(rows.map(r => r.applicant_id)))
 
   let sent = 0
+  let skipped = 0
   const failed: string[] = []
   for (const applicantId of applicantIds) {
     try {
@@ -47,13 +48,35 @@ async function run(req: NextRequest) {
       const ts = buildTimesheet(shifts, weekStart)
       if (ts.lines.length === 0) continue
 
-      const html = timesheetHtml({ staffName: applicant.full_name, position: applicant.position, ts })
-      await sendUserEmailWithAttachment(
-        applicant.email,
-        `Your Timesheet: ${weekStart} to ${ts.week_end}`,
-        `Hi ${applicant.full_name}, your timesheet for ${weekStart} to ${ts.week_end} is attached. Approved pay: $${ts.approved_pay.toFixed(2)} (${ts.approved_hours.toFixed(2)} hours), paid on ${ts.pay_date}. You can also view it in the staff portal: <a href="https://conveniencehubofmaryland.com/staff/timesheets">My Timesheets</a>.`,
-        { filename: `Timesheet-${weekStart}.html`, content: html },
-      )
+      // Claim this applicant's week before sending. If the row already exists, the timesheet went out on an earlier run.
+      const claimRes = await sbFetch('timesheet_email_log', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation,resolution=ignore-duplicates' },
+        body: JSON.stringify({ applicant_id: applicantId, week_start: weekStart }),
+      })
+      if (!claimRes.ok) throw new Error(`Could not record timesheet send (${claimRes.status})`)
+      const claimed = await claimRes.json()
+      if (!Array.isArray(claimed) || claimed.length === 0) {
+        skipped++
+        continue
+      }
+
+      try {
+        const html = timesheetHtml({ staffName: applicant.full_name, position: applicant.position, ts })
+        await sendUserEmailWithAttachment(
+          applicant.email,
+          `Your Timesheet: ${weekStart} to ${ts.week_end}`,
+          `Hi ${applicant.full_name}, your timesheet for ${weekStart} to ${ts.week_end} is attached. Approved pay: $${ts.approved_pay.toFixed(2)} (${ts.approved_hours.toFixed(2)} hours), paid on ${ts.pay_date}. You can also view it in the staff portal: <a href="https://conveniencehubofmaryland.com/staff/timesheets">My Timesheets</a>.`,
+          { filename: `Timesheet-${weekStart}.html`, content: html },
+        )
+      } catch (sendErr) {
+        // Release the claim so a later run can retry this applicant.
+        await sbFetch(
+          `timesheet_email_log?applicant_id=eq.${encodeURIComponent(applicantId)}&week_start=eq.${weekStart}`,
+          { method: 'DELETE' }
+        )
+        throw sendErr
+      }
       sent++
     } catch (err) {
       console.error('[weekly-timesheets] failed for', applicantId, err)
@@ -61,5 +84,5 @@ async function run(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ week_start: weekStart, sent, failed: failed.length })
+  return NextResponse.json({ week_start: weekStart, sent, skipped, failed: failed.length })
 }
