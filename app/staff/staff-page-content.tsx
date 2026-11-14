@@ -15,55 +15,35 @@ export default function StaffPageContent() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        // If invite token present, look up the applicant
+        // Old invite links: send the applicant through How It Works with the same token.
         if (inviteToken) {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('invite_token', inviteToken)
-          }
-          const res = await fetch(`/api/staff/welcome/check?invite_token=${inviteToken}`)
-          if (!res.ok) {
-            setStaffName('New Team Member')
-            setLoading(false)
-            return
-          }
-          const data = await res.json()
-          setStaffName(data.staffName || 'New Team Member')
-          // Store applicant_id for later use in onboarding flow
-          if (data.applicant_id && typeof window !== 'undefined') {
-            localStorage.setItem('applicant_id', data.applicant_id)
-          }
-          setLoading(false)
+          router.replace(`/staff/how-it-works?invite_token=${encodeURIComponent(inviteToken)}`)
           return
         }
 
-        // Normal auth check (no invite token)
-        let applicantId = typeof window !== 'undefined' ? localStorage.getItem('applicant_id') : null
-        if (!applicantId) {
-          const cookies = document.cookie.split(';')
-          const applCookie = cookies.find(c => c.trim().startsWith('applicant_id='))
-          applicantId = applCookie ? applCookie.split('=')[1] : null
-        }
-        if (!applicantId) {
-          router.push('/welcome-center')
+        // The staff portal requires the emailed sign-in code.
+        const token = typeof window !== 'undefined' ? localStorage.getItem('staff_session_token') : null
+        if (!token) {
+          router.replace('/staff/claim-shifts-login')
           return
         }
-        const res = await fetch(`/api/staff/welcome/check?applicant_id=${applicantId}`)
+        const res = await fetch(`/api/staff/login/check?token=${encodeURIComponent(token)}`)
         if (!res.ok) {
-          router.push('/welcome-center')
+          localStorage.removeItem('staff_session_token')
+          localStorage.removeItem('staff_email')
+          router.replace('/staff/claim-shifts-login')
           return
         }
         const data = await res.json()
-        setStaffName(data.staffName || 'Staff Member')
+        setStaffName(data.full_name ? String(data.full_name).split(' ')[0] : 'Staff Member')
       } catch (err) {
         console.error('Auth check failed:', err)
-        if (!inviteToken) {
-          router.push('/welcome-center')
-        }
+        router.replace('/staff/claim-shifts-login')
       } finally {
         setLoading(false)
       }
     }
-    
+
     checkAuth()
   }, [router, inviteToken])
 
