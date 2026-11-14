@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import SignaturePad from './SignaturePad'
 import { useSearchParams, useRouter } from 'next/navigation'
 const POSITIONS = [
   'Cleaning Specialist',
@@ -30,7 +31,13 @@ export default function WelcomeCenterForm() {
     acknowledged_1099: false,
     own_car: 'no',
     backgroundCheckFile: null as File | null,
+    w9_business_name: '',
+    w9_tax_classification: '',
+    w9_address: '',
+    w9_city_state_zip: '',
+    w9_tin: '',
   })
+  const [w9Signature, setW9Signature] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -78,7 +85,12 @@ export default function WelcomeCenterForm() {
       !formData.position ||
       formData.years_of_experience === '' ||
       !formData.acknowledged_1099 ||
-      !formData.backgroundCheckFile
+      !formData.backgroundCheckFile ||
+      !formData.w9_address.trim() ||
+      !formData.w9_city_state_zip.trim() ||
+      !formData.w9_tax_classification ||
+      formData.w9_tin.replace(/\D/g, '').length !== 9 ||
+      !w9Signature
     ) {
       setError('All fields are required, including your background check document')
       setLoading(false)
@@ -95,6 +107,12 @@ export default function WelcomeCenterForm() {
       fd.append('years_of_experience', formData.years_of_experience)
       fd.append('acknowledged_1099', String(formData.acknowledged_1099))
       fd.append('own_car', formData.own_car)
+      fd.append('w9_business_name', formData.w9_business_name)
+      fd.append('w9_tax_classification', formData.w9_tax_classification)
+      fd.append('w9_address', formData.w9_address)
+      fd.append('w9_city_state_zip', formData.w9_city_state_zip)
+      fd.append('w9_tin', formData.w9_tin)
+      fd.append('w9_signature_image', w9Signature)
       if (formData.backgroundCheckFile) {
         fd.append('backgroundCheck', formData.backgroundCheckFile)
       }
@@ -328,6 +346,50 @@ export default function WelcomeCenterForm() {
                 ✓ {formData.backgroundCheckFile.name} selected
               </p>
             )}
+          </div>
+
+          {/* IRS Form W-9 */}
+          <div className="border border-gray-200 p-6 rounded-lg space-y-5">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold">IRS Form W-9 *</p>
+              <p className="text-xs text-gray-500 mt-1">Required for contractor payments. Your name above is used on the form.</p>
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Business name (if any)</label>
+              <input type="text" value={formData.w9_business_name} onChange={e => setFormData({ ...formData, w9_business_name: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Federal tax classification *</label>
+              <select value={formData.w9_tax_classification} onChange={e => setFormData({ ...formData, w9_tax_classification: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded">
+                <option value="">Select one</option>
+                <option value="individual">Individual / sole proprietor</option>
+                <option value="single_member_llc">Single-member LLC</option>
+                <option value="c_corp">C Corporation</option>
+                <option value="s_corp">S Corporation</option>
+                <option value="partnership">Partnership / multi-member LLC</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Address *</label>
+              <input type="text" value={formData.w9_address} onChange={e => setFormData({ ...formData, w9_address: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">City, state, ZIP *</label>
+              <input type="text" value={formData.w9_city_state_zip} onChange={e => setFormData({ ...formData, w9_city_state_zip: e.target.value })} className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">SSN or EIN (9 digits) *</label>
+              <input type="text" inputMode="numeric" value={formData.w9_tin} onChange={e => setFormData({ ...formData, w9_tin: e.target.value })} placeholder="123-45-6789" className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded" />
+              <p className="text-xs text-gray-400 mt-1">Stored securely. Administrators see only the last four digits.</p>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Under penalties of perjury, I certify that the number I gave is my correct taxpayer identification number, that I am not subject to backup withholding, and that I am a U.S. person for tax purposes.
+            </p>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">W-9 signature *</label>
+              <SignaturePad onChange={setW9Signature} />
+            </div>
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">

@@ -102,7 +102,6 @@ export async function POST(req: NextRequest) {
       <p><strong>Next Steps:</strong></p>
       <ul>
         <li>Complete all required training modules: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
-        <li>Complete IRS Form W-9 after you finish all required training (we will email you the link)</li>
         <li>Claim your first shift: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
       </ul>
       <p>We are excited to have you on the team!</p>

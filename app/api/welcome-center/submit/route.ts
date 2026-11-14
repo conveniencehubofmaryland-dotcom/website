@@ -60,6 +60,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // W-9 (IRS Form W-9) is collected with the profile.
+    const w9BusinessName = String(formData.get('w9_business_name') || '').trim()
+    const w9TaxClass = String(formData.get('w9_tax_classification') || '')
+    const w9Address = String(formData.get('w9_address') || '').trim()
+    const w9CityStateZip = String(formData.get('w9_city_state_zip') || '').trim()
+    const w9Tin = String(formData.get('w9_tin') || '').replace(/\D/g, '')
+    const w9Signature = String(formData.get('w9_signature_image') || '')
+    const W9_TAX_CLASSES = ['individual', 'single_member_llc', 'c_corp', 's_corp', 'partnership', 'other']
+    if (!w9Address || !w9CityStateZip || !W9_TAX_CLASSES.includes(w9TaxClass)) {
+      return NextResponse.json({ error: 'Please complete the W-9 address and tax classification.' }, { status: 400 })
+    }
+    if (w9Tin.length !== 9) {
+      return NextResponse.json({ error: 'Enter your 9-digit SSN or EIN on the W-9.' }, { status: 400 })
+    }
+    if (!w9Signature.startsWith('data:image/png;base64,') || w9Signature.length > 300000) {
+      return NextResponse.json({ error: 'Please draw your signature on the W-9.' }, { status: 400 })
+    }
+
     // Validate date of birth is in past
     const dob = new Date(date_of_birth)
     if (dob > new Date()) {
@@ -227,6 +245,23 @@ export async function POST(req: NextRequest) {
 
       applicant_id = newApplicant.id
       console.log('[submit] New applicant created:', applicant_id)
+    }
+
+    // Save the W-9 for this applicant.
+    const w9Res = await supabase.from('w9_forms').insert({
+      applicant_id,
+      staff_email: email,
+      full_name,
+      business_name: w9BusinessName || null,
+      tax_classification: w9TaxClass,
+      address: w9Address,
+      city_state_zip: w9CityStateZip,
+      tin: w9Tin,
+      signature_image: w9Signature,
+    })
+    if (w9Res.error) {
+      console.error('[submit] W-9 save error:', w9Res.error)
+      return NextResponse.json({ error: 'Could not save the W-9. Please try again.' }, { status: 500 })
     }
 
     // Send confirmation email to applicant

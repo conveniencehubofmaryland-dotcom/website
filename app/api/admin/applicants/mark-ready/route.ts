@@ -100,7 +100,7 @@ export async function PATCH(req: NextRequest) {
         <p><strong>What you finished:</strong></p>
         <ul>
           <li>Reviewed How It Works and started your onboarding</li>
-          <li>Submitted your welcome profile and background check</li>
+          <li>Submitted your welcome profile, background check, and IRS Form W-9</li>
           <li>Signed your offer letter and orientation</li>
           <li>Completed your required training modules</li>
         </ul>
