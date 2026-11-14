@@ -120,11 +120,16 @@ export async function PATCH(req: NextRequest) {
       </div>
     </div>`
 
-    await sendUserEmailHtml(
-      applicant.email,
-      'Congratulations – You Are Ready to Claim Shifts!',
-      emailHtml
-    )
+    // The status is already saved, so an email failure is logged instead of shown as a failure.
+    try {
+      await sendUserEmailHtml(
+        applicant.email,
+        'Congratulations – You Are Ready to Claim Shifts!',
+        emailHtml
+      )
+    } catch (emailErr) {
+      console.error('[mark-ready] Congratulations email failed:', emailErr)
+    }
 
     console.log('[mark-ready] Applicant marked ready and email sent:', applicant_id)
     return NextResponse.json({ success: true })

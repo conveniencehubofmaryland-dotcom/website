@@ -28,7 +28,7 @@ async function run(req: NextRequest) {
   const weekEndYmd = weekEnd.toISOString().slice(0, 10)
 
   const res = await sbFetch(
-    `shifts?applicant_id=not.is.null&date=gte.${weekStart}&date=lte.${weekEndYmd}&select=applicant_id`
+    `shifts?applicant_id=not.is.null&and=(date.gte.${weekStart},date.lte.${weekEndYmd})&select=applicant_id`
   )
   if (!res.ok) return NextResponse.json({ error: 'Could not load shifts' }, { status: 500 })
   const rows = (await res.json()) as { applicant_id: string }[]

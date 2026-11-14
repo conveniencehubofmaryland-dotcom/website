@@ -97,7 +97,7 @@ export function buildTimesheet(shifts: ShiftRow[], weekStart: string): Timesheet
 export async function loadWeekShifts(applicantId: string, weekStart: string): Promise<ShiftRow[]> {
   const weekEnd = addDays(weekStart, 6)
   const res = await sbFetch(
-    `shifts?applicant_id=eq.${encodeURIComponent(applicantId)}&date=gte.${weekStart}&date=lte.${weekEnd}&select=*`
+    `shifts?applicant_id=eq.${encodeURIComponent(applicantId)}&and=(date.gte.${weekStart},date.lte.${weekEnd})&select=*`
   )
   if (!res.ok) return []
   const rows = await res.json()

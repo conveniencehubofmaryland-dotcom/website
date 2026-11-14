@@ -98,7 +98,6 @@ export default function SignOfferPage() {
 
   if (!offer) return null
 
-  const startDateFormatted = new Date(offer.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
   if (signed) {
     return (

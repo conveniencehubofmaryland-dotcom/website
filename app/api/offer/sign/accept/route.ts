@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendUserEmail, sendAdminEmail, sendUserEmailWithAttachment } from '@/lib/email'
+import { sendAdminEmail, sendUserEmailWithAttachment } from '@/lib/email'
 import { buildOfferLetterHtml } from '@/lib/offer-letter'
 import { serviceHeaders } from '@/lib/supabase-keys'
 
@@ -122,18 +122,27 @@ export async function POST(req: NextRequest) {
       managerName: offer.manager_name,
     })
 
-    await sendUserEmailWithAttachment(
-      applicant.email,
-      'Offer Accepted – Welcome to CHM!',
-      confirmationHtml,
-      { filename: 'Signed-Offer-Letter.html', content: signedLetter }
-    )
+    // The offer is already signed at this point, so an email failure must not show the applicant an error.
+    try {
+      await sendUserEmailWithAttachment(
+        applicant.email,
+        'Offer Accepted – Welcome to CHM!',
+        confirmationHtml,
+        { filename: 'Signed-Offer-Letter.html', content: signedLetter }
+      )
+    } catch (emailErr) {
+      console.error('[accept] Applicant confirmation email failed:', emailErr)
+    }
 
     // Send notification to admin
-    await sendAdminEmail(
-      `Offer Accepted: ${applicant.full_name}`,
-      `${applicant.full_name} has accepted their offer for ${offer.position}. Ready to onboard!`
-    )
+    try {
+      await sendAdminEmail(
+        `Offer Accepted: ${applicant.full_name}`,
+        `${applicant.full_name} has accepted their offer for ${offer.position}. Ready to onboard!`
+      )
+    } catch (adminErr) {
+      console.error('[accept] Admin notification failed:', adminErr)
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
