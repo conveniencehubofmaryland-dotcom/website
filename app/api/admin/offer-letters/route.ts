@@ -91,16 +91,11 @@ if (!insertRes.ok) {
       <ul>
         <li><strong>Position:</strong> ${position}</li>
         <li><strong>Start Date:</strong> ${new Date(start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</li>
-        <li><strong>Employment Type:</strong> Full-Time</li>
-        <li><strong>Hours:</strong> 40 hours per week</li>
-        <li><strong>Hourly Rate:</strong> $${salary_annual}/hour, paid weekly every Friday</li>
+        <li><strong>Engagement Type:</strong> Independent Contractor (IRS Form 1099)</li>
       </ul>
 
-      <h3>COMPENSATION & BENEFITS</h3>
-      <ul>
-        <li><strong>Weekly Pay:</strong> Paid every Friday for work performed in the prior week</li>
-        <li><strong>401(k) Retirement Plan:</strong> Eligible after 90 days of employment</li>
-      </ul>
+      <h3>COMPENSATION</h3>
+      <p>You are paid under the CHM Contractor Compensation Structure, effective October 22, 2026. The full tier shares and commercial fee bands are in your offer letter.</p>
 
       <h3>NEXT STEPS</h3>
       <ol>
@@ -122,7 +117,7 @@ if (!insertRes.ok) {
     // Send admin notification
     await sendAdminEmail(
       `New Offer Letter Sent: ${applicant.full_name}`,
-      `Offer letter sent to ${applicant.full_name} for ${position} position at $${salary_annual}/hour, starting ${new Date(start_date).toLocaleDateString()}.`
+      `Offer letter sent to ${applicant.full_name} for ${position} position, starting ${new Date(start_date).toLocaleDateString()}.`
     )
 
     return NextResponse.json({ success: true })

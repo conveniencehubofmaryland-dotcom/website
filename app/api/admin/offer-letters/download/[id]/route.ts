@@ -34,8 +34,6 @@ export async function GET(
       email: applicant?.email ?? null,
       position: data.position || applicant?.position || '',
       startDate: data.start_date ?? null,
-      hourlyRate: typeof data.salary_annual === 'number' ? data.salary_annual : null,
-      benefitsSummary: data.benefits_summary ?? null,
       signedAt: data.signed_at ?? null,
     })
 
