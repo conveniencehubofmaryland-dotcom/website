@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import SignaturePad from './SignaturePad'
 
 interface OrientationFormProps {
   position: string
@@ -23,8 +24,8 @@ export default function OrientationForm({ position, applicantId }: OrientationFo
     setLoading(true)
     setErrorMsg('')
 
-    if (!fullName.trim() || !email.trim() || !signature.trim()) {
-      setErrorMsg('Please fill in all required fields.')
+    if (!fullName.trim() || !email.trim() || !signature) {
+      setErrorMsg('Please fill in all required fields and sign in the signature box.')
       setLoading(false)
       return
     }
@@ -90,16 +91,9 @@ export default function OrientationForm({ position, applicantId }: OrientationFo
       </div>
 
       <div>
-        <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Signature (Type your full name) *</label>
-        <input
-          required
-          type="text"
-          value={signature}
-          onChange={e => setSignature(e.target.value)}
-          className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red transition-colors rounded font-script text-lg"
-          placeholder="Type your full name as your signature"
-        />
-        <p className="text-xs text-gray-400 mt-1">By typing your name, you are electronically signing this acknowledgment.</p>
+        <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Signature *</label>
+        <SignaturePad onChange={setSignature} />
+        <p className="text-xs text-gray-400 mt-1">By signing above, you are electronically signing this acknowledgment.</p>
       </div>
 
       <div className="space-y-3 border-t border-gray-200 pt-6">
