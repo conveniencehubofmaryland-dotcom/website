@@ -149,7 +149,12 @@ async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
     documentType: 'background_check' as const,
     documentName: 'Background Check',
     dateSigned: null,
-    documentUrl: row.background_check_url,
+    // The database stores the file name only; build the public storage link so it can be opened.
+    documentUrl: row.background_check_url
+      ? (String(row.background_check_url).startsWith('http')
+          ? String(row.background_check_url)
+          : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/application-documents/${encodeURIComponent(String(row.background_check_url))}`)
+      : null,
     status: row.background_check_status || 'uploaded',
     ownCar: null,
   }))

@@ -171,13 +171,13 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     window.open(`/api/admin/signed-documents/download/${doc.staffId}`, '_blank')
   } else if (doc.documentType === 'offer_letter') {
     window.open(`/api/admin/offer-letters/download/${doc.id}`, '_blank')
-  } else if (doc.documentType === 'certification' && !doc.documentUrl) {
-    // Older certificates without a saved file are generated on view
+  } else if (doc.documentType === 'certification') {
+    // Certificates are rebuilt from the training record, so they always open
     window.open(`/api/admin/certifications/download/${doc.id}`, '_blank')
   } else if (doc.documentType === 'cpr_certification' || doc.documentType === 'first_aid_certification') {
     // CPR and First Aid use certification route
     window.open(`/api/admin/certifications/download/${doc.id}`, '_blank')
-  } else if (doc.documentType === 'background_check') {
+  } else if (doc.documentType === 'background_check' && !doc.documentUrl) {
     window.open(`/api/admin/background-checks/download/${doc.staffId}`, '_blank')
   } else if (doc.documentUrl) {
     // Fallback for other uploaded documents
