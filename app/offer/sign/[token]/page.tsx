@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import SignaturePad from '@/components/SignaturePad'
 
 type OfferDetails = {
   id: string
@@ -25,6 +26,7 @@ export default function SignOfferPage() {
   const [signing, setSigning] = useState(false)
   const [signed, setSigned] = useState(false)
   const [signatureName, setSignatureName] = useState('')
+  const [signatureImage, setSignatureImage] = useState('')
 
   useEffect(() => {
     // Fetch offer details by token
@@ -45,7 +47,11 @@ export default function SignOfferPage() {
 
   async function handleSign() {
     if (!signatureName.trim()) {
-      setError('Please type your full name as your signature.')
+      setError('Please type your full name.')
+      return
+    }
+    if (!signatureImage) {
+      setError('Please draw your signature in the box.')
       return
     }
     setSigning(true)
@@ -55,7 +61,7 @@ export default function SignOfferPage() {
       const res = await fetch('/api/offer/sign/accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, offer_id: offer?.id, signature_name: signatureName.trim() }),
+        body: JSON.stringify({ token, offer_id: offer?.id, signature_name: signatureName.trim(), signature_image: signatureImage }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to sign offer')
@@ -169,19 +175,25 @@ export default function SignOfferPage() {
         )}
 
         <div className="mb-6">
-          <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Signature (type your full name) *</label>
+          <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Full Name *</label>
           <input
             type="text"
             value={signatureName}
             onChange={e => setSignatureName(e.target.value)}
-            placeholder="Type your full name as your signature"
+            placeholder="Your full name"
             className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-black"
           />
         </div>
 
+        <div className="mb-6">
+          <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Signature *</label>
+          <SignaturePad onChange={setSignatureImage} />
+          <p className="text-xs text-gray-400 mt-1">Draw your signature with your finger or mouse. By signing, you acknowledge this offer letter.</p>
+        </div>
+
         <button
           onClick={handleSign}
-          disabled={signing || !signatureName.trim()}
+          disabled={signing || !signatureName.trim() || !signatureImage}
           className="w-full bg-chm-red text-white py-4 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60 mb-4"
         >
           {signing ? 'Processing...' : 'Accept & Sign Offer'}

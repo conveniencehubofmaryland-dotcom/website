@@ -4,13 +4,18 @@ import { serviceHeaders } from '@/lib/supabase-keys'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { token, offer_id, signature_name } = body
+  const { token, offer_id, signature_name, signature_image } = body
 
   if (!token || !offer_id) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
   if (!signature_name || !String(signature_name).trim()) {
-    return NextResponse.json({ error: 'Please type your full name as your signature.' }, { status: 400 })
+    return NextResponse.json({ error: 'Please type your full name.' }, { status: 400 })
+  }
+  // The drawn signature is a PNG image from the signing box; limit its size.
+  const imageText = typeof signature_image === 'string' ? signature_image : ''
+  if (!imageText.startsWith('data:image/png;base64,') || imageText.length > 300000) {
+    return NextResponse.json({ error: 'Please draw your signature in the box.' }, { status: 400 })
   }
 
   try {
@@ -29,6 +34,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           signed_at: now,
           signature_name: String(signature_name).trim(),
+          signature_image: imageText,
           sign_token: null,
           status: 'signed',
         }),
@@ -95,7 +101,7 @@ export async function POST(req: NextRequest) {
       <p><strong>Next Steps:</strong></p>
       <ul>
         <li>Complete all required training modules: <a href="https://conveniencehubofmaryland.com/staff/training-modules">Training Modules</a></li>
-        <li>Submit all necessary documents to HR: W-4 form, I-9 verification, direct deposit setup, and any certifications</li>
+        <li>Submit all necessary documents to HR: IRS Form W-9, your background check, and any certifications</li>
         <li>Claim your first shift: <a href="https://conveniencehubofmaryland.com/staff/available-shifts">Available Shifts</a></li>
       </ul>
       <p>We are excited to have you on the team!</p>

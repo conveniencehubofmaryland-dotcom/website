@@ -52,6 +52,7 @@ export function buildOfferLetterHtml(opts: {
   startDate: string | null
   signedAt: string | null
   signatureName: string | null
+  signatureImage?: string | null
 }): string {
   const name = escapeHtml(opts.fullName || '')
   const position = escapeHtml(opts.position || '')
@@ -157,7 +158,8 @@ export function buildOfferLetterHtml(opts: {
       <h2>Acceptance</h2>
       <p>By signing below, you acknowledge receipt of this offer letter and agree to the terms and conditions outlined above, including your status as an independent contractor.</p>
       <p style="margin-top: 36px; border-top: 1px solid #ccc; padding-top: 10px;"><strong>Signed:</strong> ${signed}</p>
-      <p><strong>Typed signature:</strong> ${signatureName}</p>
+      ${opts.signatureImage && opts.signatureImage.startsWith('data:image/png;base64,') ? `<p><strong>Signature:</strong></p><img src="${opts.signatureImage}" alt="Signature" style="max-width: 320px; height: auto; border-bottom: 1px solid #000;" />` : ''}
+      <p><strong>Printed name:</strong> ${signatureName}</p>
     </div>
 
     <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">
