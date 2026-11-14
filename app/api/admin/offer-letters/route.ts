@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   if (denied) return denied
 
   const body = await req.json()
-  const { applicant_id, position, start_date } = body
+  const { applicant_id, position, start_date, manager_name } = body
 
   if (!applicant_id || !position || !start_date) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -51,6 +51,7 @@ const insertRes = await fetch(
       applicant_id,
       position,
       start_date,
+      manager_name: manager_name ? String(manager_name).trim() : null,
       pdf_url: null,
       sign_token,
       status: 'sent',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { serviceHeaders } from '@/lib/supabase-keys'
+import { buildOfferLetterHtml } from '@/lib/offer-letter'
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
@@ -67,6 +68,19 @@ export async function GET(req: NextRequest) {
     const applicant = appData[0]
     console.log('[verify] Applicant found:', applicant.id)
 
+    // The applicant sees the same letter the admin downloads after signing.
+    const letter_html = buildOfferLetterHtml({
+      documentId: offer.id,
+      fullName: applicant.full_name,
+      email: applicant.email,
+      position: offer.position,
+      startDate: offer.start_date,
+      signedAt: null,
+      signatureName: null,
+      signatureImage: null,
+      managerName: offer.manager_name,
+    })
+
     return NextResponse.json({
       id: offer.id,
       applicant_id: offer.applicant_id,
@@ -76,6 +90,7 @@ export async function GET(req: NextRequest) {
       benefits_summary: offer.benefits_summary,
       applicant_name: applicant.full_name,
       applicant_email: applicant.email,
+      letter_html,
     })
   } catch (err) {
     console.error('[verify] Error:', err)

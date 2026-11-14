@@ -53,7 +53,11 @@ export function buildOfferLetterHtml(opts: {
   signedAt: string | null
   signatureName: string | null
   signatureImage?: string | null
+  managerName?: string | null
 }): string {
+  const manager = opts.managerName && opts.managerName.trim()
+    ? escapeHtml(opts.managerName.trim())
+    : 'Will be provided on your first day'
   const name = escapeHtml(opts.fullName || '')
   const position = escapeHtml(opts.position || '')
   const email = escapeHtml(opts.email || 'N/A')
@@ -106,6 +110,7 @@ export function buildOfferLetterHtml(opts: {
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Service Role:</strong> ${position}</p>
       <p><strong>Start Date:</strong> ${start}</p>
+      <p><strong>Direct Supervisor:</strong> ${manager}</p>
     </div>
 
     <p>Dear ${name},</p>

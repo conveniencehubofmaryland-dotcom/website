@@ -11,6 +11,7 @@ type OfferDetails = {
   salary_annual: number
   start_date: string
   benefits_summary: string | null
+  letter_html?: string
   applicant_name: string
   applicant_email: string
 }
@@ -121,53 +122,18 @@ export default function SignOfferPage() {
           <p className="text-sm text-gray-500">Please review and accept to confirm your position</p>
         </div>
 
-        <div className="bg-white p-8 shadow-sm mb-8">
-          <div className="space-y-6">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">Dear {offer.applicant_name},</p>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                We are pleased to offer you the position of <strong>{offer.position}</strong> at Convenience Hub of Maryland, effective <strong>{startDateFormatted}</strong>.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-chm-black mb-3">POSITION DETAILS</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><strong>Position:</strong> {offer.position}</li>
-                <li><strong>Start Date:</strong> {startDateFormatted}</li>
-                <li><strong>Engagement Type:</strong> Independent contractor (IRS Form 1099)</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-chm-black mb-3">COMPENSATION</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><strong>Pay Schedule:</strong> Paid every Friday for work performed in the prior week</li>
-                <li><strong>Pay Structure:</strong> Per the CHM Contractor Compensation Structure, as detailed in your offer letter</li>
-                <li><strong>Benefits:</strong> Not eligible for employee benefits (independent contractor)</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-chm-black mb-3">TERMS OF EMPLOYMENT</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>This offer is contingent on successful completion of a background check and reference verification</li>
-                <li>This is an independent contractor engagement, not employment, and may be ended by either party at any time</li>
-                <li>You must complete all required company paperwork before your start date</li>
-              </ul>
-            </div>
-
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="font-semibold text-chm-black mb-3">NEXT STEPS</h3>
-              <ol className="space-y-2 text-sm text-gray-700">
-                <li>1. Accept this offer by clicking below</li>
-                <li>2. Complete background check authorization</li>
-                <li>3. Bring government ID and proof of work authorization on Day 1</li>
-                <li>4. Complete required training modules</li>
-                <li>5. Claim your first shift when available</li>
-              </ol>
-            </div>
-          </div>
+        <div className="bg-white p-4 md:p-6 shadow-sm mb-8">
+          {offer.letter_html ? (
+            <iframe
+              title="Offer letter"
+              srcDoc={offer.letter_html}
+              className="w-full border-0"
+              style={{ height: '75vh', minHeight: '520px' }}
+            />
+          ) : (
+            <p className="text-sm text-gray-500">Loading your offer letter…</p>
+          )}
+          <p className="text-xs text-gray-500 mt-4">Scroll through the full letter above, then sign below.</p>
         </div>
 
         {error && (
