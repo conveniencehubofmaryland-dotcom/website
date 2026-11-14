@@ -8,11 +8,21 @@ export function badgeIdFor(applicantId: string): string {
   return applicantId.replace(/-/g, '').slice(0, 8).toUpperCase()
 }
 
-export function buildBadgeHtml(opts: { fullName: string; position: string | null; applicantId: string; issuedOn: string }): string {
+export function buildBadgeHtml(opts: {
+  fullName: string
+  position: string | null
+  applicantId: string
+  issuedOn: string
+  photoDataUri?: string | null
+}): string {
   const name = esc(opts.fullName)
   const position = esc(opts.position || 'Staff')
   const badgeId = esc(badgeIdFor(opts.applicantId))
   const issued = esc(opts.issuedOn)
+  // Only embedded image data is allowed here, so the badge never loads anything from outside.
+  const photo = opts.photoDataUri && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(opts.photoDataUri)
+    ? `<img class="photo" src="${opts.photoDataUri}" alt="Staff photo" />`
+    : ''
   return `<!DOCTYPE html>
 <html>
   <head>
@@ -34,6 +44,8 @@ export function buildBadgeHtml(opts: { fullName: string; position: string | null
       .name { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
       .position { font-size: 11px; margin-bottom: 6px; }
       .meta { font-size: 8px; color: #555; }
+      .body { overflow: hidden; }
+      .photo { float: left; width: 0.8in; height: 1.0in; object-fit: cover; margin-right: 8px; border: 1px solid #c41e3a; border-radius: 4px; }
       .notice { font-size: 8px; color: #c41e3a; font-weight: bold; margin-top: 4px; }
       @media print {
         body { background: #ffffff; }
@@ -50,6 +62,7 @@ export function buildBadgeHtml(opts: { fullName: string; position: string | null
         <div class="role">Staff Identification</div>
       </div>
       <div class="body">
+        ${photo}
         <div class="name">${name}</div>
         <div class="position">${position}</div>
         <div class="meta">Badge ID: ${badgeId} &middot; Issued: ${issued}</div>

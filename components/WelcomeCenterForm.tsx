@@ -11,6 +11,7 @@ const DOCUMENT_FIELDS = [
   { key: 'firstAidCertificate', label: 'First Aid Certificate', required: true, help: 'Upload your current First Aid certificate.' },
   { key: 'cmtCertificate', label: 'CMT Certificate', required: false, help: 'Optional. Upload your CMT certificate if you have one.' },
   { key: 'cnaCertificate', label: 'CNA Certificate', required: false, help: 'Optional. Upload your CNA certificate if you have one.' },
+  { key: 'staffPhoto', label: 'Staff Photo (for your badge)', required: true, help: 'Upload a clear, recent photo of your face. JPG or PNG, up to 3 MB. It appears on your CHM staff badge.', accept: '.jpg,.jpeg,.png' },
 ]
 const POSITIONS = [
   'Cleaning Specialist',
@@ -110,7 +111,8 @@ export default function WelcomeCenterForm() {
       !formData.w9File ||
       !docFiles.directDeposit ||
       !docFiles.cprCertificate ||
-      !docFiles.firstAidCertificate
+      !docFiles.firstAidCertificate ||
+      !docFiles.staffPhoto
     ) {
       setError('All fields are required, including your background check and completed IRS Form W-9')
       setLoading(false)
@@ -436,7 +438,7 @@ export default function WelcomeCenterForm() {
                   name={f.key}
                   required={f.required}
                   onChange={e => handleDocFileChange(f.key, e)}
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept={'accept' in f ? f.accept : '.pdf,.jpg,.jpeg,.png'}
                   className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
                 />
                 {docFiles[f.key] && (

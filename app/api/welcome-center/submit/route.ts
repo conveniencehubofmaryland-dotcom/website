@@ -84,11 +84,20 @@ export async function POST(req: NextRequest) {
       { field: 'firstAidCertificate', docType: 'first_aid_certification', label: 'First Aid Certificate', required: true },
       { field: 'cmtCertificate', docType: 'cmt_certificate', label: 'CMT Certificate', required: false },
       { field: 'cnaCertificate', docType: 'cna_certificate', label: 'CNA Certificate', required: false },
+      { field: 'staffPhoto', docType: 'staff_photo', label: 'Staff Photo', required: true },
     ]
     const docUploads = DOC_UPLOADS.map(d => ({ ...d, file: formData.get(d.field) as File | null }))
     for (const d of docUploads) {
       if (d.required && (!d.file || d.file.size === 0)) {
         return NextResponse.json({ error: `Please attach your ${d.label}.` }, { status: 400 })
+      }
+      if (d.field === 'staffPhoto') {
+        if (d.file && !['image/jpeg', 'image/png'].includes(d.file.type)) {
+          return NextResponse.json({ error: 'Please upload your staff photo as a JPG or PNG.' }, { status: 400 })
+        }
+        if (d.file && d.file.size > 3 * 1024 * 1024) {
+          return NextResponse.json({ error: 'Your staff photo must be 3 MB or smaller.' }, { status: 400 })
+        }
       }
       if (d.file && d.file.size > 10 * 1024 * 1024) {
         return NextResponse.json({ error: `The ${d.label} file is larger than 10 MB.` }, { status: 400 })

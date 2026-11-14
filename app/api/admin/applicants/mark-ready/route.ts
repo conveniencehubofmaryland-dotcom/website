@@ -135,11 +135,29 @@ export async function PATCH(req: NextRequest) {
     // Staff badge: emailed as a printable file with instructions. Failure is logged only.
     try {
       const issuedOn = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+
+      // Staff photo from the welcome form, embedded in the badge so it prints without internet access.
+      let photoDataUri: string | null = null
+      const photoRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/staff_documents?staff_id=eq.${applicant_id}&document_type=eq.staff_photo&select=document_url&order=uploaded_at.desc&limit=1`,
+        { headers: { ...serviceHeaders() } }
+      )
+      const photoRows = photoRes.ok ? await photoRes.json() : []
+      const photoUrl = Array.isArray(photoRows) && photoRows[0]?.document_url ? String(photoRows[0].document_url) : null
+      if (photoUrl) {
+        const imgRes = await fetch(photoUrl)
+        if (imgRes.ok) {
+          const type = imgRes.headers.get('content-type') || 'image/jpeg'
+          photoDataUri = `data:${type};base64,${Buffer.from(await imgRes.arrayBuffer()).toString('base64')}`
+        }
+      }
+
       const badgeHtml = buildBadgeHtml({
         fullName: applicant.full_name,
         position: applicant.position,
         applicantId: applicant_id,
         issuedOn,
+        photoDataUri,
       })
       const badgeEmailHtml = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a; line-height: 1.6;">
         <h2 style="color: #c41e3a;">Your CHM Staff Badge</h2>
