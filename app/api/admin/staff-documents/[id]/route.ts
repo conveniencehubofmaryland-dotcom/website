@@ -48,7 +48,8 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
         })
 
       if (uploadError) throw uploadError
-      documentUrl = fileName
+      // Store a full link, the same form as every other document, so View and Print open it.
+      documentUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/application-documents/${fileName.split('/').map(encodeURIComponent).join('/')}`
     }
 
     const { data: updatedDoc, error: updateError } = await supabase

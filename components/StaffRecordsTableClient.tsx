@@ -335,7 +335,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     }
   }
 
-  const getDocumentTypeLabel = (type: string) => {
+  const getDocumentTypeLabel = (type: string, name: string) => {
   switch (type) {
     case 'background_check':
       return 'Background Check'
@@ -350,7 +350,8 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     case 'direct_deposit':
       return 'Direct Deposit Form'
     default:
-      return type
+      // Uploads and other records show their own name, never the internal key.
+      return name || type
   }
 }
 
@@ -620,7 +621,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                           <p className="text-xs text-gray-500">{doc.staffEmail}</p>
                         </div>
                       </td>
-                      <td className="px-4 py-3"><span className="text-gray-700">{getDocumentTypeLabel(doc.documentType)}</span></td>
+                      <td className="px-4 py-3"><span className="text-gray-700">{getDocumentTypeLabel(doc.documentType, doc.documentName)}</span></td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 flex-wrap">
                           {getStatusBadge(doc.status)}
