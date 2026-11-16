@@ -276,6 +276,7 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
     'cmt_certificate': 'CMT Certificate',
     'cna_certificate': 'CNA Certificate',
     'staff_photo': 'Staff Photo (badge)',
+    'staff_badge': 'Staff Badge (copy)',
   }
 
   return (data || []).map(row => {
@@ -451,7 +452,8 @@ export async function DELETE(request: NextRequest) {
         // Remove the stored file along with the record.
         const { data: doc } = await supabase.from('staff_documents').select('document_url').eq('id', documentId).single()
         const path = storagePathOf(doc?.document_url)
-        if (path && !(await removeStoredFiles([path]))) {
+        const badgeFile = documentType === 'staff_badge' && staffId ? [`badges/${staffId}.html`] : []
+        if ((path || badgeFile.length) && !(await removeStoredFiles([path || '', ...badgeFile]))) {
           return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
         }
         const { error: docError } = await supabase

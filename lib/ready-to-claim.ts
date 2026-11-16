@@ -3,6 +3,7 @@
 import crypto from 'crypto'
 import { sendUserEmailHtml } from './email'
 import { serviceHeaders } from './supabase-keys'
+import { saveBadgeCopy } from './badge-copy'
 
 export type ReadyResult = { ok: true } | { ok: false; status: number; error: string }
 
@@ -45,6 +46,13 @@ export async function markApplicantReady(applicantId: string): Promise<ReadyResu
   if (!updateRes.ok) {
     console.error('[ready] Update failed:', await updateRes.text())
     return { ok: false, status: 500, error: 'Failed to update applicant' }
+  }
+
+  // Keep a copy of the badge in admin Documents. A failure here must not block the applicant.
+  try {
+    await saveBadgeCopy(applicantId, applicant.full_name, applicant.position ?? null)
+  } catch (err) {
+    console.error('[ready] Badge copy failed:', err)
   }
 
   const claimLink = 'https://conveniencehubofmaryland.com/staff/claim-shifts-login'

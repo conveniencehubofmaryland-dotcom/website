@@ -64,6 +64,7 @@ export async function deleteApplicantCompletely(applicantId: string): Promise<De
     ...docs.map(d => storagePathOf(d.document_url)),
     ...w9s.map(w => storagePathOf(w.file_path)),
     ...certs.map(c => `certificates/${c.id}.html`),
+    `badges/${applicant.id}.html`,
   ].filter((p): p is string => !!p)
 
   // Files first, then the rows, then the applicant record.
