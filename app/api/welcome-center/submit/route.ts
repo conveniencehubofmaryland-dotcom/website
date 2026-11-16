@@ -339,7 +339,7 @@ export async function POST(req: NextRequest) {
     const emailRes = await resend.emails.send({
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
-      subject: '✓ Welcome Profile Submitted - Next Steps',
+      subject: 'Welcome Profile Submitted - Next Steps',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #c41e3a; padding: 20px; text-align: center; color: white;">
@@ -349,7 +349,7 @@ export async function POST(req: NextRequest) {
           <div style="padding: 30px;">
             <p>Hi ${full_name},</p>
             
-            <p>Thank you for completing your welcome profile! ✓</p>
+            <p>Thank you for completing your welcome profile! </p>
             
             <p><strong>What&apos;s next?</strong></p>
             <ol>
@@ -372,8 +372,8 @@ export async function POST(req: NextRequest) {
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
             <p>Questions? Contact our HR team:<br>
-            📧 conveniencehubofmaryland@gmail.com<br>
-            📱 202-579-2944</p>
+            conveniencehubofmaryland@gmail.com<br>
+            202-579-2944</p>
 
             <p><strong>The CHM Team</strong></p>
           </div>
@@ -392,7 +392,7 @@ export async function POST(req: NextRequest) {
     const adminRes = await resend.emails.send({
       from: 'CHM Admin <admin@conveniencehubofmaryland.com>',
       to: 'conveniencehubofmaryland@gmail.com',
-      subject: `📋 New Profile Submission: ${full_name}`,
+      subject: `New Profile Submission: ${full_name}`,
       html: `
         <div style="font-family: Arial, sans-serif;">
           <h2>New Profile Submission</h2>

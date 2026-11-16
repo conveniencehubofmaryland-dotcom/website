@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
        <p><a href="https://conveniencehubofmaryland.com/admin/reviews" style="color:#E8192C">Approve in Admin →</a></p>`
     ),
     sendAdminSMS(
-      `NEW REVIEW\n⭐ ${ratingNum}/5 from ${customer_name.trim()}\n${service_mentioned ? `Service: ${service_mentioned.trim()}\n` : ''}Admin: conveniencehubofmaryland.com/admin/reviews`
+      `NEW REVIEW\n${ratingNum}/5 from ${customer_name.trim()}\n${service_mentioned ? `Service: ${service_mentioned.trim()}\n` : ''}Admin: conveniencehubofmaryland.com/admin/reviews`
     ),
   ])
 

@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: 'noreply@conveniencehubofmaryland.com',
         to: staff_email,
-        subject: `🎉 Training Certification Complete - ${module_title}`,
+        subject: `Training Certification Complete - ${module_title}`,
         html: emailHtml,
       }),
     })

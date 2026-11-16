@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
 
             <p style="color: #666; font-size: 13px; line-height: 1.6;">
               If you have any questions about this document or need assistance, please contact our team at:<br>
-              📧 conveniencehubofmaryland@gmail.com<br>
-              📱 202-579-2944
+              conveniencehubofmaryland@gmail.com<br>
+              202-579-2944
             </p>
 
             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">

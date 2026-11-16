@@ -93,8 +93,8 @@ ${address?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">Address</
 ${city?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">City</td><td style="padding:8px 0">${city.trim()}</td></tr>` : ''}
 <tr><td style="padding:8px 16px 8px 0;color:#666">State</td><td style="padding:8px 0">${state}</td></tr>
 ${gender?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">Gender</td><td style="padding:8px 0">${gender.trim()}</td></tr>` : ''}
-<tr><td style="padding:8px 16px 8px 0;color:#666">Active License</td><td style="padding:8px 0">${has_license === 'yes' ? '✓ Yes' : has_license === 'no' ? '✗ No' : '—'}</td></tr>
-<tr><td style="padding:8px 16px 8px 0;color:#666">Insured Car</td><td style="padding:8px 0">${has_insured_car === 'yes' ? '✓ Yes' : has_insured_car === 'no' ? '✗ No' : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Active License</td><td style="padding:8px 0">${has_license === 'yes' ? 'Yes' : has_license === 'no' ? 'No' : '—'}</td></tr>
+<tr><td style="padding:8px 16px 8px 0;color:#666">Insured Car</td><td style="padding:8px 0">${has_insured_car === 'yes' ? 'Yes' : has_insured_car === 'no' ? 'No' : '—'}</td></tr>
 <tr><td style="padding:8px 16px 8px 0;color:#666">Positions</td><td style="padding:8px 0">${Array.isArray(positions) && positions.length ? positions.join(', ') : '—'}</td></tr>
 <tr><td style="padding:8px 16px 8px 0;color:#666">Available Days</td><td style="padding:8px 0">${Array.isArray(days) && days.length ? days.join(', ') : '—'}</td></tr>
 <tr><td style="padding:8px 16px 8px 0;color:#666">Available Hours</td><td style="padding:8px 0">${hours || '—'}</td></tr>
