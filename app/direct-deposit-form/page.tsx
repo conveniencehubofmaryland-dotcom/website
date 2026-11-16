@@ -24,13 +24,6 @@ export default function DirectDepositFormPage() {
           <li>Sign the printed form (or the PDF, if your device allows it), then upload it in your welcome profile under &quot;Direct Deposit Form or Voided Check.&quot;</li>
         </ol>
         <p className="mt-2 text-xs text-gray-500">Nothing you type here is sent to us. Only the file you upload in your welcome profile is saved.</p>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="mt-3 bg-chm-red text-white px-5 py-2 text-xs font-semibold uppercase tracking-widest rounded hover:bg-red-700"
-        >
-          Print or Save as PDF
-        </button>
       </div>
 
       <div className="form-page max-w-[8.5in] mx-auto bg-white shadow-sm border border-gray-200 p-8 print:shadow-none">
@@ -75,12 +68,28 @@ export default function DirectDepositFormPage() {
             I authorize Convenience Hub of Maryland, LLC to deposit my contractor payments into the account above. I certify that the information on this form is correct. I will notify CHM in writing if my account changes, and I will submit a new form at that time.
           </p>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 mt-6">
-            <div><span className={label}>Signature</span><div className="border-b border-gray-700 h-8" /></div>
-            <div><span className={label}>Date</span><div className="border-b border-gray-700 h-8" /></div>
+            <div><span className={label}>Signature (type your full name)</span><input className={line} type="text" name="signature" /></div>
+            <div><span className={label}>Date</span><input className={line} type="date" name="signatureDate" /></div>
           </div>
         </section>
 
         <p className="text-[10px] text-gray-500 text-center">Convenience Hub of Maryland &middot; 202-579-2944 &middot; Keep this form private. Upload it only through your welcome profile.</p>
+      </div>
+
+      <div className="no-print max-w-[8.5in] mx-auto mt-4 text-center">
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              window.print()
+            } catch {
+              alert('Printing is not available in this browser. Open this page in Safari or Chrome, then press Print or Save as PDF.')
+            }
+          }}
+          className="bg-chm-red text-white px-5 py-2 text-xs font-semibold uppercase tracking-widest rounded hover:bg-red-700"
+        >
+          Print or Save as PDF
+        </button>
       </div>
     </div>
   )

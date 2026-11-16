@@ -75,7 +75,7 @@ export async function markApplicantReady(applicantId: string): Promise<ReadyResu
           <li>Cut out the card along the red border and <strong>laminate</strong> it.</li>
         </ol>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="${badgeLink}" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: bold; border-radius: 4px;">Download &amp; Print My Badge</a>
+          <a href="${badgeLink}" style="display: inline-block; background-color: #c41e3a; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: bold; border-radius: 4px;">Download &amp; Print My Badge</a>
         </p>
         <p><strong>Important:</strong> Present your badge to every client before you enter their home. Your badge link is valid for 30 days.</p>
         <p><strong>Remember:</strong></p>

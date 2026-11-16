@@ -33,7 +33,6 @@ export function buildBadgeHtml(opts: {
   photoDataUri?: string | null
 }): string {
   const name = esc(opts.fullName)
-  const position = esc(opts.position || 'Staff')
   const badgeId = esc(badgeIdFor(opts.applicantId))
   const issued = esc(opts.issuedOn)
   // Only embedded image data is allowed here, so the badge never loads anything from outside.
@@ -81,7 +80,7 @@ export function buildBadgeHtml(opts: {
       <div class="body">
         ${photo}
         <div class="name">${name}</div>
-        <div class="position">${position}</div>
+        <div class="position">CHM CONTRACTOR</div>
         <div class="meta">Badge ID: ${badgeId} &middot; Issued: ${issued}</div>
         <div class="notice">Show this badge to the client before entering the home.</div>
       </div>

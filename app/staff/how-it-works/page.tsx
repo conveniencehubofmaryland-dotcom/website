@@ -99,9 +99,6 @@ export default function StaffHowItWorksPage() {
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
                   You&apos;ve already done this! You selected your position and filled out your basic information. Great start.
                 </p>
-                <p className="text-sm text-gray-500">
-                  <strong>Status:</strong> ✓ Complete
-                </p>
               </div>
             </div>
           </div>
