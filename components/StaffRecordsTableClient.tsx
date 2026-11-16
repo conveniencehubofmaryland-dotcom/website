@@ -125,7 +125,8 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
       if (res.ok) {
         setRecords(records.filter(r => r.id !== recordId))
       } else {
-        alert('Failed to delete staff record')
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'Failed to delete staff record')
       }
     } catch (err) {
       console.error('Delete error:', err)
