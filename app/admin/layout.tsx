@@ -7,6 +7,7 @@ const adminLinks = [
   { href: '/admin/offer-letters', label: 'Offer Letters' },
   { href: '/admin/staff-records', label: 'Staff Records' },
   { href: '/admin/reviews', label: 'Reviews' },
+  { href: '/admin/newsletters', label: 'Newsletters' },
   { href: '/admin/services', label: 'Services' },
   { href: '/admin/deals', label: 'Deals' },
   { href: '/admin/referrals', label: 'Referrals' },
