@@ -35,6 +35,15 @@ interface StaffDocument {
   status: string
   ownCar: boolean | null
   notes?: string | null
+  reviewStatus?: 'pending' | 'cleared' | 'not_cleared' | null
+  reviewTable?: 'staff_documents' | 'staff_module_progress' | null
+}
+
+const REVIEW_LABELS: Record<string, string> = { pending: 'Pending', cleared: 'Cleared', not_cleared: 'Not Cleared' }
+const REVIEW_CLASSES: Record<string, string> = {
+  pending: 'bg-yellow-100 text-yellow-800',
+  cleared: 'bg-green-100 text-green-800',
+  not_cleared: 'bg-orange-100 text-orange-800',
 }
 
 const POSITIONS = [
@@ -134,6 +143,41 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
     } catch (err) {
       console.error('Error updating background check status:', err)
       alert('Failed to update background check status')
+    }
+  }
+
+  // Uploads and certificates: Pending until the admin marks them Cleared or Not Cleared.
+  const handleDocumentReview = async (doc: StaffDocument, decision: 'pending' | 'cleared' | 'not_cleared') => {
+    if (!doc.reviewTable) return
+    try {
+      const res = await fetch('/api/admin/documents/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: doc.reviewTable, id: doc.id, decision }),
+      })
+      if (!res.ok) throw new Error('Failed to update review')
+      setDocuments(prev => prev.map(d => (d.id === doc.id ? { ...d, reviewStatus: decision } : d)))
+      if (decision === 'not_cleared') alert('Not Cleared. The applicant has been emailed what to correct.')
+    } catch (err) {
+      console.error('Error updating review:', err)
+      alert('Failed to update review')
+    }
+  }
+
+  // Replaces an uploaded file: the old file is removed, and the new one goes back to Pending.
+  const handleDocumentReplace = async (doc: StaffDocument, file: File) => {
+    try {
+      const form = new FormData()
+      form.append('status', 'uploaded')
+      form.append('notes', 'Replaced by admin')
+      form.append('document', file)
+      const res = await fetch(`/api/admin/staff-documents/${doc.id}`, { method: 'PUT', body: form })
+      if (!res.ok) throw new Error('Failed to replace')
+      await handleDocumentReview(doc, 'pending')
+      fetchDocuments()
+    } catch (err) {
+      console.error('Error replacing document:', err)
+      alert('Failed to replace the document')
     }
   }
 
@@ -517,10 +561,38 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                         </div>
                       </td>
                       <td className="px-4 py-3"><span className="text-gray-700">{getDocumentTypeLabel(doc.documentType)}</span></td>
-                      <td className="px-4 py-3">{getStatusBadge(doc.status)}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 flex-wrap">
+                          {getStatusBadge(doc.status)}
+                          {doc.reviewStatus && (
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${REVIEW_CLASSES[doc.reviewStatus]}`}>{REVIEW_LABELS[doc.reviewStatus]}</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2 flex-wrap">
                           <button onClick={() => handleDocumentView(doc)} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">View</button>
+                          {doc.reviewTable && (
+                            <>
+                              <button onClick={() => handleDocumentReview(doc, 'cleared')} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Mark Cleared</button>
+                              <button onClick={() => handleDocumentReview(doc, 'not_cleared')} className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-semibold hover:bg-orange-200 transition">Mark Not Cleared</button>
+                            </>
+                          )}
+                          {doc.reviewTable === 'staff_documents' && (
+                            <label className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition cursor-pointer">
+                              Replace file
+                              <input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                className="hidden"
+                                onChange={e => {
+                                  const file = e.target.files?.[0]
+                                  if (file) handleDocumentReplace(doc, file)
+                                  e.target.value = ''
+                                }}
+                              />
+                            </label>
+                          )}
                           {doc.documentUrl && (
                             <button onClick={() => handleDocumentShare(doc)} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold hover:bg-green-200 transition">Share</button>
                           )}

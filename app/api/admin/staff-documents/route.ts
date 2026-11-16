@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
+import { removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
 import { NextRequest, NextResponse } from 'next/server'
 
 const supabase = createClient(
@@ -19,6 +20,8 @@ interface StaffDocument {
   status: string
   ownCar: boolean | null
   notes?: string | null
+  reviewStatus?: 'pending' | 'cleared' | 'not_cleared' | null
+  reviewTable?: 'staff_documents' | 'staff_module_progress' | null
 }
 
 async function fetchOrientations(): Promise<StaffDocument[]> {
@@ -92,7 +95,7 @@ async function fetchOfferLetters(): Promise<StaffDocument[]> {
 async function fetchCertifications(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_module_progress')
-    .select('id, staff_name, staff_email, completed_at, module_id, certificate_url')
+    .select('id, staff_name, staff_email, completed_at, module_id, certificate_url, review_status')
     .eq('status', 'completed')
     .not('completed_at', 'is', null)
 
@@ -126,6 +129,8 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
       documentUrl: row.certificate_url || null,
       status: 'completed',
       ownCar: null,
+      reviewStatus: row.review_status || 'pending',
+      reviewTable: 'staff_module_progress' as const,
     }
   })
 }
@@ -237,7 +242,7 @@ async function fetchBackgroundChecks(): Promise<StaffDocument[]> {
 async function fetchStaffDocuments(): Promise<StaffDocument[]> {
   const { data, error } = await supabase
     .from('staff_documents')
-    .select('id, staff_id, document_type, document_url, status, notes, uploaded_at')
+    .select('id, staff_id, document_type, document_url, status, notes, uploaded_at, review_status')
 
   if (error) {
     console.error('Error fetching staff documents:', error)
@@ -291,6 +296,8 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
       status: row.status,
       ownCar: null,
       notes: row.notes,
+      reviewStatus: isApplicantUpload || row.document_type === 'direct_deposit' ? (row.review_status || 'pending') : null,
+      reviewTable: isApplicantUpload || row.document_type === 'direct_deposit' ? ('staff_documents' as const) : null,
     }
   })
 }
@@ -419,6 +426,10 @@ export async function DELETE(request: NextRequest) {
       }
 
       case 'certification': {
+        // Remove the stored certificate file along with its record.
+        if (!(await removeStoredFiles([`certificates/${documentId}.html`]))) {
+          return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
+        }
         const { error } = await supabase
           .from('staff_module_progress')
           .delete()
@@ -437,6 +448,12 @@ export async function DELETE(request: NextRequest) {
       }
 
       default: {
+        // Remove the stored file along with the record.
+        const { data: doc } = await supabase.from('staff_documents').select('document_url').eq('id', documentId).single()
+        const path = storagePathOf(doc?.document_url)
+        if (path && !(await removeStoredFiles([path]))) {
+          return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
+        }
         const { error: docError } = await supabase
           .from('staff_documents')
           .delete()

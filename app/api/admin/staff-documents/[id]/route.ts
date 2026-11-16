@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,11 +35,7 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
     let documentUrl = currentDoc.document_url
 
     if (file) {
-      if (currentDoc.document_url) {
-        await supabase.storage
-          .from('application-documents')
-          .remove([currentDoc.document_url])
-      }
+      await removeStoredFiles([storagePathOf(currentDoc.document_url) || ''])
 
       const buffer = await file.arrayBuffer()
       const ext = file.name.split('.').pop()
@@ -123,11 +120,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
       )
     }
 
-    if (doc.document_url) {
-      await supabase.storage
-        .from('application-documents')
-        .remove([doc.document_url])
-    }
+    await removeStoredFiles([storagePathOf(doc.document_url) || ''])
 
     const { error: deleteError } = await supabase
       .from('staff_documents')
