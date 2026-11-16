@@ -67,6 +67,8 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   const [docsLoading, setDocsLoading] = useState(false)
   const [docsSearchTerm, setDocsSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
+  // null = one row per staff member; an email = that person's documents only.
+  const [docsPersonEmail, setDocsPersonEmail] = useState<string | null>(null)
   const [showCreateDocModal, setShowCreateDocModal] = useState(false)
 
   const filteredRecords = records.filter(record => {
@@ -354,10 +356,25 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.staffName.toLowerCase().includes(docsSearchTerm.toLowerCase()) ||
                          doc.staffEmail.toLowerCase().includes(docsSearchTerm.toLowerCase())
-    const matchesType = filterType === 'all' || doc.documentType === filterType || 
+    const matchesType = filterType === 'all' || doc.documentType === filterType ||
                         (filterType === 'certification' && (doc.documentType === 'certification' || doc.documentType === 'training_cert'))
-    return matchesSearch && matchesType
+    const matchesPerson = docsPersonEmail === null || doc.staffEmail.toLowerCase() === docsPersonEmail
+    return matchesSearch && matchesType && matchesPerson
   })
+
+  // One row per staff member, with counts. Searching filters this list.
+  const peopleRows = Object.values(
+    documents.reduce<Record<string, { name: string; email: string; total: number; pending: number }>>((acc, d) => {
+      const key = d.staffEmail.toLowerCase()
+      const row = acc[key] || { name: d.staffName, email: d.staffEmail, total: 0, pending: 0 }
+      row.total += 1
+      if (d.reviewStatus === 'pending') row.pending += 1
+      acc[key] = row
+      return acc
+    }, {})
+  )
+    .filter(p => `${p.name} ${p.email}`.toLowerCase().includes(docsSearchTerm.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
     <div className="space-y-8">
@@ -536,7 +553,49 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
             </button>
           </div>
 
-          {docsLoading ? (
+          {docsPersonEmail === null ? (
+            <div className="overflow-x-auto border border-gray-200 rounded">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Staff Name</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Email</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Documents</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Awaiting Review</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {peopleRows.map(p => (
+                    <tr key={p.email} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                      <td className="px-4 py-3 text-gray-600">{p.email}</td>
+                      <td className="px-4 py-3 text-gray-700">{p.total}</td>
+                      <td className="px-4 py-3 text-gray-700">{p.pending}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setDocsPersonEmail(p.email.toLowerCase())}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition"
+                        >
+                          View Documents
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {peopleRows.length === 0 && <div className="text-center py-8 text-gray-600">No staff found</div>}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-700">
+                Documents for <strong>{documents.find(d => d.staffEmail.toLowerCase() === docsPersonEmail)?.staffName || docsPersonEmail}</strong>
+              </p>
+              <button onClick={() => setDocsPersonEmail(null)} className="text-sm text-chm-red hover:underline">Back to all staff</button>
+            </div>
+          )}
+
+          {docsPersonEmail === null ? null : docsLoading ? (
             <div className="flex justify-center py-8"><p className="text-gray-600">Loading documents…</p></div>
           ) : filteredDocuments.length === 0 ? (
             <div className="text-center py-8 text-gray-600">No documents found</div>
