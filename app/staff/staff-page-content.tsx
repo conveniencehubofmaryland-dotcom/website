@@ -128,6 +128,16 @@ export default function StaffPageContent() {
             </div>
           </Link>
 
+          <Link href="/staff/my-documents" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-2xl text-chm-black mb-2">My Documents</h2>
+                <p className="text-gray-600 text-sm leading-relaxed">Your certificates, forms, and badge, with their review status.</p>
+              </div>
+              <span className="text-2xl">📁</span>
+            </div>
+          </Link>
+
           <Link href="/staff/newsletters" className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-chm-red transition-all">
             <div className="flex items-start justify-between">
               <div>
