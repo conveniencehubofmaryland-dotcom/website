@@ -36,8 +36,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch', details: error.message }, { status: 500 })
     }
 
-    console.log('[training/modules] found:', data?.length)
-    return NextResponse.json(data || [])
+    // Never send answers to the browser; grading happens on the server.
+    const safe = (data || []).map((m: { quiz_questions?: { id: string; question: string; options: string[] }[] | null }) => ({
+      ...m,
+      quiz_questions: Array.isArray(m.quiz_questions)
+        ? m.quiz_questions.map(q => ({ id: q.id, question: q.question, options: q.options }))
+        : m.quiz_questions,
+    }))
+    return NextResponse.json(safe)
   } catch (err) {
     console.error('[training/modules] catch error:', err)
     return NextResponse.json({ error: 'Server error', details: String(err) }, { status: 500 })

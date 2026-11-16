@@ -63,8 +63,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const [lockedFor, setLockedFor] = useState<string | null>(null)
   const [needsVerify, setNeedsVerify] = useState(false)
   const [staffName, setStaffName] = useState('')
-  const [staffEmail, setStaffEmail] = useState('')
-  const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showQuiz, setShowQuiz] = useState(false)
@@ -80,8 +78,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       const sp = await searchParams
       setModuleId(p.id)
       setStaffName((sp.name as string) || '')
-      setStaffEmail((sp.email as string) || '')
-      setStaffPhone((sp.phone as string) || '')
       await fetchModule(p.id)
     }
     init()
@@ -130,21 +126,18 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     }
   }
 
+  // The server grades the answers and saves the result under the verified applicant.
   async function handleQuizSubmit() {
     if (!module) return
-    const questions = module.quiz_questions || []
-    let correctCount = 0
-    questions.forEach((q: QuizQuestion) => {
-      if (answers[q.id] === q.correct_answer) {
-        correctCount++
-      }
-    })
-    const calculatedScore = Math.round((correctCount / questions.length) * 100)
-    setScore(calculatedScore)
-    const passed = calculatedScore >= 80
-
-    if (!staffName || !staffEmail) {
-      setSaveError('Your name and email were missing, so this result was NOT saved. Please go back to the module list and fill in your info first.')
+    let token: string | null = null
+    try {
+      const raw = sessionStorage.getItem('training_session')
+      token = raw ? (JSON.parse(raw) as { token: string }).token : null
+    } catch {
+      token = null
+    }
+    if (!token) {
+      setSaveError('Please verify your email on the training page before submitting. Your result was NOT saved.')
       setSubmitted(true)
       return
     }
@@ -152,26 +145,18 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     try {
       const res = await fetch('/api/training/progress', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          staff_name: staffName,
-          staff_email: staffEmail,
-          staff_phone: staffPhone,
-          position: module.position,
-          module_id: module.id,
-          quiz_score: calculatedScore,
-          status: passed ? 'completed' : 'failed',
-        }),
+        headers: { 'Content-Type': 'application/json', 'x-training-token': token },
+        body: JSON.stringify({ module_id: module.id, answers }),
       })
-
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        console.error('Progress save failed:', await res.text())
-        setSaveError('There was a problem saving your result. Please contact your manager.')
+        setSaveError(data.error || 'There was a problem saving your result. Please contact HR.')
         setSubmitted(true)
         return
       }
 
-      if (passed) {
+      setScore(Number(data.score) || 0)
+      if (data.passed) {
         setTimeout(() => {
           router.push(`/staff/training-modules/${moduleId}/thank-you`)
         }, 500)
@@ -180,7 +165,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       }
     } catch (err) {
       console.error('Error saving progress:', err)
-      setSaveError('There was a problem saving your result. Please contact your manager.')
+      setSaveError('There was a problem saving your result. Please contact HR.')
       setSubmitted(true)
     }
   }
