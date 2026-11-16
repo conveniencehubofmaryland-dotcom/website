@@ -76,9 +76,10 @@ export async function POST(req: NextRequest) {
     const offer = data[0]
     const applicant = offer.offer_letter_applicants
 
-    // Update applicant onboarding_status to 'offer_signed'
+    // Update applicant onboarding_status to 'offer_signed'.
+    // Never move someone who is already ready or finished back to 'offer_signed', or they lose sign-in.
     const appStatusRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant.id}`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant.id}&onboarding_status=not.in.(ready_to_claim_shifts,orientation_completed)`,
       {
         method: 'PATCH',
         headers: {
