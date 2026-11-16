@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -296,6 +297,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
     }
 
+    // A resubmitted W-9 replaces the earlier one (row and stored file).
+    const { data: oldW9 } = await supabase.from('w9_forms').select('file_path').eq('applicant_id', applicant_id)
+    await removeStoredFiles((oldW9 || []).map(w => storagePathOf(w.file_path)).filter((p): p is string => !!p))
+    await supabase.from('w9_forms').delete().eq('applicant_id', applicant_id)
+
     // Save the W-9 for this applicant.
     const w9Res = await supabase.from('w9_forms').insert({
       applicant_id,
@@ -318,6 +324,16 @@ export async function POST(req: NextRequest) {
           .from('application-documents')
           .upload(path, d.file, { contentType: d.file.type, upsert: false })
         if (docUploadError) throw docUploadError
+        // A re-uploaded document of this type replaces the earlier one (row and stored file).
+        const { data: oldDocs } = await supabase
+          .from('staff_documents')
+          .select('id, document_url')
+          .eq('staff_id', applicant_id)
+          .eq('document_type', d.docType)
+        await removeStoredFiles((oldDocs || []).map(o => storagePathOf(o.document_url)).filter((p): p is string => !!p))
+        if (oldDocs && oldDocs.length > 0) {
+          await supabase.from('staff_documents').delete().in('id', oldDocs.map(o => o.id))
+        }
         const { data: urlData } = supabase.storage.from('application-documents').getPublicUrl(path)
         const { error: docInsertError } = await supabase.from('staff_documents').insert({
           staff_id: applicant_id,

@@ -319,7 +319,20 @@ export async function GET(req: NextRequest) {
       ...timesheets,
     ]
 
-    return NextResponse.json(allDocuments)
+    // Show only people who still exist, and list each file once.
+    const { data: live } = await supabase.from('offer_letter_applicants').select('email')
+    const liveEmails = new Set((live || []).map(a => String(a.email).toLowerCase()))
+    const seen = new Set<string>()
+    const cleaned = allDocuments.filter(d => {
+      const email = String(d.staffEmail).toLowerCase()
+      if (!liveEmails.has(email)) return false
+      const key = `${email}|${d.documentType}|${d.documentName}|${d.documentUrl || d.id}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
+    return NextResponse.json(cleaned)
   } catch (error) {
     console.error('Error in GET /api/admin/staff-documents:', error)
     return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 })

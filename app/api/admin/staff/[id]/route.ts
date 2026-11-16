@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
-import { serviceHeaders } from '@/lib/supabase-keys'
+import { deleteApplicantCompletely } from '@/lib/applicant-cleanup'
 
 export async function DELETE(
   req: NextRequest,
@@ -17,22 +17,11 @@ export async function DELETE(
   }
 
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          ...serviceHeaders(),
-        },
-      }
-    )
-
-    if (!res.ok) {
-      const errorBody = await res.text()
-      console.error('[staff delete] Supabase error:', errorBody)
-      return NextResponse.json({ error: 'Failed to delete staff record' }, { status: 500 })
+    // Removes the applicant and everything linked to them, including stored files.
+    const result = await deleteApplicantCompletely(id)
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
-
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[staff delete] Error:', err)
