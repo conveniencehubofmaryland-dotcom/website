@@ -61,6 +61,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const router = useRouter()
   const [module, setModule] = useState<TrainingModule | null>(null)
   const [lockedFor, setLockedFor] = useState<string | null>(null)
+  const [needsVerify, setNeedsVerify] = useState(false)
   const [staffName, setStaffName] = useState('')
   const [staffEmail, setStaffEmail] = useState('')
   const [staffPhone, setStaffPhone] = useState('')
@@ -86,26 +87,32 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     init()
   }, [params, searchParams])
 
-  // Other positions stay locked until the first module of the applied position is passed.
+  // Training starts only after the emailed code is verified. Other positions stay locked
+  // until the first module of the applied position is passed.
   useEffect(() => {
     if (!module) return
     let token: string | null = null
     try {
-      token = localStorage.getItem('staff_session_token')
+      const raw = sessionStorage.getItem('training_session')
+      token = raw ? (JSON.parse(raw) as { token: string }).token : null
     } catch {
       token = null
     }
-    const email = staffEmail.trim()
-    if (!token && !email.includes('@')) return
-    const query = !token ? `?email=${encodeURIComponent(email)}` : ''
-    fetch(`/api/staff/training-access${query}`, { headers: token ? { 'x-staff-token': token } : {} })
+    if (!token) {
+      setNeedsVerify(true)
+      return
+    }
+    fetch('/api/staff/training-access', { headers: { 'x-training-token': token } })
       .then(async res => {
-        if (!res.ok) return
+        if (!res.ok) {
+          setNeedsVerify(true)
+          return
+        }
         const access = await res.json()
         setLockedFor(!access.other_positions_unlocked && module.position !== access.position ? access.position : null)
       })
-      .catch(() => {})
-  }, [module, staffEmail])
+      .catch(() => setNeedsVerify(true))
+  }, [module])
 
   async function fetchModule(id: string) {
     try {
@@ -185,6 +192,18 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   const questions = module.quiz_questions || []
   const passed = score >= 80
   const positionTiers = findPositionTiers(module.position)
+
+  if (needsVerify) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <h1 className="font-serif text-2xl text-chm-black mb-3">Verify your email first</h1>
+          <p className="text-sm text-gray-600 mb-6">Enter your email and the code we send you before starting this module.</p>
+          <Link href="/staff/training-modules" className="text-chm-red hover:underline text-sm">Go to training verification</Link>
+        </div>
+      </div>
+    )
+  }
 
   if (lockedFor) {
     return (

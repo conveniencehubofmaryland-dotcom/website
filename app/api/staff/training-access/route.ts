@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getApplicantBySession, sbFetch } from '@/lib/shift-eligibility'
+import { verifyTrainingToken } from '@/lib/training-token'
 
-// Applicants who have finished orientation may train. Staff with a sign-in code always qualify.
+// Applicants who have finished orientation may train.
 const TRAINING_STATUSES = ['orientation_signed', 'orientation_completed', 'ready_to_claim_shifts']
 
 async function applicantByEmail(email: string): Promise<{ position: string | null; email: string } | null> {
@@ -18,17 +19,18 @@ async function applicantByEmail(email: string): Promise<{ position: string | nul
 
 // Staff: the applicant's position and whether the other positions are unlocked.
 // Other positions unlock once the FIRST module of the applied position is passed.
-// Identified by the sign-in token, or by the email the applicant enters on the training page.
+// Identified by the sign-in token, or by the training token from the emailed code.
 export async function GET(req: NextRequest) {
   const token = req.headers.get('x-staff-token')
-  const email = (req.nextUrl.searchParams.get('email') || '').trim()
+  const trainingToken = req.headers.get('x-training-token')
 
   let applicant: { position: string | null; email: string } | null = null
   try {
     if (token) {
       applicant = await getApplicantBySession(token)
-    } else if (email) {
-      applicant = await applicantByEmail(email)
+    } else {
+      const verifiedEmail = verifyTrainingToken(trainingToken)
+      if (verifiedEmail) applicant = await applicantByEmail(verifiedEmail)
     }
   } catch {
     return NextResponse.json({ error: 'We could not check your details right now. Please try again.' }, { status: 503 })
