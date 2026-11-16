@@ -86,6 +86,27 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
     init()
   }, [params, searchParams])
 
+  // Other positions stay locked until the first module of the applied position is passed.
+  useEffect(() => {
+    if (!module) return
+    let token: string | null = null
+    try {
+      token = localStorage.getItem('staff_session_token')
+    } catch {
+      token = null
+    }
+    const email = staffEmail.trim()
+    if (!token && !email.includes('@')) return
+    const query = !token ? `?email=${encodeURIComponent(email)}` : ''
+    fetch(`/api/staff/training-access${query}`, { headers: token ? { 'x-staff-token': token } : {} })
+      .then(async res => {
+        if (!res.ok) return
+        const access = await res.json()
+        setLockedFor(!access.other_positions_unlocked && module.position !== access.position ? access.position : null)
+      })
+      .catch(() => {})
+  }, [module, staffEmail])
+
   async function fetchModule(id: string) {
     try {
       setLoading(true)
@@ -94,22 +115,6 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       const data = await res.json()
       if (data.length > 0) {
         setModule(data[0])
-        // Signed-in staff can open only their own position's modules until it is complete.
-        let token: string | null = null
-        try {
-          token = localStorage.getItem('staff_session_token')
-        } catch {
-          token = null
-        }
-        if (token) {
-          const accessRes = await fetch('/api/staff/training-access', { headers: { 'x-staff-token': token } })
-          if (accessRes.ok) {
-            const access = await accessRes.json()
-            if (!access.own_position_complete && data[0].position !== access.position) {
-              setLockedFor(access.position)
-            }
-          }
-        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error loading module')
@@ -186,7 +191,7 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
       <div className="min-h-screen bg-white flex items-center justify-center px-6">
         <div className="max-w-md text-center">
           <h1 className="font-serif text-2xl text-chm-black mb-3">This module is locked</h1>
-          <p className="text-sm text-gray-600 mb-6">Finish all training modules for {lockedFor} first. Other positions unlock after that.</p>
+          <p className="text-sm text-gray-600 mb-6">Pass the first module of {lockedFor} to unlock other positions.</p>
           <Link href="/staff/training-modules" className="text-chm-red hover:underline text-sm">Back to training modules</Link>
         </div>
       </div>

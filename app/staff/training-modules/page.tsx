@@ -12,8 +12,8 @@ export default function TrainingModulesPage() {
   const [staffPhone, setStaffPhone] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  // Set only when the visitor is signed in to the staff portal.
-  const [access, setAccess] = useState<{ position: string; own_position_complete: boolean } | null>(null)
+  // Set once the applicant is identified (signed in, or by the email entered below).
+  const [access, setAccess] = useState<{ position: string; other_positions_unlocked: boolean } | null>(null)
 
  const positions = [
   'Cleaning Specialist',
@@ -32,21 +32,32 @@ export default function TrainingModulesPage() {
     } catch {
       token = null
     }
-    if (!token) return
-    fetch('/api/staff/training-access', { headers: { 'x-staff-token': token } })
-      .then(async res => {
-        if (!res.ok) return
-        const data = await res.json()
-        setAccess({ position: data.position, own_position_complete: data.own_position_complete })
-        // Signed-in staff start on their own position.
-        if (data.position && !data.own_position_complete) setSelectedPosition(data.position)
-      })
-      .catch(() => {})
-  }, [])
+    const email = staffEmail.trim()
+    if (!token && !email.includes('@')) {
+      setAccess(null)
+      return
+    }
+    const query = !token ? `?email=${encodeURIComponent(email)}` : ''
+    const timer = setTimeout(() => {
+      fetch(`/api/staff/training-access${query}`, { headers: token ? { 'x-staff-token': token } : {} })
+        .then(async res => {
+          if (!res.ok) {
+            setAccess(null)
+            return
+          }
+          const data = await res.json()
+          setAccess({ position: data.position, other_positions_unlocked: data.other_positions_unlocked })
+          // Applicants start on their own position until its first module is passed.
+          if (data.position && !data.other_positions_unlocked) setSelectedPosition(data.position)
+        })
+        .catch(() => setAccess(null))
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [staffEmail])
 
-  // Signed-in staff can open only their own position until it is complete.
+  // Other positions stay locked until the first module of the applied position is passed.
   const positionLocked = (pos: string) =>
-    !!access && !access.own_position_complete && pos !== access.position
+    !!access && !access.other_positions_unlocked && pos !== access.position
 
   useEffect(() => {
     if (selectedPosition) {
@@ -147,7 +158,7 @@ export default function TrainingModulesPage() {
                 }`}
               >
                 {pos}
-                {positionLocked(pos) && <span className="block text-xs mt-1">Locked: finish {access?.position} first</span>}
+                {positionLocked(pos) && <span className="block text-xs mt-1">Locked: pass the first module of {access?.position} to unlock</span>}
               </button>
             ))}
           </div>
