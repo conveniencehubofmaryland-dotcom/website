@@ -27,7 +27,7 @@ export default function VerifyContent() {
         const data = await res.json()
         localStorage.setItem('staff_session_token', data.session_token)
         localStorage.setItem('staff_email', email)
-        router.push('/staff/available-shifts')
+        router.push('/staff')
       } else {
         const data = await res.json()
         setError(data.error || 'Invalid code')
