@@ -1,4 +1,21 @@
-// CHM staff badge: a printable ID card (standard ID-card size) sent to each applicant who completes onboarding.
+// CHM staff badge: a printable ID card (standard ID-card size) for each applicant who completes onboarding.
+import { serviceHeaders } from './supabase-keys'
+
+// The staff photo from the welcome form, as embedded image data so the badge prints without internet access.
+export async function getStaffPhotoDataUri(applicantId: string): Promise<string | null> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/staff_documents?staff_id=eq.${applicantId}&document_type=eq.staff_photo&select=document_url&order=uploaded_at.desc&limit=1`,
+    { headers: { ...serviceHeaders() } }
+  )
+  const rows = res.ok ? await res.json() : []
+  const url = Array.isArray(rows) && rows[0]?.document_url ? String(rows[0].document_url) : null
+  if (!url) return null
+  const img = await fetch(url)
+  if (!img.ok) return null
+  const type = img.headers.get('content-type') || 'image/jpeg'
+  if (!/^image\/(jpeg|png)$/.test(type)) return null
+  return `data:${type};base64,${Buffer.from(await img.arrayBuffer()).toString('base64')}`
+}
 
 const esc = (v: unknown) =>
   String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -70,7 +87,7 @@ export function buildBadgeHtml(opts: {
       </div>
     </div>
     <div class="help">
-      <p><strong>Printing instructions:</strong> Open this file in a web browser, press Print (Ctrl+P or Cmd+P), and print at 100% scale on card or regular paper. Cut along the red border, then laminate the card before your first job.</p>
+      <p><strong>Printing instructions:</strong> Open this page or file in a web browser, press Print (Ctrl+P or Cmd+P), and print at 100% scale on card or regular paper. Cut along the red border, then laminate the card before your first job.</p>
     </div>
   </body>
 </html>`

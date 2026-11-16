@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
 import { serviceHeaders } from '@/lib/supabase-keys'
+import { markApplicantReady } from '@/lib/ready-to-claim'
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
@@ -93,6 +94,20 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
+    // Moving a record to Ready to Claim Shifts sends the same congratulations email as the Ready button.
+    // It runs only when the status is changing, so saving other fields does not resend the email.
+    if (onboarding_status === 'ready_to_claim_shifts') {
+      const curRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}&select=onboarding_status`,
+        { headers: { ...serviceHeaders() } }
+      )
+      const cur = curRes.ok ? await curRes.json() : []
+      if (cur[0]?.onboarding_status !== 'ready_to_claim_shifts') {
+        const ready = await markApplicantReady(String(id))
+        if (!ready.ok) return NextResponse.json({ error: ready.error }, { status: ready.status })
+      }
+    }
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${id}`,
       {

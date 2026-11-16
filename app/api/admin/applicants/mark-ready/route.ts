@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { sendUserEmailHtml, sendUserHtmlWithAttachment } from '@/lib/email'
-import { buildBadgeHtml } from '@/lib/staff-badge'
 import { requireAdmin } from '@/lib/admin-auth'
-import { serviceHeaders } from '@/lib/supabase-keys'
-import crypto from 'crypto'
+import { markApplicantReady } from '@/lib/ready-to-claim'
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
@@ -24,162 +21,9 @@ export async function PATCH(req: NextRequest) {
     const denied = await requireAdmin(req)
     if (denied) return denied
 
-    const now = new Date().toISOString()
-
-    // Fetch applicant details first
-    const fetchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}&select=full_name,email,position`,
-      {
-        headers: {
-          ...serviceHeaders(),
-        },
-      }
-    )
-
-    if (!fetchRes.ok) {
-      return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
-    }
-
-    const applicantData = await fetchRes.json()
-    if (!applicantData || applicantData.length === 0) {
-      return NextResponse.json({ error: 'Applicant not found' }, { status: 404 })
-    }
-
-    const applicant = applicantData[0]
-
-    // Gate: the W-9 must be on file before the applicant can claim shifts.
-    const w9Res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/w9_forms?applicant_id=eq.${applicant_id}&select=id&limit=1`,
-      { headers: { ...serviceHeaders() } }
-    )
-    const w9Rows = w9Res.ok ? await w9Res.json() : []
-    if (!Array.isArray(w9Rows) || w9Rows.length === 0) {
-      return NextResponse.json(
-        { error: 'The applicant has not submitted their IRS Form W-9 yet.' },
-        { status: 400 }
-      )
-    }
-
-    // Generate secure token (valid for 30 days)
-    const claimToken = crypto.randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-
-    // Update status + token
-    const updateRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/offer_letter_applicants?id=eq.${applicant_id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          ...serviceHeaders(),
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          onboarding_status: 'ready_to_claim_shifts',
-          claim_shift_token: claimToken,
-          claim_shift_token_expires_at: expiresAt,
-          updated_at: now,
-        }),
-      }
-    )
-
-    if (!updateRes.ok) {
-      const error = await updateRes.text()
-      console.error('[mark-ready] Error:', error)
-      return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 })
-    }
-
-    // Send email with claim shift link
-
-    const claimLink = 'https://conveniencehubofmaryland.com/staff/claim-shifts-login'
-    const firstName = String(applicant.full_name || '').split(' ')[0] || 'there'
-    const emailHtml = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #c41e3a; padding: 24px; text-align: center; color: white;">
-        <h1 style="margin: 0;">Congratulations, ${firstName}!</h1>
-      </div>
-      <div style="padding: 30px; color: #1a1a1a; line-height: 1.6;">
-        <p>You have completed the entire Convenience Hub of Maryland onboarding process. Welcome to the team!</p>
-        <p><strong>What you finished:</strong></p>
-        <ul>
-          <li>Reviewed How It Works and started your onboarding</li>
-          <li>Submitted your welcome profile, background check, and IRS Form W-9</li>
-          <li>Signed your offer letter and orientation</li>
-          <li>Completed your required training modules</li>
-        </ul>
-        <p><strong>Your position:</strong> ${applicant.position || 'Staff'}</p>
-        <p>You can now browse and claim shifts in the staff portal:</p>
-        <p style="text-align: center; margin: 28px 0;">
-          <a href="${claimLink}" style="display: inline-block; background-color: #c41e3a; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: bold; border-radius: 4px;">Claim Your Shifts</a>
-        </p>
-        <p><strong>Remember:</strong></p>
-        <ul>
-          <li>You only work shifts you actively claim through the portal</li>
-          <li>Shift confirmations will be sent by email</li>
-          <li>Check the portal regularly for new opportunities</li>
-        </ul>
-        <p>Questions? Call or text 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM).</p>
-        <p><strong>The CHM Team</strong></p>
-      </div>
-    </div>`
-
-    // The status is already saved, so an email failure is logged instead of shown as a failure.
-    try {
-      await sendUserEmailHtml(
-        applicant.email,
-        'Congratulations – You Are Ready to Claim Shifts!',
-        emailHtml
-      )
-    } catch (emailErr) {
-      console.error('[mark-ready] Congratulations email failed:', emailErr)
-    }
-
-    // Staff badge: emailed as a printable file with instructions. Failure is logged only.
-    try {
-      const issuedOn = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-
-      // Staff photo from the welcome form, embedded in the badge so it prints without internet access.
-      let photoDataUri: string | null = null
-      const photoRes = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/staff_documents?staff_id=eq.${applicant_id}&document_type=eq.staff_photo&select=document_url&order=uploaded_at.desc&limit=1`,
-        { headers: { ...serviceHeaders() } }
-      )
-      const photoRows = photoRes.ok ? await photoRes.json() : []
-      const photoUrl = Array.isArray(photoRows) && photoRows[0]?.document_url ? String(photoRows[0].document_url) : null
-      if (photoUrl) {
-        const imgRes = await fetch(photoUrl)
-        if (imgRes.ok) {
-          const type = imgRes.headers.get('content-type') || 'image/jpeg'
-          photoDataUri = `data:${type};base64,${Buffer.from(await imgRes.arrayBuffer()).toString('base64')}`
-        }
-      }
-
-      const badgeHtml = buildBadgeHtml({
-        fullName: applicant.full_name,
-        position: applicant.position,
-        applicantId: applicant_id,
-        issuedOn,
-        photoDataUri,
-      })
-      const badgeEmailHtml = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a; line-height: 1.6;">
-        <h2 style="color: #c41e3a;">Your CHM Staff Badge</h2>
-        <p>Hi ${firstName}, your CHM staff badge is attached to this email. Please follow these steps before your first job:</p>
-        <ol>
-          <li><strong>Download</strong> the attached file <em>CHM-Staff-Badge.html</em> and save it.</li>
-          <li><strong>Open</strong> it in a web browser and press <strong>Print</strong> (Ctrl+P on Windows, Cmd+P on Mac). Print at 100% scale.</li>
-          <li><strong>Cut</strong> out the card along the red border.</li>
-          <li><strong>Laminate</strong> the card so it stays protected.</li>
-        </ol>
-        <p><strong>Important:</strong> Present your badge to every client before you enter their home. Keep it with you at every job.</p>
-        <p>Questions? Call or text 202-579-2944.</p>
-        <p><strong>The CHM Team</strong></p>
-      </div>`
-      await sendUserHtmlWithAttachment(
-        applicant.email,
-        'Your CHM Staff Badge – Print and Laminate Before Your First Job',
-        badgeEmailHtml,
-        { filename: 'CHM-Staff-Badge.html', content: badgeHtml }
-      )
-    } catch (badgeErr) {
-      console.error('[mark-ready] Staff badge email failed:', badgeErr)
+    const result = await markApplicantReady(String(applicant_id))
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
     console.log('[mark-ready] Applicant marked ready and email sent:', applicant_id)

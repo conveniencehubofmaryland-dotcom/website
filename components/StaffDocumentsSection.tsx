@@ -6,7 +6,7 @@ interface StaffDocument {
   id: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check'
+  documentType: string
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -58,7 +58,8 @@ export default function StaffDocumentsSection({
     }
   }
 
-  const getDocumentTypeLabel = (type: string) => {
+  // Uploads and other records show their own name; the main types keep their labels.
+  const getDocumentTypeLabel = (type: string, name: string) => {
     switch (type) {
       case 'orientation':
         return 'Orientation/MOU'
@@ -69,7 +70,7 @@ export default function StaffDocumentsSection({
       case 'background_check':
         return 'Background Check'
       default:
-        return type
+        return name || type
     }
   }
 
@@ -114,6 +115,8 @@ export default function StaffDocumentsSection({
           <option value="offer_letter">Offer Letters</option>
           <option value="certification">Certifications</option>
           <option value="background_check">Background Checks</option>
+          <option value="direct_deposit">Direct Deposit Forms</option>
+          <option value="applicant_upload">Applicant Uploads</option>
         </select>
       </div>
 
@@ -145,7 +148,7 @@ export default function StaffDocumentsSection({
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="text-gray-900">{getDocumentTypeLabel(doc.documentType)}</span>
+                    <span className="text-gray-900">{getDocumentTypeLabel(doc.documentType, doc.documentName)}</span>
                   </td>
                   <td className="py-3 px-4">
                     {doc.dateSigned ? (
@@ -217,7 +220,7 @@ export default function StaffDocumentsSection({
               ...filteredDocs.map(d => [
                 d.staffName,
                 d.staffEmail,
-                getDocumentTypeLabel(d.documentType),
+                getDocumentTypeLabel(d.documentType, d.documentName),
                 d.dateSigned ? new Date(d.dateSigned).toLocaleDateString() : '',
                 d.status,
                 d.ownCar !== null ? (d.ownCar ? 'Yes' : 'No') : '',

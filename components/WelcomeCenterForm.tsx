@@ -6,7 +6,7 @@ const W9_URL = 'https://www.irs.gov/pub/irs-pdf/fw9.pdf'
 
 // Direct deposit and certificate uploads. Each one is saved to the applicant's Documents in admin.
 const DOCUMENT_FIELDS = [
-  { key: 'directDeposit', label: 'Direct Deposit Form', required: true, help: 'Upload your completed direct deposit form, or a voided check. Your payments are sent to this account.' },
+  { key: 'directDeposit', label: 'Direct Deposit Form or Voided Check', required: true, help: 'Fill in our Direct Deposit Form, print or save it as a PDF, sign it, then upload it here. You may upload a voided check instead. Your payments are sent to this account.', linkHref: '/direct-deposit-form', linkText: 'Open the Direct Deposit Form' },
   { key: 'cprCertificate', label: 'CPR Certificate', required: true, help: 'Upload your current CPR certificate.' },
   { key: 'firstAidCertificate', label: 'First Aid Certificate', required: true, help: 'Upload your current First Aid certificate.' },
   { key: 'cmtCertificate', label: 'CMT Certificate', required: false, help: 'Optional. Upload your CMT certificate if you have one.' },
@@ -433,6 +433,16 @@ export default function WelcomeCenterForm() {
                   {f.label}{f.required ? ' *' : ' (optional)'}
                 </label>
                 <p className="text-xs text-gray-500 mb-2">{f.help}</p>
+                {'linkHref' in f && f.linkHref && (
+                  <a
+                    href={f.linkHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mb-3 text-xs font-semibold text-chm-red underline"
+                  >
+                    {'linkText' in f ? f.linkText : 'Open form'} →
+                  </a>
+                )}
                 <input
                   type="file"
                   name={f.key}

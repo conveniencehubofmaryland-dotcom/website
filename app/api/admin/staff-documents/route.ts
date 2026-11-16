@@ -12,7 +12,7 @@ interface StaffDocument {
   staffId: string
   staffName: string
   staffEmail: string
-  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9' | 'timesheet'
+  documentType: 'orientation' | 'offer_letter' | 'certification' | 'background_check' | 'training_cert' | 'direct_deposit' | 'w9' | 'timesheet' | 'applicant_upload'
   documentName: string
   dateSigned: string | null
   documentUrl: string | null
@@ -260,7 +260,7 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
   const staffMap = new Map(staff.map(s => [s.id, s]))
 
   const docTypeMap: Record<string, string> = {
-    'direct_deposit': 'Direct Deposit Form',
+    'direct_deposit': 'Direct Deposit Form / Voided Check',
     'background_check': 'Background Check (Additional)',
     'training_cert': 'Training Certificate',
     'certification': 'Certification',
@@ -275,9 +275,9 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
 
   return (data || []).map(row => {
     const person = staffMap.get(row.staff_id)
-    // Uploaded certificates open from their file link, so they use the training certificate type.
-    const uploadedCertificate = ['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate', 'staff_photo'].includes(row.document_type)
-    const documentType = ((uploadedCertificate ? 'training_cert' : row.document_type) as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter') || 'direct_deposit'
+    // Files uploaded by applicants on the welcome form: listed with their own name and opened from the file link.
+    const isApplicantUpload = ['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate', 'staff_photo'].includes(row.document_type)
+    const documentType = ((isApplicantUpload ? 'applicant_upload' : row.document_type) as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'applicant_upload') || 'direct_deposit'
     
     return {
       id: row.id,
