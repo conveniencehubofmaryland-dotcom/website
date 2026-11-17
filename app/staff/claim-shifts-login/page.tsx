@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [staffId, setStaffId] = useState('')
   const router = useRouter()
 
-  // Sign in with email + staff ID number (no emailed code).
+  // Sign in with the staff ID number alone (no email, no emailed code).
   const handleStaffIdSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -20,7 +20,7 @@ export default function LoginPage() {
       const res = await fetch('/api/staff/login/verify-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, staffId }),
+        body: JSON.stringify({ staffId }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -29,7 +29,7 @@ export default function LoginPage() {
       }
       try {
         localStorage.setItem('staff_session_token', data.session_token)
-        localStorage.setItem('staff_email', email)
+        localStorage.setItem('staff_email', String(data.email || ''))
       } catch {
         // Storage may be blocked; the portal will ask to sign in again.
       }
@@ -115,17 +115,6 @@ export default function LoginPage() {
 
           {mode === 'id' && (
             <form onSubmit={handleStaffIdSubmit} className="space-y-6">
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">Email Address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-chm-red"
-                  placeholder="your@email.com"
-                />
-              </div>
               <div>
                 <label className="block text-xs uppercase tracking-widest text-gray-600 font-semibold mb-2">Staff ID Number</label>
                 <input
