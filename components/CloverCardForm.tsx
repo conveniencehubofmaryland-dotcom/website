@@ -26,7 +26,14 @@ export default function CloverCardForm({ kind, amount, category, selections, con
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  const [recurring, setRecurring] = useState(false)
+  const [agree, setAgree] = useState(false)
   const cloverRef = useRef<any>(null)
+
+  // Recurring billing is offered for one-time-per-cycle plans only (weekly, every two weeks, monthly).
+  const freq = (selections as Record<string, unknown>).frequency
+  const canRecur = kind === 'full' && (freq === 'weekly' || freq === 'biweekly' || freq === 'monthly')
+  const freqLabel = freq === 'weekly' ? 'week' : freq === 'biweekly' ? 'two weeks' : 'month'
 
   useEffect(() => {
     let cancelled = false
@@ -70,6 +77,10 @@ export default function CloverCardForm({ kind, amount, category, selections, con
       setError('The card form is still loading. Please wait a moment and try again.')
       return
     }
+    if (canRecur && recurring && !agree) {
+      setError('Please tick the box to agree to recurring billing.')
+      return
+    }
     setBusy(true)
     try {
       const result = await cloverRef.current.createToken()
@@ -77,7 +88,8 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         setError(Object.values(result.errors).join(' '))
         return
       }
-      const res = await fetch('/api/payments/clover-charge', {
+      const useRecurring = canRecur && recurring
+      const res = await fetch(useRecurring ? '/api/payments/recurring-setup' : '/api/payments/clover-charge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,6 +101,7 @@ export default function CloverCardForm({ kind, amount, category, selections, con
           email: contact.email,
           phone: contact.phone,
           referralCode: referralCode || '',
+          consent: agree,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -96,7 +109,11 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         throw new Error(data.error || 'Payment could not be completed.')
       }
       saveCloverCharge(data.chargeId, Number(data.amount))
-      setDone(`Payment of $${Number(data.amount).toFixed(2)} received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)
+      if (useRecurring) {
+        setDone(`Your recurring plan is set up. First payment of $${Number(data.amount).toFixed(2)} received. Next charge: ${data.nextChargeDate}. An invoice and confirmation are on their way to your email.`)
+      } else {
+        setDone(`Payment of $${Number(data.amount).toFixed(2)} received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Payment could not be completed.')
     } finally {
@@ -131,6 +148,24 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         </div>
       </div>
 
+      {canRecur && (
+        <div className="border border-gray-200 bg-cream p-4 text-sm space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" checked={recurring} onChange={e => { setRecurring(e.target.checked); setAgree(false) }} className="mt-1" />
+            <span className="font-semibold text-chm-black">Set up recurring service at ${amount.toFixed(2)} every {freqLabel}</span>
+          </label>
+          {recurring && (
+            <label className="flex items-start gap-3 cursor-pointer text-gray-700 text-xs leading-relaxed">
+              <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="mt-1" />
+              <span>
+                I agree that Convenience Hub of Maryland may charge ${amount.toFixed(2)} to this card every {freqLabel}, starting today,
+                until I pause or cancel. I can cancel by calling or texting 202-579-2944.
+              </span>
+            </label>
+          )}
+        </div>
+      )}
+
       {error && <p className="text-sm text-chm-red">{error}</p>}
 
       <button
@@ -139,7 +174,11 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         disabled={!ready || busy}
         className="w-full bg-chm-red text-white px-8 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50"
       >
-        {busy ? 'Processing…' : `Pay $${amount.toFixed(2)} Securely`}
+        {busy
+          ? 'Processing…'
+          : canRecur && recurring
+            ? `Start Recurring Plan · $${amount.toFixed(2)} every ${freqLabel}`
+            : `Pay $${amount.toFixed(2)} Securely`}
       </button>
     </div>
   )
