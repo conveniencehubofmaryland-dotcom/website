@@ -7,10 +7,9 @@ import FloatingCTA from '@/components/FloatingCTA'
 import TawkChat from '@/components/TawkChat'
 import { CartProvider } from '@/lib/CartContext'
 
-// Meta (Facebook/Instagram) pixel. Active only when NEXT_PUBLIC_META_PIXEL_ID is set to digits.
-const META_PIXEL_ID = /^\d+$/.test(process.env.NEXT_PUBLIC_META_PIXEL_ID || '')
-  ? (process.env.NEXT_PUBLIC_META_PIXEL_ID as string)
-  : ''
+// Meta (Facebook/Instagram) pixel ID. Can be overridden with NEXT_PUBLIC_META_PIXEL_ID; digits only.
+const META_PIXEL_CANDIDATE = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1112050321661909'
+const META_PIXEL_ID = /^\d+$/.test(META_PIXEL_CANDIDATE) ? META_PIXEL_CANDIDATE : ''
 
 export const metadata: Metadata = {
   title: {
