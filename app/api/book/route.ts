@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { isMemberCode, checkMemberReferral, recordPendingReferral, type MemberReferralCheck } from '@/lib/member-referral'
@@ -40,7 +41,7 @@ async function confirmCustomer(booking: {
         reply_to: ['conveniencehubofmaryland@gmail.com'],
         to:   [booking.email],
         subject: `Booking Received — ${booking.service_title}`,
-        html: `
+        html: brandEmail(`
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
             <div style="background:#E8192C;padding:24px 32px">
               <h1 style="color:#fff;font-size:20px;margin:0">Booking Received</h1>
@@ -58,7 +59,7 @@ async function confirmCustomer(booking: {
               <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
             </div>
           </div>
-        `,
+        `),
       }),
     })
     if (!res.ok) console.error('[book] confirmCustomer failed:', await res.text())
@@ -85,10 +86,11 @@ async function notifyOwner(booking: {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        reply_to: [CHM_REPLY_TO],
         from: 'CHM Bookings <support@conveniencehubofmaryland.com>',
         to:   ['conveniencehubofmaryland@gmail.com'],
         subject: `New Booking — ${booking.service_title} on ${booking.appointment_date}`,
-        html: `
+        html: brandEmail(`
           <h2 style="color:#E8192C">New Booking Request</h2>
           <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
             <tr><td style="padding:6px 16px 6px 0;color:#666">Customer</td><td style="font-weight:600">${booking.customer_name}</td></tr>
@@ -107,7 +109,7 @@ async function notifyOwner(booking: {
               View in Admin →
             </a>
           </p>
-        `,
+        `),
       }),
     })
     if (!res.ok) console.error('[book] notifyOwner failed:', await res.text())

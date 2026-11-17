@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { serviceHeaders } from '@/lib/supabase-keys'
 
@@ -44,10 +45,11 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
+        reply_to: [CHM_REPLY_TO],
         from: 'team@conveniencehubofmaryland.com',
         to: email,
         subject: 'Reset Your Password',
-        html: `<h2>Password Reset Request</h2><p>Click <a href="${action_link}">here</a> to reset your password.</p><p>Link expires in 1 hour.</p>`,
+        html: brandEmail(`<h2>Password Reset Request</h2><p>Click <a href="${action_link}">here</a> to reset your password.</p><p>Link expires in 1 hour.</p>`),
       }),
     })
 

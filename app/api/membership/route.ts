@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
@@ -63,10 +64,11 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          reply_to: [CHM_REPLY_TO],
           from: 'CHM Memberships <support@conveniencehubofmaryland.com>',
           to: ['conveniencehubofmaryland@gmail.com'],
           subject: `New Member Signup — ${trimmedName}`,
-          html: `
+          html: brandEmail(`
             <h2 style="color:#E8192C">New Membership Application</h2>
             <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
               <tr><td style="padding:6px 16px 6px 0;color:#666">Name</td><td style="font-weight:600">${trimmedName}</td></tr>
@@ -84,7 +86,7 @@ export async function POST(req: NextRequest) {
                 View in Admin →
               </a>
             </p>
-          `,
+          `),
         }),
       }).catch(() => {}),
 
@@ -97,7 +99,7 @@ export async function POST(req: NextRequest) {
           reply_to: ['conveniencehubofmaryland@gmail.com'],
           to: [trimmedEmail],
           subject: 'Welcome to Convenience Hub of Maryland — Membership Confirmed',
-          html: `
+          html: brandEmail(`
             <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
               <div style="background:#E8192C;padding:24px 32px">
                 <h1 style="color:#fff;font-size:20px;margin:0">Membership Confirmed</h1>
@@ -131,7 +133,7 @@ export async function POST(req: NextRequest) {
                 <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
               </div>
             </div>
-          `,
+          `),
         }),
       }).catch(() => {}),
 

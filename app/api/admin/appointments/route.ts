@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbPatchAuth, dbSelectAuth, dbDeleteAuth } from '@/lib/db'
@@ -16,10 +17,11 @@ async function sendClaimedShiftCancelAlert(appointmentId: string, claimedCount: 
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        reply_to: [CHM_REPLY_TO],
         from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
         to: ['conveniencehubofmaryland@gmail.com'],
         subject: `Action needed - cancelled booking has ${claimedCount} claimed shift(s)`,
-        html: `<p>An appointment (ID ${appointmentId}) was cancelled, but ${claimedCount} shift(s) were already claimed by staff.</p><p>Please contact the assigned staff member to let them know the booking is cancelled.</p>`,
+        html: brandEmail(`<p>An appointment (ID ${appointmentId}) was cancelled, but ${claimedCount} shift(s) were already claimed by staff.</p><p>Please contact the assigned staff member to let them know the booking is cancelled.</p>`),
       }),
     })
   } catch (e) {
@@ -39,7 +41,7 @@ async function sendConfirmationEmail(appt: Appointment) {
         reply_to: ['conveniencehubofmaryland@gmail.com'],
         to: [appt.email],
         subject: `Booking Confirmed — ${appt.service_id ?? 'Your Service'}`,
-        html: `
+        html: brandEmail(`
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
             <div style="background:#E8192C;padding:24px 32px">
               <h1 style="color:#fff;font-size:20px;margin:0">Booking Confirmed</h1>
@@ -56,7 +58,7 @@ async function sendConfirmationEmail(appt: Appointment) {
               <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
             </div>
           </div>
-        `,
+        `),
       }),
     })
     if (!res.ok) console.error('[confirm] email failed:', await res.text())

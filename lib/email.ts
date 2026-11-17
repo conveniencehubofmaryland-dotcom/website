@@ -1,5 +1,5 @@
 import { Resend } from 'resend'
-import { brandedEmailHtml } from '@/lib/email-brand'
+import { brandedEmailHtml, brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import {
   buildPaymentConfirmationHtml,
   paymentConfirmationSubject,
@@ -15,6 +15,7 @@ export async function sendAdminEmail(subject: string, message: string) {
   }
   try {
     const res = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'team@conveniencehubofmaryland.com',
       to: process.env.ADMIN_EMAIL || 'conveniencehubofmaryland@gmail.com',
       subject,
@@ -35,6 +36,7 @@ export async function sendUserEmail(to: string, subject: string, message: string
   }
   try {
     const res = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'team@conveniencehubofmaryland.com',
       to,
       subject,
@@ -62,10 +64,11 @@ export async function sendPaymentConfirmationEmail(
   }
   try {
     const res = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'team@conveniencehubofmaryland.com',
       to,
       subject: paymentConfirmationSubject(serviceTitle),
-      html: buildPaymentConfirmationHtml({ name, serviceTitle, amountPaid }),
+      html: brandEmail(buildPaymentConfirmationHtml({ name, serviceTitle, amountPaid })),
     })
     console.log('Payment confirmation email sent:', res)
     return res
@@ -88,6 +91,7 @@ export async function sendUserEmailWithAttachment(
   }
   try {
     const res = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'team@conveniencehubofmaryland.com',
       to,
       subject,
@@ -116,6 +120,7 @@ export async function sendUserHtmlWithAttachment(
     return
   }
   const res = await resend.emails.send({
+    replyTo: [CHM_REPLY_TO],
     from: 'team@conveniencehubofmaryland.com',
     to,
     subject,
@@ -134,6 +139,7 @@ export async function sendUserEmailHtml(to: string, subject: string, html: strin
     return
   }
   const res = await resend.emails.send({
+    replyTo: [CHM_REPLY_TO],
     from: 'team@conveniencehubofmaryland.com',
     to,
     subject,

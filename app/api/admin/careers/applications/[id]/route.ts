@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbPatchAuth, dbSelectAuth } from '@/lib/db'
@@ -29,47 +30,47 @@ const STATUS_SMS: Partial<Record<string, (name: string) => string>> = {
 const STATUS_EMAIL: Partial<Record<string, (name: string) => { subject: string; html: string }>> = {
   reviewed: name => ({
     subject: 'Your Application Has Been Reviewed — Convenience Hub of Maryland',
-    html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+    html: brandEmail(`<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
       <div style="background:#E8192C;padding:24px 32px"><h1 style="color:#fff;font-size:20px;margin:0">Application Update</h1></div>
       <div style="padding:32px;background:#fff;border:1px solid #eee">
         <p style="font-size:15px;color:#222">Hi ${name},</p>
         <p style="color:#444;line-height:1.6">Your application at <strong>Convenience Hub of Maryland</strong> has been reviewed. We'll be in touch with you soon.</p>
         <p style="color:#444;line-height:1.6">Questions? Call or text us at <a href="tel:2025792944" style="color:#E8192C">202-579-2944</a>.</p>
         <p style="color:#888;font-size:12px;margin-top:24px">Convenience Hub of Maryland · conveniencehubofmaryland.com</p>
-      </div></div>`,
+      </div></div>`),
   }),
   contacted: name => ({
     subject: 'We\'re Reaching Out — Convenience Hub of Maryland',
-    html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+    html: brandEmail(`<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
       <div style="background:#E8192C;padding:24px 32px"><h1 style="color:#fff;font-size:20px;margin:0">Application Update</h1></div>
       <div style="padding:32px;background:#fff;border:1px solid #eee">
         <p style="font-size:15px;color:#222">Hi ${name},</p>
         <p style="color:#444;line-height:1.6">A member of the <strong>Convenience Hub of Maryland</strong> team will be reaching out to you shortly regarding your application.</p>
         <p style="color:#444;line-height:1.6">Questions? Call or text us at <a href="tel:2025792944" style="color:#E8192C">202-579-2944</a>.</p>
         <p style="color:#888;font-size:12px;margin-top:24px">Convenience Hub of Maryland · conveniencehubofmaryland.com</p>
-      </div></div>`,
+      </div></div>`),
   }),
   hired: name => ({
     subject: 'Congratulations! — Convenience Hub of Maryland',
-    html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+    html: brandEmail(`<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
       <div style="background:#E8192C;padding:24px 32px"><h1 style="color:#fff;font-size:20px;margin:0">Great News!</h1></div>
       <div style="padding:32px;background:#fff;border:1px solid #eee">
         <p style="font-size:15px;color:#222">Hi ${name},</p>
         <p style="color:#444;line-height:1.6">Congratulations! <strong>Convenience Hub of Maryland</strong> would like to move forward with your application. Please expect a call or email from us with next steps.</p>
         <p style="color:#444;line-height:1.6">Questions? Call or text us at <a href="tel:2025792944" style="color:#E8192C">202-579-2944</a>.</p>
         <p style="color:#888;font-size:12px;margin-top:24px">Convenience Hub of Maryland · conveniencehubofmaryland.com</p>
-      </div></div>`,
+      </div></div>`),
   }),
   rejected: name => ({
     subject: 'Your Application — Convenience Hub of Maryland',
-    html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+    html: brandEmail(`<div style="font-family:sans-serif;max-width:520px;margin:0 auto">
       <div style="background:#E8192C;padding:24px 32px"><h1 style="color:#fff;font-size:20px;margin:0">Application Update</h1></div>
       <div style="padding:32px;background:#fff;border:1px solid #eee">
         <p style="font-size:15px;color:#222">Hi ${name},</p>
         <p style="color:#444;line-height:1.6">Thank you for applying to <strong>Convenience Hub of Maryland</strong>. After careful review, we have decided to move forward with other candidates at this time.</p>
         <p style="color:#444;line-height:1.6">We appreciate your interest and wish you the best in your search.</p>
         <p style="color:#888;font-size:12px;margin-top:24px">Convenience Hub of Maryland · conveniencehubofmaryland.com</p>
-      </div></div>`,
+      </div></div>`),
   }),
 }
 
@@ -84,6 +85,7 @@ async function sendStatusEmail(to: string, name: string, status: string): Promis
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        reply_to: [CHM_REPLY_TO],
         from: 'CHM Careers <support@conveniencehubofmaryland.com>',
         to:   [to],
         subject,

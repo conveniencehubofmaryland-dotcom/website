@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { serviceHeaders } from '@/lib/supabase-keys'
@@ -78,13 +79,14 @@ export async function POST(req: NextRequest) {
           method: 'POST',
           headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            reply_to: [CHM_REPLY_TO],
             from: 'CHM Careers <support@conveniencehubofmaryland.com>',
             to: ['conveniencehubofmaryland@gmail.com'],
             subject: `New Job Application — ${name.trim()}`,
             ...(resume_base64 && resume_filename
               ? { attachments: [{ filename: resume_filename, content: resume_base64 }] }
               : {}),
-            html: `<h2 style="color:#E8192C">New Job Application</h2>
+            html: brandEmail(`<h2 style="color:#E8192C">New Job Application</h2>
 <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">
 <tr><td style="padding:8px 16px 8px 0;color:#666;font-weight:600">Name</td><td style="padding:8px 0;font-weight:600">${name.trim()}</td></tr>
 <tr><td style="padding:8px 16px 8px 0;color:#666">Phone</td><td style="padding:8px 0"><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
@@ -100,7 +102,7 @@ ${gender?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666">Gender</td
 <tr><td style="padding:8px 16px 8px 0;color:#666">Available Hours</td><td style="padding:8px 0">${hours || '—'}</td></tr>
 ${experience?.trim() ? `<tr><td style="padding:8px 16px 8px 0;color:#666;vertical-align:top">Experience</td><td style="padding:8px 0">${experience.trim()}</td></tr>` : ''}
 </table>
-<p style="margin-top:20px;font-size:12px;color:#999"><a href="https://conveniencehubofmaryland.com/admin/careers/applications" style="color:#E8192C">View in Admin Panel</a></p>`,
+<p style="margin-top:20px;font-size:12px;color:#999"><a href="https://conveniencehubofmaryland.com/admin/careers/applications" style="color:#E8192C">View in Admin Panel</a></p>`),
           }),
         })
       } catch (err) {

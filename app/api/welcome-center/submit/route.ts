@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
@@ -423,10 +424,11 @@ export async function POST(req: NextRequest) {
     // Send confirmation email to applicant
     console.log('[submit] Sending email to:', email)
     const emailRes = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
       subject: 'Welcome Profile Submitted - Next Steps',
-      html: `
+      html: brandEmail(`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #c41e3a; padding: 20px; text-align: center; color: white;">
             <h1 style="margin: 0;">Profile Submitted!</h1>
@@ -464,7 +466,7 @@ export async function POST(req: NextRequest) {
             <p><strong>The CHM Team</strong></p>
           </div>
         </div>
-      `,
+      `),
     })
 
     if (emailRes.error) {
@@ -476,10 +478,11 @@ export async function POST(req: NextRequest) {
     // Send notification to admin
     console.log('[submit] Sending admin notification')
     const adminRes = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'CHM Admin <admin@conveniencehubofmaryland.com>',
       to: 'conveniencehubofmaryland@gmail.com',
       subject: `New Profile Submission: ${full_name}`,
-      html: `
+      html: brandEmail(`
         <div style="font-family: Arial, sans-serif;">
           <h2>New Profile Submission</h2>
           <p><strong>Name:</strong> ${full_name}</p>
@@ -494,7 +497,7 @@ export async function POST(req: NextRequest) {
           ${background_check_url ? '<p><strong>Background Check:</strong> Document uploaded</p>' : '<p><strong>Background Check:</strong> Not provided</p>'}
           <p><a href="https://conveniencehubofmaryland.com/admin/staff-records">View in Staff Records →</a></p>
         </div>
-      `,
+      `),
     })
 
     if (adminRes.error) {

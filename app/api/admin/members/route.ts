@@ -1,3 +1,4 @@
+import { brandEmail } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbSelectAuth, dbPatchAuth, dbDeleteAuth, dbInsertAuth } from '@/lib/db'
@@ -58,7 +59,7 @@ export async function PATCH(req: NextRequest) {
             reply_to: ['conveniencehubofmaryland@gmail.com'],
             to: [m.email],
             subject: 'Your CHM Membership is Now Active',
-            html: `
+            html: brandEmail(`
               <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
                 <div style="background:#E8192C;padding:24px 32px">
                   <h1 style="color:#fff;font-size:20px;margin:0">Membership Activated</h1>
@@ -90,7 +91,7 @@ export async function PATCH(req: NextRequest) {
                   <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>
                 </div>
               </div>
-            `,
+            `),
           }),
         }).catch(() => {})
       }

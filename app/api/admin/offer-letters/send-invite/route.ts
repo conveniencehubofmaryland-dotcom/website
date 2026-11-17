@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -100,10 +101,11 @@ export async function POST(req: NextRequest) {
 
     // 6. Send email with clickable button
     const { error: emailError } = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'CHM Onboarding <onboarding@conveniencehubofmaryland.com>',
       to: email,
       subject: 'Welcome to Convenience Hub of Maryland - Start Your Onboarding',
-      html: emailHTML,
+      html: brandEmail(emailHTML),
       text: emailText,
     })
 

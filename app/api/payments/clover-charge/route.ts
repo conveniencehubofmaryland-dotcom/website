@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { isActiveMember } from '@/lib/membership'
@@ -136,10 +137,11 @@ export async function POST(request: NextRequest) {
       }).catch(e => console.error('[clover] email error:', e))
 
     await send({
+      reply_to: [CHM_REPLY_TO],
       from: 'CHM Payments <support@conveniencehubofmaryland.com>',
       to: [ADMIN_EMAIL],
       subject: `Payment received: $${amount.toFixed(2)} from ${name || 'client'}`,
-      html: `<h2 style="color:#E8192C">Payment Received</h2>
+      html: brandEmail(`<h2 style="color:#E8192C">Payment Received</h2>
 <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
 <tr><td style="padding:6px 16px 6px 0;color:#666">Amount</td><td style="font-weight:600">$${amount.toFixed(2)} (${label})</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Client</td><td style="font-weight:600">${name || 'N/A'}</td></tr>
@@ -149,7 +151,7 @@ export async function POST(request: NextRequest) {
 <tr><td style="padding:6px 16px 6px 0;color:#666">Invoice</td><td>${invoice ? invoice.invoice_number : 'Not saved (see logs)'}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Clover charge ID</td><td>${chargeId}</td></tr>
 </table>
-<p style="margin-top:16px"><a href="https://conveniencehubofmaryland.com/admin/appointments" style="color:#E8192C;font-weight:600">Open admin to mark this booking paid</a></p>`,
+<p style="margin-top:16px"><a href="https://conveniencehubofmaryland.com/admin/appointments" style="color:#E8192C;font-weight:600">Open admin to mark this booking paid</a></p>`),
     })
 
     if (email && invoice) {
@@ -158,7 +160,7 @@ export async function POST(request: NextRequest) {
         reply_to: [ADMIN_EMAIL],
         to: [email],
         subject: invoiceSubject(invoice),
-        html: buildInvoiceHtml(invoice),
+        html: brandEmail(buildInvoiceHtml(invoice)),
       })
     } else if (email) {
       await send({
@@ -166,12 +168,12 @@ export async function POST(request: NextRequest) {
         reply_to: [ADMIN_EMAIL],
         to: [email],
         subject: 'Your payment receipt from Convenience Hub of Maryland',
-        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+        html: brandEmail(`<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
 <h2 style="color:#E8192C">Thank you${name ? `, ${name.split(' ')[0]}` : ''}!</h2>
 <p>We received your payment of <strong>$${amount.toFixed(2)}</strong> (${label}).</p>
 <p>Reference: ${chargeId}</p>
 <p style="font-size:14px;color:#555">Questions? Call or text <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a></p>
-</div>`,
+</div>`),
       })
     }
   }

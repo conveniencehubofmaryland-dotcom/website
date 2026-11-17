@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { svcSelect, svcPatch, sha256Hex, randomSixDigits, sendEmail } from '@/lib/realtor'
 
@@ -14,10 +15,11 @@ export async function POST(req: NextRequest) {
         login_code_expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
       })
       await sendEmail({
+        reply_to: [CHM_REPLY_TO],
         from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
         to: [email],
         subject: 'Your CHM realtor sign-in code',
-        html: `<p>Your sign-in code is <strong style="font-size:20px">${code}</strong>.</p><p>It expires in 10 minutes. If you did not ask for this, you can ignore this email.</p>`,
+        html: brandEmail(`<p>Your sign-in code is <strong style="font-size:20px">${code}</strong>.</p><p>It expires in 10 minutes. If you did not ask for this, you can ignore this email.</p>`),
       })
     }
   }

@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { sbFetch, todayInEastern, type ShiftRow } from '@/lib/shift-eligibility'
 import { sendSms } from '@/lib/sms'
@@ -46,7 +47,7 @@ async function runReminders(request: NextRequest) {
             reply_to: ['conveniencehubofmaryland@gmail.com'],
             to: [shift.staff_email],
             subject: `Reminder: your shift is tomorrow, ${dateLabel}`,
-            html: `
+            html: brandEmail(`
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #E8192C;">Shift Reminder</h2>
                 <p>Hi ${name}, you have a shift tomorrow:</p>
@@ -59,7 +60,7 @@ async function runReminders(request: NextRequest) {
                 <p>When you arrive, clock in on <a href="https://conveniencehubofmaryland.com/staff/my-shifts" style="color: #E8192C;">My Shifts</a>. Clock out when you finish, then confirm the shift is complete.</p>
                 <p style="font-size: 14px; color: #555;">Questions? Call or text <a href="tel:+12025792944" style="color: #E8192C;">202-579-2944</a></p>
               </div>
-            `,
+            `),
           }),
         })
         if (!emailRes.ok) console.error('[reminders] email failed:', await emailRes.text())
@@ -97,10 +98,11 @@ async function runReminders(request: NextRequest) {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          reply_to: [CHM_REPLY_TO],
           from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
           to: ['conveniencehubofmaryland@gmail.com'],
           subject: `Unclaimed shifts for tomorrow (${openShifts.length})`,
-          html: `<p>These shifts for ${tomorrow} are still unclaimed:</p><ul>${rows}</ul>`,
+          html: brandEmail(`<p>These shifts for ${tomorrow} are still unclaimed:</p><ul>${rows}</ul>`),
         }),
       })
     } catch (e) {

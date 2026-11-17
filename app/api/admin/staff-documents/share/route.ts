@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
@@ -32,10 +33,11 @@ export async function POST(req: NextRequest) {
 
     // Send email with document link
     const res = await resend.emails.send({
+      replyTo: [CHM_REPLY_TO],
       from: 'CHM Admin <admin@conveniencehubofmaryland.com>',
       to: email,
       subject: `Your ${documentName} from Convenience Hub of Maryland`,
-      html: `
+      html: brandEmail(`
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #c41e3a; padding: 20px; text-align: center; color: white;">
             <h1 style="margin: 0; font-size: 24px;">Document Available</h1>
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
         </div>
-      `,
+      `),
     })
 
     if (res.error) {

@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { computeQuote, type LineItem } from '@/lib/quote-pricing'
@@ -92,10 +93,11 @@ export async function POST(req: NextRequest) {
           method: 'POST',
           headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            reply_to: [CHM_REPLY_TO],
             from: 'CHM Quotes <support@conveniencehubofmaryland.com>',
             to: ['conveniencehubofmaryland@gmail.com'],
             subject: `New Quote Request — ${name.trim()} (${category})`,
-            html: `<h2 style="color:#E8192C">New Quote Request</h2>
+            html: brandEmail(`<h2 style="color:#E8192C">New Quote Request</h2>
 <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">
 <tr><td style="padding:6px 16px 6px 0;color:#666">Name</td><td style="padding:6px 0;font-weight:600">${name.trim()}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Phone</td><td style="padding:6px 0"><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
@@ -103,7 +105,7 @@ export async function POST(req: NextRequest) {
 <tr><td style="padding:6px 16px 6px 0;color:#666">Category</td><td style="padding:6px 0">${category}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666;vertical-align:top">Selections</td><td style="padding:6px 0"><pre style="white-space:pre-wrap;font-size:12px">${JSON.stringify(selections, null, 2)}</pre></td></tr>
 </table>
-${priceBlock}`,
+${priceBlock}`),
           }),
         })
 
@@ -112,15 +114,16 @@ ${priceBlock}`,
           method: 'POST',
           headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            reply_to: [CHM_REPLY_TO],
             from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
             to: [email.trim()],
             subject: 'Your Quote from Convenience Hub of Maryland',
-            html: `<h2 style="color:#E8192C">Thanks, ${name.trim()}!</h2>
+            html: brandEmail(`<h2 style="color:#E8192C">Thanks, ${name.trim()}!</h2>
 <p style="font-size:14px;color:#333">Here's a summary of your request:</p>
 ${priceBlock}
 ${scheduleBlock}
 ${bookNowBlock}
-<p style="font-size:13px;color:#666;margin-top:16px">Questions? Call or text us at ${SUPPORT_PHONE}.</p>`,
+<p style="font-size:13px;color:#666;margin-top:16px">Questions? Call or text us at ${SUPPORT_PHONE}.</p>`),
           }),
         })
       } catch (err) {

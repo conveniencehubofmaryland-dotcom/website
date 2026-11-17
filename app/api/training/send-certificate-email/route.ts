@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -65,10 +66,11 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
+        reply_to: [CHM_REPLY_TO],
         from: 'noreply@conveniencehubofmaryland.com',
         to: staff_email,
         subject: `Training Certification Complete - ${module_title}`,
-        html: emailHtml,
+        html: brandEmail(emailHtml),
       }),
     })
 

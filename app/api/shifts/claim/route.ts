@@ -1,3 +1,4 @@
+import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import {
   getApplicantBySession,
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
           reply_to: ['conveniencehubofmaryland@gmail.com'],
           to: [applicant.email],
           subject: `Shift Confirmed - ${shift.role} on ${shiftDate}`,
-          html: `
+          html: brandEmail(`
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: #E8192C; padding: 24px 32px; border-radius: 8px 8px 0 0;">
                 <h1 style="color: #fff; font-size: 20px; margin: 0;">Shift Confirmation</h1>
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
                 </p>
               </div>
             </div>
-          `,
+          `),
         }),
       })
       if (!staffEmailRes.ok) {
@@ -164,10 +165,11 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          reply_to: [CHM_REPLY_TO],
           from: 'CHM Shifts <support@conveniencehubofmaryland.com>',
           to: ['conveniencehubofmaryland@gmail.com'],
           subject: `New Shift Claim - ${shift.role} by ${applicant.full_name}`,
-          html: `
+          html: brandEmail(`
             <h2 style="color: #E8192C;">New Shift Claim</h2>
             <table style="border-collapse: collapse; font-family: sans-serif; font-size: 14px;">
               <tr><td style="padding: 6px 16px 6px 0; color: #666;">Shift</td><td style="font-weight: 600;">${shift.role}</td></tr>
@@ -185,7 +187,7 @@ export async function POST(request: NextRequest) {
                 View in Admin →
               </a>
             </p>
-          `,
+          `),
         }),
       })
       if (!adminEmailRes.ok) {
@@ -211,7 +213,7 @@ export async function POST(request: NextRequest) {
             reply_to: ['conveniencehubofmaryland@gmail.com'],
             to: [appointment.email],
             subject: `Your team member for ${shiftDate}`,
-            html: `
+            html: brandEmail(`
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #E8192C;">Your Service Is Scheduled</h2>
                 <p>Hi ${customerFirst}, ${firstName} has been assigned to your appointment.</p>
@@ -221,7 +223,7 @@ export async function POST(request: NextRequest) {
                 </table>
                 <p style="font-size: 14px; color: #555;">Questions? Call or text <a href="tel:+12025792944" style="color: #E8192C;">202-579-2944</a></p>
               </div>
-            `,
+            `),
           }),
         })
         if (!customerRes.ok) {

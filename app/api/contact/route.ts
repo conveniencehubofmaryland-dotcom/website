@@ -1,3 +1,4 @@
+import { brandEmail } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
         to:       ['conveniencehubofmaryland@gmail.com'],
         reply_to: replyTo,
         subject:  `New Enquiry from ${name.trim()}`,
-        html: `
+        html: brandEmail(`
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
             <div style="background:#E8192C;padding:24px 32px">
               <h1 style="color:#fff;font-size:20px;margin:0">New Website Enquiry</h1>
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
               <p style="font-size:12px;color:#aaa">Sent from conveniencehubofmaryland.com</p>
             </div>
           </div>
-        `,
+        `),
       }),
     })
 
