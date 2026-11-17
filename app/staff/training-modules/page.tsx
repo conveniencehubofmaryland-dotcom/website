@@ -89,14 +89,16 @@ export default function TrainingModulesPage() {
       return
     }
     setLoading(true)
-    fetch(`/api/training/modules?position=${encodeURIComponent(selectedPosition)}`)
+    fetch(`/api/training/modules?position=${encodeURIComponent(selectedPosition)}`, {
+      headers: session ? { 'x-training-token': session.token } : {},
+    })
       .then(async res => {
         if (!res.ok) throw new Error('Failed to fetch modules')
         setModules((await res.json()) || [])
       })
       .catch(() => setError('Error loading modules'))
       .finally(() => setLoading(false))
-  }, [selectedPosition])
+  }, [selectedPosition, session])
 
   async function requestCode() {
     setBusy(true)

@@ -113,7 +113,16 @@ export default function TrainingModuleDetailPage({ params, searchParams }: {
   async function fetchModule(id: string) {
     try {
       setLoading(true)
-      const res = await fetch(`/api/training/modules?id=${encodeURIComponent(id)}`)
+      let token: string | null = null
+      try {
+        const raw = sessionStorage.getItem('training_session')
+        token = raw ? (JSON.parse(raw) as { token: string }).token : null
+      } catch {
+        token = null
+      }
+      const res = await fetch(`/api/training/modules?id=${encodeURIComponent(id)}`, {
+        headers: token ? { 'x-training-token': token } : {},
+      })
       if (!res.ok) throw new Error('Failed to fetch module')
       const data = await res.json()
       if (data.length > 0) {
