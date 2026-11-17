@@ -212,7 +212,74 @@ INDEPENDENT CONTRACTOR TERMS
 - You must meet CHM's written quality standards.
 
 ENGAGEMENT TERMS
-Either you or CHM may end this engagement with 14 days' written notice, as set out in the Independent Contractor Agreement. The obligations in this MOU (non-solicitation, confidentiality, and liquidated damages) survive the end of the engagement, as stated in Section 7.`
+Either you or CHM may end this engagement with 14 days' written notice, as set out in the Independent Contractor Agreement. The obligations in this MOU (non-solicitation, confidentiality, and liquidated damages) survive the end of the engagement, as stated in Section 7.
+
+8. INDEPENDENT CONTRACTOR AGREEMENT
+
+This Independent Contractor Agreement is made between Convenience Hub of Maryland, LLC, located at 4780 Addison Road, Capitol Heights, Maryland 20743 ("CHM"), and the Contractor who signs this document ("Contractor").
+
+8.1 Independent Contractor Status
+Contractor is an independent business, not an employee, partner, or agent of CHM. Contractor controls how, when, and where the work is done, within the client requirements Contractor accepts. CHM will not withhold taxes, provide employee benefits, or pay workers' compensation or unemployment insurance for Contractor.
+
+8.2 Services
+Contractor agrees to provide the services Contractor accepts through CHM, which may include cleaning, housekeeping, culinary, laundry, companion care, nanny or childcare, and live-in services ("Services"). Each booking or placement is a separate job governed by this Agreement.
+
+8.3 Compensation
+CHM pays Contractor a share of each completed client fee as follows:
+- Cleaning, one-time and monthly, and laundry handling: 57%
+- Cleaning, bi-weekly and weekly: 59%
+- Culinary and chef services: 59%
+- Nanny, childcare, and companion care for elderly clients: 61%
+- Regular housekeeping: 61%
+- Live-in housekeeping: 67%
+
+Payment is made every Friday for work performed in the prior week, by direct deposit. Contractor is paid only for jobs that are completed and paid for by the client. CHM provides a written statement of completed jobs and amounts paid.
+
+8.4 Tools, Equipment, and Supplies
+Contractor provides all tools, equipment, and cleaning or cooking supplies, unless CHM agrees otherwise in writing for a specific job.
+
+8.5 Insurance
+Liability insurance is optional for most Services. CHM may require liability insurance for specific jobs, such as live-in or care placements, and will tell Contractor in writing before the job starts. Contractor who carries liability insurance and keeps a current certificate of coverage on file with CHM is the best fit and receives first consideration for placements. Contractor must provide proof of coverage to CHM on request.
+
+8.6 Taxes
+Contractor is solely responsible for all taxes on income earned under this Agreement, including income tax and self-employment tax. CHM issues IRS Form 1099 where required by law. Contractor provides a completed IRS Form W-9 before receiving payment.
+
+8.7 Licenses and Certifications
+Contractor holds any license or certification required for the Services provided, including CPR or food handler certification where required.
+
+8.8 Background Check and Vaccination
+Contractor passes a background check and, where required for a placement, meets vaccination requirements. Contractor notifies CHM immediately of any change that affects eligibility.
+
+8.9 Schedule and Availability
+Contractor sets availability and accepts jobs voluntarily. Once a job is accepted, Contractor arrives on time and completes the work. If Contractor cannot attend, Contractor notifies CHM and the client as early as possible.
+
+8.10 Client Conduct and Standards
+Contractor treats clients' homes, property, and family members with respect and discretion, follows client instructions consistent with safety and this Agreement, and maintains professional conduct at all times.
+
+8.11 Confidentiality
+Contractor does not share, sell, or misuse client information, home access details, or personal information learned through the work, during or after this Agreement.
+
+8.12 Safety and Incidents
+Contractor reports any injury, property damage, or safety concern to CHM as soon as possible.
+
+8.13 Term and Termination
+This Agreement starts on the date signed and continues until terminated. Either party may end this Agreement with 14 days' written notice. CHM may end this Agreement immediately for fraud, theft, abuse, or serious safety violations.
+
+8.14 Liability
+Contractor is responsible for Contractor's own acts and omissions in performing the Services. CHM is not liable for injuries or losses caused by Contractor's own conduct.
+
+8.15 Client Relationship and Disputes
+(a) Contractor and each client are solely responsible for any agreement, understanding, or dispute between them. CHM is not a party to, does not guarantee, and is not responsible for the terms of any agreement between Contractor and a client, or for the quality, outcome, or consequences of the Services Contractor provides.
+(b) Contractor defends, indemnifies, and holds harmless CHM from any claim, loss, damage, or expense (including reasonable attorneys' fees) arising from Contractor's acts or omissions, negligence, breach of this Agreement, or breach of any agreement with a client.
+(c) To the fullest extent permitted by law, CHM's total liability to Contractor under this Agreement is limited to commissions earned and unpaid for the job that gave rise to the claim.
+(d) If a dispute arises under this Agreement, the parties first try to resolve it through good-faith discussion for 30 days. If unresolved, the parties attempt mediation in Maryland. If mediation fails, the dispute is resolved in the courts of Prince George's County, Maryland, unless the parties agree in writing to binding arbitration. Each party pays its own legal fees unless a court orders otherwise.
+(e) If any part of this Agreement is found unenforceable, the rest of this Agreement remains in effect.
+
+8.16 Governing Law and Entire Agreement
+This Agreement is governed by the laws of the State of Maryland. This Agreement, together with any written live-in placement terms, is the full agreement between the parties. Changes must be in writing and signed by both parties.
+
+8.17 Acceptance
+Contractor accepts this Agreement by completing the signature on the orientation page. That single signature covers the Contractor Orientation Document, the Memorandum of Understanding, and this Independent Contractor Agreement. CHM does not sign this Agreement separately; the date and Contractor's name are recorded with the signature.`
 
 export default function OrientationPage() {
   const router = useRouter()
@@ -327,7 +394,7 @@ export default function OrientationPage() {
                 onChange={e => setUnderstood(e.target.checked)}
                 className="mt-1"
               />
-              <span className="text-sm text-gray-700">I have read and fully understand this Contractor Orientation Document and the Memorandum of Understanding, including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I confirm I am an independent contractor and agree to comply with all of these terms.</span>
+              <span className="text-sm text-gray-700">I have read and fully understand this Contractor Orientation Document, the Memorandum of Understanding, and the Independent Contractor Agreement, including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I confirm I am an independent contractor and agree to comply with all of these terms.</span>
             </label>
           </div>
 
