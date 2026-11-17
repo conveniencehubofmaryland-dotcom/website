@@ -312,10 +312,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to upload your W-9. Please try again.' }, { status: 500 })
     }
 
-    // A resubmitted W-9 replaces the earlier one (row and stored file).
-    const { data: oldW9 } = await supabase.from('w9_forms').select('file_path').eq('applicant_id', applicant_id)
-    await removeStoredFiles((oldW9 || []).map(w => storagePathOf(w.file_path)).filter((p): p is string => !!p))
-    await supabase.from('w9_forms').delete().eq('applicant_id', applicant_id)
+    // A resubmitted W-9 replaces every earlier one for this person (rows and stored files),
+    // including older records saved before they were linked to the applicant.
+    const { data: w9ByApplicant } = await supabase.from('w9_forms').select('id, file_path').eq('applicant_id', applicant_id)
+    const { data: w9ByEmail } = await supabase.from('w9_forms').select('id, file_path').ilike('staff_email', email)
+    const oldW9 = [...(w9ByApplicant || []), ...(w9ByEmail || [])]
+    const oldW9Ids = Array.from(new Set(oldW9.map(w => w.id)))
+    const removed = await removeStoredFiles(oldW9.map(w => storagePathOf(w.file_path)).filter((p): p is string => !!p))
+    if (!removed) {
+      return NextResponse.json({ error: 'Could not replace the earlier W-9. Please try again.' }, { status: 500 })
+    }
+    if (oldW9Ids.length > 0) {
+      await supabase.from('w9_forms').delete().in('id', oldW9Ids)
+    }
 
     // Save the W-9 for this applicant.
     const w9Res = await supabase.from('w9_forms').insert({

@@ -1,6 +1,6 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
-import { removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
+import { removePrivateFiles, removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
 import { NextRequest, NextResponse } from 'next/server'
 
 const supabase = createClient(
@@ -146,7 +146,16 @@ async function fetchW9Forms(): Promise<StaffDocument[]> {
     return []
   }
 
-  return (data || []).map(row => ({
+  // One W-9 per person: the list is newest first, so only the newest record for each person is shown.
+  const seenPeople = new Set<string>()
+  const newestOnly = (data || []).filter(row => {
+    const key = String(row.staff_email || row.applicant_id || row.id).toLowerCase()
+    if (seenPeople.has(key)) return false
+    seenPeople.add(key)
+    return true
+  })
+
+  return newestOnly.map(row => ({
     id: row.id,
     staffId: row.applicant_id || row.id,
     staffName: row.full_name,
@@ -406,7 +415,11 @@ export async function DELETE(request: NextRequest) {
   const denied = await requireAdmin(request)
   if (denied) return denied
   try {
-    const { documentId, documentType, staffId } = await request.json()
+    const body = await request.json()
+    // The admin screens send either {documentId, documentType} or {id, type}.
+    const documentId: string | undefined = body.documentId || body.id
+    const documentType: string | undefined = body.documentType || body.type
+    const staffId: string | undefined = body.staffId
 
     if (!documentId) {
       return NextResponse.json({ error: 'Missing documentId' }, { status: 400 })
@@ -453,13 +466,32 @@ export async function DELETE(request: NextRequest) {
         break
       }
 
-      default: {
-        // Remove the stored file along with the record.
-        const { data: doc } = await supabase.from('staff_documents').select('document_url').eq('id', documentId).single()
-        const path = storagePathOf(doc?.document_url)
-        const badgeFile = documentType === 'staff_badge' && staffId ? [`badges/${staffId}.html`] : []
-        if ((path || badgeFile.length) && !(await removeStoredFiles([path || '', ...badgeFile]))) {
+      case 'w9': {
+        // Permanently removes the W-9 record and its stored file.
+        const { data: w9 } = await supabase.from('w9_forms').select('id, file_path').eq('id', documentId).maybeSingle()
+        if (!w9) return NextResponse.json({ error: 'Document not found' }, { status: 404 })
+        if (!(await removeStoredFiles([storagePathOf(w9.file_path) || '']))) {
           return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
+        }
+        const { error: w9Error } = await supabase.from('w9_forms').delete().eq('id', documentId)
+        if (w9Error) throw w9Error
+        break
+      }
+
+      default: {
+        // Permanently removes the record and its stored file (identity files are in the private bucket).
+        const { data: doc } = await supabase.from('staff_documents').select('document_url, document_type').eq('id', documentId).maybeSingle()
+        if (!doc) return NextResponse.json({ error: 'Document not found' }, { status: 404 })
+        if (['government_id', 'social_security_card'].includes(String(doc.document_type))) {
+          if (!(await removePrivateFiles([doc.document_url || '']))) {
+            return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
+          }
+        } else {
+          const path = storagePathOf(doc.document_url)
+          const badgeFile = documentType === 'staff_badge' && staffId ? [`badges/${staffId}.html`] : []
+          if ((path || badgeFile.length) && !(await removeStoredFiles([path || '', ...badgeFile]))) {
+            return NextResponse.json({ error: 'Could not remove the stored file. Nothing was deleted.' }, { status: 500 })
+          }
         }
         const { error: docError } = await supabase
           .from('staff_documents')
