@@ -252,16 +252,6 @@ export async function POST(req: NextRequest) {
         throw updateError
       }
 
-      // Mark invite as accepted
-      const { error: acceptError } = await supabase
-        .from('staff_invites')
-        .update({ status: 'accepted', accepted_at: new Date().toISOString() })
-        .eq('invite_token', invite_token)
-
-      if (acceptError) {
-        console.error('[submit] Accept invite error:', acceptError)
-      }
-
       console.log('[submit] Applicant updated successfully')
     } else {
       console.log('[submit] Creating new applicant')
@@ -410,6 +400,15 @@ export async function POST(req: NextRequest) {
         console.error('[submit] Identity document save error:', d.docType, idErr)
         return NextResponse.json({ error: `Could not save your ${d.label}. Please try again.` }, { status: 500 })
       }
+    }
+
+    // Mark the invite accepted only after every upload is saved, so a failed upload can be retried with the same link.
+    if (invite_token) {
+      const { error: acceptError } = await supabase
+        .from('staff_invites')
+        .update({ status: 'accepted', accepted_at: new Date().toISOString() })
+        .eq('invite_token', invite_token)
+      if (acceptError) console.error('[submit] Accept invite error:', acceptError)
     }
 
     // Send confirmation email to applicant
