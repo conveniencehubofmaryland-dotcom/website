@@ -17,6 +17,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Identity documents are private and are never emailed.
+    if (String(documentUrl).includes('/api/admin/staff-documents/file/')) {
+      return NextResponse.json(
+        { error: 'Identity documents cannot be shared by email.' },
+        { status: 400 }
+      )
+    }
+
     // Build full document URL if it's just a path
     const fullUrl = documentUrl.startsWith('http')
       ? documentUrl

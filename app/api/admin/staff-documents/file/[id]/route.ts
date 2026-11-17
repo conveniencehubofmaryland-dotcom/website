@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/applicant-private/${row.document_url}`,
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/applicant-private/${String(row.document_url).split('/').map(encodeURIComponent).join('/')}`,
     {
       method: 'POST',
       headers: {
