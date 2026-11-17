@@ -21,8 +21,8 @@ interface StaffRecord {
 const POSITIONS = [
   'Cleaning Specialist',
   'Laundry Handler',
-  'Culinary/Chef',
-  'Nanny/Childcare Specialist',
+  'Culinary / Chef',
+  'Nanny / Childcare Specialist',
   'Care Companion (Adult/Senior)',
   'Housekeeping Staff',
 ]
