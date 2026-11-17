@@ -44,7 +44,7 @@ export function mondayOf(ymd: string): string {
   return addDays(ymd, -((dow + 6) % 7))
 }
 
-function hoursFor(shift: ShiftRow): number {
+export function hoursFor(shift: ShiftRow): number {
   if (shift.hours_worked != null) return Number(shift.hours_worked)
   if (shift.clock_in_at && shift.clock_out_at) {
     const minutes = (Date.parse(shift.clock_out_at) - Date.parse(shift.clock_in_at)) / 60000

@@ -3,6 +3,7 @@ import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { isActiveMember } from '@/lib/membership'
 import { checkReferralCode } from '@/lib/realtor'
 import { isMemberCode, checkMemberReferral, recordPaidReferral, type MemberReferralCheck } from '@/lib/member-referral'
+import { buildInvoiceHtml, createInvoice, invoiceSubject, type InvoiceRecord } from '@/lib/invoice'
 
 const DEPOSIT_RATE = 0.3
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
@@ -105,6 +106,24 @@ export async function POST(request: NextRequest) {
     await recordPaidReferral(memberRef, { name, email, phone }, { chargeId, amount })
       .catch(e => console.error('[referral] paid record error:', e))
   }
+  // The invoice is saved first, then emailed. If saving fails, the client still gets the plain receipt.
+  let invoice: InvoiceRecord | null = null
+  try {
+    invoice = await createInvoice({
+      chargeId,
+      name,
+      email,
+      phone,
+      category,
+      lineItems: quote.breakdown.map(b => ({ label: b.label, amount: b.amount })),
+      total,
+      amountPaid: amount,
+      paymentKind: kind,
+    })
+  } catch (e) {
+    console.error('[invoice] could not save invoice:', e)
+  }
+
   const resendKey = process.env.RESEND_API_KEY
   const label = kind === 'deposit' ? 'Deposit' : 'Payment in full'
 
@@ -127,12 +146,21 @@ export async function POST(request: NextRequest) {
 <tr><td style="padding:6px 16px 6px 0;color:#666">Email</td><td>${email || 'N/A'}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Phone</td><td>${phone || 'N/A'}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Service</td><td>${category}</td></tr>
+<tr><td style="padding:6px 16px 6px 0;color:#666">Invoice</td><td>${invoice ? invoice.invoice_number : 'Not saved (see logs)'}</td></tr>
 <tr><td style="padding:6px 16px 6px 0;color:#666">Clover charge ID</td><td>${chargeId}</td></tr>
 </table>
 <p style="margin-top:16px"><a href="https://conveniencehubofmaryland.com/admin/appointments" style="color:#E8192C;font-weight:600">Open admin to mark this booking paid</a></p>`,
     })
 
-    if (email) {
+    if (email && invoice) {
+      await send({
+        from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
+        reply_to: [ADMIN_EMAIL],
+        to: [email],
+        subject: invoiceSubject(invoice),
+        html: buildInvoiceHtml(invoice),
+      })
+    } else if (email) {
       await send({
         from: 'Convenience Hub of Maryland <support@conveniencehubofmaryland.com>',
         reply_to: [ADMIN_EMAIL],
