@@ -3,7 +3,7 @@ import { getApplicantBySession, sbFetch } from '@/lib/shift-eligibility'
 import { verifyTrainingToken } from '@/lib/training-token'
 
 // Applicants who have finished orientation may train.
-const TRAINING_STATUSES = ['orientation_signed', 'orientation_completed', 'ready_to_claim_shifts']
+const TRAINING_STATUSES = ['orientation_signed', 'offer_signed', 'orientation_completed', 'ready_to_claim_shifts']
 
 async function applicantByEmail(email: string): Promise<{ position: string | null; email: string } | null> {
   const res = await sbFetch(

@@ -5,7 +5,7 @@ import { sbFetch } from '@/lib/shift-eligibility'
 import { verifyTrainingToken } from '@/lib/training-token'
 
 // Applicants who have finished orientation may train.
-const TRAINING_STATUSES = ['orientation_signed', 'orientation_completed', 'ready_to_claim_shifts']
+const TRAINING_STATUSES = ['orientation_signed', 'offer_signed', 'orientation_completed', 'ready_to_claim_shifts']
 
 type Applicant = { full_name: string; email: string; phone: string | null; position: string | null }
 type Question = { id: string; correct_answer: string }

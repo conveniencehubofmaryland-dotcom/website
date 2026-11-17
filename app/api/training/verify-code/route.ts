@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sbFetch } from '@/lib/shift-eligibility'
 import { makeTrainingToken } from '@/lib/training-token'
 
-const TRAINING_STATUSES = ['orientation_signed', 'orientation_completed', 'ready_to_claim_shifts']
+const TRAINING_STATUSES = ['orientation_signed', 'offer_signed', 'orientation_completed', 'ready_to_claim_shifts']
 
 export async function POST(req: NextRequest) {
   const { email, code } = await req.json().catch(() => ({}))

@@ -4,7 +4,7 @@ import { sendUserEmail } from '@/lib/email'
 import { sbFetch } from '@/lib/shift-eligibility'
 
 // Applicants who have finished orientation may train.
-const TRAINING_STATUSES = ['orientation_signed', 'orientation_completed', 'ready_to_claim_shifts']
+const TRAINING_STATUSES = ['orientation_signed', 'offer_signed', 'orientation_completed', 'ready_to_claim_shifts']
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json().catch(() => ({}))
