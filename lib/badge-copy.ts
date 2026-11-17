@@ -1,4 +1,4 @@
-import { buildBadgeHtml, getStaffPhotoDataUri } from './staff-badge'
+import { badgeIdFor, buildBadgeHtml, getStaffPhotoDataUri } from './staff-badge'
 import { serviceHeaders } from './supabase-keys'
 import { sbFetch } from './shift-eligibility'
 
@@ -39,6 +39,13 @@ export async function saveBadgeCopy(applicantId: string, fullName: string, posit
     method: 'DELETE',
     headers: { Prefer: 'return=minimal' },
   })
+  // The staff ID number printed on the badge is stored on the applicant's record.
+  await sbFetch(`offer_letter_applicants?id=eq.${encodeURIComponent(applicantId)}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ staff_id_number: badgeIdFor(applicantId) }),
+  })
+
   await sbFetch('staff_documents', {
     method: 'POST',
     headers: { Prefer: 'return=minimal' },

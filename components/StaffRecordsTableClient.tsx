@@ -16,6 +16,7 @@ interface StaffRecord {
   years_of_experience: number
   acknowledged_1099: boolean
   onboarding_status: string
+  staff_id_number?: string | null
   status?: string | null
   created_at: string
   no_show_count: number
@@ -620,6 +621,7 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
               ['Position', person.position || '—'],
               ['Onboarding status', (person.onboarding_status || '—').replace(/_/g, ' ')],
               ['Offer status', (person.status || 'No offer yet').replace(/_/g, ' ')],
+              ['Staff ID', person.staff_id_number || 'Not issued yet'],
             ]
             return (
               <div className="border border-gray-200 rounded p-4 bg-white">
