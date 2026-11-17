@@ -104,33 +104,21 @@ async function fetchCertifications(): Promise<StaffDocument[]> {
     return []
   }
 
-  const moduleIds = (data || []).map(p => p.module_id)
-  const { data: modules, error: moduleError } = await supabase
-    .from('training_modules')
-    .select('id, title')
-    .in('id', moduleIds)
-
-  if (moduleError) {
-    console.error('Error fetching module titles:', moduleError)
-  }
-
-  const moduleMap = new Map((modules || []).map(m => [m.id, m.title]))
-
   return (data || []).map(row => {
-    const moduleName = moduleMap.get(row.module_id) || 'Training Module'
     return {
       id: row.id,
       staffId: row.staff_email,
       staffName: row.staff_name,
       staffEmail: row.staff_email,
       documentType: 'certification' as const,
-      documentName: `Certification: ${moduleName}`,
+      documentName: 'CHM Certification',
       dateSigned: row.completed_at,
       documentUrl: row.certificate_url || null,
       status: 'completed',
       ownCar: null,
-      reviewStatus: row.review_status || 'pending',
-      reviewTable: 'staff_module_progress' as const,
+      // CHM certifications need no clearance.
+      reviewStatus: null,
+      reviewTable: null,
     }
   })
 }
