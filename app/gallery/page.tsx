@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { dbSelect } from '@/lib/db'
+import ClientNewsletters from '@/components/ClientNewsletters'
 
 export const metadata: Metadata = {
   title: 'Gallery — Before & After | Convenience Hub of Maryland',
@@ -91,6 +92,8 @@ export default async function GalleryPage() {
             </div>
           </div>
         ))}
+
+        <ClientNewsletters />
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { brandedEmailHtml } from '@/lib/email-brand'
 import {
   buildPaymentConfirmationHtml,
   paymentConfirmationSubject,
@@ -17,7 +18,7 @@ export async function sendAdminEmail(subject: string, message: string) {
       from: 'team@conveniencehubofmaryland.com',
       to: process.env.ADMIN_EMAIL || 'conveniencehubofmaryland@gmail.com',
       subject,
-      html: `<p>${message}</p>`,
+      html: brandedEmailHtml(`<p>${message}</p>`),
     })
     console.log('Admin email sent:', res)
     return res
@@ -37,7 +38,7 @@ export async function sendUserEmail(to: string, subject: string, message: string
       from: 'team@conveniencehubofmaryland.com',
       to,
       subject,
-      html: `<p>${message}</p>`,
+      html: brandedEmailHtml(`<p>${message}</p>`),
     })
     console.log('User email sent:', res)
     return res
@@ -90,7 +91,7 @@ export async function sendUserEmailWithAttachment(
       from: 'team@conveniencehubofmaryland.com',
       to,
       subject,
-      html: `<p>${message}</p>`,
+      html: brandedEmailHtml(`<p>${message}</p>`),
       attachments: [
         { filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') },
       ],
