@@ -156,8 +156,8 @@ export default async function HomePage() {
               opens: '09:00', closes: '21:00',
             }],
             sameAs: [
-              'https://www.facebook.com/conveniencehubofmaryland',
-              'https://www.instagram.com/conveniencehubofmaryland',
+              'https://www.facebook.com/profile.php?id=61590993750066',
+              'https://www.instagram.com/chm_dmv',
             ],
             hasOfferCatalog: {
               '@type': 'OfferCatalog',
