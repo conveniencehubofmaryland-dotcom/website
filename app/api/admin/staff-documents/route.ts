@@ -290,6 +290,7 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
     
     return {
       id: row.id,
+      rawType: row.document_type,
       staffId: row.staff_id,
       staffName: person?.full_name || 'Unknown',
       staffEmail: person?.email || '',

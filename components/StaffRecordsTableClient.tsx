@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import CreateStaffModal from './CreateStaffModal'
 import EditStaffModal from './EditStaffModal'
 import CreateDocumentModal from './CreateDocumentModal'
@@ -16,6 +16,7 @@ interface StaffRecord {
   years_of_experience: number
   acknowledged_1099: boolean
   onboarding_status: string
+  status?: string | null
   created_at: string
   no_show_count: number
   notes?: string | null
@@ -37,6 +38,7 @@ interface StaffDocument {
   notes?: string | null
   reviewStatus?: 'pending' | 'cleared' | 'not_cleared' | null
   reviewTable?: 'staff_documents' | 'staff_module_progress' | null
+  rawType?: string | null
 }
 
 const REVIEW_LABELS: Record<string, string> = { pending: 'Pending', cleared: 'Cleared', not_cleared: 'Not Cleared' }
@@ -54,6 +56,17 @@ const POSITIONS = [
   'Care Companion (Adult/Senior)',
   'Housekeeping Staff',
 ]
+
+// Document sections on a person's page, in display order.
+const DOC_SECTIONS = ['Identity', 'Tax & Banking', 'Certifications', 'Other'] as const
+
+function sectionFor(d: StaffDocument): (typeof DOC_SECTIONS)[number] {
+  const t = d.rawType || d.documentType
+  if (['government_id', 'social_security_card'].includes(t)) return 'Identity'
+  if (['w9', 'direct_deposit'].includes(t)) return 'Tax & Banking'
+  if (['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate', 'training_cert', 'certification'].includes(t)) return 'Certifications'
+  return 'Other'
+}
 
 export default function StaffRecordsTableClient({ initialRecords }: { initialRecords: StaffRecord[] }) {
   const [records, setRecords] = useState<StaffRecord[]>(initialRecords)
@@ -597,6 +610,32 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
             </div>
           )}
 
+          {docsPersonEmail !== null && (() => {
+            const person = records.find(r => r.email.toLowerCase() === docsPersonEmail)
+            if (!person) return null
+            const fields: [string, string][] = [
+              ['Full name', person.full_name],
+              ['Email', person.email],
+              ['Phone', person.phone || '—'],
+              ['Position', person.position || '—'],
+              ['Onboarding status', (person.onboarding_status || '—').replace(/_/g, ' ')],
+              ['Offer status', (person.status || 'No offer yet').replace(/_/g, ' ')],
+            ]
+            return (
+              <div className="border border-gray-200 rounded p-4 bg-white">
+                <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Applicant Information</p>
+                <dl className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+                  {fields.map(([label, value]) => (
+                    <div key={label}>
+                      <dt className="text-xs text-gray-500">{label}</dt>
+                      <dd className="text-gray-900 break-all">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )
+          })()}
+
           {docsPersonEmail === null ? null : docsLoading ? (
             <div className="flex justify-center py-8"><p className="text-gray-600">Loading documents…</p></div>
           ) : filteredDocuments.length === 0 ? (
@@ -613,7 +652,15 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDocuments.map((doc) => (
+                  {DOC_SECTIONS.map(section => {
+                    const group = filteredDocuments.filter(d => sectionFor(d) === section)
+                    if (group.length === 0) return null
+                    return (
+                  <Fragment key={section}>
+                  <tr className="bg-gray-100">
+                    <td colSpan={4} className="px-4 py-2 text-xs uppercase tracking-widest font-semibold text-gray-600">{section}</td>
+                  </tr>
+                  {group.map((doc) => (
                     <tr key={doc.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div>
@@ -671,6 +718,9 @@ export default function StaffRecordsTableClient({ initialRecords }: { initialRec
                       </td>
                     </tr>
                   ))}
+                  </Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
