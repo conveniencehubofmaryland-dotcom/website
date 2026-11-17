@@ -44,6 +44,8 @@ export default function TrainingModulesPage() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [codeSent, setCodeSent] = useState(false)
+  const [mode, setMode] = useState<'code' | 'id'>('code')
+  const [staffId, setStaffId] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [session, setSession] = useState<TrainingSession | null>(null)
@@ -154,6 +156,37 @@ export default function TrainingModulesPage() {
     }
   }
 
+  // Sign in with email + staff ID number (no emailed code).
+  async function signInWithStaffId() {
+    setBusy(true)
+    setMessage('')
+    try {
+      const res = await fetch('/api/training/verify-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), staffId: staffId.trim() }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMessage(data.error || 'Sign in failed. Please try again.')
+        return
+      }
+      const next: TrainingSession = {
+        token: data.training_token,
+        name: data.full_name,
+        email: email.trim(),
+        phone: data.phone,
+      }
+      saveSession(next)
+      setSession(next)
+      setStaffId('')
+    } catch {
+      setMessage('Something went wrong. Please try again.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const positionLocked = (pos: string) => !!session && !otherPositionsUnlocked && pos !== appliedPosition
 
   // ---- Step 1 and 2: verify the email with the code ----
@@ -173,6 +206,23 @@ export default function TrainingModulesPage() {
             <h2 className="text-lg font-semibold text-chm-black mb-2">Verify your email to start training</h2>
             <p className="text-sm text-gray-600 mb-6">Enter the email you applied with. We will send a 6-digit code to it. Your training starts on the position you applied for.</p>
 
+            <div className="grid grid-cols-2 gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => { setMode('code'); setMessage('') }}
+                className={`py-2 text-xs uppercase tracking-widest font-semibold border ${mode === 'code' ? 'border-chm-red bg-red-50 text-chm-black' : 'border-gray-200 text-gray-500'}`}
+              >
+                Email code
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode('id'); setMessage(''); setCodeSent(false) }}
+                className={`py-2 text-xs uppercase tracking-widest font-semibold border ${mode === 'id' ? 'border-chm-red bg-red-50 text-chm-black' : 'border-gray-200 text-gray-500'}`}
+              >
+                Staff ID number
+              </button>
+            </div>
+
             <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
             <input
               type="email"
@@ -182,7 +232,27 @@ export default function TrainingModulesPage() {
               className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black focus:outline-none focus:border-chm-red mb-4"
               placeholder="your@email.com"
             />
-            {!codeSent && (
+            {mode === 'id' && (
+              <>
+                <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Staff ID number</label>
+                <input
+                  type="text"
+                  value={staffId}
+                  onChange={e => setStaffId(e.target.value)}
+                  className="w-full border border-gray-200 px-4 py-3 text-sm text-chm-black uppercase focus:outline-none focus:border-chm-red mb-4"
+                  placeholder="As printed on your badge"
+                />
+                <button
+                  onClick={signInWithStaffId}
+                  disabled={busy || !email.includes('@') || !staffId.trim()}
+                  className="w-full bg-chm-red text-white px-6 py-3 text-sm font-semibold uppercase tracking-widest hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400"
+                >
+                  {busy ? 'Checking...' : 'Sign In and Start Training'}
+                </button>
+              </>
+            )}
+
+            {mode === 'code' && !codeSent && (
               <button
                 onClick={requestCode}
                 disabled={busy || !email.includes('@')}
@@ -192,7 +262,7 @@ export default function TrainingModulesPage() {
               </button>
             )}
 
-            {codeSent && (
+            {mode === 'code' && codeSent && (
               <>
                 <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">6-digit code</label>
                 <input
