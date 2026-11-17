@@ -277,12 +277,15 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
     'cna_certificate': 'CNA Certificate',
     'staff_photo': 'Staff Photo (badge)',
     'staff_badge': 'Staff Badge (copy)',
+    'government_id': 'Government ID',
+    'social_security_card': 'Social Security Card',
   }
 
   return (data || []).map(row => {
     const person = staffMap.get(row.staff_id)
     // Files uploaded by applicants on the welcome form: listed with their own name and opened from the file link.
-    const isApplicantUpload = ['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate', 'staff_photo'].includes(row.document_type)
+    const isApplicantUpload = ['cpr_certification', 'first_aid_certification', 'cmt_certificate', 'cna_certificate', 'staff_photo', 'government_id', 'social_security_card'].includes(row.document_type)
+    const isPrivateIdentity = ['government_id', 'social_security_card'].includes(row.document_type)
     const documentType = ((isApplicantUpload ? 'applicant_upload' : row.document_type) as 'direct_deposit' | 'background_check' | 'training_cert' | 'certification' | 'orientation' | 'offer_letter' | 'applicant_upload') || 'direct_deposit'
     
     return {
@@ -293,7 +296,8 @@ async function fetchStaffDocuments(): Promise<StaffDocument[]> {
       documentType,
       documentName: docTypeMap[row.document_type] || row.document_type,
       dateSigned: row.uploaded_at,
-      documentUrl: row.document_url,
+      // Identity files are private: admin opens them through a short-lived link.
+      documentUrl: isPrivateIdentity ? `/api/admin/staff-documents/file/${row.id}` : row.document_url,
       status: row.status,
       ownCar: null,
       notes: row.notes,

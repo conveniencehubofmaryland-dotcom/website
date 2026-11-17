@@ -1,7 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
+import { removePrivateFiles, removeStoredFiles, storagePathOf } from '@/lib/applicant-cleanup'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,6 +33,13 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
     }
 
     let documentUrl = currentDoc.document_url
+
+    if (file && ['government_id', 'social_security_card'].includes(String(currentDoc.document_type))) {
+      return NextResponse.json(
+        { error: 'Identity documents cannot be replaced here. Ask the applicant to resubmit the welcome form.' },
+        { status: 400 }
+      )
+    }
 
     if (file) {
       await removeStoredFiles([storagePathOf(currentDoc.document_url) || ''])
@@ -110,7 +117,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
 
     const { data: doc } = await supabase
       .from('staff_documents')
-      .select('document_url')
+      .select('document_url, document_type')
       .eq('id', documentId)
       .single()
 
@@ -121,7 +128,11 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
       )
     }
 
-    await removeStoredFiles([storagePathOf(doc.document_url) || ''])
+    if (['government_id', 'social_security_card'].includes(String(doc.document_type))) {
+      await removePrivateFiles([doc.document_url || ''])
+    } else {
+      await removeStoredFiles([storagePathOf(doc.document_url) || ''])
+    }
 
     const { error: deleteError } = await supabase
       .from('staff_documents')

@@ -2,6 +2,23 @@ import { serviceHeaders } from './supabase-keys'
 import { sbFetch } from './shift-eligibility'
 
 const BUCKET = 'application-documents'
+const PRIVATE_BUCKET = 'applicant-private'
+const PRIVATE_TYPES = ['government_id', 'social_security_card']
+
+// Removes files from the private identity bucket (admin-only). Returns false if the storage service refused.
+export async function removePrivateFiles(paths: string[]): Promise<boolean> {
+  const clean = Array.from(new Set(paths.filter(Boolean)))
+  if (clean.length === 0) return true
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!url) return false
+  const res = await fetch(`${url}/storage/v1/object/${PRIVATE_BUCKET}`, {
+    method: 'DELETE',
+    headers: serviceHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ prefixes: clean }),
+  })
+  if (!res.ok) console.error('[storage] private delete failed:', await res.text())
+  return res.ok
+}
 
 // The file path inside the bucket, from a stored public link or a plain path.
 export function storagePathOf(value: string | null | undefined): string | null {
@@ -56,19 +73,23 @@ export async function deleteApplicantCompletely(applicantId: string): Promise<De
     }
   }
 
-  const docs = await rowsOf<{ document_url: string | null }>(`staff_documents?staff_id=eq.${id}&select=document_url`)
+  const docs = await rowsOf<{ document_url: string | null; document_type: string }>(`staff_documents?staff_id=eq.${id}&select=document_url,document_type`)
   const w9s = await rowsOf<{ file_path: string | null }>(`w9_forms?or=(applicant_id.eq.${id},staff_email.ilike.${email})&select=file_path`)
   const certs = await rowsOf<{ id: string }>(`staff_module_progress?staff_email=ilike.${email}&select=id`)
 
+  const privatePaths = docs
+    .filter(d => PRIVATE_TYPES.includes(d.document_type))
+    .map(d => d.document_url)
+    .filter((p): p is string => !!p)
   const paths = [
-    ...docs.map(d => storagePathOf(d.document_url)),
+    ...docs.filter(d => !PRIVATE_TYPES.includes(d.document_type)).map(d => storagePathOf(d.document_url)),
     ...w9s.map(w => storagePathOf(w.file_path)),
     ...certs.map(c => `certificates/${c.id}.html`),
     `badges/${applicant.id}.html`,
   ].filter((p): p is string => !!p)
 
   // Files first, then the rows, then the applicant record.
-  if (!(await removeStoredFiles(paths))) {
+  if (!(await removeStoredFiles(paths)) || !(await removePrivateFiles(privatePaths))) {
     return { ok: false, status: 500, error: 'Could not remove the stored files. Nothing was deleted. Please try again.' }
   }
   await deleteRows(`staff_documents?staff_id=eq.${id}`)

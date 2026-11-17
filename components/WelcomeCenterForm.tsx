@@ -46,6 +46,11 @@ export default function WelcomeCenterForm() {
     w9File: null as File | null,
   })
   const [docFiles, setDocFiles] = useState<Record<string, File | null>>({})
+  const [idFiles, setIdFiles] = useState<{ governmentId: File | null; socialSecurityCard: File | null }>({
+    governmentId: null,
+    socialSecurityCard: null,
+  })
+  const [idNotExpired, setIdNotExpired] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -112,7 +117,10 @@ export default function WelcomeCenterForm() {
       !docFiles.directDeposit ||
       !docFiles.cprCertificate ||
       !docFiles.firstAidCertificate ||
-      !docFiles.staffPhoto
+      !docFiles.staffPhoto ||
+      !idFiles.governmentId ||
+      !idFiles.socialSecurityCard ||
+      !idNotExpired
     ) {
       setError('All fields are required, including your background check and completed IRS Form W-9')
       setLoading(false)
@@ -140,6 +148,9 @@ export default function WelcomeCenterForm() {
         const file = docFiles[f.key]
         if (file) fd.append(f.key, file)
       })
+      fd.append('idNotExpired', String(idNotExpired))
+      if (idFiles.governmentId) fd.append('governmentId', idFiles.governmentId)
+      if (idFiles.socialSecurityCard) fd.append('socialSecurityCard', idFiles.socialSecurityCard)
       if (invite_token) {
         fd.append('invite_token', invite_token)
       }
@@ -419,6 +430,57 @@ export default function WelcomeCenterForm() {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Identity documents: private, admin-only */}
+          <div className="border border-gray-200 p-6 rounded-lg space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold">Identity Documents *</p>
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                Required. Attach a clear photo or scan of each item. Only CHM admin can view these files. Maximum file size: 10 MB each.
+              </p>
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Valid Government-Issued Photo ID *</label>
+              <p className="text-xs text-gray-500 mb-2">Driver&apos;s license, state ID, or passport.</p>
+              <input
+                type="file"
+                name="governmentId"
+                required
+                onChange={e => setIdFiles(prev => ({ ...prev, governmentId: e.target.files?.[0] || null }))}
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
+              />
+              {idFiles.governmentId && (
+                <p className="text-xs text-green-600 mt-2">✓ {idFiles.governmentId.name} selected</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-2">Social Security Card *</label>
+              <p className="text-xs text-gray-500 mb-2">Upload a photo or scan of the card.</p>
+              <input
+                type="file"
+                name="socialSecurityCard"
+                required
+                onChange={e => setIdFiles(prev => ({ ...prev, socialSecurityCard: e.target.files?.[0] || null }))}
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-chm-red rounded"
+              />
+              {idFiles.socialSecurityCard && (
+                <p className="text-xs text-green-600 mt-2">✓ {idFiles.socialSecurityCard.name} selected</p>
+              )}
+            </div>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="idNotExpired"
+                required
+                checked={idNotExpired}
+                onChange={e => setIdNotExpired(e.target.checked)}
+                className="w-5 h-5 accent-chm-red mt-1 flex-shrink-0"
+              />
+              <span className="text-sm text-gray-700">I confirm my government-issued photo ID is not expired. *</span>
+            </label>
           </div>
 
           {/* Direct deposit and certificates */}

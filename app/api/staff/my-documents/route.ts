@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
   // Uploaded forms and certificates from the welcome profile.
   const docRes = await sbFetch(
-    `staff_documents?staff_id=eq.${id}&document_type=neq.staff_badge&select=id,document_type,document_url,uploaded_at,review_status&order=uploaded_at.desc`
+    `staff_documents?staff_id=eq.${id}&document_type=not.in.(staff_badge,government_id,social_security_card)&select=id,document_type,document_url,uploaded_at,review_status&order=uploaded_at.desc`
   )
   const docs = docRes.ok ? ((await docRes.json()) as { id: string; document_type: string; document_url: string | null; uploaded_at: string; review_status: string | null }[]) : []
   for (const d of docs) {

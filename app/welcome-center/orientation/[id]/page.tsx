@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
 const ORIENTATION_DOCUMENT = `CONVENIENCE HUB OF MARYLAND
-New Employee Orientation Document & Memorandum of Understanding
+Independent Contractor Orientation Document & Memorandum of Understanding
 
 1. COMPANY INFORMATION
 
 Welcome to the CHM Team
 
-Welcome to Convenience Hub of Maryland! We're thrilled to have you join our growing team of professionals dedicated to making everyday life more convenient, comfortable, and caring for the clients and families we serve across Maryland, Virginia, and Washington D.C.
+Welcome to Convenience Hub of Maryland! We're thrilled to have you join our growing team of independent professionals dedicated to making everyday life more convenient, comfortable, and caring for the clients and families we serve across Maryland, Virginia, and Washington D.C.
 
 Our Mission
 To provide reliable, compassionate, and convenient support services that enhance the quality of life for our clients across Maryland, Virginia, and Washington D.C.
@@ -35,24 +35,23 @@ CHM is a comprehensive concierge and home management company. You may be assigne
 6. Commercial Cleaning – Custom cleaning solutions for businesses
 7. Special Project / Event Support – Custom concierge services for projects and events
 
-Every role is critical. You represent CHM in every interaction.
+Every service is critical. You represent CHM in every interaction.
 
-2. EMPLOYMENT BASICS
+2. ENGAGEMENT BASICS
 
-How Shifts Work
-- All shifts are posted in the Claim Shift Portal at https://conveniencehubofmaryland.com/staff/available-shifts
-- You must actively claim and confirm your shifts through the portal
-- Assignments range from a few hours to full-day projects
+How Jobs Work
+- Jobs are posted in the Claim Shift Portal at https://conveniencehubofmaryland.com/staff/available-shifts
+- You choose and confirm the jobs you accept through the portal
+- Jobs range from a few hours to full-day projects
 
-Timekeeping & Attendance
-- Be punctual. Arrive at least 15 minutes before your scheduled shift
-- If you will be late or unable to make a shift, notify your supervisor via the Claim Shift app at least 2 hours in advance
+Availability & Attendance
+- Arrive at least 15 minutes before a scheduled job
+- If you cannot attend or will be late, notify CHM through the Claim Shift app at least 2 hours in advance
 - No call/no show may result in immediate disciplinary action
 
-Pay Schedule & Compensation
-- You are paid every week (typically Fridays) for work completed in the prior week
-- Your pay rate is based on your position, experience level, and certifications
-- Overtime must be pre-approved by your supervisor
+Pay
+- You are paid by commission and a percentage share of each completed job, as set out in your Independent Contractor Agreement
+- Payment is made every Friday for work performed in the prior week, by direct deposit
 
 3. POLICIES & CONDUCT
 
@@ -70,8 +69,7 @@ CHM maintains a zero-tolerance policy for:
 - Substance abuse or being under the influence at work
 
 Dress Code & Professional Appearance
-- Field staff: Clean, professional attire (scrubs or CHM-approved uniform) and closed-toe shoes
-- Office staff: Business casual attire
+- Field contractors: Clean, professional attire (scrubs or CHM-approved uniform) and closed-toe shoes
 - Wear your CHM badge/ID visibly at all times
 - Maintain good personal hygiene
 
@@ -95,9 +93,9 @@ Phone & Device Use
 
 NO SOLICITATION POLICY
 
-Staff shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract. This is strictly prohibited and includes private arrangements, side deals, or work under different entity names.
+Contractors shall not solicit, accept, or perform work for any CHM client outside of an official CHM contract. This is strictly prohibited and includes private arrangements, side deals, or work under different entity names.
 
-Engaging in private dealings with CHM clients for services that CHM offers is forbidden for the duration of employment AND for 24 months after separation from CHM.
+Engaging in private dealings with CHM clients for services that CHM offers is forbidden for the duration of your engagement AND for 24 months after it ends.
 
 Violation of this no-solicitation policy is a material breach and may result in legal action and liquidated damages.
 
@@ -105,7 +103,7 @@ Violation of this no-solicitation policy is a material breach and may result in 
 
 Required Orientation & Training
 
-Before your first shift, you must complete:
+Before your first job, you must complete:
 1. This Orientation Document (reading now)
 2. Acknowledgment of this document
 3. Required Training Modules at https://conveniencehubofmaryland.com/staff/training-modules
@@ -119,23 +117,21 @@ Training Portal Access
 
 Ongoing Development
 - CHM is committed to your professional development
-- Career advancement is available for reliable, high-performing employees
 - We support ongoing certifications (CNA, GNA, CPR, First Aid, etc.)
 
 5. FIRST DAY DETAILS
 
-Documents You Must Bring
-- Valid government-issued photo ID
-- Social Security number (for W-4 and tax purposes)
-- Proof of eligibility to work in the U.S. (I-9 documents)
-- Direct deposit information
+Documents You Must Provide
+- Valid government-issued photo ID (uploaded on the welcome form)
+- Social Security card (uploaded on the welcome form)
+- IRS Form W-9 (completed on the welcome form)
+- Direct deposit information (uploaded on the welcome form)
 - Any professional certifications
 
 What to Expect
-- You'll receive your CHM ID badge and employee handbook
-- System access will be set up (email, Claim Shift portal, Training portal)
-- You'll meet your team and receive workspace orientation
-- Your first assignment or schedule will be confirmed
+- You'll receive your CHM ID badge
+- System access will be set up (Claim Shift portal, Training portal)
+- You'll receive your first job details through the portal
 
 Important First-Week Tasks
 - Complete all online training modules
@@ -149,24 +145,21 @@ HR & Administration
 - Phone: 202-579-2944
 - Hours: Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM
 
-Your Direct Supervisor
-- Will be provided on your first day
-
 Emergency Support
 - 202-579-2944 (Mon–Sat 7 AM–11 PM, Sun 9 AM–9 PM)
 
 7. MEMORANDUM OF UNDERSTANDING: CLIENT NON-SOLICITATION & CONFIDENTIALITY AGREEMENT
 
 Purpose
-CHM provides comprehensive client-based concierge and home management services across Washington D.C., Maryland, and Virginia. To protect clients, maintain business operations, and ensure fair compensation, all Staff must comply with these terms.
+CHM provides comprehensive client-based concierge and home management services across Washington D.C., Maryland, and Virginia. To protect clients, maintain business operations, and ensure fair compensation, all contractors must comply with these terms.
 
 NON-SOLICITATION & OUTSIDE WORK PROHIBITION
 
-Staff shall not, directly or indirectly:
+Contractors shall not, directly or indirectly:
 
 1. Solicit, accept, or perform work for any CHM client outside of an official CHM contract, including as a side deal, private arrangement, or under a different entity name.
 
-2. Engage in private dealings with any CHM client for services that CHM offers, for the duration of employment AND for 24 months after separation.
+2. Engage in private dealings with any CHM client for services that CHM offers, for the duration of your engagement AND for 24 months after it ends.
 
 3. Share CHM client contact details with any third party for personal gain without CHM's prior written consent.
 
@@ -174,11 +167,11 @@ This prohibition includes:
 - Accepting cash payments or payment methods outside CHM's system
 - Providing services during personal time using client relationships from CHM
 - Referring clients to personal acquaintances or outside vendors
-- Using client information to solicit business after separation
+- Using client information to solicit business after the engagement ends
 
 BREACH REMEDIES & CONSEQUENCES
 
-Violation of the non-solicitation agreement is a material breach. If a breach occurs, Staff agrees to:
+Violation of the non-solicitation agreement is a material breach. If a breach occurs, the contractor agrees to:
 
 1. Pay Liquidated Damages of $30,000.00 to CHM
    - This represents CHM's estimated loss from the breach
@@ -196,7 +189,7 @@ Violation of the non-solicitation agreement is a material breach. If a breach oc
 
 CONFIDENTIALITY
 
-Staff shall keep all CHM information strictly confidential at all times.
+Contractors shall keep all CHM information strictly confidential at all times.
 
 "Company Information" includes:
 - Client lists, names, addresses, phone numbers, and contact information
@@ -207,25 +200,19 @@ Staff shall keep all CHM information strictly confidential at all times.
 - Internal communications, emails, and business correspondence
 - Supplier information and vendor relationships
 
-Staff shall not disclose such information to any person or entity without CHM's prior written consent, except as required by law.
+Contractors shall not disclose such information to any person or entity without CHM's prior written consent, except as required by law.
 
-Confidentiality obligations survive termination indefinitely.
+Confidentiality obligations survive the end of the engagement indefinitely.
 
-WORK TOOLS & CLASSIFICATION COMPLIANCE
+INDEPENDENT CONTRACTOR TERMS
+- You are an independent contractor, not an employee of CHM.
+- You are responsible for providing and maintaining all tools, equipment, and supplies, and for all expenses.
+- You are responsible for your own taxes, including tracking income, filing returns, and paying self-employment tax.
+- You must carry liability insurance when CHM requires it for a job, and keep a current certificate on file if you carry it.
+- You must meet CHM's written quality standards.
 
-W-2 Employees:
-- CHM will provide all tools, equipment, and supplies necessary to perform job duties
-- CHM is responsible for equipment maintenance and replacement
-- Equipment is CHM property and must be returned upon separation
-
-1099 Independent Contractors:
-- You are responsible for providing and maintaining all tools, equipment, and supplies
-- You must meet CHM's written quality standards
-- All expenses are your responsibility
-
-AT-WILL EMPLOYMENT
-
-This MOU does not alter at-will employment status where applicable. Either CHM or Staff may terminate employment at any time, for any lawful reason or no reason, with or without notice. However, the obligations under this MOU (non-solicitation, confidentiality, liquidated damages) survive termination indefinitely.`
+ENGAGEMENT TERMS
+Either you or CHM may end this engagement with 14 days' written notice, as set out in the Independent Contractor Agreement. The obligations in this MOU (non-solicitation, confidentiality, and liquidated damages) survive the end of the engagement, as stated in Section 7.`
 
 export default function OrientationPage() {
   const router = useRouter()
@@ -236,7 +223,6 @@ export default function OrientationPage() {
   const [email, setEmail] = useState('')
   const [signature, setSignature] = useState('')
   const [understood, setUnderstood] = useState(false)
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -251,7 +237,7 @@ export default function OrientationPage() {
       return
     }
 
-    if (!understood || !agreedToTerms) {
+    if (!understood) {
       setErrorMsg('Please acknowledge that you have read and understand all terms.')
       setLoading(false)
       return
@@ -284,7 +270,7 @@ export default function OrientationPage() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="w-12 h-px bg-chm-red mb-6" />
-          <h1 className="font-serif text-3xl text-chm-black mb-2">Employee Orientation</h1>
+          <h1 className="font-serif text-3xl text-chm-black mb-2">Contractor Orientation</h1>
           <p className="text-sm text-gray-500">Please read carefully and sign to acknowledge your understanding</p>
         </div>
 
@@ -341,18 +327,7 @@ export default function OrientationPage() {
                 onChange={e => setUnderstood(e.target.checked)}
                 className="mt-1"
               />
-              <span className="text-sm text-gray-700">I have read and fully understand the Convenience Hub of Maryland Orientation Document, including all policies, procedures, and expectations outlined above.</span>
-            </label>
-
-            <label className="flex items-start gap-3">
-              <input
-                required
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={e => setAgreedToTerms(e.target.checked)}
-                className="mt-1"
-              />
-              <span className="text-sm text-gray-700">I have read and fully understand the Memorandum of Understanding (MOU), including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I agree to comply with all terms.</span>
+              <span className="text-sm text-gray-700">I have read and fully understand this Contractor Orientation Document and the Memorandum of Understanding, including the non-solicitation agreement, confidentiality requirements, and liquidated damages clause. I confirm I am an independent contractor and agree to comply with all of these terms.</span>
             </label>
           </div>
 

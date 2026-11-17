@@ -9,6 +9,12 @@ const supabase = createClient(
 )
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
+// Removes files from the private identity bucket (admin-only).
+async function removeStoredPrivateFiles(paths: string[]) {
+  if (paths.length === 0) return
+  await supabase.storage.from('applicant-private').remove(paths)
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
@@ -24,6 +30,8 @@ export async function POST(req: NextRequest) {
     const acknowledged_1099 = formData.get('acknowledged_1099') === 'true'
     const own_car = formData.get('own_car') === 'yes'
     const backgroundCheckFile = formData.get('backgroundCheck') as File | null
+    const governmentIdFile = formData.get('governmentId') as File | null
+    const socialSecurityCardFile = formData.get('socialSecurityCard') as File | null
     const invite_token = formData.get('invite_token') as string | null
 
     // Only invited applicants can apply. Walk-in applications are not accepted, so How It Works cannot be skipped.
@@ -76,6 +84,23 @@ export async function POST(req: NextRequest) {
     }
     if (w9File.size > 10 * 1024 * 1024) {
       return NextResponse.json({ error: 'The W-9 file is larger than 10 MB.' }, { status: 400 })
+    }
+
+    // Identity documents: required, kept in the private bucket, admin-only.
+    const ID_UPLOADS = [
+      { file: governmentIdFile, docType: 'government_id', label: 'Government ID' },
+      { file: socialSecurityCardFile, docType: 'social_security_card', label: 'Social Security Card' },
+    ]
+    if (formData.get('idNotExpired') !== 'true') {
+      return NextResponse.json({ error: 'Please confirm your government-issued photo ID is not expired.' }, { status: 400 })
+    }
+    for (const d of ID_UPLOADS) {
+      if (!d.file || d.file.size === 0) {
+        return NextResponse.json({ error: `Please attach your ${d.label}.` }, { status: 400 })
+      }
+      if (d.file.size > 10 * 1024 * 1024) {
+        return NextResponse.json({ error: `The ${d.label} file is larger than 10 MB.` }, { status: 400 })
+      }
     }
 
     // Direct deposit and certificates. Required items must be attached; optional ones are saved only if attached.
@@ -346,6 +371,43 @@ export async function POST(req: NextRequest) {
         if (docInsertError) throw docInsertError
       } catch (docErr) {
         console.error('[submit] Document save error:', d.docType, docErr)
+        return NextResponse.json({ error: `Could not save your ${d.label}. Please try again.` }, { status: 500 })
+      }
+    }
+
+    // Save the identity documents to the PRIVATE bucket (admin-only). A re-upload replaces the earlier one.
+    for (const d of ID_UPLOADS) {
+      if (!d.file) continue
+      try {
+        const ext = (d.file.name.split('.').pop() || 'pdf').toLowerCase()
+        const path = `${applicant_id}/${Date.now()}-${d.docType}.${ext}`
+        const { error: upErr } = await supabase.storage
+          .from('applicant-private')
+          .upload(path, d.file, { contentType: d.file.type, upsert: false })
+        if (upErr) throw upErr
+
+        const { data: oldDocs } = await supabase
+          .from('staff_documents')
+          .select('id, document_url')
+          .eq('staff_id', applicant_id)
+          .eq('document_type', d.docType)
+        await removeStoredPrivateFiles((oldDocs || []).map(o => o.document_url).filter((p): p is string => !!p))
+        if (oldDocs && oldDocs.length > 0) {
+          await supabase.from('staff_documents').delete().in('id', oldDocs.map(o => o.id))
+        }
+
+        // Store the private PATH, not a public URL.
+        const { error: docInsertError } = await supabase.from('staff_documents').insert({
+          staff_id: applicant_id,
+          document_type: d.docType,
+          document_url: path,
+          status: 'uploaded',
+          notes: 'Uploaded by applicant on the welcome form (private)',
+          uploaded_at: new Date().toISOString(),
+        })
+        if (docInsertError) throw docInsertError
+      } catch (idErr) {
+        console.error('[submit] Identity document save error:', d.docType, idErr)
         return NextResponse.json({ error: `Could not save your ${d.label}. Please try again.` }, { status: 500 })
       }
     }
