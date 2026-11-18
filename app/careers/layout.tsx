@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'laundry job Maryland', 'home services jobs Virginia', 'care companion job DC',
     'domestic staff jobs DMV', 'cleaning specialist job near me',
   ],
-  alternates: { canonical: 'https://www.conveniencehubofmaryland.com/careers' },
+  alternates: { canonical: 'https://conveniencehubofmaryland.com/careers' },
 }
 
 export default function CareersLayout({ children }: { children: React.ReactNode }) {

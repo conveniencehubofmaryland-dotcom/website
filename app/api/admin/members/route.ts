@@ -85,7 +85,7 @@ export async function PATCH(req: NextRequest) {
                     </tr>
                   </table>
                   <p style="font-size:14px;color:#555">
-                    Book your first service at <a href="https://www.conveniencehubofmaryland.com/book" style="color:#E8192C">conveniencehubofmaryland.com/book</a>
+                    Book your first service at <a href="https://conveniencehubofmaryland.com/book" style="color:#E8192C">conveniencehubofmaryland.com/book</a>
                     or call us at <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a>.
                   </p>
                   <p style="font-size:12px;color:#aaa;margin-top:32px">Convenience Hub of Maryland &nbsp;·&nbsp; Maryland · Virginia · D.C.</p>

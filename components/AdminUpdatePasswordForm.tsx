@@ -66,7 +66,7 @@ export default function AdminUpdatePasswordForm() {
 
       // Success - redirect to login
       setTimeout(() => {
-        router.push('/admin/login')
+        router.push('/admin')
       }, 1500)
       
       setStatus('idle')
@@ -94,7 +94,7 @@ export default function AdminUpdatePasswordForm() {
             Invalid Link
           </h1>
           <p className="text-chm-red text-sm mb-6">{errorMsg}</p>
-          <a href="/admin/forgot-password" className="block w-full text-center bg-chm-red text-white py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
+          <a href="/admin" className="block w-full text-center bg-chm-red text-white py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">
             Request New Link
           </a>
         </div>

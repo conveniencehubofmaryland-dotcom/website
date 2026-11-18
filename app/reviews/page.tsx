@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: 'Customer Reviews | Convenience Hub of Maryland',
   description: 'Read real reviews from Maryland, Virginia & DC customers. 5-star rated cleaning, laundry, culinary, and care services.',
   alternates: {
-    canonical: 'https://www.conveniencehubofmaryland.com/reviews',
+    canonical: 'https://conveniencehubofmaryland.com/reviews',
   },
 }
 

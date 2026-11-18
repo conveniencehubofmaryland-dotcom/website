@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Convenience Hub of Maryland | Home Services DMV',
     description: 'Professional cleaning, laundry pickup & delivery, culinary, and care services in MD, VA & DC. Call 202-579-2944.',
-    url: 'https://www.conveniencehubofmaryland.com',
+    url: 'https://conveniencehubofmaryland.com',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://www.conveniencehubofmaryland.com',
+    canonical: 'https://conveniencehubofmaryland.com',
   },
 }
 
@@ -138,10 +138,10 @@ export default async function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'LocalBusiness',
             name: 'Convenience Hub of Maryland',
-            image: 'https://www.conveniencehubofmaryland.com/logo.jpeg',
+            image: 'https://conveniencehubofmaryland.com/logo.jpeg',
             telephone: '+12025792944',
             email: 'conveniencehubofmaryland@gmail.com',
-            url: 'https://www.conveniencehubofmaryland.com',
+            url: 'https://conveniencehubofmaryland.com',
             description: 'Professional cleaning, laundry pickup & delivery, culinary, and care services in Maryland, Virginia, and Washington D.C.',
             priceRange: '$$',
             address: { '@type': 'PostalAddress', addressRegion: 'MD', addressCountry: 'US' },

@@ -39,7 +39,7 @@ export default function AdminSetupPage() {
         {status === 'done' ? (
           <div className="space-y-4">
             <p className="text-sm text-gray-700 leading-relaxed">{message}</p>
-            <Link href="/admin/login"
+            <Link href="/admin"
               className="block text-center bg-chm-red text-white px-6 py-3 text-xs font-semibold uppercase tracking-widest hover:bg-red-700 transition-colors">
               Go to Login
             </Link>
@@ -64,7 +64,7 @@ export default function AdminSetupPage() {
             </button>
             <p className="text-xs text-gray-400 text-center leading-relaxed">
               This page is only for initial setup. After creating your account, use{' '}
-              <Link href="/admin/login" className="text-chm-red hover:underline">/admin/login</Link> to sign in.
+              <Link href="/admin" className="text-chm-red hover:underline">/admin</Link> to sign in.
             </p>
           </form>
         )}

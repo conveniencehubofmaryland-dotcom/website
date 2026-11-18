@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   description:
     'Professional cleaning, laundry pickup & delivery, culinary, and care services in Maryland, Virginia, and Washington D.C. Call or text 202-579-2944.',
-  metadataBase: new URL('https://www.conveniencehubofmaryland.com'),
+  metadataBase: new URL('https://conveniencehubofmaryland.com'),
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',

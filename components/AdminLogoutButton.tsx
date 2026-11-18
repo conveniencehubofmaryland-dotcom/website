@@ -3,7 +3,7 @@
 export default function AdminLogoutButton() {
   async function handleLogout() {
     await fetch('/api/admin/logout', { method: 'POST' })
-    window.location.href = '/admin/login'
+    window.location.href = '/admin'
   }
 
   return (

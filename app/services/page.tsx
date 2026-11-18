@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     'commercial cleaning Maryland', 'home services near me DMV',
     'laundry service prices near me', 'move in move out cleaning Maryland',
   ],
-  alternates: { canonical: 'https://www.conveniencehubofmaryland.com/services' },
+  alternates: { canonical: 'https://conveniencehubofmaryland.com/services' },
 }
 
 const SERVICE_IMAGES: Record<string, string> = {

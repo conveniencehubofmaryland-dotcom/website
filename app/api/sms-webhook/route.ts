@@ -5,7 +5,7 @@ const WEBHOOK_PATH = '/api/sms-webhook'
 // Twilio signs the exact URL it calls. Accept either spelling of the site address.
 const CANDIDATE_URLS = [
   `https://conveniencehubofmaryland.com${WEBHOOK_PATH}`,
-  `https://www.conveniencehubofmaryland.com${WEBHOOK_PATH}`,
+  `https://conveniencehubofmaryland.com${WEBHOOK_PATH}`,
 ]
 
 // Checks the X-Twilio-Signature header (HMAC-SHA1 of URL + sorted form fields, keyed by the auth token).

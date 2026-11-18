@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'laundry service membership Maryland', 'home services discount DMV',
     'priority booking home services Maryland',
   ],
-  alternates: { canonical: 'https://www.conveniencehubofmaryland.com/membership' },
+  alternates: { canonical: 'https://conveniencehubofmaryland.com/membership' },
 }
 
 export default function MembershipLayout({ children }: { children: React.ReactNode }) {
