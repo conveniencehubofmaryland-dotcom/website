@@ -42,6 +42,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: eligibility.reason }, { status: 403 })
     }
 
+    // 3b. Block staff who have reached the no-show limit (admin lowers the count on Staff Records to unblock)
+    const noShowRes = await sbFetch(`offer_letter_applicants?id=eq.${encodeURIComponent(applicant.id)}&select=no_show_count`)
+    const noShowRows = noShowRes.ok ? await noShowRes.json().catch(() => []) : []
+    const noShowCount = Number(noShowRows?.[0]?.no_show_count) || 0
+    if (noShowCount >= 2) {
+      return NextResponse.json(
+        { error: 'You are unable to claim new shifts right now. Please call or text 202-579-2944.' },
+        { status: 403 }
+      )
+    }
+
     // 4. Claim only if still available (guards against two people claiming at once)
     const claimedAt = new Date().toISOString()
     const updateRes = await sbFetch(`shifts?id=eq.${encodeURIComponent(shiftId)}&status=eq.available`, {

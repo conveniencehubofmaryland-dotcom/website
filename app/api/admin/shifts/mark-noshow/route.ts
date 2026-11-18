@@ -9,6 +9,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Once a staff member reaches this many no-shows, they cannot claim new shifts until admin lowers the count.
+const NO_SHOW_CLAIM_LIMIT = 2
+
 const esc = (v: unknown) =>
   String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -20,6 +23,20 @@ export async function POST(req: NextRequest) {
 
     if (!applicant_id || !shift_id) {
       return NextResponse.json({ error: 'Missing applicant_id or shift_id' }, { status: 400 })
+    }
+
+    // The shift must still be a claimed shift. A shift can only be marked once.
+    const { data: shift } = await supabase
+      .from('shifts')
+      .select('status, date, start_time, location, role')
+      .eq('id', shift_id)
+      .maybeSingle()
+
+    if (!shift) {
+      return NextResponse.json({ error: 'Shift not found' }, { status: 404 })
+    }
+    if (shift.status === 'no_show') {
+      return NextResponse.json({ error: 'This shift is already marked as a no-show.' }, { status: 409 })
     }
 
     // Get current no_show_count
@@ -58,17 +75,16 @@ export async function POST(req: NextRequest) {
 
     if (logError) throw logError
 
-    // Shift details for the notice to the staff member
-    const { data: shift } = await supabase
+    // Mark the shift itself, so it cannot be counted twice and drops off the active list
+    const { error: shiftError } = await supabase
       .from('shifts')
-      .select('date, start_time, location, role')
+      .update({ status: 'no_show', updated_at: new Date().toISOString() })
       .eq('id', shift_id)
-      .maybeSingle()
+
+    if (shiftError) throw shiftError
 
     const firstName = String(applicant.full_name || '').trim().split(/\s+/)[0] || 'there'
-    const shiftLine = shift
-      ? `<p>Shift: <strong>${esc(shift.role || 'Shift')}</strong> on <strong>${esc(shift.date)}</strong>${shift.start_time ? ` at ${esc(String(shift.start_time).slice(0, 5))}` : ''}${shift.location ? `, ${esc(shift.location)}` : ''}.</p>`
-      : ''
+    const shiftLine = `<p>Shift: <strong>${esc(shift.role || 'Shift')}</strong> on <strong>${esc(shift.date)}</strong>${shift.start_time ? ` at ${esc(String(shift.start_time).slice(0, 5))}` : ''}${shift.location ? `, ${esc(shift.location)}` : ''}.</p>`
 
     // Notice to the staff member (skipped if there is no email on file)
     if (applicant.email) {
@@ -83,11 +99,11 @@ ${shiftLine}
       ).catch(e => console.error('[mark-noshow] staff email error:', e))
     }
 
-    // Admin alert at 2 or more no-shows
-    if (newCount >= 2) {
+    // Admin alert at the claim limit
+    if (newCount >= NO_SHOW_CLAIM_LIMIT) {
       await sendAdminEmail(
         `No-show alert: ${applicant.full_name}`,
-        `${applicant.full_name} now has ${newCount} no-shows. The staff member has been emailed about this shift.`
+        `${applicant.full_name} now has ${newCount} no-shows. They can no longer claim new shifts until you lower their count on the Staff Records page. The staff member has been emailed about this shift.`
       ).catch(e => console.error('[mark-noshow] admin email error:', e))
     }
 
@@ -95,7 +111,7 @@ ${shiftLine}
       success: true,
       no_show_count: newCount,
       applicant_name: applicant.full_name,
-      warning: newCount >= 2 ? `⚠️ ${newCount} no-shows - may restrict future shifts` : null,
+      warning: newCount >= NO_SHOW_CLAIM_LIMIT ? `⚠️ ${newCount} no-shows - this staff member is blocked from claiming new shifts` : null,
     })
   } catch (err) {
     console.error('[mark-noshow] Error:', err)
