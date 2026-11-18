@@ -63,7 +63,8 @@ export function invoiceSubject(inv: InvoiceRecord): string {
 }
 
 // The branded invoice, used for the client email and the admin copy.
-export function buildInvoiceHtml(inv: InvoiceRecord): string {
+// `extraHtml` adds an optional line (for example, the recurring plan management link).
+export function buildInvoiceHtml(inv: InvoiceRecord, extraHtml = ''): string {
   const date = new Date(inv.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   const lines = inv.line_items
     .map(l => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid #eee">${esc(l.label)}</td><td style="padding:6px 0;text-align:right;border-bottom:1px solid #eee">${money(l.amount)}</td></tr>`)
@@ -85,5 +86,6 @@ export function buildInvoiceHtml(inv: InvoiceRecord): string {
   <tr><td style="padding:4px 12px 4px 0;text-align:right"><strong>Balance due</strong></td><td style="padding:4px 0;text-align:right"><strong>${money(balance)}</strong></td></tr>
 </table>
 <p style="font-size:13px;color:#555;margin-top:20px">Card payment reference: ${esc(inv.charge_id)}</p>
+${extraHtml}
 <p style="font-size:13px;color:#555">Questions about this invoice? Call or text <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a>.</p>`)
 }

@@ -6,6 +6,7 @@ const adminLinks = [
   { href: '/admin/calendar', label: 'Calendar' },
   { href: '/admin/offer-letters', label: 'Offer Letters' },
   { href: '/admin/payroll', label: 'Payroll' },
+  { href: '/admin/recurring-plans', label: 'Recurring Plans' },
   { href: '/admin/staff-records', label: 'Staff Records' },
   { href: '/admin/reviews', label: 'Reviews' },
   { href: '/admin/newsletters', label: 'Newsletters' },

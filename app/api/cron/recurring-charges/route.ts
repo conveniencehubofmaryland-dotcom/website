@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sbFetch, todayInEastern } from '@/lib/shift-eligibility'
 import { sendAdminEmail, sendUserEmailHtml } from '@/lib/email'
 import { buildInvoiceHtml, createInvoice, invoiceSubject } from '@/lib/invoice'
-import { chargeCloverCustomer, isRecurringFrequency, nextChargeDate } from '@/lib/recurring'
+import { chargeCloverCustomer, isRecurringFrequency, manageUrl, nextChargeDate } from '@/lib/recurring'
 
 // Charges every active recurring plan that is due today or earlier (Eastern time).
 // Called once a day by an outside scheduler with the header x-cron-secret.
+// Each charge uses the plan's recurring price (no first-time discount).
 // A plan is paused after 3 failed charges in a row, and admin is told.
 const MAX_FAILURES = 3
 const MAX_PER_RUN = 100
@@ -18,9 +19,11 @@ type Plan = {
   service_category: string | null
   frequency: string
   amount: number
+  recurring_amount: number | null
   clover_customer_id: string
   next_charge_date: string
   failed_attempts: number
+  manage_token: string | null
 }
 
 export async function GET(request: NextRequest) {
@@ -52,10 +55,12 @@ async function runCharges(request: NextRequest) {
       continue
     }
 
+    const price = Number(plan.recurring_amount ?? plan.amount)
+
     // The key is tied to the plan and the due date, so a retry never charges the same cycle twice.
     const charge = await chargeCloverCustomer(
       plan.clover_customer_id,
-      Number(plan.amount),
+      price,
       `recurring-${plan.id}-${plan.next_charge_date}`
     )
 
@@ -67,12 +72,15 @@ async function runCharges(request: NextRequest) {
           email: plan.client_email,
           phone: plan.client_phone || '',
           category: plan.service_category || '',
-          lineItems: [{ label: `Recurring service, every ${plan.frequency}`, amount: Number(plan.amount) }],
-          total: Number(plan.amount),
-          amountPaid: Number(plan.amount),
+          lineItems: [{ label: `Recurring service, every ${plan.frequency}`, amount: price }],
+          total: price,
+          amountPaid: price,
           paymentKind: 'full',
         })
-        await sendUserEmailHtml(plan.client_email, invoiceSubject(invoice), buildInvoiceHtml(invoice)).catch(e =>
+        const manageNote = plan.manage_token
+          ? `<p style="font-size:13px;color:#555">Manage your recurring plan (pause, resume or cancel any time): <a href="${manageUrl(plan.manage_token)}" style="color:#E8192C">${manageUrl(plan.manage_token)}</a></p>`
+          : ''
+        await sendUserEmailHtml(plan.client_email, invoiceSubject(invoice), buildInvoiceHtml(invoice, manageNote)).catch(e =>
           console.error('[recurring-cron] invoice email error:', e)
         )
       } catch (e) {
@@ -102,14 +110,14 @@ async function runCharges(request: NextRequest) {
       body: JSON.stringify({
         failed_attempts: failures,
         last_error: charge.error.slice(0, 300),
-        ...(pause ? { status: 'paused' } : {}),
+        ...(pause ? { status: 'paused', paused_at: new Date().toISOString() } : {}),
       }),
     })
 
     if (pause) {
       await sendAdminEmail(
         `Recurring plan paused: ${plan.client_name || plan.client_email}`,
-        `The ${plan.frequency} charge of $${Number(plan.amount).toFixed(2)} failed ${failures} times in a row, so the plan is paused. Last error: ${charge.error}. Contact the client to update their card.`
+        `The ${plan.frequency} charge of $${price.toFixed(2)} failed ${failures} times in a row, so the plan is paused. Last error: ${charge.error}. Contact the client to update their card, then resume the plan on the Recurring Plans admin page.`
       ).catch(e => console.error('[recurring-cron] admin email error:', e))
       results.push({ id: plan.id, status: 'paused', detail: charge.error })
     } else {
