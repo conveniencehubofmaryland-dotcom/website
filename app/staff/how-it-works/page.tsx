@@ -139,7 +139,7 @@ export default function StaffHowItWorksPage() {
               <div>
                 <h2 className="font-serif text-2xl text-chm-black mb-3">HR Team Completes Your Paperwork</h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  While you&apos;re working through training, our HR team will reach out (within 1-2 business days) to collect the remaining paperwork: W-4 form, I-9 verification, direct deposit setup, and any certifications you have.
+                  While you&apos;re working through training, our HR team will reach out to collect the remaining paperwork: your W-9 form, direct deposit setup, and any certifications you have.
                 </p>
                 <p className="text-sm text-gray-500">
                   <strong>You&apos;ll hear from:</strong> conveniencehubofmaryland@gmail.com or 202-579-2944

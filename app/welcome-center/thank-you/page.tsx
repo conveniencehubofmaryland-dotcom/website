@@ -85,7 +85,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
             <div className="space-y-4 text-sm text-gray-700">
               <div className="flex gap-4">
                 <span className="text-chm-red font-semibold min-w-fit">1. HR Contact</span>
-                <p>Our HR team will contact you within 1-2 business days to collect remaining paperwork: W-4 form, I-9 verification, direct deposit setup, and any certifications you have.</p>
+                <p>Our HR team will contact you to collect remaining paperwork: your W-9 form, direct deposit setup, and any certifications you have.</p>
               </div>
               <div className="flex gap-4">
                 <span className="text-chm-red font-semibold min-w-fit">2. Training</span>

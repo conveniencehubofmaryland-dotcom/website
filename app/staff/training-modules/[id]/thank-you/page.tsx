@@ -59,11 +59,11 @@ export default function TrainingThankYouPage() {
             <div className="text-left space-y-3">
               <div className="flex gap-3">
                 <span className="text-chm-red font-bold min-w-fit">1.</span>
-                <p className="text-sm text-gray-700"><strong>Offer Letter Coming Soon</strong> — Our HR team will send you an official offer letter within 1-2 business days with your position details, compensation, and start date. Check your email for the link to review and sign.</p>
+                <p className="text-sm text-gray-700"><strong>Your Offer Letter</strong> — HR will email you your offer letter with your position details, compensation, and start date. Check your email for the link to review and sign.</p>
               </div>
               <div className="flex gap-3">
                 <span className="text-chm-red font-bold min-w-fit">2.</span>
-                <p className="text-sm text-gray-700"><strong>Complete Onboarding Documents</strong> — HR will contact you to collect W-4, I-9 verification, direct deposit setup, and any certifications. This typically takes 1-2 business days.</p>
+                <p className="text-sm text-gray-700"><strong>Complete Onboarding Documents</strong> — HR will contact you to collect your W-9, direct deposit details, and any certifications.</p>
               </div>
               <div className="flex gap-3">
                 <span className="text-chm-red font-bold min-w-fit">3.</span>

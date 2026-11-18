@@ -1,11 +1,16 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendAdminEmail, sendUserEmailHtml } from '@/lib/email'
+import { brandedEmailHtml } from '@/lib/email-brand'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+const esc = (v: unknown) =>
+  String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 export async function POST(req: NextRequest) {
   const denied = await requireAdmin(req)
@@ -33,7 +38,7 @@ export async function POST(req: NextRequest) {
     // Update no_show_count
     const { error: updateError } = await supabase
       .from('offer_letter_applicants')
-      .update({ 
+      .update({
         no_show_count: newCount,
         last_no_show_date: new Date().toISOString()
       })
@@ -53,10 +58,37 @@ export async function POST(req: NextRequest) {
 
     if (logError) throw logError
 
-    // Send alert email if 2+ no-shows
+    // Shift details for the notice to the staff member
+    const { data: shift } = await supabase
+      .from('shifts')
+      .select('date, start_time, location, role')
+      .eq('id', shift_id)
+      .maybeSingle()
+
+    const firstName = String(applicant.full_name || '').trim().split(/\s+/)[0] || 'there'
+    const shiftLine = shift
+      ? `<p>Shift: <strong>${esc(shift.role || 'Shift')}</strong> on <strong>${esc(shift.date)}</strong>${shift.start_time ? ` at ${esc(String(shift.start_time).slice(0, 5))}` : ''}${shift.location ? `, ${esc(shift.location)}` : ''}.</p>`
+      : ''
+
+    // Notice to the staff member (skipped if there is no email on file)
+    if (applicant.email) {
+      await sendUserEmailHtml(
+        applicant.email,
+        'Missed shift notice from Convenience Hub of Maryland',
+        brandedEmailHtml(`<h2 style="color:#E8192C;margin:0 0 12px 0">Missed shift notice</h2>
+<p>Hi ${esc(firstName)},</p>
+<p>Our records show you did not attend a shift you had claimed.</p>
+${shiftLine}
+<p>Repeated no-shows may affect your access to future shifts. If you believe this is a mistake, or you need to cancel a shift ahead of time, call or text <a href="tel:+12025792944" style="color:#E8192C">202-579-2944</a>.</p>`)
+      ).catch(e => console.error('[mark-noshow] staff email error:', e))
+    }
+
+    // Admin alert at 2 or more no-shows
     if (newCount >= 2) {
-      // TODO: Send email via Resend
-      console.log(`[NO-SHOW ALERT] ${applicant.full_name} has ${newCount} no-shows`)
+      await sendAdminEmail(
+        `No-show alert: ${applicant.full_name}`,
+        `${applicant.full_name} now has ${newCount} no-shows. The staff member has been emailed about this shift.`
+      ).catch(e => console.error('[mark-noshow] admin email error:', e))
     }
 
     return NextResponse.json({
