@@ -47,6 +47,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [importNote, setImportNote] = useState('')
+  const [importError, setImportError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -68,10 +69,13 @@ export default function ProductEditForm({ product, isNew }: Props) {
   const balance = stockNum != null ? Math.max(0, stockNum - sold) : null
 
   async function importFromLink() {
-    if (!importUrl.trim()) return
-    setImporting(true)
-    setError('')
     setImportNote('')
+    setImportError('')
+    if (!importUrl.trim()) {
+      setImportError('Paste the product link into the box first, then click Fill in.')
+      return
+    }
+    setImporting(true)
     try {
       const res = await fetch('/api/admin/products/import', {
         method: 'POST',
@@ -79,6 +83,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
         body: JSON.stringify({ url: importUrl.trim() }),
       })
       const data = await res.json().catch(() => ({}))
+      if (res.status === 401) throw new Error('Your admin sign-in has expired. Refresh the page and sign in again.')
       if (!res.ok) throw new Error(data.error ?? 'Could not read that link.')
       setFields(f => ({
         ...f,
@@ -86,15 +91,17 @@ export default function ProductEditForm({ product, isNew }: Props) {
         description: data.description || f.description,
         cost: data.cost != null ? String(data.cost) : f.cost,
       }))
-      if (Array.isArray(data.image_urls) && data.image_urls.length) {
+      const gotPhotos = Array.isArray(data.image_urls) && data.image_urls.length > 0
+      if (gotPhotos) {
         setPhotos(p => [...p, ...data.image_urls].slice(0, MAX_PHOTOS))
       }
       setImportNote(
-        `Filled from the page. Please check the title, description and photos.` +
+        `Filled from the page. Please check the title and description.` +
+        (gotPhotos ? '' : ' No photos could be copied, so upload them below.') +
         (data.cost != null ? ` The page showed $${Number(data.cost).toFixed(2)}; check it is what you paid.` : ' No price was on the page, so enter your cost.')
       )
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not read that link.')
+      setImportError(err instanceof Error ? err.message : 'Could not read that link.')
     } finally {
       setImporting(false)
     }
@@ -204,13 +211,18 @@ export default function ProductEditForm({ product, isNew }: Props) {
         <div className="space-y-2 border border-gray-200 bg-cream p-4">
           <label className={labelCls}>Fill in from a product link (optional)</label>
           <div className="flex gap-2">
-            <input value={importUrl} onChange={e => setImportUrl(e.target.value)} className={inputCls} placeholder="https://supplier.example.com/product-page" />
+            <input value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); importFromLink() } }}
+              className={inputCls} placeholder="https://supplier.example.com/product-page" />
             <button type="button" onClick={importFromLink} disabled={importing}
               className="border border-chm-red text-chm-red px-4 text-xs uppercase tracking-widest hover:bg-chm-red hover:text-white disabled:opacity-50 whitespace-nowrap">
               {importing ? 'Reading…' : 'Fill in'}
             </button>
           </div>
+          {importing && <p className="text-xs text-gray-500">Reading the page. This can take up to 30 seconds.</p>}
           {importNote && <p className="text-xs text-green-700">{importNote}</p>}
+          {importError && <p className="text-xs text-chm-red">{importError}</p>}
         </div>
       )}
 
@@ -322,7 +334,9 @@ export default function ProductEditForm({ product, isNew }: Props) {
           {uploading && <p className="text-xs text-gray-500 mt-1">Uploading…</p>}
         </div>
         <div className="flex gap-2">
-          <input value={pasteUrl} onChange={e => setPasteUrl(e.target.value)} className={inputCls} placeholder="or paste a photo link (https://…)" />
+          <input value={pasteUrl} onChange={e => setPasteUrl(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addPastedPhoto() } }}
+            className={inputCls} placeholder="or paste a photo link (https://…)" />
           <button type="button" onClick={addPastedPhoto} className="border border-gray-200 px-4 text-xs uppercase tracking-widest">Add</button>
         </div>
       </div>
