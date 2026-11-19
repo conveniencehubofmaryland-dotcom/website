@@ -162,9 +162,13 @@ export async function POST(req: NextRequest) {
   }
 
   const ld = productJsonLd(page.html)
+  const ogTitle = metaContent(page.html, 'og:title')
+  // Plain page title often ends with the site name ("Cleaning Tool - Alibaba.com"); remove that part.
+  const pageTitle = decode(page.html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '')
+    .replace(/\s+[-|–]\s+[^-|–]*\.(com|net|org|co|shop)\b.*$/i, '')
   const title = (ld && typeof ld.name === 'string' ? decode(ld.name) : null)
-    || metaContent(page.html, 'og:title')
-    || decode(page.html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '')
+    || ogTitle
+    || pageTitle
   const description = (ld && typeof ld.description === 'string' ? decode(ld.description) : null)
     || metaContent(page.html, 'og:description')
     || metaContent(page.html, 'description')
@@ -196,6 +200,13 @@ export async function POST(req: NextRequest) {
     if (copied) images.push(copied)
   }
 
+  // Many marketplace pages (for example Alibaba) load their product details with scripts.
+  // When the plain HTML has no product details at all, say so instead of filling nothing.
+  if (!ld && !ogTitle && cost == null && images.length === 0) {
+    return NextResponse.json({
+      error: 'This store loads its product details with code, so the link cannot be read automatically. Fill in the title, description, cost and photos by hand.',
+    }, { status: 422 })
+  }
   if (!title) {
     return NextResponse.json({ error: 'The page did not show a product name. Fill the fields in by hand.' }, { status: 422 })
   }
