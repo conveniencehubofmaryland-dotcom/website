@@ -4,7 +4,7 @@ import { dbSelect } from '@/lib/db'
 import ProductsGrid, { type PublicProduct } from '@/components/ProductsGrid'
 
 export const metadata: Metadata = {
-  title: 'Products | Convenience Hub of Maryland',
+  title: 'Products',
   description: 'Eco-friendly cleaning, laundry and home convenience products from Convenience Hub of Maryland.',
 }
 
@@ -13,7 +13,8 @@ export const dynamic = 'force-dynamic'
 // Only products marked available are shown. "Coming Soon" items stay hidden.
 export default async function ProductsPage() {
   const products = await dbSelect<PublicProduct>('products', {
-    select: 'id,sku,title,category,description,price,image_url,sort_order',
+    // Cost and markup are never sent to the public site.
+    select: 'id,sku,title,category,description,price,image_url,image_urls,weight_lb,sort_order',
     active: 'eq.true',
     order: 'sort_order.asc',
   })

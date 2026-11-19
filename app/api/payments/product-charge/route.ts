@@ -2,25 +2,38 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { sbFetch } from '@/lib/shift-eligibility'
+import { quoteOrder, type Fulfillment } from '@/lib/shop-pricing'
 
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
+const SHOP_PHONE = '202-579-2944'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const MAX_ITEMS = 20
 const MAX_QTY = 20
 
-type Line = { id: string; title: string; sku: string; price: number; qty: number }
+type Line = { id: string; title: string; sku: string; price: number; qty: number; weight_lb: number | null }
+type Address = { line1: string; line2: string; city: string; state: string; zip: string }
 
 function esc(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string))
 }
 
-// Takes a product payment. Prices are read from the products table here, never from the browser.
+function readAddress(v: unknown): Address | { error: string } {
+  const a = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>
+  const s = (k: string) => (typeof a[k] === 'string' ? (a[k] as string).trim() : '')
+  const addr = { line1: s('line1'), line2: s('line2'), city: s('city'), state: s('state').toUpperCase(), zip: s('zip') }
+  if (addr.line1.length < 3 || !addr.city || !/^[A-Z]{2}$/.test(addr.state) || !/^\d{5}(-\d{4})?$/.test(addr.zip)) {
+    return { error: 'Please enter a full shipping address (street, city, 2-letter state and ZIP code).' }
+  }
+  return addr
+}
+
+// Takes a product payment. Prices and shipping are calculated here from the products table, never from the browser.
 // Only products marked available can be bought. Requires CLOVER_PRIVATE_KEY and CLOVER_API_BASE.
 export async function POST(request: NextRequest) {
   const privateKey = process.env.CLOVER_PRIVATE_KEY
   const apiBase = process.env.CLOVER_API_BASE
   if (!privateKey || !apiBase) {
-    return NextResponse.json({ error: 'Online payment is not available right now. Please call 202-579-2944.' }, { status: 500 })
+    return NextResponse.json({ error: `Online payment is not available right now. Please call ${SHOP_PHONE}.` }, { status: 500 })
   }
 
   let body: Record<string, unknown>
@@ -34,11 +47,21 @@ export async function POST(request: NextRequest) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const email = typeof body.email === 'string' ? body.email.trim() : ''
   const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
+  const fulfillment: Fulfillment | null = body.fulfillment === 'ship' ? 'ship' : body.fulfillment === 'pickup' ? 'pickup' : null
   if (!token.startsWith('clv_')) {
     return NextResponse.json({ error: 'Invalid payment details. Please try again.' }, { status: 400 })
   }
-  if (!name || !email.includes('@') || !phone) {
+  if (!name || !email.includes('@') || phone.length < 7) {
     return NextResponse.json({ error: 'Please enter your name, email and phone number.' }, { status: 400 })
+  }
+  if (!fulfillment) {
+    return NextResponse.json({ error: 'Please choose pickup or shipping.' }, { status: 400 })
+  }
+  let shipTo: Address | null = null
+  if (fulfillment === 'ship') {
+    const addr = readAddress(body.shipTo)
+    if ('error' in addr) return NextResponse.json({ error: addr.error }, { status: 400 })
+    shipTo = addr
   }
 
   // Merge duplicate products and check quantities.
@@ -56,11 +79,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Your cart is empty or too large. Please review it and try again.' }, { status: 400 })
   }
 
-  // Look up current prices. Only available products count.
+  // Look up current prices and weights. Only available products count.
   const ids = Array.from(wanted.keys()).join(',')
-  let found: { id: string; title: string; sku: string; price: number | string | null }[]
+  let found: { id: string; title: string; sku: string; price: number | string | null; weight_lb: number | string | null }[]
   try {
-    const res = await sbFetch(`products?id=in.(${ids})&active=eq.true&select=id,title,sku,price`)
+    const res = await sbFetch(`products?id=in.(${ids})&active=eq.true&select=id,title,sku,price,weight_lb`)
     if (!res.ok) throw new Error(`lookup ${res.status}`)
     found = (await res.json()) as typeof found
   } catch (e) {
@@ -74,12 +97,20 @@ export async function POST(request: NextRequest) {
     if (!p || !Number.isFinite(price) || price <= 0) {
       return NextResponse.json({ error: 'Some items in your cart are no longer available. Please review your cart.' }, { status: 400 })
     }
-    lines.push({ id, title: p.title, sku: p.sku, price, qty })
+    const weight = p.weight_lb == null ? null : Number(p.weight_lb)
+    lines.push({ id, title: p.title, sku: p.sku, price, qty, weight_lb: weight })
   }
 
-  const total = Math.round(lines.reduce((sum, l) => sum + l.price * l.qty, 0) * 100) / 100
+  const quote = quoteOrder(lines, fulfillment)
+  if (!quote.canShip) {
+    return NextResponse.json(
+      { error: `This order cannot be shipped online. Please choose pickup or call ${SHOP_PHONE}.` },
+      { status: 400 }
+    )
+  }
+  const total = quote.total
   if (total < 1) {
-    return NextResponse.json({ error: 'This order needs a personal review. Please call 202-579-2944.' }, { status: 400 })
+    return NextResponse.json({ error: `This order needs a personal review. Please call ${SHOP_PHONE}.` }, { status: 400 })
   }
   const cents = Math.round(total * 100)
 
@@ -121,13 +152,16 @@ export async function POST(request: NextRequest) {
   // Record the order. The payment has already been taken, so a save failure is logged with the charge ID.
   const saved = await sbFetch('product_orders', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({
       name,
       email,
       phone,
-      items: lines.map(l => ({ id: l.id, sku: l.sku, title: l.title, price: l.price, qty: l.qty })),
+      items: lines.map(l => ({ id: l.id, sku: l.sku, title: l.title, price: l.price, qty: l.qty, weight_lb: l.weight_lb })),
       total,
+      fulfillment,
+      shipping_fee: quote.shipping,
+      ship_to: shipTo,
       clover_charge_id: chargeId,
       status: 'paid',
     }),
@@ -151,16 +185,23 @@ export async function POST(request: NextRequest) {
     const rows = lines
       .map(l => `<tr><td style="padding:6px 0">${esc(l.title)} × ${l.qty}</td><td style="padding:6px 0;text-align:right">$${(l.price * l.qty).toFixed(2)}</td></tr>`)
       .join('')
-    const table = `<table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">${rows}
+    const shipRow = quote.shipping > 0
+      ? `<tr><td style="padding:6px 0">Shipping</td><td style="padding:6px 0;text-align:right">$${quote.shipping.toFixed(2)}</td></tr>`
+      : ''
+    const table = `<table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%">${rows}${shipRow}
 <tr><td style="padding:8px 0;font-weight:700;border-top:2px solid #eee">Total paid</td><td style="padding:8px 0;font-weight:700;text-align:right;border-top:2px solid #eee;color:#E8192C">$${total.toFixed(2)}</td></tr></table>`
+    const how = shipTo
+      ? `<p style="font-size:14px"><strong>Ship to:</strong><br>${esc(shipTo.line1)}${shipTo.line2 ? '<br>' + esc(shipTo.line2) : ''}<br>${esc(shipTo.city)}, ${esc(shipTo.state)} ${esc(shipTo.zip)}</p>`
+      : `<p style="font-size:14px"><strong>Pickup:</strong> call or text ${SHOP_PHONE} to arrange a pickup time.</p>`
 
     await send({
       reply_to: [CHM_REPLY_TO],
       from: 'CHM Orders <support@conveniencehubofmaryland.com>',
       to: [ADMIN_EMAIL],
-      subject: `Product order: $${total.toFixed(2)} from ${esc(name)}`,
+      subject: `Product order (${fulfillment}): $${total.toFixed(2)} from ${esc(name)}`,
       html: brandEmail(`<h2 style="color:#E8192C">New Product Order</h2>
 <p style="font-size:14px">${esc(name)} · ${esc(email)} · ${esc(phone)}</p>
+${how}
 ${table}
 <p style="font-size:12px;color:#666;margin-top:12px">Clover charge ID: ${chargeId}</p>`),
     })
@@ -173,10 +214,11 @@ ${table}
       html: brandEmail(`<h2 style="color:#E8192C">Thank you, ${esc(name.split(' ')[0])}!</h2>
 <p style="font-size:14px">Here is your order receipt:</p>
 ${table}
+${how}
 <p style="font-size:12px;color:#666;margin-top:12px">Reference: ${chargeId}</p>
-<p style="font-size:13px;color:#666;margin-top:16px">Questions? Call or text 202-579-2944.</p>`),
+<p style="font-size:13px;color:#666;margin-top:16px">Questions? Call or text ${SHOP_PHONE}.</p>`),
     })
   }
 
-  return NextResponse.json({ ok: true, chargeId, amount: total })
+  return NextResponse.json({ ok: true, chargeId, amount: total, shipping: quote.shipping })
 }

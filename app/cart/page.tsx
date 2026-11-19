@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import CartView from '@/components/CartView'
 
 export const metadata: Metadata = {
-  title: 'Your Cart | Convenience Hub of Maryland',
+  title: 'Your Cart',
   robots: { index: false, follow: false },
 }
 

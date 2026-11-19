@@ -7,7 +7,8 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 export async function GET() {
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=id,sku,title,category,description,price,image_url,sort_order&order=sort_order.asc`,
+      // Cost and markup are never sent to the public site.
+      `${SUPABASE_URL}/rest/v1/products?active=eq.true&select=id,sku,title,category,description,price,image_url,image_urls,weight_lb,sort_order&order=sort_order.asc`,
       {
         headers: {
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,

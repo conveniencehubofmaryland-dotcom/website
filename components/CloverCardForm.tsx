@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import { CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL, saveCloverCharge } from '@/lib/clover'
-import { clearCart } from '@/lib/cart'
 
 type Props = {
   kind: 'deposit' | 'full'
@@ -11,13 +10,19 @@ type Props = {
   selections: Record<string, unknown>
   contact: { name: string; email: string; phone: string }
   referralCode?: string
-  // Product checkout: when set, the server prices these items itself and no recurring plan is offered.
-  productItems?: { id: string; qty: number }[]
+  // Product checkout: when set, the server prices the items and shipping itself, and no recurring plan is offered.
+  productOrder?: {
+    items: { id: string; qty: number }[]
+    fulfillment: 'pickup' | 'ship'
+    shipTo: Record<string, string> | null
+    // Called once the payment is confirmed. The parent keeps the success message and clears the cart.
+    onPaid?: (message: string) => void
+  }
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export default function CloverCardForm({ kind, amount, category, selections, contact, referralCode, productItems }: Props) {
+export default function CloverCardForm({ kind, amount, category, selections, contact, referralCode, productOrder }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const ids = {
     number: `cc-number-${uid}`,
@@ -35,7 +40,7 @@ export default function CloverCardForm({ kind, amount, category, selections, con
 
   // Recurring billing is offered for one-time-per-cycle plans only (weekly, every two weeks, monthly).
   const freq = (selections as Record<string, unknown>).frequency
-  const canRecur = !productItems && kind === 'full' && (freq === 'weekly' || freq === 'biweekly' || freq === 'monthly')
+  const canRecur = !productOrder && kind === 'full' && (freq === 'weekly' || freq === 'biweekly' || freq === 'monthly')
   const freqLabel = freq === 'weekly' ? 'week' : freq === 'biweekly' ? 'two weeks' : 'month'
 
   useEffect(() => {
@@ -92,11 +97,19 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         return
       }
       const useRecurring = canRecur && recurring
-      const endpoint = productItems
+      const endpoint = productOrder
         ? '/api/payments/product-charge'
         : useRecurring ? '/api/payments/recurring-setup' : '/api/payments/clover-charge'
-      const payload = productItems
-        ? { token: result.token, items: productItems, name: contact.name, email: contact.email, phone: contact.phone }
+      const payload = productOrder
+        ? {
+            token: result.token,
+            items: productOrder.items,
+            fulfillment: productOrder.fulfillment,
+            shipTo: productOrder.shipTo,
+            name: contact.name,
+            email: contact.email,
+            phone: contact.phone,
+          }
         : {
             token: result.token,
             kind,
@@ -118,9 +131,13 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         throw new Error(data.error || 'Payment could not be completed.')
       }
       saveCloverCharge(data.chargeId, Number(data.amount))
-      if (productItems) {
-        clearCart()
-        setDone(`Thank you! Your payment of $${Number(data.amount).toFixed(2)} was received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)
+      if (productOrder) {
+        const how = productOrder.fulfillment === 'ship'
+          ? 'Your order will be shipped to the address you gave.'
+          : `To arrange your pickup, call or text 202-579-2944.`
+        const msg = `Thank you! Your payment of $${Number(data.amount).toFixed(2)} was received. Reference: ${data.chargeId}. ${how} A receipt is on its way to your email.`
+        setDone(msg)
+        productOrder.onPaid?.(msg)
       } else if (useRecurring) {
         setDone(`Your recurring plan is set up. First payment of $${Number(data.amount).toFixed(2)} received. Next charge: ${data.nextChargeDate}. An invoice and confirmation are on their way to your email.`)
       } else {

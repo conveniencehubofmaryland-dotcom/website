@@ -140,7 +140,11 @@ export type Product = {
   category: string
   description: string | null
   price: number | null
+  cost: number | null
+  markup_percent: number | null
+  weight_lb: number | null
   image_url: string | null
+  image_urls: string[] | null
   active: boolean
   sort_order: number
   created_at: string

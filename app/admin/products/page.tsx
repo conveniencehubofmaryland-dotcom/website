@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { dbSelectAuth } from '@/lib/db'
 import type { Product } from '@/lib/types'
 
+const money = (v: number | string | null | undefined) => (v == null ? '—' : `$${Number(v).toFixed(2)}`)
+
 export default async function AdminProductsPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('chm_admin')?.value ?? ''
@@ -31,8 +33,8 @@ export default async function AdminProductsPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                {['SKU', 'Title', 'Category', 'Price', 'Status', ''].map(h => (
-                  <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
+                {['SKU', 'Title', 'Category', 'Cost', 'Markup', 'Sale Price', 'Status', ''].map((h, i) => (
+                  <th key={i} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -44,7 +46,9 @@ export default async function AdminProductsPage() {
                   <td className="py-3 px-4 font-mono text-xs text-gray-500">{p.sku}</td>
                   <td className="py-3 px-4 font-semibold text-chm-black">{p.title}</td>
                   <td className="py-3 px-4 text-gray-500 text-sm">{p.category}</td>
-                  <td className="py-3 px-4 text-gray-500">{p.price ? `$${p.price}` : '—'}</td>
+                  <td className="py-3 px-4 text-gray-500">{money(p.cost)}</td>
+                  <td className="py-3 px-4 text-gray-500">{p.markup_percent != null ? `${Number(p.markup_percent)}%` : '—'}</td>
+                  <td className="py-3 px-4 text-gray-700 font-semibold">{money(p.price)}</td>
                   <td className="py-3 px-4">
                     <span className={`text-xs px-2 py-0.5 ${p.active ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
                       {p.active ? 'Available' : 'Coming Soon'}

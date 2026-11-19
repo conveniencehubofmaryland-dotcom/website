@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { dbSelectAuth, dbInsertAuth } from '@/lib/db'
 import type { Product } from '@/lib/types'
+import { productFields } from '@/lib/product-fields'
 
 async function getToken(): Promise<string> {
   const c = await cookies()
@@ -19,24 +20,11 @@ export async function POST(req: NextRequest) {
   const t = await getToken()
   if (!t) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await req.json()
-  const { sku, title, category, description, price, image_url, active, sort_order } = body
+  const body = await req.json().catch(() => null)
+  const parsed = productFields(body, { isNew: true })
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
 
-  if (!sku?.trim() || !title?.trim() || !category?.trim()) {
-    return NextResponse.json({ error: 'SKU, title, and category are required' }, { status: 400 })
-  }
-
-  const { error } = await dbInsertAuth('products', {
-    sku: sku.trim(),
-    title: title.trim(),
-    category: category.trim(),
-    description: description?.trim() || null,
-    price: price || null,
-    image_url: image_url?.trim() || null,
-    active: !!active,
-    sort_order: sort_order ?? 0,
-  }, t)
-
+  const { error } = await dbInsertAuth('products', parsed.row, t)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
 }
