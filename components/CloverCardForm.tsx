@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import { CLOVER_MERCHANT_ID, CLOVER_PUBLIC_TOKEN, CLOVER_SDK_URL, saveCloverCharge } from '@/lib/clover'
+import { clearCart } from '@/lib/cart'
 
 type Props = {
   kind: 'deposit' | 'full'
@@ -10,11 +11,13 @@ type Props = {
   selections: Record<string, unknown>
   contact: { name: string; email: string; phone: string }
   referralCode?: string
+  // Product checkout: when set, the server prices these items itself and no recurring plan is offered.
+  productItems?: { id: string; qty: number }[]
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export default function CloverCardForm({ kind, amount, category, selections, contact, referralCode }: Props) {
+export default function CloverCardForm({ kind, amount, category, selections, contact, referralCode, productItems }: Props) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const ids = {
     number: `cc-number-${uid}`,
@@ -32,7 +35,7 @@ export default function CloverCardForm({ kind, amount, category, selections, con
 
   // Recurring billing is offered for one-time-per-cycle plans only (weekly, every two weeks, monthly).
   const freq = (selections as Record<string, unknown>).frequency
-  const canRecur = kind === 'full' && (freq === 'weekly' || freq === 'biweekly' || freq === 'monthly')
+  const canRecur = !productItems && kind === 'full' && (freq === 'weekly' || freq === 'biweekly' || freq === 'monthly')
   const freqLabel = freq === 'weekly' ? 'week' : freq === 'biweekly' ? 'two weeks' : 'month'
 
   useEffect(() => {
@@ -89,27 +92,36 @@ export default function CloverCardForm({ kind, amount, category, selections, con
         return
       }
       const useRecurring = canRecur && recurring
-      const res = await fetch(useRecurring ? '/api/payments/recurring-setup' : '/api/payments/clover-charge', {
+      const endpoint = productItems
+        ? '/api/payments/product-charge'
+        : useRecurring ? '/api/payments/recurring-setup' : '/api/payments/clover-charge'
+      const payload = productItems
+        ? { token: result.token, items: productItems, name: contact.name, email: contact.email, phone: contact.phone }
+        : {
+            token: result.token,
+            kind,
+            category,
+            selections,
+            name: contact.name,
+            email: contact.email,
+            phone: contact.phone,
+            referralCode: referralCode || '',
+            consent: agree,
+          }
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: result.token,
-          kind,
-          category,
-          selections,
-          name: contact.name,
-          email: contact.email,
-          phone: contact.phone,
-          referralCode: referralCode || '',
-          consent: agree,
-        }),
+        body: JSON.stringify(payload),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Payment could not be completed.')
       }
       saveCloverCharge(data.chargeId, Number(data.amount))
-      if (useRecurring) {
+      if (productItems) {
+        clearCart()
+        setDone(`Thank you! Your payment of $${Number(data.amount).toFixed(2)} was received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)
+      } else if (useRecurring) {
         setDone(`Your recurring plan is set up. First payment of $${Number(data.amount).toFixed(2)} received. Next charge: ${data.nextChargeDate}. An invoice and confirmation are on their way to your email.`)
       } else {
         setDone(`Payment of $${Number(data.amount).toFixed(2)} received. Reference: ${data.chargeId}. A receipt is on its way to your email.`)

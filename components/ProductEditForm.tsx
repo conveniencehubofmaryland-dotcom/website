@@ -8,8 +8,35 @@ type Props = {
   isNew: boolean
 }
 
+const CATEGORIES = ['Cleaning & Eco-Friendly', 'Laundry & Fabric Care', 'Home Convenience']
+
 export default function ProductEditForm({ product, isNew }: Props) {
   const router = useRouter()
+  // Keep a product's own category in the list even if it is not one of the standard three,
+  // so opening and saving the product never changes its category.
+  const categoryOptions = product?.category && !CATEGORIES.includes(product.category)
+    ? [...CATEGORIES, product.category]
+    : CATEGORIES
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+
+  async function handleImage(file: File | null) {
+    if (!file) return
+    setUploading(true)
+    setUploadError('')
+    try {
+      const fd = new FormData()
+      fd.append('image', file)
+      const res = await fetch('/api/admin/products/image', { method: 'POST', body: fd })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Upload failed')
+      setField('image_url', data.url)
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const [fields, setFields] = useState({
     sku:         product?.sku         ?? '',
@@ -98,9 +125,9 @@ export default function ProductEditForm({ product, isNew }: Props) {
             <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">Category *</label>
             <select value={fields.category} onChange={e => setField('category', e.target.value)}
               className={inputCls}>
-              <option>Cleaning & Eco-Friendly</option>
-              <option>Laundry & Fabric Care</option>
-              <option>Home Convenience</option>
+              {categoryOptions.map(c => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
           </div>
 
@@ -118,8 +145,12 @@ export default function ProductEditForm({ product, isNew }: Props) {
 
           <div className="sm:col-span-2">
             <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">Image URL</label>
+            <input type="file" accept="image/*" disabled={uploading}
+              onChange={e => handleImage(e.target.files?.[0] ?? null)} className="w-full text-sm mb-2" />
+            {uploading && <p className="text-xs text-gray-500">Uploading…</p>}
+            {uploadError && <p className="text-xs text-chm-red">{uploadError}</p>}
             <input value={fields.image_url} onChange={e => setField('image_url', e.target.value)}
-              className={inputCls} placeholder="https://example.com/image.jpg" />
+              className={inputCls} placeholder="or paste an image link (https://…)" />
             {fields.image_url && (
               <img src={fields.image_url} alt="preview" className="mt-2 h-20 object-cover" />
             )}
