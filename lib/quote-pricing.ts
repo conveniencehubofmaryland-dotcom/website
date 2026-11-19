@@ -101,7 +101,18 @@ const CARE_DAY_PROGRAM: Record<string, number> = {
 export type Selections = Record<string, unknown>
 export type LineItem = { label: string; amount: number }
 
-export function calcCleaning(sel: Selections): { total: number; breakdown: LineItem[] } {
+// Prices read from the admin services table. Only single-number prices are used; anything else keeps the default below.
+export type PriceOverrides = Partial<{
+  standard: Record<string, number>
+  deep: Record<string, number>
+  laundryPerLb: Record<string, number>
+  laundryPremium: Record<string, number>
+  laundryFolding: number
+  laundryRecurring: Record<string, number>
+  laundryAddons: Record<string, number>
+}>
+
+export function calcCleaning(sel: Selections, ov: PriceOverrides = {}): { total: number; breakdown: LineItem[] } {
   const breakdown: LineItem[] = []
   let base = 0
   const serviceType = sel.serviceType as string
@@ -113,7 +124,7 @@ export function calcCleaning(sel: Selections): { total: number; breakdown: LineI
     base = sizeTable ? sizeTable[condition] || 0 : 0
     breakdown.push({ label: `Move-In/Move-Out (${moveSize}, ${condition})`, amount: base })
   } else {
-    const table = serviceType === 'deep' ? DEEP_CLEANING : STANDARD_CLEANING
+    const table = serviceType === 'deep' ? { ...DEEP_CLEANING, ...ov.deep } : { ...STANDARD_CLEANING, ...ov.standard }
     const homeSize = sel.homeSize as string
     base = table[homeSize] || 0
     breakdown.push({ label: `${serviceType === 'deep' ? 'Deep' : 'Standard'} Cleaning (${homeSize})`, amount: base })
@@ -146,31 +157,32 @@ export function calcCleaning(sel: Selections): { total: number; breakdown: LineI
   return { total, breakdown }
 }
 
-export function calcLaundry(sel: Selections): { total: number; breakdown: LineItem[] } {
+export function calcLaundry(sel: Selections, ov: PriceOverrides = {}): { total: number; breakdown: LineItem[] } {
   const breakdown: LineItem[] = []
   const planType = sel.planType as string
   let total = 0
 
   if (planType === 'recurring') {
-    const cost = LAUNDRY_RECURRING[sel.recurringPlan as string] || 0
+    const cost = ({ ...LAUNDRY_RECURRING, ...ov.laundryRecurring })[sel.recurringPlan as string] || 0
     breakdown.push({ label: `Monthly Subscription (${sel.recurringPlan})`, amount: cost })
     total = cost
   } else if (planType === 'foldingOnly') {
     const weight = Math.max(10, Number(sel.weight) || 10)
-    const cost = LAUNDRY_FOLDING_RATE * weight
-    breakdown.push({ label: `Folding Only — ${weight} lbs @ $${LAUNDRY_FOLDING_RATE.toFixed(2)}/lb`, amount: cost })
+    const foldRate = ov.laundryFolding ?? LAUNDRY_FOLDING_RATE
+    const cost = foldRate * weight
+    breakdown.push({ label: `Folding Only — ${weight} lbs @ $${foldRate.toFixed(2)}/lb`, amount: cost })
     total = cost
   } else {
     const category = sel.category as string
     const weight = Math.max(10, Number(sel.weight) || 10)
-    const rate = LAUNDRY_PER_LB[category] || 0
+    const rate = ({ ...LAUNDRY_PER_LB, ...ov.laundryPerLb })[category] || 0
     const base = rate * weight
     breakdown.push({ label: `${category} — ${weight} lbs @ $${rate.toFixed(2)}/lb`, amount: base })
     total = base
 
     const premium = sel.premiumOption as string
     if (premium && premium !== 'none') {
-      const premRate = LAUNDRY_PREMIUM_PER_LB[premium] || 0
+      const premRate = ({ ...LAUNDRY_PREMIUM_PER_LB, ...ov.laundryPremium })[premium] || 0
       const premCost = premRate * weight
       const premLabels: Record<string, string> = {
         ironhang: 'Iron & Hang', expressiron: 'Express Iron & Press', samedayexpress: 'Same-Day Express',
@@ -186,7 +198,7 @@ export function calcLaundry(sel: Selections): { total: number; breakdown: LineIt
     hypoallergenic: 'Hypoallergenic Detergent', comforter: 'Comforter/Duvet Cleaning',
     beddingSet: 'Bedding Set', curtainPanels: 'Curtain Panels', tablecloths: 'Tablecloths',
   }
-  for (const [key, price] of Object.entries(LAUNDRY_ADDON_PRICES)) {
+  for (const [key, price] of Object.entries({ ...LAUNDRY_ADDON_PRICES, ...ov.laundryAddons })) {
     const qty = Number(addOnQty[key]) || 0
     if (qty > 0) {
       const cost = price * qty
@@ -372,14 +384,14 @@ export function calcElderCare(sel: Selections): { total: number; breakdown: Line
 }
 
 // Single source of truth for quote totals. Returns null total for unknown categories.
-function computeBaseQuote(category: string, selections: Selections): { total: number | null; breakdown: LineItem[] } {
+function computeBaseQuote(category: string, selections: Selections, prices: PriceOverrides = {}): { total: number | null; breakdown: LineItem[] } {
   if (category.startsWith('bundle-')) {
     const bundle = BUNDLES.find(b => b.id === category.slice('bundle-'.length))
     if (!bundle || !bundle.price) return { total: null, breakdown: [] }
     return { total: bundle.price, breakdown: [{ label: `${bundle.name} bundle (first month)`, amount: bundle.price }] }
   }
-  if (category === 'cleaning') return calcCleaning(selections)
-  if (category === 'laundry') return calcLaundry(selections)
+  if (category === 'cleaning') return calcCleaning(selections, prices)
+  if (category === 'laundry') return calcLaundry(selections, prices)
   if (category === 'mealprep') return calcMealPrep(selections)
   if (category === 'nanny') return calcNanny(selections)
   if (category === 'eldercare') return calcElderCare(selections)
@@ -393,11 +405,11 @@ const RECURRING_FREQUENCIES = ['weekly', 'twiceweekly', 'biweekly', 'monthly']
 export function computeQuote(
   category: string,
   selections: Selections,
-  opts?: { member?: boolean; realtor?: boolean }
+  opts?: { member?: boolean; realtor?: boolean; prices?: PriceOverrides }
 ): { total: number | null; breakdown: LineItem[] } {
   // Realtor referral code: 15% off all services. It replaces the first-time and member discounts (best one only).
   if (opts?.realtor) {
-    const base = computeBaseQuote(category, { ...selections, firstTime: false })
+    const base = computeBaseQuote(category, { ...selections, firstTime: false }, opts.prices)
     if (base.total === null) return base
     const off = Math.round(base.total * 0.15 * 100) / 100
     return {
@@ -405,7 +417,7 @@ export function computeQuote(
       breakdown: [...base.breakdown, { label: 'Realtor Referral Discount (15%)', amount: -off }],
     }
   }
-  const result = computeBaseQuote(category, selections)
+  const result = computeBaseQuote(category, selections, opts?.prices)
   const freq = (selections as Record<string, unknown>).frequency as string | undefined
   if (!opts?.member || result.total === null || !freq || !RECURRING_FREQUENCIES.includes(freq)) {
     return result

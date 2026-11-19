@@ -2,6 +2,7 @@ import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { computeQuote, type LineItem } from '@/lib/quote-pricing'
+import { loadServicePrices } from '@/lib/service-prices'
 import { isActiveMember } from '@/lib/membership'
 import { checkReferralCode } from '@/lib/realtor'
 import { isMemberCode, checkMemberReferral } from '@/lib/member-referral'
@@ -33,7 +34,8 @@ export async function POST(req: NextRequest) {
       realtor = true
     }
     const member = realtor ? false : await isActiveMember(email)
-    const quote = computeQuote(category, selections || {}, { member, realtor })
+    const prices = await loadServicePrices()
+    const quote = computeQuote(category, selections || {}, { member, realtor, prices })
     let total: number | null = quote.total
     const breakdown: LineItem[] = quote.breakdown
 
