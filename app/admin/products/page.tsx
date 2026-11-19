@@ -33,7 +33,7 @@ export default async function AdminProductsPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                {['SKU', 'Title', 'Category', 'Cost', 'Markup', 'Sale Price', 'Status', ''].map((h, i) => (
+                {['SKU', 'Title', 'Category', 'Cost', 'Markup', 'Sale Price', 'Status', 'Received', 'Sold', 'Balance', '', ''].map((h, i) => (
                   <th key={i} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                     {h}
                   </th>
@@ -50,11 +50,18 @@ export default async function AdminProductsPage() {
                   <td className="py-3 px-4 text-gray-500">{p.markup_percent != null ? `${Number(p.markup_percent)}%` : '—'}</td>
                   <td className="py-3 px-4 text-gray-700 font-semibold">{money(p.price)}</td>
                   <td className="py-3 px-4">
-                    <span className={`text-xs px-2 py-0.5 ${p.active ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
-                      {p.active ? 'Available' : 'Coming Soon'}
+                    <span className={`text-xs px-2 py-0.5 ${p.status === 'available' ? 'bg-green-50 text-green-700' : p.status === 'out_of_stock' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                      {p.status === 'available' ? 'Available' : p.status === 'out_of_stock' ? 'Out of Stock' : 'Coming Soon'}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-3 px-4 text-gray-600">{p.stock_qty ?? 0}</td>
+                  <td className="py-3 px-4 text-gray-600">{p.sold_qty ?? 0}</td>
+                  <td className="py-3 px-4 font-semibold">{(p.stock_qty ?? 0) - (p.sold_qty ?? 0)}</td>
+                  <td className="py-3 px-4 whitespace-nowrap">
+                    <Link href={`/admin/products/${p.id}/view`}
+                      className="text-xs text-gray-600 hover:underline underline-offset-4 mr-4">
+                      View
+                    </Link>
                     <Link href={`/admin/products/${p.id}`}
                       className="text-xs text-chm-red hover:underline underline-offset-4">
                       Edit

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { dbSelect } from '@/lib/db'
-import ProductsGrid, { type PublicProduct } from '@/components/ProductsGrid'
+import ProductsGrid from '@/components/ProductsGrid'
+import { PUBLIC_PRODUCT_SELECT, toPublic, type ProductDbRow } from '@/lib/public-products'
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -10,14 +11,14 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-// Only products marked available are shown. "Coming Soon" items stay hidden.
+// Only products marked Available with stock left are shown. Coming Soon and Out of Stock stay hidden.
 export default async function ProductsPage() {
-  const products = await dbSelect<PublicProduct>('products', {
-    // Cost and markup are never sent to the public site.
-    select: 'id,sku,title,category,description,price,image_url,image_urls,weight_lb,sort_order',
+  const rows = await dbSelect<ProductDbRow>('products', {
+    select: PUBLIC_PRODUCT_SELECT,
     active: 'eq.true',
     order: 'sort_order.asc',
   })
+  const products = toPublic(rows)
 
   return (
     <div className="bg-white">

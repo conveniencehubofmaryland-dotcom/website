@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Same check for server pages: true when this admin login token is valid.
+export async function isAdminToken(token: string): Promise<boolean> {
+  if (!token) return false
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  try {
+    const res = await fetch(`${url}/auth/v1/user`, { headers: { apikey: anon, Authorization: `Bearer ${token}` }, cache: 'no-store' })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 // Confirms the request comes from a signed-in admin.
 // Returns null when the admin is allowed, or a 401 response to send back.
 export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {

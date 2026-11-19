@@ -2,6 +2,9 @@ import { salePrice } from '@/lib/shop-pricing'
 
 export type ProductRow = Record<string, unknown>
 
+export const PRODUCT_STATUSES = ['coming_soon', 'out_of_stock', 'available'] as const
+export type ProductStatus = (typeof PRODUCT_STATUSES)[number]
+
 const MAX_PHOTOS = 8
 
 function num(v: unknown): number | null | undefined {
@@ -44,7 +47,7 @@ export function productFields(
     row.sort_order = Number.isInteger(n) ? n : 0
   }
 
-  // Cost, markup and weight.
+  // Cost, markup, weight.
   const cost = num(b.cost)
   const markup = num(b.markup_percent)
   const weight = num(b.weight_lb)
@@ -54,13 +57,28 @@ export function productFields(
   if (cost !== undefined) row.cost = cost
   if (markup !== undefined) row.markup_percent = markup
   if (weight !== undefined) row.weight_lb = weight
-
   if (cost !== undefined || markup !== undefined) {
-    if (cost == null) {
-      row.price = null
-    } else {
-      row.price = salePrice(cost, markup ?? 0)
+    row.price = cost == null ? null : salePrice(cost, markup ?? 0)
+  }
+
+  // Stock received. Empty means stock is not counted (unlimited).
+  const stock = num(b.stock_qty)
+  if (Number.isNaN(stock) || (stock != null && (!Number.isInteger(stock) || stock < 0))) {
+    return { ok: false, error: 'Stock must be a whole number of 0 or more (or left empty if not counted).' }
+  }
+  if (stock !== undefined) row.stock_qty = stock
+
+  // Status: Coming Soon, Out of Stock, or Available. Only Available is shown to customers.
+  if (b.status !== undefined) {
+    const status = typeof b.status === 'string' ? b.status : ''
+    if (!(PRODUCT_STATUSES as readonly string[]).includes(status)) {
+      return { ok: false, error: 'Status must be Coming Soon, Out of Stock or Available.' }
     }
+    row.status = status
+    row.active = status === 'available'
+  }
+  if (row.status === 'available' && (row.price === null || (opts.isNew && row.price === undefined))) {
+    return { ok: false, error: 'Enter the cost to set the price before making this product available.' }
   }
 
   if (Array.isArray(b.image_urls)) {
@@ -70,13 +88,6 @@ export function productFields(
       .slice(0, MAX_PHOTOS)
     row.image_urls = urls
     row.image_url = urls[0] ?? null
-  }
-
-  if (b.active !== undefined) row.active = !!b.active
-  if (row.active === true) {
-    const price = row.price
-    if (price === undefined && opts.isNew) return { ok: false, error: 'Enter the cost to set the price before making this product available.' }
-    if (price === null) return { ok: false, error: 'Enter the cost to set the price before making this product available.' }
   }
 
   return { ok: true, row }

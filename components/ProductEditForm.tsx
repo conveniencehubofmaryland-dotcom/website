@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types'
 import { salePrice } from '@/lib/shop-pricing'
@@ -10,6 +11,11 @@ type Props = {
 }
 
 const CATEGORIES = ['Cleaning & Eco-Friendly', 'Laundry & Fabric Care', 'Home Convenience']
+const STATUSES: { value: string; label: string; hint: string }[] = [
+  { value: 'coming_soon', label: 'Coming Soon', hint: 'Hidden from customers.' },
+  { value: 'out_of_stock', label: 'Out of Stock', hint: 'Hidden from customers until restocked.' },
+  { value: 'available', label: 'Available', hint: 'Shown to customers and can be bought.' },
+]
 const MAX_PHOTOS = 8
 const inputCls = 'w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-chm-red transition-colors'
 const labelCls = 'block text-xs text-gray-500 uppercase tracking-widest mb-1'
@@ -22,6 +28,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
     : CATEGORIES
 
   const initialPhotos = product?.image_urls?.length ? product.image_urls : product?.image_url ? [product.image_url] : []
+  const sold = Number(product?.sold_qty ?? 0)
 
   const [fields, setFields] = useState({
     sku: product?.sku ?? '',
@@ -31,17 +38,21 @@ export default function ProductEditForm({ product, isNew }: Props) {
     cost: product?.cost != null ? String(product.cost) : '',
     markup_percent: product?.markup_percent != null ? String(product.markup_percent) : '',
     weight_lb: product?.weight_lb != null ? String(product.weight_lb) : '',
-    active: product?.active ?? false,
+    status: product?.status ?? 'coming_soon',
+    stock_qty: product?.stock_qty != null ? String(product.stock_qty) : '',
     sort_order: product?.sort_order ?? 0,
   })
   const [photos, setPhotos] = useState<string[]>(initialPhotos)
   const [pasteUrl, setPasteUrl] = useState('')
+  const [importUrl, setImportUrl] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importNote, setImportNote] = useState('')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
 
-  function setField(k: string, v: string | number | boolean) {
+  function setField(k: string, v: string | number) {
     setFields(f => ({ ...f, [k]: v }))
   }
 
@@ -52,6 +63,42 @@ export default function ProductEditForm({ product, isNew }: Props) {
     ? salePrice(costNum, markupNum)
     : null
   const profit = preview != null && costNum != null ? Math.round((preview - costNum) * 100) / 100 : null
+
+  const stockNum = fields.stock_qty === '' ? null : Number(fields.stock_qty)
+  const balance = stockNum != null ? Math.max(0, stockNum - sold) : null
+
+  async function importFromLink() {
+    if (!importUrl.trim()) return
+    setImporting(true)
+    setError('')
+    setImportNote('')
+    try {
+      const res = await fetch('/api/admin/products/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? 'Could not read that link.')
+      setFields(f => ({
+        ...f,
+        title: data.title || f.title,
+        description: data.description || f.description,
+        cost: data.cost != null ? String(data.cost) : f.cost,
+      }))
+      if (Array.isArray(data.image_urls) && data.image_urls.length) {
+        setPhotos(p => [...p, ...data.image_urls].slice(0, MAX_PHOTOS))
+      }
+      setImportNote(
+        `Filled from the page. Please check the title, description and photos.` +
+        (data.cost != null ? ` The page showed $${Number(data.cost).toFixed(2)}; check it is what you paid.` : ' No price was on the page, so enter your cost.')
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not read that link.')
+    } finally {
+      setImporting(false)
+    }
+  }
 
   async function uploadFiles(files: FileList | null) {
     if (!files || files.length === 0) return
@@ -72,11 +119,10 @@ export default function ProductEditForm({ product, isNew }: Props) {
         if (!res.ok || !data.url) throw new Error(data.error ?? 'Upload failed')
         added.push(data.url)
       }
-      setPhotos(p => [...p, ...added])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
-      setPhotos(p => [...p, ...added])
     } finally {
+      setPhotos(p => [...p, ...added])
       setUploading(false)
     }
   }
@@ -121,8 +167,9 @@ export default function ProductEditForm({ product, isNew }: Props) {
           cost: fields.cost === '' ? null : Number(fields.cost),
           markup_percent: fields.markup_percent === '' ? 0 : Number(fields.markup_percent),
           weight_lb: fields.weight_lb === '' ? null : Number(fields.weight_lb),
+          stock_qty: fields.stock_qty === '' ? null : Number(fields.stock_qty),
+          status: fields.status,
           image_urls: photos,
-          active: fields.active,
           sort_order: fields.sort_order,
         }),
       })
@@ -153,6 +200,20 @@ export default function ProductEditForm({ product, isNew }: Props) {
 
   return (
     <form onSubmit={handleSave} className="max-w-2xl space-y-8">
+      {isNew && (
+        <div className="space-y-2 border border-gray-200 bg-cream p-4">
+          <label className={labelCls}>Fill in from a product link (optional)</label>
+          <div className="flex gap-2">
+            <input value={importUrl} onChange={e => setImportUrl(e.target.value)} className={inputCls} placeholder="https://supplier.example.com/product-page" />
+            <button type="button" onClick={importFromLink} disabled={importing}
+              className="border border-chm-red text-chm-red px-4 text-xs uppercase tracking-widest hover:bg-chm-red hover:text-white disabled:opacity-50 whitespace-nowrap">
+              {importing ? 'Reading…' : 'Fill in'}
+            </button>
+          </div>
+          {importNote && <p className="text-xs text-green-700">{importNote}</p>}
+        </div>
+      )}
+
       <div className="space-y-4">
         <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3">Product Information</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -185,6 +246,38 @@ export default function ProductEditForm({ product, isNew }: Props) {
       </div>
 
       <div className="space-y-4">
+        <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3">Status</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {STATUSES.map(s => (
+            <button key={s.value} type="button" onClick={() => setField('status', s.value)}
+              className={`px-3 py-3 text-xs font-semibold uppercase tracking-widest border ${fields.status === s.value ? 'bg-chm-red border-chm-red text-white' : 'border-gray-200 text-gray-500 hover:border-chm-black'}`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500">{STATUSES.find(s => s.value === fields.status)?.hint}</p>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3">Stock</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Quantity received</label>
+            <input type="number" min="0" step="1" value={fields.stock_qty} onChange={e => setField('stock_qty', e.target.value)} className={inputCls} placeholder="leave empty if not counted" />
+          </div>
+          <div>
+            <label className={labelCls}>Sold so far</label>
+            <div className="border border-gray-200 px-3 py-2 text-sm bg-gray-50">{sold}</div>
+          </div>
+          <div>
+            <label className={labelCls}>Balance left</label>
+            <div className="border border-gray-200 px-3 py-2 text-sm bg-gray-50">{balance == null ? 'not counted' : balance}</div>
+          </div>
+        </div>
+        {balance === 0 && <p className="text-xs text-amber-700">No stock left. Customers cannot buy this until you add more stock.</p>}
+      </div>
+
+      <div className="space-y-4">
         <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3">Pricing</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -203,7 +296,7 @@ export default function ProductEditForm({ product, isNew }: Props) {
         <div className="border border-gray-200 bg-cream p-4 text-sm">
           <p>Sale price (shown to customers): <strong>{preview != null ? `$${preview.toFixed(2)}` : 'enter the cost'}</strong></p>
           {profit != null && <p className="text-gray-500 mt-1">Your profit per sale: ${profit.toFixed(2)}</p>}
-          <p className="text-xs text-gray-400 mt-2">The sale price is cost plus the markup percentage. It is calculated and saved automatically.</p>
+          <p className="text-xs text-gray-400 mt-2">Sale price = cost + markup % of your cost. Saved automatically.</p>
         </div>
       </div>
 
@@ -234,11 +327,6 @@ export default function ProductEditForm({ product, isNew }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <input type="checkbox" id="active" checked={fields.active} onChange={e => setField('active', e.target.checked)} className="w-4 h-4 accent-chm-red" />
-        <label htmlFor="active" className="text-sm text-chm-black">Available on the website (uncheck for Coming Soon)</label>
-      </div>
-
       {error && <p className="text-chm-red text-sm">{error}</p>}
 
       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -251,6 +339,11 @@ export default function ProductEditForm({ product, isNew }: Props) {
             className="border border-gray-200 text-gray-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-widest hover:border-chm-black hover:text-chm-black transition-colors">
             Cancel
           </button>
+          {!isNew && (
+            <Link href={`/admin/products/${product!.id}/view`} className="border border-gray-200 text-gray-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-widest hover:border-chm-black hover:text-chm-black">
+              View
+            </Link>
+          )}
         </div>
         {!isNew && (
           <button type="button" onClick={handleDelete} disabled={deleting}

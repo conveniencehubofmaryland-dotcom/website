@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { sbFetch } from '@/lib/shift-eligibility'
 import { quoteOrder, type Fulfillment } from '@/lib/shop-pricing'
+import { pickupInstructions } from '@/lib/shop-config'
 
 const ADMIN_EMAIL = 'conveniencehubofmaryland@gmail.com'
 const SHOP_PHONE = '202-579-2944'
@@ -114,6 +115,33 @@ export async function POST(request: NextRequest) {
   }
   const cents = Math.round(total * 100)
 
+  // Reserve stock before charging, so two buyers cannot both take the last item.
+  // If anything fails after this, the reserved stock is put back.
+  const reserved: { id: string; qty: number }[] = []
+  const releaseStock = async () => {
+    for (const r of reserved) {
+      await sbFetch('rpc/release_stock', { method: 'POST', body: JSON.stringify({ p_id: r.id, p_qty: r.qty }) })
+        .catch(e => console.error('[product-charge] could not release stock:', r.id, e))
+    }
+  }
+  for (const l of lines) {
+    let took = false
+    try {
+      const rr = await sbFetch('rpc/take_stock', { method: 'POST', body: JSON.stringify({ p_id: l.id, p_qty: l.qty }) })
+      took = rr.ok && (await rr.json()) === true
+    } catch (e) {
+      console.error('[product-charge] stock check failed:', e)
+    }
+    if (!took) {
+      await releaseStock()
+      return NextResponse.json(
+        { error: `Sorry, "${l.title}" is sold out or does not have enough left. Please review your cart.` },
+        { status: 409 }
+      )
+    }
+    reserved.push({ id: l.id, qty: l.qty })
+  }
+
   let charge: { id?: string; status?: string } | null = null
   let raw = ''
   try {
@@ -136,6 +164,7 @@ export async function POST(request: NextRequest) {
     }
     if (!cres.ok || !charge?.id || charge.status === 'failed' || charge.status === 'declined') {
       console.error('[product-charge] charge failed:', cres.status, raw.slice(0, 500))
+      await releaseStock()
       return NextResponse.json(
         { error: `Payment was not completed. Clover replied ${cres.status}: ${raw.slice(0, 300)}` },
         { status: 402 }
@@ -144,6 +173,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     const reason = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
     console.error('[product-charge] charge error:', reason)
+    await releaseStock()
     return NextResponse.json({ error: `Payment could not be processed. Reason: ${reason.slice(0, 300)}` }, { status: 502 })
   }
 
@@ -162,6 +192,7 @@ export async function POST(request: NextRequest) {
       fulfillment,
       shipping_fee: quote.shipping,
       ship_to: shipTo,
+      note: fulfillment === 'pickup' ? pickupInstructions() : null,
       clover_charge_id: chargeId,
       status: 'paid',
     }),
@@ -183,7 +214,7 @@ export async function POST(request: NextRequest) {
       }).catch(e => console.error('[product-charge] email error:', e))
 
     const rows = lines
-      .map(l => `<tr><td style="padding:6px 0">${esc(l.title)} × ${l.qty}</td><td style="padding:6px 0;text-align:right">$${(l.price * l.qty).toFixed(2)}</td></tr>`)
+      .map(l => `<tr><td style="padding:6px 0">${esc(l.title)} <span style="color:#999">(${esc(l.sku)})</span><br><span style="font-size:12px;color:#666">${l.qty} × $${l.price.toFixed(2)}</span></td><td style="padding:6px 0;text-align:right;vertical-align:top">$${(l.price * l.qty).toFixed(2)}</td></tr>`)
       .join('')
     const shipRow = quote.shipping > 0
       ? `<tr><td style="padding:6px 0">Shipping</td><td style="padding:6px 0;text-align:right">$${quote.shipping.toFixed(2)}</td></tr>`
@@ -192,7 +223,7 @@ export async function POST(request: NextRequest) {
 <tr><td style="padding:8px 0;font-weight:700;border-top:2px solid #eee">Total paid</td><td style="padding:8px 0;font-weight:700;text-align:right;border-top:2px solid #eee;color:#E8192C">$${total.toFixed(2)}</td></tr></table>`
     const how = shipTo
       ? `<p style="font-size:14px"><strong>Ship to:</strong><br>${esc(shipTo.line1)}${shipTo.line2 ? '<br>' + esc(shipTo.line2) : ''}<br>${esc(shipTo.city)}, ${esc(shipTo.state)} ${esc(shipTo.zip)}</p>`
-      : `<p style="font-size:14px"><strong>Pickup:</strong> call or text ${SHOP_PHONE} to arrange a pickup time.</p>`
+      : `<p style="font-size:14px"><strong>Pickup:</strong> ${esc(pickupInstructions())}</p>`
 
     await send({
       reply_to: [CHM_REPLY_TO],

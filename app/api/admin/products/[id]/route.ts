@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   // A product can only go live with a price. Check the price it will end up with.
   const row = parsed.row
-  if (row.active === true && row.price === undefined) {
+  if (row.status === 'available' && row.price === undefined) {
     const current = await dbSelectAuth<Product>('products', t, { id: `eq.${id}` })
     if (!current[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (current[0].price == null) {

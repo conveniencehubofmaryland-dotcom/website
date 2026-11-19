@@ -145,6 +145,9 @@ export type Product = {
   weight_lb: number | null
   image_url: string | null
   image_urls: string[] | null
+  status: 'coming_soon' | 'out_of_stock' | 'available'
+  stock_qty: number | null
+  sold_qty: number
   active: boolean
   sort_order: number
   created_at: string

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import CloverCardForm from '@/components/CloverCardForm'
 import { CART_EVENT, type CartLine, clearCart, readCart } from '@/lib/cart'
 import { quoteOrder, SHIPPING_TIERS, type Fulfillment } from '@/lib/shop-pricing'
+import { pickupInstructions } from '@/lib/shop-config'
 
 type Product = { id: string; title: string; price: number | null; weight_lb: number | null }
 
@@ -109,7 +110,7 @@ export default function ProductCheckout() {
         <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3 pt-6">How would you like to receive your order?</h2>
         <label className="flex items-start gap-3 cursor-pointer">
           <input type="radio" name="fulfillment" checked={fulfillment === 'pickup'} onChange={() => setFulfillment('pickup')} className="mt-1" />
-          <span className="text-sm"><strong>Pickup</strong><br /><span className="text-gray-500">After payment, call or text 202-579-2944 to arrange a pickup time.</span></span>
+          <span className="text-sm"><strong>Pickup</strong><br /><span className="text-gray-500">{pickupInstructions()}</span></span>
         </label>
         <label className="flex items-start gap-3 cursor-pointer">
           <input type="radio" name="fulfillment" checked={fulfillment === 'ship'} onChange={() => setFulfillment('ship')} className="mt-1" />
