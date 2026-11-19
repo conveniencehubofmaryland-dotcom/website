@@ -6,8 +6,6 @@ export const PICKUP_LOCATION: string = ''
 export const SHOP_PHONE = '202-579-2944'
 
 export function pickupInstructions(): string {
-  const where = PICKUP_LOCATION.trim()
-    ? `Pickup location: ${PICKUP_LOCATION.trim()}.`
-    : 'We will confirm the pickup location with you.'
-  return `Pickup is arranged with the store. Call or text ${SHOP_PHONE} to set a pickup time. ${where}`
+  const where = PICKUP_LOCATION.trim() ? ` Pickup location: ${PICKUP_LOCATION.trim()}.` : ''
+  return `Pickup is arranged by phone. Call or text ${SHOP_PHONE} to arrange the pickup location, date and time.${where}`
 }
