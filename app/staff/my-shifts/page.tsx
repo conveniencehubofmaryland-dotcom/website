@@ -14,6 +14,13 @@ type MyShift = {
   staff_confirmed_at?: string | null
   approved_at?: string | null
   hours_worked?: number | null
+  status?: string | null
+}
+
+type NoShowRecord = {
+  count: number
+  blocked: boolean
+  items: { date: string; start_time: string | null; location: string | null; role: string | null; recorded_at: string }[]
 }
 
 const TZ = 'America/New_York'
@@ -28,6 +35,16 @@ export default function MyShiftsPage() {
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
+  const [noShows, setNoShows] = useState<NoShowRecord | null>(null)
+
+  const loadNoShows = useCallback(async (token: string) => {
+    try {
+      const res = await fetch(`/api/staff/no-shows?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
+      if (res.ok) setNoShows(await res.json())
+    } catch {
+      // The missed-shift card is optional; the shift list still works without it.
+    }
+  }, [])
 
   const loadShifts = useCallback(async (token: string) => {
     const res = await fetch(`/api/staff/my-shifts?token=${encodeURIComponent(token)}`)
@@ -54,6 +71,7 @@ export default function MyShiftsPage() {
         }
         setAuthorized(true)
         await loadShifts(token)
+        await loadNoShows(token)
       } catch {
         setMessage('❌ Failed to load shifts')
       } finally {
@@ -61,7 +79,7 @@ export default function MyShiftsPage() {
       }
     }
     run()
-  }, [loadShifts])
+  }, [loadShifts, loadNoShows])
 
   // Reads the phone's GPS position. Returns null if location is off or denied; the server flags that for admin.
   const getPosition = (): Promise<{ lat: number; lng: number } | null> =>
@@ -136,6 +154,26 @@ export default function MyShiftsPage() {
           </div>
         )}
 
+        {noShows && noShows.count > 0 && (
+          <div className="mb-6 bg-white rounded-lg shadow p-6 border-l-4 border-red-600">
+            <h2 className="text-lg font-bold text-gray-900">Missed shifts: {noShows.count}</h2>
+            {noShows.blocked ? (
+              <p className="text-red-700 mt-2 text-sm">You cannot claim new shifts right now. Please call or text <a href="tel:+12025792944" className="underline">202-579-2944</a>.</p>
+            ) : (
+              <p className="text-gray-600 mt-2 text-sm">Repeated missed shifts may affect your access to future shifts. If you need to cancel ahead of time, call or text <a href="tel:+12025792944" className="underline">202-579-2944</a>.</p>
+            )}
+            <ul className="mt-4 space-y-2 text-sm text-gray-700">
+              {noShows.items.map((item, i) => (
+                <li key={`${item.date}-${i}`}>
+                  {item.role || 'Shift'} · {item.date ? new Date(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Date unknown'}
+                  {item.start_time ? ` at ${item.start_time.slice(0, 5)}` : ''}
+                  {item.location ? ` · ${item.location}` : ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-12 text-gray-500">Loading...</div>
         ) : shifts.length === 0 ? (
@@ -144,6 +182,7 @@ export default function MyShiftsPage() {
           <div className="space-y-4">
             {shifts.map(shift => {
               const busy = busyId === shift.id
+              const isNoShow = shift.status === 'no_show'
               return (
                 <div key={shift.id} className="bg-white rounded-lg shadow p-6">
                   <div className="flex flex-wrap justify-between gap-4">
@@ -166,19 +205,20 @@ export default function MyShiftsPage() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-3">
-                    {!shift.clock_in_at && (
+                    {isNoShow && <p className="text-red-700 font-semibold">Marked as a missed shift</p>}
+                    {!isNoShow && !shift.clock_in_at && (
                       <button onClick={() => act(shift.id, 'clock_in')} disabled={busy}
                         className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50">
                         {busy ? 'Working...' : 'Clock In'}
                       </button>
                     )}
-                    {shift.clock_in_at && !shift.clock_out_at && (
+                    {!isNoShow && shift.clock_in_at && !shift.clock_out_at && (
                       <button onClick={() => act(shift.id, 'clock_out')} disabled={busy}
                         className="bg-gray-800 text-white px-5 py-2 rounded-lg font-semibold hover:bg-black disabled:opacity-50">
                         {busy ? 'Working...' : 'Clock Out'}
                       </button>
                     )}
-                    {shift.clock_out_at && !shift.staff_confirmed_at && (
+                    {!isNoShow && shift.clock_out_at && !shift.staff_confirmed_at && (
                       <button onClick={() => act(shift.id, 'confirm')} disabled={busy}
                         className="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50">
                         {busy ? 'Working...' : 'Confirm Shift Completed'}

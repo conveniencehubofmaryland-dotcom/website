@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
       : { distance: null, flag: null }
 
     if (action === 'clock_in') {
+      if (shift.status === 'no_show') {
+        return NextResponse.json({ error: 'This shift was marked as a no-show. Please call or text 202-579-2944.' }, { status: 400 })
+      }
       if (shift.date !== todayInEastern()) {
         return NextResponse.json({ error: 'You can only clock in on the day of the shift.' }, { status: 400 })
       }
