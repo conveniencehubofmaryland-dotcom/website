@@ -6,6 +6,8 @@ function safeName(name: string): string {
   return name.replace(/[^A-Za-z0-9.-]/g, '-').replace(/-+/g, '-').slice(-80)
 }
 
+const CATEGORIES = ['cleaning', 'laundry', 'culinary', 'care', 'commercial']
+
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('chm_admin')?.value ?? ''
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -13,59 +15,38 @@ export async function POST(req: NextRequest) {
   if (denied) return denied
 
   const formData = await req.formData()
-  const title = formData.get('title') as string
-  const service_category = formData.get('service_category') as string
-  const beforeFile = formData.get('before_image') as File
-  const afterFile = formData.get('after_image') as File
+  const title = String(formData.get('title') ?? '').trim()
+  const service_category = String(formData.get('service_category') ?? '')
+  const image = formData.get('image')
 
-  if (!title || !service_category || !beforeFile || !afterFile) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  if (!title || !CATEGORIES.includes(service_category) || !(image instanceof File) || image.size === 0) {
+    return NextResponse.json({ error: 'Please add a title, a category and one photo.' }, { status: 400 })
+  }
+  if (!image.type.startsWith('image/')) {
+    return NextResponse.json({ error: 'The file must be a picture (JPG, PNG or similar).' }, { status: 400 })
   }
 
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
   try {
-    const timestamp = Date.now()
-    const beforePath = `${service_category}/${timestamp}-before-${safeName(beforeFile.name)}`
-    const afterPath = `${service_category}/${timestamp}-after-${safeName(afterFile.name)}`
+    const path = `${service_category}/${Date.now()}-${safeName(image.name)}`
 
-    const beforeUpload = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/gallery-images/${beforePath}`,
-      {
-        method: 'POST',
-        headers: {
-          apikey: SERVICE_KEY,
-          ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
-          'Content-Type': beforeFile.type,
-        },
-        body: beforeFile,
-      }
-    )
-    if (!beforeUpload.ok) {
-      console.error('[gallery] before upload failed:', await beforeUpload.text())
-      return NextResponse.json({ error: 'Failed to upload before image' }, { status: 500 })
+    const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/gallery-images/${path}`, {
+      method: 'POST',
+      headers: {
+        apikey: SERVICE_KEY,
+        ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
+        'Content-Type': image.type,
+      },
+      body: image,
+    })
+    if (!upload.ok) {
+      console.error('[gallery] upload failed:', await upload.text())
+      return NextResponse.json({ error: 'Failed to upload the photo.' }, { status: 500 })
     }
 
-    const afterUpload = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/gallery-images/${afterPath}`,
-      {
-        method: 'POST',
-        headers: {
-          apikey: SERVICE_KEY,
-          ...(SERVICE_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SERVICE_KEY}` } : {}),
-          'Content-Type': afterFile.type,
-        },
-        body: afterFile,
-      }
-    )
-    if (!afterUpload.ok) {
-      console.error('[gallery] after upload failed:', await afterUpload.text())
-      return NextResponse.json({ error: 'Failed to upload after image' }, { status: 500 })
-    }
-
-    const before_image_url = `${SUPABASE_URL}/storage/v1/object/public/gallery-images/${beforePath}`
-    const after_image_url = `${SUPABASE_URL}/storage/v1/object/public/gallery-images/${afterPath}`
+    const image_url = `${SUPABASE_URL}/storage/v1/object/public/gallery-images/${path}`
 
     const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/gallery_items`, {
       method: 'POST',
@@ -75,12 +56,12 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
-      body: JSON.stringify({ title, service_category, before_image_url, after_image_url }),
+      body: JSON.stringify({ title, service_category, image_url }),
     })
 
     if (!insertRes.ok) {
       console.error('[gallery] insert failed:', await insertRes.text())
-      return NextResponse.json({ error: 'Failed to save gallery item' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save the gallery item.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })

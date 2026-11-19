@@ -16,10 +16,6 @@ export default async function AdminServicesPage() {
           <h1 className="font-serif text-3xl text-chm-black">Services</h1>
           <p className="text-sm text-gray-400 mt-1">{services.length} service{services.length !== 1 ? 's' : ''} in database</p>
         </div>
-        <Link href="/admin/services/new"
-          className="bg-chm-red text-white px-6 py-2.5 text-xs font-semibold uppercase tracking-widest hover:bg-red-700 transition-colors">
-          + New Service
-        </Link>
       </div>
 
       {services.length === 0 ? (

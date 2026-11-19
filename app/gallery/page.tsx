@@ -11,8 +11,9 @@ type GalleryItem = {
   id: string
   service_category: string
   title: string
-  before_image_url: string
-  after_image_url: string
+  image_url: string | null
+  before_image_url: string | null
+  after_image_url: string | null
   sort_order: number
 }
 
@@ -75,17 +76,21 @@ export default async function GalleryPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {section.items.map(item => (
-                <div key={item.id} className="border border-gray-100 rounded overflow-hidden">
-                  <div className="grid grid-cols-2">
-                    <div className="relative">
-                      <img src={item.before_image_url} alt={`${item.title} — before`} className="w-full h-48 object-cover" />
-                      <span className="absolute top-2 left-2 bg-chm-black/80 text-white text-[10px] uppercase tracking-widest px-2 py-1">Before</span>
+                <div key={item.id} className="border border-gray-100 rounded overflow-hidden bg-white">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.title} className="w-full h-auto block" loading="lazy" />
+                  ) : (
+                    <div className="grid grid-cols-2">
+                      <div className="relative">
+                        <img src={item.before_image_url ?? ''} alt={`${item.title} — before`} className="w-full h-48 object-cover" />
+                        <span className="absolute top-2 left-2 bg-chm-black/80 text-white text-[10px] uppercase tracking-widest px-2 py-1">Before</span>
+                      </div>
+                      <div className="relative">
+                        <img src={item.after_image_url ?? ''} alt={`${item.title} — after`} className="w-full h-48 object-cover" />
+                        <span className="absolute top-2 left-2 bg-chm-red/90 text-white text-[10px] uppercase tracking-widest px-2 py-1">After</span>
+                      </div>
                     </div>
-                    <div className="relative">
-                      <img src={item.after_image_url} alt={`${item.title} — after`} className="w-full h-48 object-cover" />
-                      <span className="absolute top-2 left-2 bg-chm-red/90 text-white text-[10px] uppercase tracking-widest px-2 py-1">After</span>
-                    </div>
-                  </div>
+                  )}
                   <p className="text-sm font-semibold text-chm-black p-4">{item.title}</p>
                 </div>
               ))}

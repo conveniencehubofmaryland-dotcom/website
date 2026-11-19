@@ -6,8 +6,9 @@ type GalleryItem = {
   id: string
   service_category: string
   title: string
-  before_image_url: string
-  after_image_url: string
+  image_url?: string | null
+  before_image_url?: string | null
+  after_image_url?: string | null
   sort_order: number
   active: boolean
   created_at: string
@@ -26,16 +27,15 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
   const [items, setItems] = useState(initialItems)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('cleaning')
-  const [beforeFile, setBeforeFile] = useState<File | null>(null)
-  const [afterFile, setAfterFile] = useState<File | null>(null)
+  const [file, setFile] = useState<File | null>(null)
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!beforeFile || !afterFile) {
+    if (!file) {
       setStatus('error')
-      setErrorMsg('Please select both a before and after photo.')
+      setErrorMsg('Please choose a photo.')
       return
     }
     setStatus('submitting')
@@ -44,18 +44,14 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
     const formData = new FormData()
     formData.append('title', title)
     formData.append('service_category', category)
-    formData.append('before_image', beforeFile)
-    formData.append('after_image', afterFile)
+    formData.append('image', file)
 
     try {
       const res = await fetch('/api/admin/gallery', { method: 'POST', body: formData })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error ?? 'Upload failed')
-      }
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? 'Upload failed')
       setTitle('')
-      setBeforeFile(null)
-      setAfterFile(null)
+      setFile(null)
       setStatus('idle')
       router.refresh()
     } catch (err) {
@@ -77,7 +73,8 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
   return (
     <div className="space-y-10">
       <form onSubmit={handleSubmit} className="bg-gray-50 border border-gray-200 rounded p-6 space-y-4 max-w-xl">
-        <h2 className="font-semibold text-chm-black">Add Before / After Pair</h2>
+        <h2 className="font-semibold text-chm-black">Add Gallery Photo</h2>
+        <p className="text-xs text-gray-500">Upload one photo. If you want to show before and after, put both in the one picture.</p>
         <div>
           <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Title</label>
           <input
@@ -102,12 +99,8 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
           </select>
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Before Photo</label>
-          <input required type="file" accept="image/*" onChange={e => setBeforeFile(e.target.files?.[0] ?? null)} className="w-full text-sm" />
-        </div>
-        <div>
-          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">After Photo</label>
-          <input required type="file" accept="image/*" onChange={e => setAfterFile(e.target.files?.[0] ?? null)} className="w-full text-sm" />
+          <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Photo</label>
+          <input required type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-sm" />
         </div>
         {status === 'error' && <p className="text-chm-red text-sm">{errorMsg}</p>}
         <button
@@ -124,13 +117,17 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map(item => (
             <div key={item.id} className="border border-gray-200 rounded overflow-hidden">
-              <div className="grid grid-cols-2">
-                <img src={item.before_image_url} alt={`${item.title} before`} className="w-full h-32 object-cover" />
-                <img src={item.after_image_url} alt={`${item.title} after`} className="w-full h-32 object-cover" />
-              </div>
+              {item.image_url ? (
+                <img src={item.image_url} alt={item.title} className="w-full h-auto" />
+              ) : (
+                <div className="grid grid-cols-2">
+                  <img src={item.before_image_url ?? ''} alt={`${item.title} before`} className="w-full h-32 object-cover" />
+                  <img src={item.after_image_url ?? ''} alt={`${item.title} after`} className="w-full h-32 object-cover" />
+                </div>
+              )}
               <div className="p-3">
                 <p className="text-sm font-semibold text-chm-black">{item.title}</p>
-                <p className="text-xs text-gray-500 mb-2">{item.service_category}</p>
+                <p className="text-xs text-gray-500 mb-2">{item.service_category}{!item.image_url ? ' · older before/after pair' : ''}</p>
                 <button onClick={() => handleDelete(item.id)} className="text-xs text-chm-red hover:underline">
                   Delete
                 </button>
