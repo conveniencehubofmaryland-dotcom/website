@@ -11,20 +11,21 @@
     "build:worker": "opennextjs-cloudflare build && cp -r .open-next/assets/. .open-next/ && node scripts/create-assets-worker.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
     "next": "15.5.29",
+    "pdfkit": "^0.13.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "resend": "^6.12.3",
-    "@supabase/supabase-js": "^2.38.0",
-    "pdfkit": "^0.13.0"
+    "resend": "^6.12.3"
   },
   "devDependencies": {
+    "@cloudflare/puppeteer": "^2.0.1",
     "@opennextjs/cloudflare": "^1.19.10",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pdfkit": "^0.12.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/pdfkit": "^0.12.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCloudflareContext } from '@opennextjs/cloudflare'
+import puppeteer from '@cloudflare/puppeteer'
 import { requireAdmin } from '@/lib/admin-auth'
 import { serviceHeaders } from '@/lib/supabase-keys'
 
@@ -110,6 +112,28 @@ async function fetchPage(url: string): Promise<{ html: string; finalUrl: string 
   return { html: text.slice(0, MAX_PAGE_BYTES), finalUrl }
 }
 
+// Loads the page in a headless browser. Used only when the plain page has no product details,
+// for stores that fill in their product details with scripts. Returns null if the browser is unavailable.
+async function renderPage(url: string): Promise<string | null> {
+  try {
+    const { env } = await getCloudflareContext({ async: true })
+    const binding = (env as unknown as { BROWSER?: unknown }).BROWSER
+    if (!binding) return null
+    const browser = await puppeteer.launch(binding as never)
+    try {
+      const page = await browser.newPage()
+      await page.setUserAgent(PAGE_HEADERS['User-Agent'])
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 })
+      return await page.content()
+    } finally {
+      await browser.close()
+    }
+  } catch (err) {
+    console.error('[products] browser read failed:', err)
+    return null
+  }
+}
+
 async function copyImage(src: string, sourcePage: string): Promise<string | null> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!SUPABASE_URL) return null
@@ -161,17 +185,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Could not read that page. Fill the fields in by hand.' }, { status: 502 })
   }
 
-  const ld = productJsonLd(page.html)
-  const ogTitle = metaContent(page.html, 'og:title')
+  // Plain page first. If it has no product details, load it in the browser and read that instead.
+  let html = page.html
+  if (!productJsonLd(html) && !metaContent(html, 'og:title')) {
+    const rendered = await renderPage(page.finalUrl)
+    if (rendered) html = rendered.slice(0, MAX_PAGE_BYTES * 3)
+  }
+
+  const ld = productJsonLd(html)
+  const ogTitle = metaContent(html, 'og:title')
   // Plain page title often ends with the site name ("Cleaning Tool - Alibaba.com"); remove that part.
-  const pageTitle = decode(page.html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '')
+  const pageTitle = decode(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '')
     .replace(/\s+[-|–]\s+[^-|–]*\.(com|net|org|co|shop)\b.*$/i, '')
   const title = (ld && typeof ld.name === 'string' ? decode(ld.name) : null)
     || ogTitle
     || pageTitle
   const description = (ld && typeof ld.description === 'string' ? decode(ld.description) : null)
-    || metaContent(page.html, 'og:description')
-    || metaContent(page.html, 'description')
+    || metaContent(html, 'og:description')
+    || metaContent(html, 'description')
 
   // Price from the page, suggested as the cost. Checked by the admin before saving.
   let cost: number | null = null
@@ -187,7 +218,7 @@ export async function POST(req: NextRequest) {
 
   // Photos: the page's main image first, then product images from the page data.
   const candidates: string[] = []
-  const og = metaContent(page.html, 'og:image')
+  const og = metaContent(html, 'og:image')
   if (og) candidates.push(og)
   candidates.push(...imageLinks(ld?.image))
   const seen = new Set<string>()
