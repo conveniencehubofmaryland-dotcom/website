@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "build-placeholder-key"
 )
 
 const PRIVATE_TYPES = ['government_id', 'social_security_card']

@@ -5,7 +5,7 @@ import { removePrivateFiles, removeStoredFiles, storagePathOf } from '@/lib/appl
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "build-placeholder-key"
 )
 
 export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
