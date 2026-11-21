@@ -92,6 +92,9 @@ export default function ProductCheckout() {
 
   return (
     <div className="grid md:grid-cols-2 gap-12">
+      <p className="md:col-span-2 text-sm text-gray-600">
+        Step 1: enter your details and choose pickup or shipping. Step 2: pay by card in the Payment box.
+      </p>
       <div className="space-y-4">
         <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3">Your Details</h2>
         <div>

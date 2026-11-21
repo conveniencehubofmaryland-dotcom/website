@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { addToCart } from '@/lib/cart'
+import { addToCart, CART_EVENT, readCart } from '@/lib/cart'
 
 export type PublicProduct = {
   id: string
@@ -61,16 +61,44 @@ function ProductCard({ p }: { p: PublicProduct }) {
             {added ? 'Added ✓' : 'Add to Cart'}
           </button>
         </div>
-        {added && <Link href="/cart" className="text-xs text-chm-red underline mt-3">View cart</Link>}
       </div>
+    </div>
+  )
+}
+
+// Stays on screen while the cart has items, so the way to the cart is always visible.
+function CartBar() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    const refresh = () => setCount(readCart().reduce((sum, l) => sum + l.qty, 0))
+    refresh()
+    window.addEventListener(CART_EVENT, refresh)
+    window.addEventListener('storage', refresh)
+    return () => {
+      window.removeEventListener(CART_EVENT, refresh)
+      window.removeEventListener('storage', refresh)
+    }
+  }, [])
+
+  if (count === 0) return null
+  return (
+    <div className="sticky top-20 z-30 mb-8 flex items-center justify-between gap-4 bg-chm-black text-white px-5 py-4 shadow-lg">
+      <span className="text-sm">{count} item{count === 1 ? '' : 's'} in your cart</span>
+      <Link href="/cart" className="bg-chm-red text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-red-700">
+        View Cart
+      </Link>
     </div>
   )
 }
 
 export default function ProductsGrid({ products }: { products: PublicProduct[] }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {products.map(p => <ProductCard key={p.id} p={p} />)}
-    </div>
+    <>
+      <CartBar />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map(p => <ProductCard key={p.id} p={p} />)}
+      </div>
+    </>
   )
 }

@@ -88,11 +88,12 @@ export default function CartView() {
 
       <div className="flex items-center justify-between pt-4">
         <p className="font-semibold text-chm-black">Total: ${total.toFixed(2)}</p>
-        {allAvailable ? (
-          <Link href="/checkout" className="bg-chm-red text-white px-8 py-3 text-xs font-semibold uppercase tracking-widest hover:bg-red-700">Checkout</Link>
-        ) : (
-          <span className="text-sm text-gray-500">Remove the unavailable items to check out.</span>
-        )}
+        <div className="text-right">
+          <Link href="/checkout" className="inline-block bg-chm-red text-white px-8 py-4 text-sm font-bold uppercase tracking-widest hover:bg-red-700">Checkout</Link>
+          {!allAvailable && (
+            <p className="text-xs text-chm-red mt-2">Remove the items marked &quot;No longer available&quot; before you pay.</p>
+          )}
+        </div>
       </div>
     </div>
   )
