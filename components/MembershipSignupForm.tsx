@@ -140,7 +140,7 @@ export default function MembershipSignupForm() {
       </button>
 
       <p className="text-xs text-gray-400 leading-relaxed">
-        No fees. No commitment. Cancel anytime by calling or texting 202-579-2944. Premium Status auto-unlocks after 12 months or 12+ services.
+        No fees. No commitment. Cancel anytime by calling or texting 202-579-2944. Premium Membership is $15 a month or $120 a year, charged automatically to your card.
       </p>
     </form>
   )
