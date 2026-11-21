@@ -42,6 +42,23 @@ export function productFields(
   if (b.description !== undefined) {
     row.description = typeof b.description === 'string' && b.description.trim() ? b.description.trim() : null
   }
+  // Optional colour and size choices (a list of names), and extra description details.
+  for (const key of ['colours', 'sizes'] as const) {
+    if (b[key] !== undefined) {
+      const list = Array.isArray(b[key]) ? (b[key] as unknown[]) : []
+      const clean = Array.from(new Set(list
+        .filter((v): v is string => typeof v === 'string')
+        .map(v => v.trim().slice(0, 40))
+        .filter(Boolean)))
+        .slice(0, 30)
+      row[key] = clean
+    }
+  }
+  for (const key of ['material', 'dimensions', 'care'] as const) {
+    if (b[key] !== undefined) {
+      row[key] = typeof b[key] === 'string' && b[key].trim() ? (b[key] as string).trim().slice(0, 1000) : null
+    }
+  }
   if (b.sort_order !== undefined) {
     const n = Number(b.sort_order)
     row.sort_order = Number.isInteger(n) ? n : 0

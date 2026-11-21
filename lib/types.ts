@@ -150,6 +150,11 @@ export type Product = {
   sold_qty: number
   active: boolean
   sort_order: number
+  colours: string[] | null
+  sizes: string[] | null
+  material: string | null
+  dimensions: string | null
+  care: string | null
   created_at: string
   updated_at: string
 }

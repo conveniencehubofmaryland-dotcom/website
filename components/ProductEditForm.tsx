@@ -41,6 +41,11 @@ export default function ProductEditForm({ product, isNew }: Props) {
     status: product?.status ?? 'coming_soon',
     stock_qty: product?.stock_qty != null ? String(product.stock_qty) : '',
     sort_order: product?.sort_order ?? 0,
+    colours: (product?.colours ?? []).join(', '),
+    sizes: (product?.sizes ?? []).join(', '),
+    material: product?.material ?? '',
+    dimensions: product?.dimensions ?? '',
+    care: product?.care ?? '',
   })
   const [photos, setPhotos] = useState<string[]>(initialPhotos)
   const [pasteUrl, setPasteUrl] = useState('')
@@ -178,6 +183,11 @@ export default function ProductEditForm({ product, isNew }: Props) {
           status: fields.status,
           image_urls: photos,
           sort_order: fields.sort_order,
+          colours: fields.colours.split(',').map(s => s.trim()).filter(Boolean),
+          sizes: fields.sizes.split(',').map(s => s.trim()).filter(Boolean),
+          material: fields.material,
+          dimensions: fields.dimensions,
+          care: fields.care,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -253,6 +263,28 @@ export default function ProductEditForm({ product, isNew }: Props) {
             <label className={labelCls}>Description</label>
             <textarea rows={4} value={fields.description} onChange={e => setField('description', e.target.value)}
               className={`${inputCls} resize-none`} placeholder="What it is, what it is used for, and its benefits." />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Colours (optional)</label>
+            <input value={fields.colours} onChange={e => setField('colours', e.target.value)} className={inputCls} placeholder="Black, Navy, Stone" />
+            <p className="text-xs text-gray-400 mt-1">Separate with commas. Leave empty if the product has no colour choice.</p>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Sizes (optional)</label>
+            <input value={fields.sizes} onChange={e => setField('sizes', e.target.value)} className={inputCls} placeholder="Small, Medium, Large, XLarge" />
+            <p className="text-xs text-gray-400 mt-1">Separate with commas. Leave empty if the product has no size choice.</p>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Material / ingredients</label>
+            <input value={fields.material} onChange={e => setField('material', e.target.value)} className={inputCls} placeholder="100% cotton" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Dimensions</label>
+            <input value={fields.dimensions} onChange={e => setField('dimensions', e.target.value)} className={inputCls} placeholder="12 × 8 × 3 in" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Care or use instructions</label>
+            <textarea rows={2} value={fields.care} onChange={e => setField('care', e.target.value)} className={`${inputCls} resize-none`} placeholder="Hand wash cold. Dry flat." />
           </div>
         </div>
       </div>

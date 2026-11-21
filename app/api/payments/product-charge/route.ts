@@ -11,7 +11,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const MAX_ITEMS = 20
 const MAX_QTY = 20
 
-type Line = { id: string; title: string; sku: string; price: number; qty: number; weight_lb: number | null }
+type Line = { id: string; title: string; sku: string; price: number; qty: number; weight_lb: number | null; colour: string | null; size: string | null }
 type Address = { line1: string; line2: string; city: string; state: string; zip: string }
 
 function esc(s: string): string {
@@ -65,26 +65,30 @@ export async function POST(request: NextRequest) {
     shipTo = addr
   }
 
-  // Merge duplicate products and check quantities.
-  const wanted = new Map<string, number>()
+  // Merge duplicate items (same product, colour and size) and check quantities.
+  const wanted = new Map<string, { id: string; colour: string | null; size: string | null; qty: number }>()
   const rawItems = Array.isArray(body.items) ? body.items : []
-  for (const it of rawItems as { id?: unknown; qty?: unknown }[]) {
+  for (const it of rawItems as { id?: unknown; qty?: unknown; colour?: unknown; size?: unknown }[]) {
     const id = typeof it.id === 'string' ? it.id : ''
     const qty = Number(it.qty)
+    const colour = typeof it.colour === 'string' && it.colour.trim() ? it.colour.trim().slice(0, 60) : null
+    const size = typeof it.size === 'string' && it.size.trim() ? it.size.trim().slice(0, 60) : null
     if (!UUID.test(id) || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
       return NextResponse.json({ error: 'Your cart has an invalid item. Please refresh and try again.' }, { status: 400 })
     }
-    wanted.set(id, Math.min(MAX_QTY, (wanted.get(id) ?? 0) + qty))
+    const key = `${id}|${colour ?? ''}|${size ?? ''}`
+    const prev = wanted.get(key)
+    wanted.set(key, { id, colour, size, qty: Math.min(MAX_QTY, (prev?.qty ?? 0) + qty) })
   }
   if (wanted.size === 0 || wanted.size > MAX_ITEMS) {
     return NextResponse.json({ error: 'Your cart is empty or too large. Please review it and try again.' }, { status: 400 })
   }
 
   // Look up current prices and weights. Only available products count.
-  const ids = Array.from(wanted.keys()).join(',')
-  let found: { id: string; title: string; sku: string; price: number | string | null; weight_lb: number | string | null }[]
+  const ids = Array.from(new Set(Array.from(wanted.values()).map(w => w.id))).join(',')
+  let found: { id: string; title: string; sku: string; price: number | string | null; weight_lb: number | string | null; colours: string[] | null; sizes: string[] | null }[]
   try {
-    const res = await sbFetch(`products?id=in.(${ids})&active=eq.true&select=id,title,sku,price,weight_lb`)
+    const res = await sbFetch(`products?id=in.(${ids})&active=eq.true&select=id,title,sku,price,weight_lb,colours,sizes`)
     if (!res.ok) throw new Error(`lookup ${res.status}`)
     found = (await res.json()) as typeof found
   } catch (e) {
@@ -92,14 +96,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Could not check prices. Please try again.' }, { status: 502 })
   }
   const lines: Line[] = []
-  for (const [id, qty] of wanted) {
-    const p = found.find(f => f.id === id)
+  for (const w of wanted.values()) {
+    const p = found.find(f => f.id === w.id)
     const price = p?.price == null ? NaN : Number(p.price)
     if (!p || !Number.isFinite(price) || price <= 0) {
       return NextResponse.json({ error: 'Some items in your cart are no longer available. Please review your cart.' }, { status: 400 })
     }
+    // Colour and size must be ones this product offers. A product with no choices takes none.
+    const colours = Array.isArray(p.colours) ? p.colours : []
+    const sizes = Array.isArray(p.sizes) ? p.sizes : []
+    if ((colours.length > 0 && !(w.colour && colours.includes(w.colour))) || (colours.length === 0 && w.colour)) {
+      return NextResponse.json({ error: `Please choose a colour for "${p.title}". Review your cart.` }, { status: 400 })
+    }
+    if ((sizes.length > 0 && !(w.size && sizes.includes(w.size))) || (sizes.length === 0 && w.size)) {
+      return NextResponse.json({ error: `Please choose a size for "${p.title}". Review your cart.` }, { status: 400 })
+    }
     const weight = p.weight_lb == null ? null : Number(p.weight_lb)
-    lines.push({ id, title: p.title, sku: p.sku, price, qty, weight_lb: weight })
+    lines.push({ id: w.id, title: p.title, sku: p.sku, price, qty: w.qty, weight_lb: weight, colour: w.colour, size: w.size })
   }
 
   const quote = quoteOrder(lines, fulfillment)
@@ -187,7 +200,7 @@ export async function POST(request: NextRequest) {
       name,
       email,
       phone,
-      items: lines.map(l => ({ id: l.id, sku: l.sku, title: l.title, price: l.price, qty: l.qty, weight_lb: l.weight_lb })),
+      items: lines.map(l => ({ id: l.id, sku: l.sku, title: l.title, price: l.price, qty: l.qty, weight_lb: l.weight_lb, colour: l.colour, size: l.size })),
       total,
       fulfillment,
       shipping_fee: quote.shipping,
@@ -214,7 +227,7 @@ export async function POST(request: NextRequest) {
       }).catch(e => console.error('[product-charge] email error:', e))
 
     const rows = lines
-      .map(l => `<tr><td style="padding:6px 0">${esc(l.title)} <span style="color:#999">(${esc(l.sku)})</span><br><span style="font-size:12px;color:#666">${l.qty} × $${l.price.toFixed(2)}</span></td><td style="padding:6px 0;text-align:right;vertical-align:top">$${(l.price * l.qty).toFixed(2)}</td></tr>`)
+      .map(l => `<tr><td style="padding:6px 0">${esc(l.title)}${l.colour || l.size ? ` <span style="color:#444">— ${esc([l.colour, l.size].filter(Boolean).join(', '))}</span>` : ''} <span style="color:#999">(${esc(l.sku)})</span><br><span style="font-size:12px;color:#666">${l.qty} × $${l.price.toFixed(2)}</span></td><td style="padding:6px 0;text-align:right;vertical-align:top">$${(l.price * l.qty).toFixed(2)}</td></tr>`)
       .join('')
     const shipRow = quote.shipping > 0
       ? `<tr><td style="padding:6px 0">Shipping</td><td style="padding:6px 0;text-align:right">$${quote.shipping.toFixed(2)}</td></tr>`

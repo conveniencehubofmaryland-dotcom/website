@@ -14,6 +14,11 @@ export type ProductDbRow = {
   status: string
   stock_qty: number | null
   sold_qty: number | null
+  colours: string[] | null
+  sizes: string[] | null
+  material: string | null
+  dimensions: string | null
+  care: string | null
 }
 
 export type PublicProduct = {
@@ -27,6 +32,11 @@ export type PublicProduct = {
   image_urls: string[]
   weight_lb: number | null
   sort_order: number
+  colours: string[]
+  sizes: string[]
+  material: string | null
+  dimensions: string | null
+  care: string | null
 }
 
 export function isOnSale(row: ProductDbRow): boolean {
@@ -49,7 +59,12 @@ export function toPublic(rows: ProductDbRow[]): PublicProduct[] {
       image_urls: r.image_urls ?? (r.image_url ? [r.image_url] : []),
       weight_lb: r.weight_lb == null ? null : Number(r.weight_lb),
       sort_order: r.sort_order,
+      colours: Array.isArray(r.colours) ? r.colours : [],
+      sizes: Array.isArray(r.sizes) ? r.sizes : [],
+      material: r.material ?? null,
+      dimensions: r.dimensions ?? null,
+      care: r.care ?? null,
     }))
 }
 
-export const PUBLIC_PRODUCT_SELECT = 'id,sku,title,category,description,price,image_url,image_urls,weight_lb,sort_order,status,stock_qty,sold_qty'
+export const PUBLIC_PRODUCT_SELECT = 'id,sku,title,category,description,price,image_url,image_urls,weight_lb,sort_order,status,stock_qty,sold_qty,colours,sizes,material,dimensions,care'

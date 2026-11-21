@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CART_EVENT, type CartLine, readCart, removeFromCart, setQty } from '@/lib/cart'
+import { CART_EVENT, type CartLine, lineKey, readCart, removeFromCart, setQty } from '@/lib/cart'
 
 type Product = { id: string; title: string; price: number | null; image_url: string | null }
 
@@ -58,12 +58,15 @@ export default function CartView() {
     <div className="space-y-6">
       {error && <p className="text-sm text-chm-red">{error}</p>}
       {rows.map(({ line, product }) => (
-        <div key={line.id} className="flex gap-4 items-center border-b border-gray-100 pb-6">
+        <div key={lineKey(line)} className="flex gap-4 items-center border-b border-gray-100 pb-6">
           {product?.image_url && <img src={product.image_url} alt="" className="w-20 h-20 object-cover" />}
           <div className="flex-1">
             {product ? (
               <>
                 <p className="font-semibold text-chm-black">{product.title}</p>
+                {(line.colour || line.size) && (
+                  <p className="text-xs text-gray-500">{[line.colour, line.size].filter(Boolean).join(' · ')}</p>
+                )}
                 {product.price != null ? (
                   <p className="text-sm text-gray-500">${Number(product.price).toFixed(2)} each</p>
                 ) : (
@@ -75,14 +78,14 @@ export default function CartView() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setQty(line.id, line.qty - 1)} className="w-8 h-8 border border-gray-200">−</button>
+            <button type="button" onClick={() => setQty(lineKey(line), line.qty - 1)} className="w-8 h-8 border border-gray-200">−</button>
             <span className="w-8 text-center text-sm">{line.qty}</span>
-            <button type="button" onClick={() => setQty(line.id, line.qty + 1)} className="w-8 h-8 border border-gray-200">+</button>
+            <button type="button" onClick={() => setQty(lineKey(line), line.qty + 1)} className="w-8 h-8 border border-gray-200">+</button>
           </div>
           <div className="w-20 text-right font-semibold text-sm">
             {product?.price != null ? `$${(Number(product.price) * line.qty).toFixed(2)}` : '—'}
           </div>
-          <button type="button" onClick={() => removeFromCart(line.id)} className="text-xs text-gray-400 hover:text-chm-red">Remove</button>
+          <button type="button" onClick={() => removeFromCart(lineKey(line))} className="text-xs text-gray-400 hover:text-chm-red">Remove</button>
         </div>
       ))}
 

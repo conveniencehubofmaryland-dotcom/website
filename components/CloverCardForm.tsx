@@ -12,7 +12,7 @@ type Props = {
   referralCode?: string
   // Product checkout: when set, the server prices the items and shipping itself, and no recurring plan is offered.
   productOrder?: {
-    items: { id: string; qty: number }[]
+    items: { id: string; qty: number; colour?: string | null; size?: string | null }[]
     fulfillment: 'pickup' | 'ship'
     shipTo: Record<string, string> | null
     // Called once the payment is confirmed. The parent keeps the success message and clears the cart.

@@ -56,7 +56,7 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <tbody>
             {order.items.map((it, idx) => (
               <tr key={idx} className="border-b border-gray-100">
-                <td className="py-2 pr-4"><span className="font-mono text-xs text-gray-400 mr-2">{it.sku}</span>{it.title}</td>
+                <td className="py-2 pr-4"><span className="font-mono text-xs text-gray-400 mr-2">{it.sku}</span>{it.title}{(it.colour || it.size) && <span className="text-gray-500"> — {[it.colour, it.size].filter(Boolean).join(', ')}</span>}</td>
                 <td className="py-2 pr-4 text-gray-600">× {it.qty}</td>
                 <td className="py-2 text-right">{money(Number(it.price) * it.qty)}</td>
               </tr>

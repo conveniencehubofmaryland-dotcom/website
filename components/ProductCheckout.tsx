@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import CloverCardForm from '@/components/CloverCardForm'
-import { CART_EVENT, type CartLine, clearCart, readCart } from '@/lib/cart'
+import { CART_EVENT, type CartLine, clearCart, lineKey, readCart } from '@/lib/cart'
 import { quoteOrder, SHIPPING_TIERS, type Fulfillment } from '@/lib/shop-pricing'
 import { pickupInstructions } from '@/lib/shop-config'
 
@@ -155,8 +155,8 @@ export default function ProductCheckout() {
 
         <h2 className="font-semibold text-chm-black text-sm uppercase tracking-widest border-b border-gray-100 pb-3 pt-6">Order Summary</h2>
         {priced.map(({ line, product }) => (
-          <div key={line.id} className="flex justify-between text-sm">
-            <span>{product?.title} × {line.qty}</span>
+          <div key={lineKey(line)} className="flex justify-between text-sm">
+            <span>{product?.title}{(line.colour || line.size) ? ` (${[line.colour, line.size].filter(Boolean).join(', ')})` : ''} × {line.qty}</span>
             <span>${((Number(product?.price) || 0) * line.qty).toFixed(2)}</span>
           </div>
         ))}
@@ -184,7 +184,7 @@ export default function ProductCheckout() {
             selections={{}}
             contact={{ name: name.trim(), email: email.trim(), phone: phone.trim() }}
             productOrder={{
-              items: lines.map(l => ({ id: l.id, qty: l.qty })),
+              items: lines.map(l => ({ id: l.id, qty: l.qty, colour: l.colour ?? null, size: l.size ?? null })),
               fulfillment,
               shipTo: fulfillment === 'ship' ? { ...addr } : null,
               onPaid: msg => {

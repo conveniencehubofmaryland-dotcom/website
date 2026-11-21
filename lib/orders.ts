@@ -9,7 +9,7 @@ export type OrderRow = {
   name: string
   email: string
   phone: string
-  items: { id: string; sku: string; title: string; price: number; qty: number; weight_lb: number | null }[]
+  items: { id: string; sku: string; title: string; price: number; qty: number; weight_lb: number | null; colour?: string | null; size?: string | null }[]
   total: number
   fulfillment: 'pickup' | 'ship'
   shipping_fee: number

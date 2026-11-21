@@ -53,6 +53,19 @@ export default async function AdminProductViewPage({ params }: { params: Promise
           <p className="text-2xl font-semibold text-chm-black mt-4">{p.price != null ? `$${Number(p.price).toFixed(2)}` : 'Price not set'}</p>
           {p.weight_lb != null && <p className="text-sm text-gray-500 mt-1">Weight: {Number(p.weight_lb)} lb</p>}
           {p.description && <p className="text-gray-600 mt-6 whitespace-pre-line leading-relaxed">{p.description}</p>}
+          {(p.colours?.length || p.sizes?.length) ? (
+            <p className="text-sm text-gray-600 mt-4">
+              {p.colours?.length ? <><span className="font-semibold">Colours:</span> {p.colours.join(', ')}<br /></> : null}
+              {p.sizes?.length ? <><span className="font-semibold">Sizes:</span> {p.sizes.join(', ')}</> : null}
+            </p>
+          ) : null}
+          {(p.material || p.dimensions || p.care) && (
+            <dl className="text-sm text-gray-600 mt-4 space-y-1">
+              {p.material && <div><dt className="inline font-semibold">Material: </dt><dd className="inline">{p.material}</dd></div>}
+              {p.dimensions && <div><dt className="inline font-semibold">Dimensions: </dt><dd className="inline">{p.dimensions}</dd></div>}
+              {p.care && <div><dt className="inline font-semibold">Care: </dt><dd className="inline whitespace-pre-line">{p.care}</dd></div>}
+            </dl>
+          )}
 
           <div className="mt-8 border-t border-gray-200 pt-6 text-sm space-y-2">
             <p><span className="text-gray-500">Status:</span> <span className="font-semibold">{STATUS_LABEL[p.status] ?? p.status}</span></p>
