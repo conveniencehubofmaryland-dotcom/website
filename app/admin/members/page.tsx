@@ -36,7 +36,7 @@ export default async function AdminMembersPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-200 bg-gray-50">
-                {['Member', 'Contact', 'Location', 'Services', 'Frequency', 'Joined', 'Status'].map(h => (
+                {['Member', 'Contact', 'Location', 'Services', 'Frequency', 'Joined', 'Status and actions'].map(h => (
                   <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-widest text-gray-500 font-semibold whitespace-nowrap">
                     {h}
                   </th>
@@ -70,7 +70,7 @@ export default async function AdminMembersPage() {
                     {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="py-3 px-4">
-                    <MemberActions id={m.id} status={m.status} />
+                    <MemberActions id={m.id} status={m.status} tier={m.tier} />
                   </td>
                 </tr>
               ))}

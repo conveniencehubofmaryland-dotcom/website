@@ -10,7 +10,7 @@ const BADGE: Record<Status, { label: string; cls: string }> = {
   deactivated: { label: 'Deactivated', cls: 'text-gray-600 bg-gray-100 border-gray-300' },
 }
 
-export default function MemberActions({ id, status }: { id: string; status: Status }) {
+export default function MemberActions({ id, status, tier }: { id: string; status: Status; tier: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -60,6 +60,28 @@ export default function MemberActions({ id, status }: { id: string; status: Stat
     }
   }
 
+  async function setTier(next: string) {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/members', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, tier: next }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Could not change the tier.')
+        return
+      }
+      router.refresh()
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const badge = BADGE[status] ?? BADGE.pending
 
   return (
@@ -89,6 +111,10 @@ export default function MemberActions({ id, status }: { id: string; status: Stat
           Delete
         </button>
       </div>
+      <select value={tier} disabled={loading} onChange={e => setTier(e.target.value)} className="text-xs border border-gray-200 px-2 py-1 bg-white w-fit">
+        <option value="free">Free (1.5%)</option>
+        <option value="premium">Premium (3%)</option>
+      </select>
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
