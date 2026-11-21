@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import PremiumCardFields from '@/components/PremiumCardFields'
+import { PREMIUM_PRICE, type PremiumBilling } from '@/lib/membership-tiers'
 
 const SERVICES   = ['Laundry Pickup & Delivery', 'Professional Cleaning', 'Culinary & Housekeeping', 'Nanny & Care Services', 'Commercial Projects']
 const FREQUENCIES = ['Weekly', 'Bi-weekly', 'Monthly', 'As needed']
@@ -15,6 +17,11 @@ export default function MembershipSignupForm() {
   })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
+  const [tier, setTier] = useState<'free' | 'premium'>('free')
+  const [billing, setBilling] = useState<PremiumBilling>('monthly')
+  const [agree, setAgree] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cloverRef = useRef<any>(null)
 
   function set(field: string, value: string | boolean) {
     setForm(f => ({ ...f, [field]: value }))
@@ -32,10 +39,18 @@ export default function MembershipSignupForm() {
     setStatus('submitting')
     setErrMsg('')
     try {
+      let payload: Record<string, unknown> = { ...form, tier }
+      if (tier === 'premium') {
+        if (!agree) throw new Error('Please tick the box to agree to automatic billing.')
+        if (!cloverRef.current) throw new Error('The card form is still loading. Please wait a moment and try again.')
+        const result = await cloverRef.current.createToken()
+        if (result.errors) throw new Error(Object.values(result.errors).join(' '))
+        payload = { ...payload, token: result.token, billing, consent: agree }
+      }
       const res = await fetch('/api/membership', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       const data = res.headers.get('content-type')?.includes('application/json') ? await res.json() : {}
       if (!res.ok) throw new Error(data.error ?? 'Submission failed')
@@ -132,11 +147,47 @@ export default function MembershipSignupForm() {
         </div>
       </div>
 
+      <div className="space-y-4">
+        <p className="text-xs uppercase tracking-widest text-gray-500">Membership</p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className={`border p-4 cursor-pointer text-sm ${tier === 'free' ? 'border-chm-red' : 'border-gray-200'}`}>
+            <input type="radio" name="membership-tier" className="mr-2" checked={tier === 'free'} onChange={() => setTier('free')} />
+            <span className="font-semibold text-chm-black">Free Membership</span>
+            <span className="block text-xs text-gray-500 mt-1 ml-5">1.5% off all services. No fees.</span>
+          </label>
+          <label className={`border p-4 cursor-pointer text-sm ${tier === 'premium' ? 'border-chm-red' : 'border-gray-200'}`}>
+            <input type="radio" name="membership-tier" className="mr-2" checked={tier === 'premium'} onChange={() => setTier('premium')} />
+            <span className="font-semibold text-chm-black">Premium Membership</span>
+            <span className="block text-xs text-gray-500 mt-1 ml-5">3% off all services. Priority scheduling.</span>
+          </label>
+        </div>
+
+        {tier === 'premium' && (
+          <div className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-3">
+              {(['monthly', 'annual'] as PremiumBilling[]).map(b => (
+                <label key={b} className={`border p-4 cursor-pointer text-sm ${billing === b ? 'border-chm-red' : 'border-gray-200'}`}>
+                  <input type="radio" name="premium-billing" className="mr-2" checked={billing === b} onChange={() => setBilling(b)} />
+                  <span className="font-semibold text-chm-black">${PREMIUM_PRICE[b]} {b === 'monthly' ? 'a month' : 'a year'}</span>
+                </label>
+              ))}
+            </div>
+            <PremiumCardFields cloverRef={cloverRef} />
+            <label className="flex items-start gap-3 cursor-pointer text-gray-700 text-xs leading-relaxed">
+              <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="mt-1" />
+              <span>
+                I agree that Convenience Hub of Maryland may charge ${PREMIUM_PRICE[billing]} to this card now and then every {billing === 'monthly' ? 'month' : 'year'} until I cancel in my member portal.
+              </span>
+            </label>
+          </div>
+        )}
+      </div>
+
       {status === 'error' && <p className="text-chm-red text-sm">{errMsg}</p>}
 
       <button type="submit" disabled={status === 'submitting'}
         className="bg-chm-red text-white px-10 py-3 font-semibold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-60">
-        {status === 'submitting' ? 'Submitting…' : 'Join for Free'}
+        {status === 'submitting' ? 'Submitting…' : tier === 'premium' ? `Join Premium · $${PREMIUM_PRICE[billing]} now` : 'Join Free Membership'}
       </button>
 
       <p className="text-xs text-gray-400 leading-relaxed">

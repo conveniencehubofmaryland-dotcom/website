@@ -3,18 +3,43 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsert } from '@/lib/db'
 import { sendSms, sendAdminSMS } from '@/lib/sms'
 import { newMemberCode } from '@/lib/member-referral'
+import crypto from 'crypto'
+import { todayInEastern } from '@/lib/shift-eligibility'
+import { sendAdminEmail, sendUserEmailHtml } from '@/lib/email'
+import { buildInvoiceHtml, createInvoice, invoiceSubject } from '@/lib/invoice'
+import { createCloverCustomer, chargeCloverCustomer } from '@/lib/recurring'
+import { PREMIUM_BILLING, PREMIUM_PRICE, type PremiumBilling } from '@/lib/membership-tiers'
+import { nextPremiumDate, premiumPeriodLabel } from '@/lib/member-billing'
 
 const VALID_STATES = ['MD', 'VA', 'DC']
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, phone, email, state, address, services, frequency, recurring } = body
+  const { name, phone, email, state, address, services, frequency, recurring, tier: tierChoice, billing, token, consent } = body
 
   if (!name?.trim() || !phone?.trim() || !email?.trim() || !state) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
   if (!VALID_STATES.includes(state)) {
     return NextResponse.json({ error: 'We only serve Maryland, Virginia, and Washington D.C.' }, { status: 400 })
+  }
+
+  // Premium: take the first payment before the member is saved.
+  let premium: { customerId: string; chargeId: string; billing: PremiumBilling; amount: number } | null = null
+  if (tierChoice === 'premium') {
+    const billingChoice = billing as PremiumBilling
+    if (typeof token !== 'string' || !token.startsWith('clv_') || !PREMIUM_BILLING.includes(billingChoice)) {
+      return NextResponse.json({ error: 'Invalid payment details. Please try again.' }, { status: 400 })
+    }
+    if (consent !== true) {
+      return NextResponse.json({ error: 'Please tick the box to agree to automatic billing.' }, { status: 400 })
+    }
+    const amount = PREMIUM_PRICE[billingChoice]
+    const customer = await createCloverCustomer({ email: email.trim(), name: name.trim(), token })
+    if (!customer.ok) return NextResponse.json({ error: customer.error }, { status: 502 })
+    const charge = await chargeCloverCustomer(customer.customerId, amount, `premium-join-${crypto.randomUUID()}`)
+    if (!charge.ok) return NextResponse.json({ error: `The payment was not completed. ${charge.error}` }, { status: 402 })
+    premium = { customerId: customer.customerId, chargeId: charge.chargeId, billing: billingChoice, amount }
   }
 
   const referralCode = newMemberCode()
@@ -30,11 +55,46 @@ export async function POST(req: NextRequest) {
     recurring:           !!recurring,
     active:              true,
     status:              'active',
+    tier:                premium ? 'premium' : 'free',
+    ...(premium ? {
+      premium_clover_customer_id: premium.customerId,
+      premium_billing:            premium.billing,
+      premium_next_charge_date:   nextPremiumDate(todayInEastern(), premium.billing),
+      premium_started_at:         new Date().toISOString(),
+    } : {}),
   })
+
+  if (error && premium) {
+    await sendAdminEmail(
+      `URGENT: Premium member not saved for ${name.trim()}`,
+      `The first Premium payment of $${premium.amount.toFixed(2)} was taken (reference ${premium.chargeId}), but the member could not be saved, so it will NOT renew automatically. Add the member by hand and contact them.`
+    ).catch(e => console.error('[membership] admin email error:', e))
+  }
 
   if (error) {
     console.error('[membership] insert failed:', error)
     return NextResponse.json({ error: 'Failed to save membership. Please call us at 202-579-2944.' }, { status: 500 })
+  }
+
+  if (premium) {
+    try {
+      const invoice = await createInvoice({
+        chargeId: premium.chargeId,
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        category: 'membership',
+        lineItems: [{ label: `CHM Premium membership (per ${premiumPeriodLabel(premium.billing)})`, amount: premium.amount }],
+        total: premium.amount,
+        amountPaid: premium.amount,
+        paymentKind: 'full',
+      })
+      await sendUserEmailHtml(email.trim(), invoiceSubject(invoice), buildInvoiceHtml(invoice)).catch(e =>
+        console.error('[membership] invoice email error:', e)
+      )
+    } catch (e) {
+      console.error('[membership] invoice error (charge', premium.chargeId, '):', e)
+    }
   }
 
   // WhatsApp notification to owner
