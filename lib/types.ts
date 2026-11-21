@@ -88,7 +88,9 @@ export type Member = {
   service_frequency: string | null
   recurring: boolean
   active: boolean
-  joined_at: string
+  status: 'pending' | 'active' | 'deactivated'
+  tier: 'free' | 'premium'
+  referral_code: string | null
   created_at: string
 }
 

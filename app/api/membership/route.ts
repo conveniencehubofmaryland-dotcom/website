@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     service_frequency:   frequency || null,
     recurring:           !!recurring,
     active:              true,
+    status:              'active',
   })
 
   if (error) {

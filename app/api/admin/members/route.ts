@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     service_frequency: service_frequency || null,
     recurring: !!recurring,
     active: true,
+    status: 'active',
   }, token)
   if (error) return NextResponse.json({ error }, { status: 500 })
   return NextResponse.json({ success: true })
@@ -41,11 +42,19 @@ export async function PATCH(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id, ...patch } = await req.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  if (patch.status !== undefined && !['pending', 'active', 'deactivated'].includes(patch.status)) {
+    return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+  }
+  // Keep the status and the on/off flag in step.
+  if (patch.status !== undefined) patch.active = patch.status === 'active'
+  else if (typeof patch.active === 'boolean') patch.status = patch.active ? 'active' : 'deactivated'
+
+  const before = (await dbSelectAuth<Member>('members', token, { 'id': `eq.${id}`, select: '*' }))[0]
   const { error } = await dbPatchAuth('members', id, patch, token)
   if (error) return NextResponse.json({ error }, { status: 500 })
 
-  // When activating a member, notify them
-  if (patch.active === true) {
+  // When a member is approved for the first time, notify them
+  if (patch.active === true && before && !before.active) {
     const rows = await dbSelectAuth<Member>('members', token, { 'id': `eq.${id}`, select: '*' })
     const m = rows[0]
     if (m) {

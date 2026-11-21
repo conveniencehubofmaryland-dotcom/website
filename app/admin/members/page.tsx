@@ -67,10 +67,10 @@ export default async function AdminMembersPage() {
                     {m.recurring && <span className="ml-1 text-chm-red">↻</span>}
                   </td>
                   <td className="py-3 px-4 whitespace-nowrap text-xs text-gray-400">
-                    {new Date(m.joined_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="py-3 px-4">
-                    <MemberActions id={m.id} active={m.active} />
+                    <MemberActions id={m.id} status={m.status} />
                   </td>
                 </tr>
               ))}

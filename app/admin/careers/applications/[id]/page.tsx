@@ -25,8 +25,8 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
   return (
     <div>
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/admin/careers/applications" className="text-xs text-gray-400 hover:text-chm-red transition-colors uppercase tracking-widest">
-          ← Applications
+        <Link href="/admin/careers/applications" className="inline-flex items-center border border-chm-black px-4 py-2 text-xs font-semibold uppercase tracking-widest text-chm-black hover:bg-chm-black hover:text-white transition-colors">
+          ← Back to all applicants
         </Link>
         <span className="text-gray-200">/</span>
         <h1 className="font-serif text-2xl text-chm-black">{app.name}</h1>
