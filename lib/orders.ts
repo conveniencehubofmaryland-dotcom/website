@@ -16,6 +16,7 @@ export type OrderRow = {
   ship_to: { line1: string; line2: string; city: string; state: string; zip: string } | null
   note: string | null
   clover_charge_id: string | null
+  tracking_number: string | null
   status: OrderStatus
 }
 

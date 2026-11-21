@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation'
 import { isAdminToken } from '@/lib/admin-auth'
 import { getOrder } from '@/lib/orders'
 import OrderStatusControl from '@/components/OrderStatusControl'
+import OrderShipControl from '@/components/OrderShipControl'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const money = (v: number) => `$${Number(v).toFixed(2)}`
@@ -29,6 +30,13 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
         <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Status</h2>
         <OrderStatusControl orderId={order.id} status={order.status} />
       </section>
+
+      {order.fulfillment === 'ship' && order.status !== 'cancelled' && (
+        <section className="mt-8">
+          <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Shipping</h2>
+          <OrderShipControl orderId={order.id} tracking={order.tracking_number} />
+        </section>
+      )}
 
       <section className="mt-8 grid sm:grid-cols-2 gap-6 text-sm">
         <div>
