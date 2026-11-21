@@ -2,7 +2,7 @@ import { brandEmail, CHM_REPLY_TO } from '@/lib/email-brand'
 import { NextRequest, NextResponse } from 'next/server'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { loadServicePrices } from '@/lib/service-prices'
-import { isActiveMember } from '@/lib/membership'
+import { sessionMemberDiscountPercent } from '@/lib/member-discount'
 import { checkReferralCode } from '@/lib/realtor'
 import { isMemberCode, checkMemberReferral, recordPaidReferral, type MemberReferralCheck } from '@/lib/member-referral'
 import { buildInvoiceHtml, createInvoice, invoiceSubject, type InvoiceRecord } from '@/lib/invoice'
@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
     if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
     realtor = true
   }
-  const member = realtor ? false : await isActiveMember(email)
+  const memberPercent = realtor ? 0 : await sessionMemberDiscountPercent()
   const prices = await loadServicePrices()
-  const quote = computeQuote(category, selections, { member, realtor, prices })
+  const quote = computeQuote(category, selections, { memberPercent, realtor, prices })
   if (quote.total === null || quote.total < 1) {
     return NextResponse.json(
       { error: 'This quote needs a personal review. Please call 202-579-2944 to pay.' },

@@ -354,11 +354,11 @@ export default async function HomePage() {
             <div className="bg-white border border-gray-200 p-8 md:p-10">
               <p className="text-chm-red text-xs font-semibold uppercase tracking-[0.3em] mb-3">Loyalty Program</p>
               <h2 className="font-serif text-3xl text-chm-black mb-4" style={{ fontFamily: 'var(--font-serif)' }}>
-                Premium Member Status
+                Premium Membership
               </h2>
-              <p className="text-gray-500 text-sm mb-6">Requirement: 12-month subscription or 12+ services/year</p>
+              <p className="text-gray-500 text-sm mb-6">$15 a month or $120 a year, charged automatically to your card</p>
               <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>2% off recurring services</span></div>
+                <div className="flex gap-3"><span className="text-chm-red">✓</span><span>3% off all services</span></div>
                 <div className="flex gap-3"><span className="text-chm-red">✓</span><span>Priority scheduling</span></div>
               </div>
             </div>

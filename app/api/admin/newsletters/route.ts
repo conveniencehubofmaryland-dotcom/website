@@ -1,8 +1,9 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { sbFetch } from '@/lib/shift-eligibility'
+import { emailMembersNewsletter } from '@/lib/member-newsletter'
 import { NextRequest, NextResponse } from 'next/server'
 
-const AUDIENCES = ['clients', 'staff']
+const AUDIENCES = ['clients', 'staff', 'members']
 
 // Admin: list all newsletters, create one, or delete one.
 export async function GET(req: NextRequest) {
@@ -32,7 +33,12 @@ export async function POST(req: NextRequest) {
   })
   if (!res.ok) return NextResponse.json({ error: 'Could not save the newsletter' }, { status: 500 })
   const [row] = await res.json()
-  return NextResponse.json(row)
+  // Members newsletters are emailed to every active member when published.
+  let emailed = 0
+  if (row?.audience === 'members' && row.published) {
+    emailed = await emailMembersNewsletter(row.title, row.body)
+  }
+  return NextResponse.json({ ...row, emailed })
 }
 
 export async function DELETE(req: NextRequest) {

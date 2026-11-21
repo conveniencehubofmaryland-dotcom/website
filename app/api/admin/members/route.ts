@@ -49,6 +49,12 @@ export async function PATCH(req: NextRequest) {
   if (patch.tier !== undefined && !['free', 'premium'].includes(patch.tier)) {
     return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
   }
+  // Moving a member to Free stops their Premium billing.
+  if (patch.tier === 'free') {
+    patch.premium_billing = null
+    patch.premium_next_charge_date = null
+    patch.premium_clover_customer_id = null
+  }
   if (patch.status !== undefined) patch.active = patch.status === 'active'
   else if (typeof patch.active === 'boolean') patch.status = patch.active ? 'active' : 'deactivated'
 

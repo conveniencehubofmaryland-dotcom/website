@@ -398,14 +398,10 @@ function computeBaseQuote(category: string, selections: Selections, prices: Pric
   return { total: null, breakdown: [] }
 }
 
-// Members get an extra 2% off recurring plans (added on top of the frequency discount).
-const MEMBER_RECURRING_DISCOUNT = 0.02
-const RECURRING_FREQUENCIES = ['weekly', 'twiceweekly', 'biweekly', 'monthly']
-
 export function computeQuote(
   category: string,
   selections: Selections,
-  opts?: { member?: boolean; realtor?: boolean; prices?: PriceOverrides }
+  opts?: { memberPercent?: number; realtor?: boolean; prices?: PriceOverrides }
 ): { total: number | null; breakdown: LineItem[] } {
   // Realtor referral code: 15% off all services. It replaces the first-time and member discounts (best one only).
   if (opts?.realtor) {
@@ -418,13 +414,12 @@ export function computeQuote(
     }
   }
   const result = computeBaseQuote(category, selections, opts?.prices)
-  const freq = (selections as Record<string, unknown>).frequency as string | undefined
-  if (!opts?.member || result.total === null || !freq || !RECURRING_FREQUENCIES.includes(freq)) {
-    return result
-  }
-  const memberAmt = Math.round(result.total * MEMBER_RECURRING_DISCOUNT * 100) / 100
+  // Member tier discount (Free 1.5%, Premium 3%) for a signed-in member, on all services.
+  const pct = opts?.memberPercent ?? 0
+  if (!pct || result.total === null) return result
+  const memberAmt = Math.round(result.total * (pct / 100) * 100) / 100
   return {
     total: Math.round((result.total - memberAmt) * 100) / 100,
-    breakdown: [...result.breakdown, { label: 'Member Discount (2% recurring)', amount: -memberAmt }],
+    breakdown: [...result.breakdown, { label: `Member Discount (${pct}% off)`, amount: -memberAmt }],
   }
 }

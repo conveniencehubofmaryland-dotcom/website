@@ -14,6 +14,8 @@ export type SessionMember = {
   recurring: boolean
   service_frequency: string | null
   created_at: string
+  premium_billing: string | null
+  premium_next_charge_date: string | null
 }
 
 // Returns the signed-in, active member for this browser, or null.
@@ -23,7 +25,7 @@ export async function getSessionMember(): Promise<SessionMember | null> {
   if (!/^[0-9a-f]{64}$/.test(token)) return null
   try {
     const res = await sbFetch(
-      `members?login_session_token=eq.${token}&select=id,name,email,phone,state,tier,status,recurring,service_frequency,created_at,login_session_expires_at`
+      `members?login_session_token=eq.${token}&select=id,name,email,phone,state,tier,status,recurring,service_frequency,created_at,premium_billing,premium_next_charge_date,login_session_expires_at`
     )
     if (!res.ok) return null
     const rows = (await res.json()) as (SessionMember & { login_session_expires_at: string | null })[]

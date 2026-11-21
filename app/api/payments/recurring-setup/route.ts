@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { computeQuote, type Selections } from '@/lib/quote-pricing'
 import { loadServicePrices } from '@/lib/service-prices'
-import { isActiveMember } from '@/lib/membership'
+import { sessionMemberDiscountPercent } from '@/lib/member-discount'
 import { sbFetch, todayInEastern } from '@/lib/shift-eligibility'
 import { sendAdminEmail, sendUserEmailHtml } from '@/lib/email'
 import { brandedEmailHtml } from '@/lib/email-brand'
@@ -62,13 +62,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const member = await isActiveMember(email)
+  const memberPercent = await sessionMemberDiscountPercent()
   const prices = await loadServicePrices()
 
   // First cycle: the quote as the client sees it (may include the first-time discount).
-  const firstQuote = computeQuote(category, selections, { member, realtor: false, prices })
+  const firstQuote = computeQuote(category, selections, { memberPercent, realtor: false, prices })
   // Later cycles: the same quote without the first-time discount.
-  const recurringQuote = computeQuote(category, { ...selections, firstTime: false }, { member, realtor: false, prices })
+  const recurringQuote = computeQuote(category, { ...selections, firstTime: false }, { memberPercent, realtor: false, prices })
   if (firstQuote.total === null || firstQuote.total < 1 || recurringQuote.total === null || recurringQuote.total < 1) {
     return NextResponse.json(
       { error: 'This quote needs a personal review. Please call 202-579-2944 to set up a plan.' },

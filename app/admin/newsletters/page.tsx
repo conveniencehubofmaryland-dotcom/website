@@ -4,18 +4,18 @@ import { useEffect, useState } from 'react'
 
 type Newsletter = {
   id: string
-  audience: 'clients' | 'staff'
+  audience: 'clients' | 'staff' | 'members'
   title: string
   body: string
   published: boolean
   created_at: string
 }
 
-const AUDIENCE_LABEL: Record<string, string> = { clients: 'Clients (public website)', staff: 'Staff (staff portal)' }
+const AUDIENCE_LABEL: Record<string, string> = { clients: 'Clients (public website)', staff: 'Staff (staff portal)', members: 'Members (emailed + member portal)' }
 
 export default function NewslettersAdminPage() {
   const [items, setItems] = useState<Newsletter[]>([])
-  const [audience, setAudience] = useState<'clients' | 'staff'>('clients')
+  const [audience, setAudience] = useState<'clients' | 'staff' | 'members'>('clients')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [published, setPublished] = useState(true)
@@ -49,7 +49,7 @@ export default function NewslettersAdminPage() {
       }
       setTitle('')
       setBody('')
-      setMessage('Newsletter saved.')
+      setMessage(data.emailed ? `Newsletter saved and emailed to ${data.emailed} active members.` : 'Newsletter saved.')
       load()
     } finally {
       setSaving(false)
@@ -73,9 +73,10 @@ export default function NewslettersAdminPage() {
       <form onSubmit={create} className="bg-white border border-gray-200 rounded-lg p-6 space-y-4 max-w-2xl">
         <div>
           <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Audience</label>
-          <select value={audience} onChange={e => setAudience(e.target.value as 'clients' | 'staff')} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+          <select value={audience} onChange={e => setAudience(e.target.value as 'clients' | 'staff' | 'members')} className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
             <option value="clients">Clients (public website)</option>
             <option value="staff">Staff (staff portal)</option>
+            <option value="members">Members (emailed to active members + member portal)</option>
           </select>
         </div>
         <div>

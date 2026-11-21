@@ -30,3 +30,8 @@ export const TIERS: Record<MemberTier, { name: string; discountPercent: number; 
 export function tierOf(value: string | null | undefined): MemberTier {
   return value === 'premium' ? 'premium' : 'free'
 }
+
+// Premium is paid by card: $15 each month, or $120 each year.
+export type PremiumBilling = 'monthly' | 'annual'
+export const PREMIUM_PRICE: Record<PremiumBilling, number> = { monthly: 15, annual: 120 }
+export const PREMIUM_BILLING: PremiumBilling[] = ['monthly', 'annual']

@@ -3,6 +3,8 @@ import { sbFetch, todayInEastern } from '@/lib/shift-eligibility'
 import { sendAdminEmail, sendUserEmailHtml } from '@/lib/email'
 import { buildInvoiceHtml, createInvoice, invoiceSubject } from '@/lib/invoice'
 import { chargeCloverCustomer, isRecurringFrequency, manageUrl, nextChargeDate } from '@/lib/recurring'
+import { PREMIUM_PRICE } from '@/lib/membership-tiers'
+import { nextPremiumDate, premiumPeriodLabel } from '@/lib/member-billing'
 
 // Charges every active recurring plan that is due today or earlier (Eastern time).
 // Called once a day by an outside scheduler with the header x-cron-secret.
@@ -125,5 +127,83 @@ async function runCharges(request: NextRequest) {
     }
   }
 
+  await renewPremiumMembers(today, results)
+
   return NextResponse.json({ checked: plans.length, results })
+}
+
+// Renews Premium memberships that are due: $15 a month or $120 a year, charged to the card on file.
+// After 3 failed charges in a row, the member goes back to Free and admin is told.
+async function renewPremiumMembers(today: string, results: { id: string; status: 'charged' | 'failed' | 'paused'; detail?: string }[]) {
+  const res = await sbFetch(
+    `members?tier=eq.premium&status=eq.active&premium_next_charge_date=lte.${today}&premium_clover_customer_id=not.is.null&select=id,name,email,phone,premium_clover_customer_id,premium_billing,premium_next_charge_date,premium_failed_attempts&limit=${MAX_PER_RUN}`
+  )
+  if (!res.ok) return
+  const rows = (await res.json()) as {
+    id: string
+    name: string | null
+    email: string
+    phone: string | null
+    premium_clover_customer_id: string
+    premium_billing: string | null
+    premium_next_charge_date: string
+    premium_failed_attempts: number | null
+  }[]
+
+  for (const m of rows) {
+    const billing = m.premium_billing === 'annual' ? 'annual' : 'monthly'
+    const price = PREMIUM_PRICE[billing]
+    const due = m.premium_next_charge_date
+    const charge = await chargeCloverCustomer(m.premium_clover_customer_id, price, `premium-${m.id}-${due}`)
+
+    if (charge.ok) {
+      try {
+        const invoice = await createInvoice({
+          chargeId: charge.chargeId,
+          name: m.name || '',
+          email: m.email,
+          phone: m.phone || '',
+          category: 'membership',
+          lineItems: [{ label: `CHM Premium membership (per ${premiumPeriodLabel(billing)})`, amount: price }],
+          total: price,
+          amountPaid: price,
+          paymentKind: 'full',
+        })
+        await sendUserEmailHtml(m.email, invoiceSubject(invoice), buildInvoiceHtml(invoice)).catch(e =>
+          console.error('[premium-cron] invoice email error:', e)
+        )
+      } catch (e) {
+        console.error('[premium-cron] invoice error (charge', charge.chargeId, '):', e)
+      }
+      const next = nextPremiumDate(due, billing)
+      await sbFetch(`members?id=eq.${m.id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ premium_next_charge_date: next, premium_failed_attempts: 0, premium_last_error: null }),
+      })
+      results.push({ id: `member:${m.id}`, status: 'charged', detail: `next ${next}` })
+      continue
+    }
+
+    const failures = (Number(m.premium_failed_attempts) || 0) + 1
+    const drop = failures >= MAX_FAILURES
+    await sbFetch(`members?id=eq.${m.id}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({
+        premium_failed_attempts: failures,
+        premium_last_error: charge.error.slice(0, 300),
+        ...(drop ? { tier: 'free', premium_billing: null, premium_next_charge_date: null } : {}),
+      }),
+    })
+    if (drop) {
+      await sendAdminEmail(
+        `Premium ended after failed payments: ${m.name || m.email}`,
+        `The Premium ${billing} charge of $${price.toFixed(2)} failed ${failures} times in a row, so ${m.email} has gone back to Free. Last error: ${charge.error}. Contact the member if they want to rejoin Premium.`
+      ).catch(e => console.error('[premium-cron] admin email error:', e))
+      results.push({ id: `member:${m.id}`, status: 'paused', detail: charge.error })
+    } else {
+      results.push({ id: `member:${m.id}`, status: 'failed', detail: charge.error })
+    }
+  }
 }

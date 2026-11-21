@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Free Membership — Priority Booking & Exclusive Deals | Convenience Hub of Maryland',
   description:
-    'Join the Convenience Hub of Maryland membership for free. Get priority booking, exclusive weekly deals, and 2% off recurring services in MD, VA & DC.',
+    'Join the Convenience Hub of Maryland membership for free. Get priority booking, exclusive weekly deals, and 1.5% to 3% off all services in MD, VA & DC.',
   keywords: [
     'home services membership Maryland', 'cleaning service membership DMV',
     'laundry service membership Maryland', 'home services discount DMV',

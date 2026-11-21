@@ -4,8 +4,10 @@ import { getSessionMember } from '@/lib/member-session'
 import { sbFetch } from '@/lib/shift-eligibility'
 import { TIERS, tierOf } from '@/lib/membership-tiers'
 import MemberLogoutButton from '@/components/MemberLogoutButton'
+import MemberPremiumPanel from '@/components/MemberPremiumPanel'
 
 type Booking = { appointment_date: string; time_slot: string | null; status: string; quoted_total: number | null }
+type MemberNews = { id: string; title: string; body: string; created_at: string }
 
 export default async function MemberPortalPage() {
   const member = await getSessionMember()
@@ -13,6 +15,14 @@ export default async function MemberPortalPage() {
 
   const tier = tierOf(member.tier)
   const info = TIERS[tier]
+
+  let newsletters: MemberNews[] = []
+  try {
+    const res = await sbFetch('newsletters?audience=eq.members&published=eq.true&select=id,title,body,created_at&order=created_at.desc&limit=20')
+    if (res.ok) newsletters = (await res.json()) as MemberNews[]
+  } catch {
+    newsletters = []
+  }
 
   let bookings: Booking[] = []
   try {
@@ -42,6 +52,16 @@ export default async function MemberPortalPage() {
         <ul className="mt-4 space-y-2 text-sm text-gray-700 list-disc pl-5">
           {info.benefits.map(b => <li key={b}>{b}</li>)}
         </ul>
+      </section>
+
+      <section className="mt-8 border border-gray-200 p-6">
+        <p className="text-xs uppercase tracking-widest text-gray-500">{tier === 'premium' ? 'Premium billing' : 'Upgrade to Premium'}</p>
+        <p className="text-sm text-gray-600 mt-2 mb-4">Premium gives 3% off all services. Premium is $15 a month or $120 a year, charged automatically to your card.</p>
+        <MemberPremiumPanel
+          tier={tier === 'premium' ? 'premium' : 'free'}
+          billing={member.premium_billing === 'annual' ? 'annual' : member.premium_billing === 'monthly' ? 'monthly' : null}
+          nextChargeDate={member.premium_next_charge_date}
+        />
       </section>
 
       <section className="mt-8">
@@ -74,6 +94,23 @@ export default async function MemberPortalPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold">Members newsletter</h2>
+        {newsletters.length === 0 ? (
+          <p className="text-sm text-gray-400 mt-4">No newsletters yet.</p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {newsletters.map(n => (
+              <article key={n.id} className="border border-gray-200 p-5">
+                <p className="text-xs text-gray-400">{new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                <h3 className="font-serif text-xl text-chm-black mt-1">{n.title}</h3>
+                <p className="text-sm text-gray-700 mt-3 whitespace-pre-wrap leading-relaxed">{n.body}</p>
+              </article>
+            ))}
           </div>
         )}
       </section>

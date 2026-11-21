@@ -15,14 +15,14 @@ export const metadata: Metadata = {
 const PERKS = [
   { icon: '★', title: 'Priority Booking',    desc: 'First access to available time slots before the general public.' },
   { icon: '◆', title: 'Exclusive Deals',     desc: 'Member-only weekly deals and promotions on all services.' },
-  { icon: '↻', title: 'Recurring Discounts', desc: '2% off all recurring services for active members.' },
+  { icon: '↻', title: 'Member Discounts', desc: '1.5% off all services on Free, or 3% off all services on Premium.' },
   { icon: '✓', title: 'Free Signup',         desc: 'No cost to join — membership is completely free.' },
 ]
 
 // Fallbacks used only if the admin-managed tables are empty or unreachable.
 const FALLBACK_PLANS: MembershipPlan[] = [
-  { id: 'fallback-standard', tier: 'standard', name: 'Free Member', price_label: '$0', subtitle: '/ forever', features: ['Priority booking access', 'Member-only weekly deals', '2% off all recurring services', 'No fees, cancel anytime'], sort_order: 1, active: true, created_at: '' },
-  { id: 'fallback-premium', tier: 'premium', name: 'Premium Status', price_label: 'Unlocked with', subtitle: '12-month subscription or 12+ services/year', features: ['Priority scheduling', '2% off recurring services'], sort_order: 2, active: true, created_at: '' },
+  { id: 'fallback-standard', tier: 'standard', name: 'Free Membership', price_label: '$0', subtitle: '/ forever', features: ['Priority booking access', 'Member-only deals', '1.5% off all services', 'No fees, cancel anytime'], sort_order: 1, active: true, created_at: '' },
+  { id: 'fallback-premium', tier: 'premium', name: 'Premium Membership', price_label: '$15 / month', subtitle: 'or $120 a year, charged automatically', features: ['All Free benefits', 'Priority scheduling', '3% off all services'], sort_order: 2, active: true, created_at: '' },
 ]
 
 const FALLBACK_BUNDLES: BundleRow[] = BUNDLES.map((b, i) => ({

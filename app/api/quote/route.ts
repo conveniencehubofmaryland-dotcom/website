@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { dbInsertService } from '@/lib/db'
 import { computeQuote, type LineItem } from '@/lib/quote-pricing'
 import { loadServicePrices } from '@/lib/service-prices'
-import { isActiveMember } from '@/lib/membership'
+import { sessionMemberDiscountPercent } from '@/lib/member-discount'
 import { checkReferralCode } from '@/lib/realtor'
 import { isMemberCode, checkMemberReferral } from '@/lib/member-referral'
 
@@ -33,9 +33,9 @@ export async function POST(req: NextRequest) {
       if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
       realtor = true
     }
-    const member = realtor ? false : await isActiveMember(email)
+    const memberPercent = realtor ? 0 : await sessionMemberDiscountPercent()
     const prices = await loadServicePrices()
-    const quote = computeQuote(category, selections || {}, { member, realtor, prices })
+    const quote = computeQuote(category, selections || {}, { memberPercent, realtor, prices })
     let total: number | null = quote.total
     const breakdown: LineItem[] = quote.breakdown
 
